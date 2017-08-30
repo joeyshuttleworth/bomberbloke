@@ -73,7 +73,7 @@ void bloke :: update(){
 
 void bloke :: place_bomb(){
   if(bombs<max_bombs){
-    bomb *new_bomb = new bomb(current_level, position[0]+(dim[0]-BOMB_SIZE)*0.5, position[1] + 0.5*(dim[1]-BOMB_SIZE));
+    bomb *new_bomb = new bomb(current_level, round(position[0])+0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), round(position[1]) + 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE));
     new_bomb->init(this);
     bombs++;
   }

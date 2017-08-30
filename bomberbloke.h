@@ -10,7 +10,7 @@
 #define DECCELERATION_RATIO 0.1
 #define DEFAULT_MAX_SPEED 5
 #define DEFAULT_BOMB_TIMER 5*TICK_RATE
-#define BOMB_SIZE 0.25
+#define BOMB_SIZE 1
 extern double _zoom;
 extern double _bloke_size[2];
 extern unsigned int  _default_bomb_timer;
