@@ -71,7 +71,7 @@ bool handle_collision(actor *a, actor *b){
       i = 1;
     if (a->velocity[i]<0)
       x_iter=-1;
-    a_tmp_pos[i] = a_tmp_pos[i]-x_iter * (0.0000000001 + (a->dim[i] + b->dim[i]) * 0.5 - std::abs(a_tmp_pos[i] - b_midpoint[i]));
+    a_tmp_pos[i] = a_tmp_pos[i]-x_iter * (0.0000000000001 + (a->dim[i] + b->dim[i]) * 0.5 - std::abs(a_tmp_pos[i] - b_midpoint[i]));
       a->velocity[i] = 0;
       a->move(a_tmp_pos[0]-a->dim[0]/2, a_tmp_pos[1]-a->dim[1]/2);
   }
@@ -111,7 +111,8 @@ void draw_hud(){
 void draw_screen(level *current_level){
   current_level->draw();
   for(auto i = current_level->actor_list.begin(); i != current_level->actor_list.end(); i++){
-    (*i)->draw();
+    if(*i)
+      (*i)->draw();
   }
   draw_hud();
   SDL_UpdateWindowSurface(_window);
@@ -130,10 +131,10 @@ void log_message(int level, std::string string){
 void game_loop(level *level){
   unsigned int current, last, delay, tick;
   SDL_Event event;
-  
   current=SDL_GetTicks();
   last=current;
   while(!_exit){
+    std::list<actor*>::iterator i = level->actor_list.begin();
     if(tick % NET_RATE == 0){
       flush_net_messages();
       handle_net_messages();
@@ -148,9 +149,12 @@ void game_loop(level *level){
       log_message(INFO, "%d Milliseconds of lag \n"); 
     tick++;
     handle_input(level);
-    for(auto i = level->actor_list.begin(); i != level->actor_list.end(); i++){
-      (*i)->update();
+    while(i!=level->actor_list.end()){
+      auto prev=i;
+      i++;
+      (*prev)->update();
     }
+    level->actor_list.remove_if([](actor *a){return a->remove;});
   }
 }
 
