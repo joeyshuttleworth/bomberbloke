@@ -1,6 +1,8 @@
+class player;
 class actor{
  protected:
  public:
+  Uint32 id;
   bool remove = false; 
   actor(level*, double, double);
   actor();
@@ -16,6 +18,7 @@ class actor{
   int init(level*, double, double);
   int direction();
   double *get_midpoint();
+  player *controller = NULL;
   virtual ~actor();
   virtual void handle_command(std::string);
   virtual void update();

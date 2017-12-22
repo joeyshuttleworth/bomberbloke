@@ -5,12 +5,13 @@ class player{
   ~player();
   player(std::string);
   player();
-  int id;
+  Uint32 id;
   std::string nickname;
   int   *get_input();
   int   type;
   virtual int get_ping();
   actor *character;
+  void init(actor*);
 };
 
 class network_p : public player{

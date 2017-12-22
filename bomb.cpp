@@ -53,7 +53,7 @@ void bomb::explode(){
     if((*prev)!=this){
       bool dead=false;
       for(int i = 0; i<2; i++){
-	if((round(position[!i])==round(placed_by->position[!i])) && (std::abs(round(position[i])-round(placed_by->position[i])) <= power)){
+	if((round(position[!i])==round((*prev)->position[!i])) && (std::abs(round(position[i])-round((*prev)->position[i])) <= power)){
 	  dead=true;
 	  break;
 	}

@@ -31,7 +31,6 @@ enum direction{
   DIR_DOWN
 };
 
-
 enum block_types{
   EMPTY,
   WOOD,

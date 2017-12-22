@@ -18,9 +18,6 @@
 #define DEFAULT_ACTOR_SIZE 1
 #define DEFAULT_WINDOW_WIDTH  700
 #define DEFAULT_WINDOW_HEIGHT 700
-#define DEFAULT_SCREEN_OFFSET_TOP     100
-#define DEFAULT_SCREEN_OFFSET_LEFT     100
-
 class level;
 class actor;
 class local_p;
@@ -28,7 +25,7 @@ class local_p;
 void game_loop(level *current_level);
 void log_message(int, std::string);
 void handle_system_command(std::string);
-void init_engine();
+void init_engine(level*);
 
 extern SDL_Window  *_window;
 extern SDL_Surface *_surface;

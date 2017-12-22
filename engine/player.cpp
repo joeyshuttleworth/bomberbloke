@@ -1,7 +1,15 @@
 #include "engine.h"
 #include "player.h"
+#include "actor.h"
+
+void player::init(actor *actor){
+  character = actor;
+  actor->controller = this;
+  return;
+}
 
 player::player(){
+  id=0;
   return;
 }
 

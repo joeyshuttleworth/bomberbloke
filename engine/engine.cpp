@@ -1,21 +1,32 @@
 #include "engine.h"
-#include "net.h"
 #include "level.h"
 #include "actor.h"
 #include "player.h"
+
+extern "C" {
+#include "net.h"
+}
 
 double _zoom = DEFAULT_ZOOM;
 SDL_Window  *_window;
 SDL_Surface *_surface;
 bool         _exit= false;
-double _screen_offset[2] = {DEFAULT_SCREEN_OFFSET_TOP, DEFAULT_SCREEN_OFFSET_LEFT};
 std::list<local_p> _local_player_list;
 
 Uint8 *_kb_state = NULL;
 
-void init_engine(){
+void init_engine(level *level){
+  int *size = (int*)malloc(2*sizeof(int));
+  _window = SDL_CreateWindow("Bomberbloke", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
+  _surface=SDL_GetWindowSurface(_window);
+  SDL_GetWindowSize(_window, size, size+sizeof(int));
+  _zoom=size[0]/level->dim[0];
   _kb_state = (Uint8*)malloc(sizeof(Uint8) * SDL_SCANCODE_APP2); //max scancode
   memset((void*)_kb_state, 0, sizeof(Uint8) * SDL_SCANCODE_APP2);
+  level->init();
+  SDL_FillRect(_surface, NULL, SDL_MapRGB(_surface->format, 0x00, 0x00, 0xFF));
+  SDL_UpdateWindowSurface(_window);
+  net_init();
   return;
 }
 
@@ -130,14 +141,13 @@ void log_message(int level, std::string string){
 
 void game_loop(level *level){
   unsigned int current, last, delay, tick;
-  SDL_Event event;
   current=SDL_GetTicks();
   last=current;
   while(!_exit){
     std::list<actor*>::iterator i = level->actor_list.begin();
     if(tick % NET_RATE == 0){
-      flush_net_messages();
-      handle_net_messages();
+      net_flush_messages();
+      net_handle_messages();
     }
     handle_movement(level);
     draw_screen(level);

@@ -1,19 +1,28 @@
 #include "engine.h"
 #include "actor.h"
 #include "level.h"
+#include "player.h"
+
+extern "C" {
+#include "net.h"
+}
 
 void actor :: draw(){
   SDL_Rect rect;
   rect.w=ceil(dim[0] * _zoom);
   rect.h=ceil(dim[1] * _zoom);
-  rect.x=_screen_offset[0] + round(position[0] * _zoom);
-  rect.y=_screen_offset[1] + round((current_level->dim[1]-position[1]-dim[1]) * _zoom);
+  rect.x=round(position[0] * _zoom);
+  rect.y=round((current_level->dim[1]-position[1]-dim[1]) * _zoom);
   SDL_BlitSurface(sprite, NULL, _surface, &rect);  
 }
 
 int actor :: move(double x, double y){
   double tmp_pos[2];
   bool in_level = true;
+  bool moved = true;
+  
+  if(std::abs(x-position[0])+std::abs(y-position[1])<0.00001)
+    moved = false;
   if(x > current_level->dim[0] - dim[0]){
     tmp_pos[0] = current_level->dim[0] - dim[0];
     velocity[0] = 0;
@@ -40,15 +49,21 @@ int actor :: move(double x, double y){
   else{
     tmp_pos[1] = y;
   }
-  if(current_level->is_block_empty(this, round(tmp_pos[0]), round(tmp_pos[1]))){
-    memcpy(position, tmp_pos, sizeof(double) * 2);
+  if(_net_on&&moved&&controller){
+    net_message msg;
+    msg.data = (char*)malloc(sizeof(Uint32)+4*sizeof(double));
+    msg.operation = NET_MOVE;
+    memcpy(msg.data, &(controller->id), sizeof(Uint32));
+    memcpy(msg.data + sizeof(Uint32), position, sizeof(double)*2);
+    memcpy(msg.data + sizeof(Uint32)+2*sizeof(double), velocity, 2*sizeof (double)); 
+    net_add_message(&msg);
   }
-  else if(in_level){
+  memcpy(position, tmp_pos, sizeof(double) * 2);
+  if(in_level){
     return -1;
   }
   else
-    return -2;
-  return 0;
+    return 0;
 }
 
 bool actor :: is_moving(){
@@ -62,18 +77,19 @@ actor :: actor(level *level, double x, double y){
   dim[0] = DEFAULT_ACTOR_SIZE;
   dim[1] = DEFAULT_ACTOR_SIZE;
   current_level=level;
+  if(current_level->actor_list.size() > 0){
+    id = current_level->actor_list.back()->id + 1;
+  }
+  else{
+    id = 0;
+  }
   current_level->actor_list.push_back(this);
   position[0] = x;
   position[1] = y;
-  /*if(!current_level->is_block_empty(this, round(x), round(y))){
-    log_message(ERROR, "Invalid initial position");
-  }
-  else{
-    move(x, y);
-    }*/
   velocity[0] = 0;
   velocity[1] = 0;
   sprite = SDL_CreateRGBSurface(0,_zoom * dim[0],dim[1] * _zoom ,32, 0, 0, 0, 0);
+  return;
 }
 
 double *actor :: get_midpoint(){
@@ -98,7 +114,6 @@ actor::actor(){
 }
 
 actor::~actor(){
-  current_level->actor_list.remove(this);
   return;
 }
 

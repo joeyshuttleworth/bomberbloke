@@ -86,6 +86,6 @@ void bloke :: kick(bomb *bomb, uint8_t direction){
 
 void bloke :: init(){
   collides = true;
-  sprite = SDL_CreateRGBSurface(0,_zoom * dim[0],dim[1] * _zoom ,32, 0, 0, 0, 0);
+  sprite = SDL_CreateRGBSurface(0, _zoom * dim[0],dim[1] * _zoom ,32, 0, 0, 0, 0);
   return;
 }
