@@ -1,4 +1,3 @@
-#include <cstdlib>
 #include <cmath>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_net.h>
@@ -23,14 +22,15 @@ class actor;
 class local_p;
 
 void game_loop(level *current_level);
-void log_message(int, std::string);
+void log_message(int, char*);
 void handle_system_command(std::string);
 void init_engine(level*);
 
 extern SDL_Window  *_window;
 extern SDL_Surface *_surface;
 extern double _screen_offset[2];
-extern bool _exit;
+extern bool _halt;
+extern bool _draw;
 extern double _zoom;
 
 typedef struct{

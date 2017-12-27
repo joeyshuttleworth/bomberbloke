@@ -3,6 +3,9 @@
 #include "engine/controls.h"
 #include "engine/actor.h"
 #include "engine/player.h"
+extern "C"{
+#include "engine/net.h"
+}
 #include <SDL2/SDL.h>
 
 #define DEFAULT_BLOKE_SIZE 1

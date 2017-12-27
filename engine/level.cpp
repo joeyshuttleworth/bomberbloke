@@ -49,7 +49,7 @@ void level :: init(){
     free(sprite);
   sprite = SDL_CreateRGBSurface(0, int(dim[0] * _zoom), int(dim[1] * _zoom), 32, 0, 0, 0, 0);
   if(!sprite){
-    log_message(ERROR, SDL_GetError());
+    //log_message(ERROR, (char*)SDL_GetError());
   }
   return;
 }

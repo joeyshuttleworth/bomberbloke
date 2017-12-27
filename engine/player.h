@@ -1,11 +1,14 @@
 #include <list>
+#include <sys/socket.h>
+#include <unistd.h>
+#include <string>
 
 class player{
- public:
+public:
   ~player();
   player(std::string);
   player();
-  Uint32 id;
+  uint32_t id;
   std::string nickname;
   int   *get_input();
   int   type;
@@ -15,9 +18,11 @@ class player{
 };
 
 class network_p : public player{
-  network_p(std::string);
+ public:
   ~network_p();
-  IPaddress address;
+  network_p();
+  network_p(std::string, sockaddr *addr);
+  struct sockaddr address;
   void      *input_buffer;
   int       input_buffer_size;
   int       get_ping();

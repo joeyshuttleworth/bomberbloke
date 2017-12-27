@@ -35,3 +35,19 @@ int player :: get_ping(){
 int local_p :: get_ping(){
   return 0;
 }
+
+int network_p :: get_ping(){
+  return 0;
+}
+
+network_p::network_p(std::string nickname, sockaddr *addr){
+  return;
+}
+
+network_p::~network_p(){
+  return;
+}
+
+network_p::network_p(){
+  return;
+}

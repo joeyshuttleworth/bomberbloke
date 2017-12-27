@@ -3,7 +3,7 @@
 
 int    _default_bomb_time = DEFAULT_BOMB_TIMER;
 double _bloke_size[2]     = {DEFAULT_BLOKE_SIZE, DEFAULT_BLOKE_SIZE};
-
+bool _draw = true;
 const std::vector<command_binding> _default_bindings =
   {{SDL_SCANCODE_W, "up"},
    {SDL_SCANCODE_S, "down"},
@@ -15,6 +15,7 @@ const std::vector<command_binding> _default_bindings =
 
 int main (int argc, char **argv){
   command_binding tmp_binding;
+  log_message(INFO, "Bomberbloke client starting...");
   SDL_Init(SDL_INIT_EVERYTHING);
   level *level1 = new level(10, 10);
   init_engine(level1);
