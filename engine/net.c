@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 #include "net.h"
 #include "err.h"
 
@@ -104,15 +105,17 @@ void *receive_loop(void *a){
     if(count>512){
       count = 512;
     }
-    server_handle_datagram(buf, &client_addr, count);
+    handle_datagram(buf, &client_addr, count); 
   }
-  return 0;
+    return 0;
 }
-
-int net_join_server(char *address, int port){
+    
+void net_join_server(const char *address, int port, const char *nickname){
   char *buf;
-  buf = malloc(sizeof(char));
+  int count = strlen(nickname) + 1;
+  buf = malloc(count*sizeof(char));
   buf[0] = NET_JOIN;
+  strcpy(buf+sizeof(char), nickname);
   struct addrinfo hints, *res;
   memset(&hints, 0, sizeof(hints));
   hints.ai_socktype = SOCK_DGRAM;
@@ -124,8 +127,9 @@ int net_join_server(char *address, int port){
   if((server_socket=socket(res->ai_family, res->ai_socktype, res->ai_protocol)) == -1){
     /*Error*/
   }
-  sendto(server_socket, buf, sizeof(buf), 0, res->ai_addr, res->ai_addrlen);
+  sendto(server_socket, buf, count, 0, res->ai_addr, res->ai_addrlen);
   freeaddrinfo(res);
-  return 0;
-}
-
+  return;
+  }
+ 
+ 

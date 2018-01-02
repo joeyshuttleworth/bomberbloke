@@ -21,17 +21,20 @@ class level;
 class actor;
 class local_p;
 
-void game_loop(level *current_level);
+void client_loop(level *current_level);
 void log_message(int, char*);
-void handle_system_command(std::string);
+void handle_system_command(std::list<std::string>);
 void init_engine(level*);
+void *console_loop(void *);
+std::list<std::string> split_to_tokens(std::string);
 
 extern SDL_Window  *_window;
 extern SDL_Surface *_surface;
 extern double _screen_offset[2];
-extern bool _halt;
 extern bool _draw;
+extern bool _server;
 extern double _zoom;
+extern unsigned int _state;
 
 typedef struct{
   SDL_Scancode scancode;
@@ -39,6 +42,7 @@ typedef struct{
 } command_binding;
 
 enum LOG_LEVELS{
+  DEBUG,
   INFO,
   WARNING,
   ERROR,
@@ -50,7 +54,13 @@ enum player_types{
   NETWORK
 };
 
+enum states{
+  PAUSED,
+  STOPPED,
+  EXIT,
+  PLAYING
+};
+
 extern const std::vector<command_binding> _default_bindings;
 extern std::list<local_p> _local_player_list;
-
 const std::array<std::string, 2> _system_commands  = {"bind", "set"};

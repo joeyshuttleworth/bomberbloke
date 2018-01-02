@@ -46,8 +46,9 @@ void handle_input(level *level){
     bool no_command = true;
     for(auto j = i->control_scheme.begin(); j!=i->control_scheme.end(); j++){
       if(kb_state[j->scancode]){
-	if(std::find(_system_commands.begin(), _system_commands.end(), j->command)!=_system_commands.end()) 
-	  handle_system_command(j->command);
+	if(std::find(_system_commands.begin(), _system_commands.end(), j->command)!=_system_commands.end()){
+	  handle_system_command(split_to_tokens(j->command));
+	}
 	else
 	  i->character->handle_command(j->command);
       }
@@ -139,7 +140,7 @@ void log_message(int level, char *string){
   return;
 }
 
-void game_loop(level *level){
+void client_loop(level *level){
   unsigned int current, last, delay, tick;
   current=SDL_GetTicks();
   last=current;
@@ -192,6 +193,77 @@ void load_config(std::string fname){
   }
 }
 
-void handle_system_command(std::string str){
+void handle_system_command(std::list<std::string> tokens){
+  std::string command = tokens.front();
+  std::cout << command << "\n";
+  if(command == "connect" && !_server){
+    net_join_server(std::next(tokens.begin())->c_str(), DEFAULT_PORT, "big_beef");
+  }
+  else if(_server && command == "pause"){
+    _state = PAUSED;
+  }
+  else if(_server && command == "unpause"){
+    if(_state == PAUSED)
+      _state = PLAYING;
+  }
+  else if(_server && command == "start"){
+    if(_state == STOPPED)
+      _state = PLAYING;
+  }
+  else if(_server && command == "stop"){
+    if(_state == PLAYING)
+      _state = STOPPED;
+  }
+  else if(command == "say"){
+
+  }
+  else{
+    std::cout << "Command not recognised\n";
+  }
   return;
+}
+
+std::list<std::string> split_to_tokens(std::string str){
+  unsigned int last_index = 0;
+  unsigned int count = 0;
+  bool space = false;
+  std::list<std::string> tokens;
+
+  for(unsigned int i = 0; i < str.length(); i++){
+    char ch = str[i];
+    if(space){
+      if(!std::isspace(ch)){
+	last_index=i;
+	count=1;
+	space=false;
+      }
+    }
+    else{
+      if(std::isspace(ch)){
+	if(count!=last_index){
+	  tokens.push_back(str.substr(last_index, count));
+	  space = true;
+	}
+      }
+      else
+	count++;
+    }
+  }
+  if(last_index != str.length() - 1)
+    tokens.push_back(str.substr(last_index));
+  return tokens;
+}
+
+void *console_loop(void *arg){
+  std::cout << "Bomberbloke console\n";
+  while(!_halt){
+    std::string line;
+    std::list<std::string> tokens;
+
+    std::cout << ">";
+    std::getline(std::cin, line);
+    tokens = split_to_tokens(line);
+    handle_system_command(tokens);
+  }
+  return NULL;
 }

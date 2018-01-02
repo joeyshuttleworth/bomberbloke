@@ -12,8 +12,11 @@
 
 enum opcode{
   NET_SYN,
+  NET_PAUSE,
+  NET_UNPAUSE,
   NET_ACK,
   NET_SYN_ACK,
+  NET_ERROR,
   NET_CREATE,
   NET_DESTROY,
   NET_MOVE,
@@ -52,4 +55,5 @@ void net_messages_init();
 void net_init();
 void *receive_loop(void*);
 net_message *net_get_message();
-void server_handle_datagram(char*, struct sockaddr*, int);
+void handle_datagram(char*, struct sockaddr*, int);
+void net_join_server(const char*, int, const char*);

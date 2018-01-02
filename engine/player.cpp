@@ -40,7 +40,9 @@ int network_p :: get_ping(){
   return 0;
 }
 
-network_p::network_p(std::string nickname, sockaddr *addr){
+network_p::network_p(std::string str, struct sockaddr *addr){
+  memcpy(&address, addr, sizeof(struct sockaddr));
+  nickname = str;
   return;
 }
 
