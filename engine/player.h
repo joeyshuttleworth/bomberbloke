@@ -21,8 +21,8 @@ class network_p : public player{
  public:
   ~network_p();
   network_p();
-  network_p(std::string, sockaddr *addr);
-  struct sockaddr address;
+  network_p(std::string, sockaddr_storage *addr);
+  struct sockaddr_storage *address;
   void      *input_buffer;
   int       input_buffer_size;
   int       get_ping();

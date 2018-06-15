@@ -1,15 +1,17 @@
 #include "engine.h"
 #include "level.h"
 #include "actor.h"
-#include "player.h"
 extern "C"{
   #include "net.h"
 }
+#include "player.h"
+
 
 double _zoom = DEFAULT_ZOOM;
 SDL_Window  *_window;
 SDL_Surface *_surface;
 bool         _halt= false;
+unsigned int _state;
 std::list<local_p> _local_player_list;
 
 Uint8 *_kb_state = NULL;
@@ -27,12 +29,14 @@ void init_engine(level *level){
   _kb_state = (Uint8*)malloc(sizeof(Uint8) * SDL_SCANCODE_APP2); //max scancode
   memset((void*)_kb_state, 0, sizeof(Uint8) * SDL_SCANCODE_APP2);
   level->init();
+  net_messages_init();
+  memset(&_server_address, 0, sizeof(_server_address));
   return;
 }
 
 void handle_input(level *level){
   SDL_Event event;
-  bool key_up = true;
+  //  bool key_up = true;
   Uint8 *kb_state = NULL;
   while(SDL_PollEvent(&event)){
     switch(event.type){
@@ -144,28 +148,38 @@ void client_loop(level *level){
   unsigned int current, last, delay, tick;
   current=SDL_GetTicks();
   last=current;
+
   while(!_halt){
-    std::list<actor*>::iterator i = level->actor_list.begin();
-    if(tick % NET_RATE == 0){
-      net_flush_messages();
+    switch(_state){
+    case PAUSED:
+      break;
+    case JOINED:
+      break;
+    default:{
+      std::list<actor*>::iterator i = level->actor_list.begin();
+      if(tick % NET_RATE == 0){
+	net_flush_messages();
+      }
+      handle_movement(level);
+      if(_draw)
+	draw_screen(level);
+      delay=(1000/TICK_RATE - current + last);
+      if(delay>0){
+	SDL_Delay(delay);
+      }
+      else
+	log_message(INFO, "%d Milliseconds of lag \n"); 
+      tick++;
+      handle_input(level);
+      while(i!=level->actor_list.end()){
+	auto prev=i;
+	i++;
+	(*prev)->update();
+      }
+      level->actor_list.remove_if([](actor *a){return a->remove;});
     }
-    handle_movement(level);
-    if(_draw)
-      draw_screen(level);
-    delay=(1000/TICK_RATE - current + last);
-    if(delay>0){
-      SDL_Delay(delay);
+      break;
     }
-    else
-      log_message(INFO, "%d Milliseconds of lag \n"); 
-    tick++;
-    handle_input(level);
-    while(i!=level->actor_list.end()){
-      auto prev=i;
-      i++;
-      (*prev)->update();
-    }
-    level->actor_list.remove_if([](actor *a){return a->remove;});
   }
 }
 
@@ -195,12 +209,24 @@ void load_config(std::string fname){
 
 void handle_system_command(std::list<std::string> tokens){
   std::string command = tokens.front();
+  struct addrinfo hints;
+  char buf[512];
   std::cout << command << "\n";
   if(command == "connect" && !_server){
-    net_join_server(std::next(tokens.begin())->c_str(), DEFAULT_PORT, "big_beef");
+      net_join_server(std::next(tokens.begin())->c_str(), DEFAULT_PORT, "big_beef");
   }
   else if(_server && command == "pause"){
     _state = PAUSED;
+  }
+  else if(command == "disconnect" && !_server){
+    net_message msg;
+    msg.operation = NET_LEAVE;
+    // msg->address = server_address;
+    msg.address_length = 0;
+    msg.data_size = 0;
+    std::cout << "Disconnecting from server\n";
+    _state = STOPPED;
+    net_add_message(&msg);
   }
   else if(_server && command == "unpause"){
     if(_state == PAUSED)
@@ -257,13 +283,19 @@ std::list<std::string> split_to_tokens(std::string str){
 void *console_loop(void *arg){
   std::cout << "Bomberbloke console\n";
   while(!_halt){
-    std::string line;
-    std::list<std::string> tokens;
-
-    std::cout << ">";
-    std::getline(std::cin, line);
-    tokens = split_to_tokens(line);
-    handle_system_command(tokens);
+    switch _state{
+	default:{
+	  std::string line;
+	  std::list<std::string> tokens;
+	  
+	  std::cout << ">";
+	  std::getline(std::cin, line);
+	  tokens = split_to_tokens(line);
+	  handle_system_command(tokens);
+	  break;
+	}
+      case JOINING:
+	break;
   }
   return NULL;
 }

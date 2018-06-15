@@ -40,8 +40,9 @@ int network_p :: get_ping(){
   return 0;
 }
 
-network_p::network_p(std::string str, struct sockaddr *addr){
-  memcpy(&address, addr, sizeof(struct sockaddr));
+network_p::network_p(std::string str, struct sockaddr_storage *addr){
+  address = (sockaddr_storage*)malloc(sizeof(sockaddr_storage));
+  memcpy(address, addr, sizeof(struct sockaddr));
   nickname = str;
   return;
 }

@@ -1,5 +1,4 @@
 #include <list>
-#include <pthread.h>
 #include "engine.h"
 #include "player.h"
 extern "C"{

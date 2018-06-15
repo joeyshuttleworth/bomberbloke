@@ -1,0 +1,7 @@
+enum states{
+  PAUSED,
+  STOPPED,
+  EXIT,
+  JOINING,
+  PLAYING
+};

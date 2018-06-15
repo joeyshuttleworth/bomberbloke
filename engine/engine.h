@@ -1,6 +1,5 @@
 #include <cmath>
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_net.h>
 #include <iostream>
 #include <algorithm>
 #include <list>
@@ -10,8 +9,9 @@
 #include <array>
 #include <algorithm>
 
+#include "state.h"
+
 #define TICK_RATE     64
-#define NET_RATE      64
 #define OUT_OF_BOUNDS 127
 #define DEFAULT_ZOOM  50
 #define DEFAULT_ACTOR_SIZE 1
@@ -52,13 +52,6 @@ enum LOG_LEVELS{
 enum player_types{
   LOCAL,
   NETWORK
-};
-
-enum states{
-  PAUSED,
-  STOPPED,
-  EXIT,
-  PLAYING
 };
 
 extern const std::vector<command_binding> _default_bindings;
