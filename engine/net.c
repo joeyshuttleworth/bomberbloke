@@ -48,28 +48,31 @@ void net_add_message(net_message *msg){
 }
 
 void net_flush_messages(){
+  struct sockaddr_storage *address;
   if(!_net_out_current)
     return;
   else{
+    printf("tick: %d\n", _net_tick);
     net_message_node *current = _net_out_head;
     net_message_node *prev = NULL;
     pthread_mutex_lock(&net_out_mutex);
     while(current){
       net_message *msg = current->msg;
+      if(IS_SERVER)
+	address = &msg->address;
+      else
+	address = &_server_address;
       double coords[4];
       uint32_t id;
       char datagram[2 + msg->data_size];
-      if(msg->data_size == 0){
-	if(prev)
-	  prev->next = current->next;
-	else
-	  _net_out_head = current->next;
-	free(current->msg);
-	free(current);
-	continue;
+      if(msg->frequency!=0){
+	if(msg->attempts>0){
+	  if(_net_tick % msg->frequency != 0)
+	    continue;
+	  else
+	    msg->attempts--;
+	}
       }
-      if(_net_tick % msg->repeat != 0)
-	continue;
       switch(msg->operation){
       case NET_MOVE:
 	memcpy(&id, msg->data, sizeof(uint32_t));
@@ -80,40 +83,34 @@ void net_flush_messages(){
 	datagram[0] = msg->operation;
 	memcpy(datagram + 1, msg->data, msg->data_size);
 	if(msg->address.ss_family == AF_INET)
-	  sendto(_server_socket, datagram, msg->data_size + 1, 0, (struct sockaddr*)&(msg->address), sizeof(struct sockaddr_in));
+	  sendto(_server_socket, datagram, msg->data_size + 1, 0, (struct sockaddr*)address, sizeof(struct sockaddr_in));
 	else if(msg->address.ss_family == AF_INET6)
-	  sendto(_server_socket, datagram, msg->data_size + 1, 0, (struct sockaddr*)&(msg->address), sizeof(struct sockaddr_in6));  
+	  sendto(_server_socket, datagram, msg->data_size + 1, 0, (struct sockaddr*)address, sizeof(struct sockaddr_in6));  
 	break;
       case NET_JOIN:
 	datagram[0] = msg->operation;
 	datagram[1] = msg->id;
 	memcpy(datagram + 2, msg->data, msg->data_size);
-	if(msg->address.ss_family == AF_INET)
-	  sendto(_server_socket, datagram, msg->data_size + 2, 0, (struct sockaddr*)&(msg->address), sizeof(struct sockaddr_in));
-	else if(msg->address.ss_family == AF_INET6)
-	  sendto(_server_socket, datagram, msg->data_size + 2, 0, (struct sockaddr*)&(msg->address), sizeof(struct sockaddr_in6));  
+	if(address->ss_family == AF_INET)
+	  sendto(_server_socket, datagram, msg->data_size + 2, 0, (struct sockaddr*)address, sizeof(struct sockaddr_in));
+	else if(address->ss_family == AF_INET6)
+	  sendto(_server_socket, datagram, msg->data_size + 2, 0, (struct sockaddr*)address, sizeof(struct sockaddr_in6));  
 	break;
       }
-      if(!msg->attempts){
-	if(prev)
-	  prev->next = current->next;
-	else
-	  _net_out_head = current->next;
-	free(current->msg);
-	free(current);
+      if(msg->attempts==0){
+	if(msg->frequency>0)
+	  timeout(current);
+	net_remove_message(current);
       }
-      else
-	msg->attempts--;
-      prev    = current;
+      prev = current;
       current = current->next;
     }
-    
     _net_out_current = _net_out_head;
-  if(_net_out_head){
-    while(_net_out_current->next)
-      _net_out_current = _net_out_current->next;
-  }
-  pthread_mutex_unlock(&net_out_mutex);
+    if(_net_out_head){
+      while(_net_out_current->next)
+	_net_out_current = _net_out_current->next;
+    }
+    pthread_mutex_unlock(&net_out_mutex);
   }
   _net_tick++;
   return;
@@ -146,7 +143,7 @@ void *receive_loop(void *a){
   hints.ai_socktype = SOCK_DGRAM;
   hints.ai_protocol = 0;
   hints.ai_flags=AI_PASSIVE|AI_ADDRCONFIG;
-  if(getaddrinfo(NULL, "8888", &hints, &res)!=0){
+  if(getaddrinfo(NULL, (char *)a, &hints, &res)!=0){
     perror("Coudln't get address info\n");
     exit(1);
       /*Error*/
@@ -177,29 +174,83 @@ void *receive_loop(void *a){
     return 0;
 }
     
-void net_join_server(const char *address, int port, const char *nickname){
+void net_join_server(const char *address, char *port, const char *nickname){
   char *buf;
   int count = strlen(nickname) + 1;
+  
   _state = JOINING;
   struct addrinfo hints;
   struct addrinfo *res;
   net_message msg;
   memset(&hints, 0, sizeof(hints));
+  hints.ai_family   = AF_INET;
   hints.ai_socktype = SOCK_DGRAM;
   hints.ai_protocol = 0;
   hints.ai_flags=AI_PASSIVE|AI_ADDRCONFIG;
-  if(getaddrinfo(NULL, "8889", &hints, &res)!=0){
+  if(getaddrinfo(NULL, "8888", &hints, &res)!=0){
     printf("Invalid address\n");
   }
+  memcpy(&_server_address, res->ai_addr, sizeof(_server_address));
+  freeaddrinfo(res);
   buf = (char *)malloc(count*sizeof(char));
   msg.operation = NET_JOIN;
   msg.data_size = strlen(nickname+1);
-  msg.repeat = NET_RATE*2;
+  msg.frequency = 1;
   msg.attempts = 10;
   msg.data = nickname;
   net_add_message(&msg);
-  printf("Joining server\n");
-  memcpy(&_server_address, res->ai_addr, sizeof(_server_address));
-  freeaddrinfo(res);
+  printf("Joining server...\n");
+  while(_state == JOINING){
+    net_flush_messages();
+    sleep(1);
+  }
+  if(_state == DISCONNECTED)
+    //log_message(INFO, "Joining server failed");
+    printf("join failed\n");
+  else if(_state!=EXIT)
+    printf("join success\n");
+    //log_message(INFO, "Joined server successfully");
   return;
+}
+
+void net_remove_message(net_message_node *node){
+  if(!node)
+    return; /*Error: null message*/
+  else if(node == _net_out_head){
+    if(_net_out_head->next)
+      _net_out_head = _net_out_head->next;
+    free(node->msg);
+    free(node);
+  }
+  else{
+    net_message_node *current = _net_out_head;
+    
+    while(current){
+      if(current->next == node){
+	current->next = node->next;
+	if(node->msg)
+	  free(node->msg);
+	free(node);
+	return;
+      }
+      current = current->next;
+    }
+  }
+  /*Error: no message removed*/
+  return;
+}
+
+net_message_node *net_get_message(unsigned int id){
+  if(_net_out_head){
+    net_message_node *current = _net_out_head;
+    bool lower = _net_out_head->msg->id > id;
+    while(current){
+      if(current->msg->id == id)
+	return current;
+      if(lower && current->msg->id>id)
+	return NULL;
+      current=current->next;
+    }
+  }
+  return NULL;;
 }

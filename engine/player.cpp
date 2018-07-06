@@ -1,6 +1,9 @@
 #include "engine.h"
 #include "player.h"
 #include "actor.h"
+extern "C"{
+#include "net.h"
+}
 
 void player::init(actor *actor){
   character = actor;
@@ -10,6 +13,7 @@ void player::init(actor *actor){
 
 player::player(){
   id=0;
+  last_ping = 0;
   return;
 }
 
@@ -28,16 +32,19 @@ local_p :: ~local_p(){
   return;
 }
 
-int player :: get_ping(){
-  return 0;
+void player :: ping(){
+  return;
 }
 
-int local_p :: get_ping(){
-  return 0;
-}
-
-int network_p :: get_ping(){
-  return 0;
+void network_p :: ping(){
+  net_message msg;
+  msg.operation = NET_PING;
+  msg.frequency = 1;
+  msg.attempts   = 1;
+  msg.data = NULL;
+  msg.data_size = 0;
+  net_add_message(&msg);
+  return;
 }
 
 network_p::network_p(std::string str, struct sockaddr_storage *addr){

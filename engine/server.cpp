@@ -3,6 +3,7 @@ unsigned int _tick;
 std::list<network_p> _client_list;
 bool _draw = true;
 bool _server = true;
+unsigned int _ping_time = 0;
 const std::vector<command_binding> _default_bindings;
 
 std::list<network_p>::iterator get_client(sockaddr_storage *addr){
@@ -30,8 +31,10 @@ void server_init(){
 int main (int argc, char **argv){
   pthread_t net_receive;
   pthread_t read_console;
+  char *receive_port = (char*)malloc(sizeof(char)*5);
+  receive_port = "8888";
   server_init();
-  pthread_create(&net_receive,  NULL, receive_loop, NULL);
+  pthread_create(&net_receive,  NULL, receive_loop, (void*) receive_port);
   pthread_create(&read_console, NULL, console_loop, NULL); 
   log_message(INFO, "Bomberbloke dedicated server...\n");
   server_loop();
@@ -41,9 +44,13 @@ int main (int argc, char **argv){
 void server_loop(){
   while(true){
     if(_client_list.size()==0){
-      //state = STOPPED;
+      _state = STOPPED;
     }
     net_flush_messages();
+    for(auto i = _client_list.begin(); i != _client_list.end(); i++){
+      _ping_time = _tick; 
+      i->ping();
+    }
     sleep(1);
   }
   return;
@@ -62,14 +69,13 @@ void handle_datagram(char *buf, struct sockaddr_storage *client_addr, unsigned i
     printf("JOIN REQUEST RECEIVED FROM %s\n", nickname);
     if(get_client(client_addr)!=_client_list.end()){
       net_message msg;
-      msg.operation = NET_ERROR;
-      msg.data   = "Error: Already Joined";
+      msg.operation = NET_ACK;
+      msg.data   = "ALREADY JOINED";
       msg.data_size = strlen(msg.data);
       msg.address_length = addr_len;
-      msg.attempts = DEFAULT_ATTEMPTS;
       memcpy(&msg.address,client_addr, sizeof(addr_len)); 
       net_add_message(&msg);
-      std::cout << "client is already joined\n";
+      log_message(DEBUG, "client is already joined\n");
     }
     else{
       net_message msg;
@@ -100,6 +106,22 @@ void handle_datagram(char *buf, struct sockaddr_storage *client_addr, unsigned i
     
     break;
   }
+  case NET_ACK:{
+    // switch(){
+    //}
+    unsigned int message_id = ntohs(buf[1]);
+    net_message_node *current = net_get_message(message_id);
+    net_remove_message(current);
+  }
+  default:
+    break;
+  }
+  return;
+}
+
+void timeout(net_message_node *node){
+  net_message *msg = node->msg;
+  switch(msg->operation){
   default:
     break;
   }

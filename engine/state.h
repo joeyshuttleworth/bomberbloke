@@ -3,7 +3,8 @@ enum states{
   STOPPED,
   EXIT,
   JOINING,
-  PLAYING
+  PLAYING,
+  DISCONNECTED
 };
 
 extern unsigned int _state;

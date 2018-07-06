@@ -1,4 +1,3 @@
-#include <stdbool.h>
 #include <string.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -7,6 +6,7 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <pthread.h>
+#include <stdbool.h>
 
 #define NET_BUFFER_SIZE 513
 #define DEFAULT_PORT 8888
@@ -14,29 +14,30 @@
 #define NET_RATE 32
 
 enum opcode{
-  NET_SYN,
-  NET_PAUSE,
-  NET_UNPAUSE,
-  NET_ACK,
-  NET_ERROR,
-  NET_CREATE,
-  NET_DESTROY,
-  NET_MOVE,
-  NET_JOIN,
-  NET_LEAVE,
-  NET_KICK,
-  NET_MSG
+      NET_PING,
+      NET_SYN,
+      NET_PAUSE,
+      NET_UNPAUSE,
+      NET_ACK,
+      NET_ERROR,
+      NET_CREATE,
+      NET_DESTROY,
+      NET_MOVE,
+      NET_JOIN,
+      NET_LEAVE,
+      NET_KICK,
+      NET_MSG
 };
 
 typedef struct{
   struct sockaddr_storage address;
   enum opcode operation;
   char *data;
-  uint8_t attempts;
   uint8_t address_length;
   uint16_t data_size;
   uint8_t id;
-  uint8_t repeat;
+  uint8_t frequency;
+  uint8_t attempts;
 } net_message;
 
 struct net_message_node{
@@ -60,7 +61,8 @@ void net_handle_messages();
 void net_messages_init();
 void net_init();
 void *receive_loop(void*);
-net_message *net_get_message();
+net_message_node *net_get_message(unsigned int);
 void handle_datagram(char*, struct sockaddr_storage*, unsigned int, unsigned int);
-void net_join_server(const char*, int, const char*);
-
+void net_join_server(const char*, char*, const char*);
+void net_remove_message(net_message_node*);
+void timeout(net_message_node*);

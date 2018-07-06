@@ -153,7 +153,9 @@ void client_loop(level *level){
     switch(_state){
     case PAUSED:
       break;
-    case JOINED:
+    case JOINING:
+      break;
+    case DISCONNECTED:
       break;
     default:{
       std::list<actor*>::iterator i = level->actor_list.begin();
@@ -211,9 +213,10 @@ void handle_system_command(std::list<std::string> tokens){
   std::string command = tokens.front();
   struct addrinfo hints;
   char buf[512];
+  
   std::cout << command << "\n";
   if(command == "connect" && !_server){
-      net_join_server(std::next(tokens.begin())->c_str(), DEFAULT_PORT, "big_beef");
+      net_join_server(std::next(tokens.begin())->c_str(), "8888", "big_beef");
   }
   else if(_server && command == "pause"){
     _state = PAUSED;
@@ -283,7 +286,7 @@ std::list<std::string> split_to_tokens(std::string str){
 void *console_loop(void *arg){
   std::cout << "Bomberbloke console\n";
   while(!_halt){
-    switch _state{
+    switch (_state){
 	default:{
 	  std::string line;
 	  std::list<std::string> tokens;
@@ -296,6 +299,7 @@ void *console_loop(void *arg){
 	}
       case JOINING:
 	break;
+    }
   }
   return NULL;
 }
