@@ -153,10 +153,9 @@ void client_loop(level *level){
     switch(_state){
     case PAUSED:
       break;
-    case JOINING:
-      break;
     case DISCONNECTED:
       break;
+    case JOINING:
     default:{
       std::list<actor*>::iterator i = level->actor_list.begin();
       if(tick % NET_RATE == 0){

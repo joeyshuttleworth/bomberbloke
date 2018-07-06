@@ -38,13 +38,37 @@ int main (int argc, char **argv){
 void handle_datagram(char *buf, struct sockaddr_storage *client_addr, unsigned int addr_len, unsigned int count){
   std::cout << "RECEIVED DATAGRAM: " << buf <<"\n";
   /*TODO: Check datagram is from server */
-  if(buf[0] == NET_ACK){
-    _state = PAUSED;
-    std::cout << "Sucessfully joined server\n";
-    return;
+  
+  switch(buf[0]){
+  case NET_ACK:{      
+    unsigned int message_id = ntohs(buf[1]);
+    net_message_node *current = net_get_message(message_id);
+    net_message *msg = current->msg;
+    
+    switch(msg->operation){
+    case NET_JOIN:
+      std::cout << "Sucessfully joined server\n";
+      _state = PAUSED;
+      pthread_mutex_lock(&net_out_mutex);
+      net_remove_message(current);
+      pthread_mutex_unlock(&net_out_mutex);
+      break;
+    default:
+      net_remove_message(current);
+      break;
+    }
   }
+  }
+  return;
 }
 
 void timeout(net_message_node *node){
+  unsigned int opcode = node->msg->operation;
+  //  std::cout << "opcode" << opcode << " timed out\n";
+  switch(opcode){
+  case NET_JOIN:
+    _state = DISCONNECTED;
+    break;
+  }
   return;
 }

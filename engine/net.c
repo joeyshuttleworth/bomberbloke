@@ -40,9 +40,9 @@ void net_add_message(net_message *msg){
     _net_out_current->next = NULL;
   }
   _net_out_current->msg = malloc(sizeof(net_message));
+  memcpy(_net_out_current->msg, msg, sizeof(net_message));
   _net_out_current->msg->data = malloc(msg->data_size);
   memcpy(_net_out_current->msg->data, msg->data, msg->data_size);
-  memcpy(_net_out_current->msg, msg, sizeof(net_message));
   pthread_mutex_unlock(&net_out_mutex);
   return;
 }
@@ -67,8 +67,11 @@ void net_flush_messages(){
       char datagram[2 + msg->data_size];
       if(msg->frequency!=0){
 	if(msg->attempts>0){
-	  if(_net_tick % msg->frequency != 0)
+	  if(_net_tick % msg->frequency != 0){
+	    prev = current;
+	    current = current->next;
 	    continue;
+	  }
 	  else
 	    msg->attempts--;
 	}
@@ -80,7 +83,7 @@ void net_flush_messages(){
 	printf("SEND - MOVE %u: %lf, %lf\n %lf, %lf\n", id, coords[0], coords[1], coords[2], coords[3]); 
 	break;
       default:case NET_ACK:
-	datagram[0] = msg->operation;
+	datagram[0] = htons(msg->operation);
 	memcpy(datagram + 1, msg->data, msg->data_size);
 	if(msg->address.ss_family == AF_INET)
 	  sendto(_server_socket, datagram, msg->data_size + 1, 0, (struct sockaddr*)address, sizeof(struct sockaddr_in));
@@ -97,13 +100,21 @@ void net_flush_messages(){
 	  sendto(_server_socket, datagram, msg->data_size + 2, 0, (struct sockaddr*)address, sizeof(struct sockaddr_in6));  
 	break;
       }
-      if(msg->attempts==0){
+      if(msg->attempts==0||msg->frequency==0){
 	if(msg->frequency>0)
 	  timeout(current);
+	prev = current;
+	if(current->next)
+	  current=current->next;
+	else break;
 	net_remove_message(current);
       }
-      prev = current;
-      current = current->next;
+      else{
+	prev = current;
+	if(current->next)
+	  current=current->next;
+	else break;
+      }
     }
     _net_out_current = _net_out_head;
     if(_net_out_head){
@@ -194,22 +205,12 @@ void net_join_server(const char *address, char *port, const char *nickname){
   freeaddrinfo(res);
   buf = (char *)malloc(count*sizeof(char));
   msg.operation = NET_JOIN;
-  msg.data_size = strlen(nickname+1);
+  msg.data_size = strlen(nickname)+1;
   msg.frequency = 1;
   msg.attempts = 10;
   msg.data = nickname;
   net_add_message(&msg);
   printf("Joining server...\n");
-  while(_state == JOINING){
-    net_flush_messages();
-    sleep(1);
-  }
-  if(_state == DISCONNECTED)
-    //log_message(INFO, "Joining server failed");
-    printf("join failed\n");
-  else if(_state!=EXIT)
-    printf("join success\n");
-    //log_message(INFO, "Joined server successfully");
   return;
 }
 
@@ -219,7 +220,11 @@ void net_remove_message(net_message_node *node){
   else if(node == _net_out_head){
     if(_net_out_head->next)
       _net_out_head = _net_out_head->next;
-    free(node->msg);
+    if(node->msg){
+      if(node->msg->data && node->msg->data_size>0)
+	free(node->msg->data);
+      free(node->msg);
+    }
     free(node);
   }
   else{
@@ -228,10 +233,13 @@ void net_remove_message(net_message_node *node){
     while(current){
       if(current->next == node){
 	current->next = node->next;
-	if(node->msg)
+	if(node->msg){
+	  if(node->msg->data && node->msg->data_size>0)
+	    free(node->msg->data);
 	  free(node->msg);
+	}
 	free(node);
-	return;
+	break;
       }
       current = current->next;
     }

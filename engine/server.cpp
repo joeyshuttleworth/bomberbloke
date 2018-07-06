@@ -85,6 +85,8 @@ void handle_datagram(char *buf, struct sockaddr_storage *client_addr, unsigned i
       msg.data[1]  = 0;
       msg.data_size = 1;
       msg.address_length = addr_len;
+      msg.frequency = 0;
+      msg.attempts  = 0;
       net_add_message(&msg);
       _client_list.push_back(network_p(std::string(nickname), client_addr));
       std::cout << nickname << " has joined the server" << "\n";
