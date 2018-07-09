@@ -28,6 +28,12 @@ void server_init(){
   return;
 }
 
+void remove_player(std::list<network_p>::iterator player){
+  _client_list.erase(player);
+  net_remove_messages_to(player->address);
+  return;
+}
+
 int main (int argc, char **argv){
   pthread_t net_receive;
   pthread_t read_console;
@@ -47,8 +53,12 @@ void server_loop(){
       _state = STOPPED;
     }
     net_flush_messages();
+    _ping_time = _tick; 
     for(auto i = _client_list.begin(); i != _client_list.end(); i++){
-      _ping_time = _tick; 
+      if(_tick - i->last_ping > 30*TICK_RATE)
+	remove_player(i);
+      else if(_tick < i->last_ping)
+	i->last_ping = 0;
       i->ping();
     }
     sleep(1);
@@ -59,7 +69,6 @@ void server_loop(){
 void handle_datagram(char *buf, struct sockaddr_storage *client_addr, unsigned int count, unsigned int addr_len){
   char opcode = buf[0];
   char *data  = buf + 1;
-  
   switch(opcode){
   case NET_JOIN:{
     char nickname[count];
@@ -70,9 +79,12 @@ void handle_datagram(char *buf, struct sockaddr_storage *client_addr, unsigned i
     if(get_client(client_addr)!=_client_list.end()){
       net_message msg;
       msg.operation = NET_ACK;
-      msg.data   = "ALREADY JOINED";
+      msg.data = (char*)malloc(sizeof(char));
+      msg.data[0]= data[0];
       msg.data_size = strlen(msg.data);
       msg.address_length = addr_len;
+      msg.frequency = 0;
+      msg.attempts  = 0;
       memcpy(&msg.address,client_addr, sizeof(addr_len)); 
       net_add_message(&msg);
       log_message(DEBUG, "client is already joined\n");
@@ -80,13 +92,13 @@ void handle_datagram(char *buf, struct sockaddr_storage *client_addr, unsigned i
     else{
       net_message msg;
       msg.operation = NET_ACK;
-      msg.data = (char *)malloc(2*sizeof(char));
+      msg.data = (char *)malloc(sizeof(char));
       msg.data[0]  = data[0];
-      msg.data[1]  = 0;
       msg.data_size = 1;
       msg.address_length = addr_len;
       msg.frequency = 0;
       msg.attempts  = 0;
+      memcpy(&msg.address,client_addr, sizeof(addr_len)); 
       net_add_message(&msg);
       _client_list.push_back(network_p(std::string(nickname), client_addr));
       std::cout << nickname << " has joined the server" << "\n";

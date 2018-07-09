@@ -64,7 +64,6 @@ void net_flush_messages(){
 	address = &_server_address;
       double coords[4];
       uint32_t id;
-      char datagram[2 + msg->data_size];
       if(msg->frequency!=0){
 	if(msg->attempts>0){
 	  if(_net_tick % msg->frequency != 0){
@@ -82,15 +81,17 @@ void net_flush_messages(){
 	memcpy(coords, msg->data + sizeof(uint32_t), 4*sizeof(double));
 	printf("SEND - MOVE %u: %lf, %lf\n %lf, %lf\n", id, coords[0], coords[1], coords[2], coords[3]); 
 	break;
-      default:case NET_ACK:
-	datagram[0] = htons(msg->operation);
-	memcpy(datagram + 1, msg->data, msg->data_size);
+      default:case NET_ACK:{
+        char datagram[2];
+	datagram[0] = msg->operation;
+	datagram[1] = msg->data[0];
 	if(msg->address.ss_family == AF_INET)
-	  sendto(_server_socket, datagram, msg->data_size + 1, 0, (struct sockaddr*)address, sizeof(struct sockaddr_in));
+	  sendto(_server_socket, datagram, 2, 0, (struct sockaddr*)address, sizeof(struct sockaddr_in));
 	else if(msg->address.ss_family == AF_INET6)
-	  sendto(_server_socket, datagram, msg->data_size + 1, 0, (struct sockaddr*)address, sizeof(struct sockaddr_in6));  
-	break;
-      case NET_JOIN:
+	  sendto(_server_socket, datagram, 2, 0, (struct sockaddr*)address, sizeof(struct sockaddr_in6));  
+	break;}
+      case NET_JOIN:{
+	char datagram[msg->data_size + 2];
 	datagram[0] = msg->operation;
 	datagram[1] = msg->id;
 	memcpy(datagram + 2, msg->data, msg->data_size);
@@ -100,14 +101,15 @@ void net_flush_messages(){
 	  sendto(_server_socket, datagram, msg->data_size + 2, 0, (struct sockaddr*)address, sizeof(struct sockaddr_in6));  
 	break;
       }
+      }
       if(msg->attempts==0||msg->frequency==0){
+	net_message_node *remove = current;
 	if(msg->frequency>0)
 	  timeout(current);
-	prev = current;
 	if(current->next)
 	  current=current->next;
 	else break;
-	net_remove_message(current);
+	net_remove_message(remove);
       }
       else{
 	prev = current;
@@ -201,7 +203,7 @@ void net_join_server(const char *address, char *port, const char *nickname){
   if(getaddrinfo(NULL, "8888", &hints, &res)!=0){
     printf("Invalid address\n");
   }
-  memcpy(&_server_address, res->ai_addr, sizeof(_server_address));
+  memcpy(&_server_address, res->ai_addr, res->ai_addrlen);
   freeaddrinfo(res);
   buf = (char *)malloc(count*sizeof(char));
   msg.operation = NET_JOIN;
@@ -261,4 +263,32 @@ net_message_node *net_get_message(unsigned int id){
     }
   }
   return NULL;;
+}
+
+void net_remove_messages_to(struct sockaddr_storage *address){
+  net_message_node *current = _net_out_head;
+  if(address->ss_family == AF_INET){
+    struct sockaddr_in *remove_address = (struct sockaddr_in*) address;
+    while(1){
+      if(((struct sockaddr_in*)address)->sin_addr.s_addr == ((struct sockaddr_in*)&current->msg->address)->sin_addr.s_addr && ((struct sockaddr_in*)address)->sin_port == ((struct sockaddr_in*)&current->msg->address)->sin_port)
+	if(current->next)
+	  current=current->next;
+	else
+	  break;
+    }
+  }
+  /*else if(address->ss_family == AF_INET6){
+    struct sockaddr_in6 *remove_address = address;
+      while(1){
+      if(((struct sockaddr*)current->msg->address).ss_port==remove_address.ss_port){
+	if(((struct sockaddr*) current->->msg->address).ss_address == remove_address.ss_address)
+	  remove_message(current);
+      }
+      if(current->next)
+	  current=currnet->next;
+	else
+	  break;
+      }
+      }*/
+  return;
 }

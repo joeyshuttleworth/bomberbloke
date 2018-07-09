@@ -66,5 +66,5 @@ void handle_datagram(char*, struct sockaddr_storage*, unsigned int, unsigned int
 void net_join_server(const char*, char*, const char*);
 void net_remove_message(net_message_node*);
 void timeout(net_message_node*);
-
+void net_remove_messages_to(struct sockaddr_storage*); 
 extern pthread_mutex_t net_out_mutex;

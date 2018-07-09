@@ -36,27 +36,51 @@ int main (int argc, char **argv){
 }
 
 void handle_datagram(char *buf, struct sockaddr_storage *client_addr, unsigned int addr_len, unsigned int count){
-  std::cout << "RECEIVED DATAGRAM: " << buf <<"\n";
+  std::cout << "RECEIVED DATAGRAM: " << buf[0] << buf+1 <<"\n";
   /*TODO: Check datagram is from server */
   
   switch(buf[0]){
   case NET_ACK:{      
     unsigned int message_id = ntohs(buf[1]);
     net_message_node *current = net_get_message(message_id);
-    net_message *msg = current->msg;
+    net_message *msg = NULL;
     
-    switch(msg->operation){
-    case NET_JOIN:
-      std::cout << "Sucessfully joined server\n";
-      _state = PAUSED;
-      pthread_mutex_lock(&net_out_mutex);
-      net_remove_message(current);
-      pthread_mutex_unlock(&net_out_mutex);
-      break;
-    default:
-      net_remove_message(current);
+    if(!current)
+      log_message(DEBUG, "Empty datagram");
+    else{
+      msg = current->msg;
+      switch(msg->operation){
+      case NET_JOIN:
+	std::cout << "Sucessfully joined server\n";
+	_state = PAUSED;
+	pthread_mutex_lock(&net_out_mutex);
+	net_remove_message(current);
+	pthread_mutex_unlock(&net_out_mutex);
+	break;
+      default:
+	pthread_mutex_lock(&net_out_mutex);
+	net_remove_message(current);
+	pthread_mutex_unlock(&net_out_mutex);
+	break;
+      }
       break;
     }
+  }
+  case NET_PING:{
+    if(count != 2){
+      log_message(ERROR, "Received malformed ping");
+    }
+    net_message msg;
+    msg.operation = NET_ACK;
+    msg.data = (char*)malloc(sizeof(char));
+    msg.data[0]= buf[1];
+    msg.data_size = 1;
+    msg.address_length = addr_len;
+    msg.frequency = 0;
+    msg.attempts  = 0;
+    memcpy(&msg.address,client_addr, sizeof(addr_len)); 
+    net_add_message(&msg);
+    log_message(DEBUG, "PING received from server");
   }
   }
   return;

@@ -40,7 +40,7 @@ void network_p :: ping(){
   net_message msg;
   msg.operation = NET_PING;
   msg.frequency = 1;
-  msg.attempts   = 1;
+  msg.attempts  = 1;
   msg.data = NULL;
   msg.data_size = 0;
   net_add_message(&msg);
