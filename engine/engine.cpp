@@ -13,24 +13,28 @@ SDL_Surface *_surface;
 bool         _halt= false;
 unsigned int _state;
 std::list<local_p> _local_player_list;
+std::list<network_p> _client_list;
 
 Uint8 *_kb_state = NULL;
 
 void init_engine(level *level){
-  int *size = (int*)malloc(2*sizeof(int));
-  if(_draw){
+  int size[2];
+  SDL_Init(SDL_INIT_EVERYTHING);
+  if(_draw && level){
     _window = SDL_CreateWindow("Bomberbloke", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
     _surface=SDL_GetWindowSurface(_window);
     SDL_GetWindowSize(_window, size, size+sizeof(int));
     SDL_FillRect(_surface, NULL, SDL_MapRGB(_surface->format, 0x00, 0x00, 0xFF));
     SDL_UpdateWindowSurface(_window);
+    _zoom=size[0]/level->dim[0];
   }
-  _zoom=size[0]/level->dim[0];
   _kb_state = (Uint8*)malloc(sizeof(Uint8) * SDL_SCANCODE_APP2); //max scancode
   memset((void*)_kb_state, 0, sizeof(Uint8) * SDL_SCANCODE_APP2);
-  level->init();
+  // level->init();
   net_messages_init();
-  memset(&_server_address, 0, sizeof(_server_address));
+  if(!_server)
+    memset(&_server_address, 0, sizeof(_server_address));
+  _state = DISCONNECTED;
   return;
 }
 
@@ -115,6 +119,10 @@ void handle_movement(level *current_level){
       }
       if(!collision)
 	(*i)->move((*i)->position[0]+(*i)->velocity[0], (*i)->position[1] + (*i)->velocity[1]);
+      if ((*i)->velocity[0]<MIN_VELOCITY)
+	(*i)->velocity[0] = 0;
+      if((*i)->velocity[1]<MIN_VELOCITY)
+	(*i)->velocity[1] = 0;
     }
   }
   return;
@@ -139,49 +147,9 @@ void logic_loop(){
   return;
 }
 
-void log_message(int level, char *string){
+void log_message(int level, const char *string){
   std::cout << level << std::string(string) << std::endl;
   return;
-}
-
-void client_loop(level *level){
-  unsigned int current, last, delay, tick;
-  current=SDL_GetTicks();
-  last=current;
-
-  while(!_halt){
-    switch(_state){
-    case PAUSED:
-      break;
-    case DISCONNECTED:
-      break;
-    case JOINING:
-    default:{
-      std::list<actor*>::iterator i = level->actor_list.begin();
-      if(tick % NET_RATE == 0){
-	net_flush_messages();
-      }
-      handle_movement(level);
-      if(_draw)
-	draw_screen(level);
-      delay=(1000/TICK_RATE - current + last);
-      if(delay>0){
-	SDL_Delay(delay);
-      }
-      else
-	log_message(INFO, "%d Milliseconds of lag \n"); 
-      tick++;
-      handle_input(level);
-      while(i!=level->actor_list.end()){
-	auto prev=i;
-	i++;
-	(*prev)->update();
-      }
-      level->actor_list.remove_if([](actor *a){return a->remove;});
-    }
-      break;
-    }
-  }
 }
 
 void load_config(std::string fname){
@@ -220,14 +188,18 @@ void handle_system_command(std::list<std::string> tokens){
   else if(_server && command == "pause"){
     _state = PAUSED;
   }
-  else if(command == "disconnect" && !_server){
+  else if(command == "disconnect" && !_server && _state!=DISCONNECTED){
     net_message msg;
+    net_clear_messages();
     msg.operation = NET_LEAVE;
-    // msg->address = server_address;
+    msg.address = _server_address;
     msg.address_length = 0;
+    msg.attempts = 1;
+    msg.frequency = 0;
     msg.data_size = 0;
+    msg.data = NULL;
     std::cout << "Disconnecting from server\n";
-    _state = STOPPED;
+    _state = DISCONNECTED;
     net_add_message(&msg);
   }
   else if(_server && command == "unpause"){
@@ -243,7 +215,36 @@ void handle_system_command(std::list<std::string> tokens){
       _state = STOPPED;
   }
   else if(command == "say"){
-
+    if(tokens.size() > 1){
+      std::string str;
+      net_message msg;
+      for(auto i = ++tokens.begin(); i!=tokens.end();i++){
+	str.append(*i + " ");
+      }
+      str.pop_back();
+      msg.data_size = str.length();
+      msg.attempts = 1;
+      msg.frequency = 0;
+      msg.operation = NET_MSG;
+      if(!_server){
+	msg.data = (char*)malloc(str.length());
+	strncpy(msg.data, str.c_str(), str.length());
+	msg.address = _server_address;
+	msg.address_length = sizeof(struct sockaddr_in);
+	net_add_message(&msg);
+      }
+      else{
+	str = "server: " + str;
+	msg.data = (char*)malloc(str.length());
+	strncpy(msg.data, str.c_str(), str.length());
+	msg.data_size = str.length();
+	for(auto i = _client_list.begin(); i!=_client_list.end();i++){
+	  memcpy(&msg.address,i->address,sizeof(struct sockaddr_in));
+	  net_add_message(&msg);
+	}
+      }
+      free(msg.data);
+    }
   }
   else{
     std::cout << "Command not recognised\n";

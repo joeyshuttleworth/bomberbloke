@@ -40,9 +40,10 @@ void network_p :: ping(){
   net_message msg;
   msg.operation = NET_PING;
   msg.frequency = 1;
-  msg.attempts  = 1;
+  msg.attempts = 1;
   msg.data = NULL;
   msg.data_size = 0;
+  memcpy(&msg.address, address, sizeof(struct sockaddr_storage));
   net_add_message(&msg);
   return;
 }

@@ -11,7 +11,8 @@
 #define NET_BUFFER_SIZE 513
 #define DEFAULT_PORT 8888
 #define DEFAULT_ATTEMPTS 5
-#define NET_RATE 32
+#define NET_RATE 1
+#define TICK_RATE 1
 
 enum opcode{
       NET_PING,
@@ -37,16 +38,21 @@ typedef struct{
   uint16_t data_size;
   uint8_t id;
   uint8_t frequency;
-  uint8_t attempts;
+  uint16_t attempts;
+  uint8_t offset;
 } net_message;
 
-struct net_message_node{
+typedef struct net_message_node{
   net_message *msg;
   struct net_message_node *next;
-};
+} net_message_node;
 
-typedef struct net_message_node net_message_node;
-
+typedef struct{
+  bool sign : 1;                           /*See IEEE 754*/
+  unsigned long int mantissa : 52;
+  int exponent : 11;
+}net_float;
+  
 extern net_message_node *_net_out_current;
 extern net_message_node *_net_out_head;
 extern bool _net_on;
@@ -67,4 +73,5 @@ void net_join_server(const char*, char*, const char*);
 void net_remove_message(net_message_node*);
 void timeout(net_message_node*);
 void net_remove_messages_to(struct sockaddr_storage*); 
+void net_clear_messages();
 extern pthread_mutex_t net_out_mutex;

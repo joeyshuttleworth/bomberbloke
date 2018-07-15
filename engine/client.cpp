@@ -19,6 +19,8 @@ extern "C"{
 const std::vector<command_binding> _default_bindings;
 bool _draw = false;
 bool _server = false;
+unsigned int _tick =0;
+unsigned int _last_receive = 0;
 
 int main (int argc, char **argv){
   pthread_t net_receive;
@@ -27,7 +29,7 @@ int main (int argc, char **argv){
   char *receive_port = (char*)malloc(sizeof(char) * 5);
   receive_port = "8889";
   net_messages_init();
-  pthread_create(&net_receive,  NULL, receive_loop, (void*)receive_port);
+  pthread_create(&net_receive,  NULL, receive_loop, NULL);
   pthread_create(&read_console, NULL, console_loop, NULL); 
   log_message(INFO, "Bomberbloke starting...\n");
   init_engine(level1);
@@ -38,21 +40,25 @@ int main (int argc, char **argv){
 void handle_datagram(char *buf, struct sockaddr_storage *client_addr, unsigned int addr_len, unsigned int count){
   std::cout << "RECEIVED DATAGRAM: " << buf[0] << buf+1 <<"\n";
   /*TODO: Check datagram is from server */
-  
+  _last_receive = _tick;
+  if(_state==DISCONNECTED)
+    return;  
   switch(buf[0]){
   case NET_ACK:{      
-    unsigned int message_id = ntohs(buf[1]);
+    unsigned int message_id = buf[1];
     net_message_node *current = net_get_message(message_id);
     net_message *msg = NULL;
     
     if(!current)
-      log_message(DEBUG, "Empty datagram");
+      log_message(DEBUG, "Malformed NET_ACK datagram");
     else{
       msg = current->msg;
       switch(msg->operation){
       case NET_JOIN:
+	if(_state == JOINING){
 	std::cout << "Sucessfully joined server\n";
 	_state = PAUSED;
+	}
 	pthread_mutex_lock(&net_out_mutex);
 	net_remove_message(current);
 	pthread_mutex_unlock(&net_out_mutex);
@@ -63,28 +69,83 @@ void handle_datagram(char *buf, struct sockaddr_storage *client_addr, unsigned i
 	pthread_mutex_unlock(&net_out_mutex);
 	break;
       }
-      break;
     }
+    break;
   }
   case NET_PING:{
     if(count != 2){
       log_message(ERROR, "Received malformed ping");
     }
-    net_message msg;
-    msg.operation = NET_ACK;
-    msg.data = (char*)malloc(sizeof(char));
-    msg.data[0]= buf[1];
-    msg.data_size = 1;
-    msg.address_length = addr_len;
-    msg.frequency = 0;
-    msg.attempts  = 0;
-    memcpy(&msg.address,client_addr, sizeof(addr_len)); 
-    net_add_message(&msg);
-    log_message(DEBUG, "PING received from server");
+    else{
+      net_message msg;
+      msg.operation = NET_ACK;
+      msg.data = (char*)malloc(sizeof(char));
+      msg.data[0]= buf[1];
+      msg.data_size = 1;
+      msg.address_length = sizeof(struct sockaddr_storage);
+      msg.frequency = 0;
+      msg.attempts  = 1;
+      memcpy(&msg.address, client_addr, addr_len); 
+      net_add_message(&msg);
+      log_message(DEBUG, "PING received from server");
+    }
+    break;
+    }
+  case NET_MSG:{
+    char str[count-1];
+    strncpy(str, buf+2,count-1);
+    str[count-2] = '\0';
+    puts(str);
+    break;
   }
   }
   return;
 }
+
+
+void client_loop(level *level){
+  unsigned int current=0, last;
+  int delay;
+
+  while(!_halt){
+    switch(_state){
+    case DISCONNECTED:
+      sleep(1);
+      break;
+    case JOINING:
+      _last_receive = _tick;
+    default:{
+      if(_tick - _last_receive > 30*TICK_RATE){
+	handle_system_command(split_to_tokens("disconnect"));
+	log_message(INFO, "Disconnecting - timed out");
+      }
+      last = current;
+      // std::list<actor*>::iterator i = level->actor_list.begin();
+      if(_tick % NET_RATE == 0){
+	net_flush_messages();
+      }
+      //handle_movement(level);
+      //if(_draw)
+	//	draw_screen(level);
+      delay=(1000/TICK_RATE) - current + last;
+      if(delay>0){
+	SDL_Delay(delay);
+      }
+      _tick++;
+      //handle_input(level);
+      /*while(i!=level->actor_list.end()){
+	auto prev=i;
+	i++;
+	(*prev)->update();
+      */
+      //}
+      //level->actor_list.remove_if([](actor *a){return a->remove;});
+    }
+      break;
+    }
+  }
+}
+
 
 void timeout(net_message_node *node){
   unsigned int opcode = node->msg->operation;

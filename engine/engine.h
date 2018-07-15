@@ -8,21 +8,23 @@
 #include <fstream>
 #include <array>
 #include <algorithm>
-
+#include <ctime>
 #include "state.h"
 
-#define TICK_RATE     64
 #define OUT_OF_BOUNDS 127
 #define DEFAULT_ZOOM  50
 #define DEFAULT_ACTOR_SIZE 1
 #define DEFAULT_WINDOW_WIDTH  700
 #define DEFAULT_WINDOW_HEIGHT 700
+#define MIN_VELOCITY 0.00000000001
+
 class level;
 class actor;
 class local_p;
+class network_p;
 
 void client_loop(level *current_level);
-void log_message(int, char*);
+void log_message(int, const char*);
 void handle_system_command(std::list<std::string>);
 void init_engine(level*);
 void *console_loop(void *);
@@ -33,8 +35,10 @@ extern SDL_Surface *_surface;
 extern double _screen_offset[2];
 extern bool _draw;
 extern bool _server;
+extern bool _halt;
 extern double _zoom;
 extern unsigned int _state;
+extern std::list<network_p> _client_list;
 
 typedef struct{
   SDL_Scancode scancode;
