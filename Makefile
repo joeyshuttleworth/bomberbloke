@@ -1,11 +1,12 @@
 all:
-	gcc -c engine/net.c -g -Wall
-	g++ --std=c++11 -obomberbloke.bin bomberbloke.cpp bomb.cpp bloke.cpp engine/engine.cpp engine/actor.cpp engine/level.cpp engine/controls.cpp engine/local_p.cpp engine/player.cpp net.o -g -lSDL2main -lSDL2 -Wall
+	make client
+	make server
 server:
-	gcc -c engine/net.c -g -Wall
-	g++ --std=c++11 -oserver.bin server.cpp bomb.cpp bloke.cpp engine/engine.cpp engine/actor.cpp engine/level.cpp engine/controls.cpp engine/local_p.cpp engine/player.cpp net.o -g -pthread -Wall -lSDL2main -lSDL2
+	gcc -c engine/net.c -g -Wall -DIS_SERVER=1
+	g++ --std=c++11 -Wall -g -oserver.bin server.cpp bomb.cpp bloke.cpp engine/engine.cpp engine/actor.cpp engine/level.cpp engine/controls.cpp engine/local_p.cpp engine/player.cpp net.o -pthread -Wall -lSDL2main -lSDL2 -I/usr/include/SDL2
 client:
-	gcc client.c -o client.bin -g -Wall
+	gcc -c  engine/net.c  -g -Wall -DIS_SERVER=0
+	g++ --std=c++11 -Wall -g  -obomberbloke.bin bomberbloke.cpp engine/client.cpp bomb.cpp bloke.cpp engine/engine.cpp engine/actor.cpp engine/level.cpp engine/controls.cpp engine/local_p.cpp engine/player.cpp net.o -pthread -Wall -lSDL2main -lSDL2 -I/usr/include/SDL2
 clean:
 	rm *.o
 	rm *.bin

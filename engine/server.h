@@ -1,9 +1,5 @@
 #include <list>
-#include "engine.h"
-#include "player.h"
-extern "C"{
-#include "net.h"
-}
+
 #define BILLION  1000000000L
 
 void server_loop();

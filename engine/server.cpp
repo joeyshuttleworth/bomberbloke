@@ -1,3 +1,4 @@
+#include "engine.h"
 #include "server.h"
 
 unsigned int _tick = 1;
@@ -38,19 +39,6 @@ void remove_client(std::list<network_p>::iterator player){
  return;
 }
 
-int main (int argc, char **argv){
-  pthread_t net_receive;
-  pthread_t read_console;
-  char *receive_port = (char*)malloc(sizeof(char)*5);
-  receive_port = "8888";
-  init_engine(NULL);
-  pthread_create(&net_receive,  NULL, receive_loop, (void*) receive_port);
-  pthread_create(&read_console, NULL, console_loop, NULL); 
-  log_message(INFO, "Bomberbloke dedicated server...\n");
-  server_loop();
-  return 0;
-}
-
 void server_loop(){
   unsigned int last_tick, current_tick=0;
   int delay;
@@ -85,6 +73,9 @@ void server_loop(){
 	  }
 	}
       }
+    }
+    if(_state!=DISCONNECTED&&_state!=STOPPED){
+      handle_movement();
     }
     _tick++;
   }
@@ -192,6 +183,15 @@ void handle_datagram(char *buf, struct sockaddr_storage *client_addr, unsigned i
   }
   default:
     break;
+  }
+  return;
+}
+
+void send_to_all(net_message *msg){
+  for(auto i = _client_list.begin(); i!= _client_list.end(); i++){
+    memcpy(&msg->address, i->address, i->address_length);
+    msg->address_length = i->address_length;
+    net_add_message(msg);
   }
   return;
 }

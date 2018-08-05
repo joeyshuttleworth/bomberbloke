@@ -7,6 +7,8 @@
 #include <arpa/inet.h>
 #include <pthread.h>
 #include <stdbool.h>
+#include <float.h>
+#include <math.h>
 
 #define NET_BUFFER_SIZE 513
 #define DEFAULT_PORT 8888
@@ -47,11 +49,17 @@ typedef struct net_message_node{
   struct net_message_node *next;
 } net_message_node;
 
-typedef struct{
+typedef struct net_float{
   bool sign : 1;                           /*See IEEE 754*/
   unsigned long int mantissa : 52;
   int exponent : 11;
-}net_float;
+} net_float;
+
+typedef struct net_move{
+  uint16_t id;
+  net_float position[2];
+  net_float velocity[2];
+} net_move;
   
 extern net_message_node *_net_out_current;
 extern net_message_node *_net_out_head;
@@ -66,6 +74,7 @@ void net_add_message(net_message*);
 void net_handle_messages();
 void net_messages_init();
 void net_init();
+void net_float_create(double, net_float*);
 void *receive_loop(void*);
 net_message_node *net_get_message(unsigned int);
 void handle_datagram(char*, struct sockaddr_storage*, unsigned int, unsigned int);
@@ -74,4 +83,5 @@ void net_remove_message(net_message_node*);
 void timeout(net_message_node*);
 void net_remove_messages_to(struct sockaddr_storage*); 
 void net_clear_messages();
+void net_send_message();
 extern pthread_mutex_t net_out_mutex;

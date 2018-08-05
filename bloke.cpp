@@ -89,3 +89,4 @@ void bloke :: init(){
   sprite = SDL_CreateRGBSurface(0, _zoom * dim[0],dim[1] * _zoom ,32, 0, 0, 0, 0);
   return;
 }
+

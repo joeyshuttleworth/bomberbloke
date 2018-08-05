@@ -5,13 +5,14 @@
 extern double _zoom;
 
 class actor;
+
 class level{
  private:
   std::string name;
   std::string description;
  public:
   SDL_Surface *sprite=NULL;
-  std::list<actor*> actor_list;
+  std::list<actor> actor_list;
   uint8_t *blocks=NULL;
   int dim[2];
   level(int x, int y);
@@ -21,3 +22,5 @@ class level{
   void draw();
   void init();
 };
+
+extern level _level;

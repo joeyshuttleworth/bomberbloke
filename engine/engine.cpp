@@ -1,11 +1,4 @@
 #include "engine.h"
-#include "level.h"
-#include "actor.h"
-extern "C"{
-  #include "net.h"
-}
-#include "player.h"
-
 
 double _zoom = DEFAULT_ZOOM;
 SDL_Window  *_window;
@@ -14,26 +7,35 @@ bool         _halt= false;
 unsigned int _state;
 std::list<local_p> _local_player_list;
 std::list<network_p> _client_list;
+pthread_t net_receive, read_console;
 
 Uint8 *_kb_state = NULL;
+level _level(10,10);
+unsigned int _tick = 0;
 
-void init_engine(level *level){
+void init_engine(){
   int size[2];
+  char *receive_port = (char*)"8888";
+  
   SDL_Init(SDL_INIT_EVERYTHING);
-  if(_draw && level){
+  if(_draw){
     _window = SDL_CreateWindow("Bomberbloke", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
     _surface=SDL_GetWindowSurface(_window);
     SDL_GetWindowSize(_window, size, size+sizeof(int));
     SDL_FillRect(_surface, NULL, SDL_MapRGB(_surface->format, 0x00, 0x00, 0xFF));
     SDL_UpdateWindowSurface(_window);
-    _zoom=size[0]/level->dim[0];
+    _zoom=size[0]/(_level.dim[0]);
   }
   _kb_state = (Uint8*)malloc(sizeof(Uint8) * SDL_SCANCODE_APP2); //max scancode
   memset((void*)_kb_state, 0, sizeof(Uint8) * SDL_SCANCODE_APP2);
-  // level->init();
+  _level.init();
   net_messages_init();
   if(!_server)
     memset(&_server_address, 0, sizeof(_server_address));
+  if(!_server)
+    receive_port = NULL;
+  pthread_create(&net_receive,  NULL, receive_loop, (void*) receive_port);
+  pthread_create(&read_console, NULL, console_loop, NULL); 
   _state = DISCONNECTED;
   return;
 }
@@ -100,17 +102,20 @@ bool handle_collision(actor *a, actor *b){
   return collision;
 }
 
-void handle_movement(level *current_level){
-  for(auto i = current_level->actor_list.begin(); i!=current_level->actor_list.end(); i++){
+void handle_movement(){
+  std::list<net_move> move_list;
+  for(auto i = _level.actor_list.begin(); i!=_level.actor_list.end(); i++){
     bool collision = false;
-    if((*i)->collides==false)
-      (*i)->move((*i)->position[0]+(*i)->velocity[0], (*i)->position[1] + (*i)->velocity[1]);
+    if(!i->is_moving())
+      continue;
+    if((i)->collides==false)
+      (i)->move((i)->position[0]+(i)->velocity[0], (i)->position[1] + (i)->velocity[1]);
     else{
-      for(auto j = current_level->actor_list.begin(); j!=current_level->actor_list.end(); j++){
+      for(auto j = _level.actor_list.begin(); j!=_level.actor_list.end(); j++){
 	if(i==j)
 	  continue;
-      if((*j)->collides==true)
-        if(handle_collision(*i, *j)){
+      if(j->collides==true)
+        if(handle_collision(&(*i), &(*j))){
 	  collision=true;
 	  break;
 	}
@@ -118,11 +123,21 @@ void handle_movement(level *current_level){
 	break;
       }
       if(!collision)
-	(*i)->move((*i)->position[0]+(*i)->velocity[0], (*i)->position[1] + (*i)->velocity[1]);
-      if ((*i)->velocity[0]<MIN_VELOCITY)
-	(*i)->velocity[0] = 0;
-      if((*i)->velocity[1]<MIN_VELOCITY)
-	(*i)->velocity[1] = 0;
+	(i)->move((i)->position[0]+(i)->velocity[0], (i)->position[1] + (i)->velocity[1]);
+      if(_server)
+      if ((i)->velocity[0]<MIN_VELOCITY)
+	(i)->velocity[0] = 0;
+      if((i)->velocity[1]<MIN_VELOCITY)
+	(i)->velocity[1] = 0;
+    }
+    if(_server && (_tick & NET_RATE) == 0){
+      net_move move;
+      move.id = (i)->id;
+      net_float_create(i->position[0], &(move.position[0]));
+      net_float_create(i->position[1], &(move.position[1]));
+      net_float_create(i->velocity[0], &(move.velocity[0]));
+      net_float_create(i->velocity[1], &(move.velocity[1]));      
+      move_list.push_back(move);
     }
   }
   return;
@@ -132,11 +147,10 @@ void draw_hud(){
   return;
 }
 
-void draw_screen(level *current_level){
-  current_level->draw();
-  for(auto i = current_level->actor_list.begin(); i != current_level->actor_list.end(); i++){
-    if(*i)
-      (*i)->draw();
+void draw_screen(){
+  _level.draw();
+  for(auto i = _level.actor_list.begin(); i != _level.actor_list.end(); i++){
+    (i)->draw();
   }
   draw_hud();
   SDL_UpdateWindowSurface(_window);
@@ -302,4 +316,10 @@ void *console_loop(void *arg){
     }
   }
   return NULL;
+}
+
+char *write_move(net_move move){
+  char *rc;
+  
+  return rc;
 }

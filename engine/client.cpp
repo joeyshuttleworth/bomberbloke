@@ -6,36 +6,25 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 
-extern "C"{
-  #include "../engine/net.h"
-}
+#include "engine.h"
 
-#include "../engine/engine.h"
-#include "../engine/level.h"
-
+unsigned int _last_receive;
 //int    _default_bomb_time = DEFAULT_BOMB_TIMER;
 //double _bloke_size[2]     = {DEFAULT_BLOKE_SIZE, DEFAULT_BLOKE_SIZE};
-
-const std::vector<command_binding> _default_bindings;
-bool _draw = false;
-bool _server = false;
-unsigned int _tick =0;
-unsigned int _last_receive = 0;
-
+/*
 int main (int argc, char **argv){
   pthread_t net_receive;
   pthread_t read_console;
-  level *level1 = new level(10, 10);
   char *receive_port = (char*)malloc(sizeof(char) * 5);
-  receive_port = "8889";
   net_messages_init();
   pthread_create(&net_receive,  NULL, receive_loop, NULL);
   pthread_create(&read_console, NULL, console_loop, NULL); 
   log_message(INFO, "Bomberbloke starting...\n");
-  init_engine(level1);
-  client_loop(level1);
+  init_engine();
+  client_loop();
   return 0;
 }
+*/
 
 void handle_datagram(char *buf, struct sockaddr_storage *client_addr, unsigned int addr_len, unsigned int count){
   std::cout << "RECEIVED DATAGRAM: " << buf[0] << buf+1 <<"\n";
@@ -103,7 +92,7 @@ void handle_datagram(char *buf, struct sockaddr_storage *client_addr, unsigned i
 }
 
 
-void client_loop(level *level){
+void client_loop(){
   unsigned int current=0, last;
   int delay;
 
@@ -120,13 +109,9 @@ void client_loop(level *level){
 	log_message(INFO, "Disconnecting - timed out");
       }
       last = current;
-      // std::list<actor*>::iterator i = level->actor_list.begin();
       if(_tick % NET_RATE == 0){
 	net_flush_messages();
       }
-      //handle_movement(level);
-      //if(_draw)
-	//	draw_screen(level);
       delay=(1000/TICK_RATE) - current + last;
       if(delay>0){
 	SDL_Delay(delay);

@@ -46,20 +46,20 @@ void bomb::update(){
 }
 
 void bomb::explode(){
-  std::list<actor *>::iterator actor = placed_by->current_level->actor_list.begin();
+  std::list<actor>::iterator actor = placed_by->current_level->actor_list.begin();
   while(actor!=placed_by->current_level->actor_list.end()){
     auto prev = actor;
     actor++;
-    if((*prev)!=this){
+    if(&(*prev)!=((void*)this)){
       bool dead=false;
       for(int i = 0; i<2; i++){
-	if((round(position[!i])==round((*prev)->position[!i])) && (std::abs(round(position[i])-round((*prev)->position[i])) <= power)){
+	if((round(position[!i])==round(prev->position[!i])) && (std::abs(round(position[i])-round(prev->position[i])) <= power)){
 	  dead=true;
 	  break;
 	}
       }
       if(dead)
-	(*prev)->handle_command("kill");
+	prev->handle_command("kill");
     }
   }
   remove = true;

@@ -1,9 +1,4 @@
 #include "engine.h"
-#include "player.h"
-#include "actor.h"
-extern "C"{
-#include "net.h"
-}
 
 void player::init(actor *actor){
   character = actor;

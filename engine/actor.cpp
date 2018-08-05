@@ -1,11 +1,4 @@
 #include "engine.h"
-#include "actor.h"
-#include "level.h"
-#include "player.h"
-
-extern "C" {
-#include "net.h"
-}
 
 void actor :: draw(){
   SDL_Rect rect;
@@ -73,17 +66,17 @@ bool actor :: is_moving(){
     return true;
 }
 
-actor :: actor(level *level, double x, double y){
+actor :: actor(level *lvl, double x, double y){
   dim[0] = DEFAULT_ACTOR_SIZE;
   dim[1] = DEFAULT_ACTOR_SIZE;
-  current_level=level;
+  current_level=lvl;
   if(current_level->actor_list.size() > 0){
-    id = current_level->actor_list.back()->id + 1;
+    id = current_level->actor_list.back().id + 1;
   }
   else{
     id = 0;
   }
-  current_level->actor_list.push_back(this);
+  current_level->actor_list.push_back(*this);
   position[0] = x;
   position[1] = y;
   velocity[0] = 0;

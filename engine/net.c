@@ -60,12 +60,6 @@ void net_flush_messages(){
     pthread_mutex_lock(&net_out_mutex);
     while(current){
       net_message *msg = current->msg;
-      unsigned int datagram_size = 0;
-      char datagram[2+msg->data_size];
-      if(IS_SERVER)
-	address = &msg->address;
-      double coords[4];
-      uint32_t id;
       if(msg->frequency!=0){
 	if((int)(_net_tick - msg->offset) % msg->frequency != 0){
 	  prev    = current;
@@ -88,48 +82,7 @@ void net_flush_messages(){
 	net_remove_message(remove);
 	continue;
       }
-      switch(msg->operation){
-      default:
-	break;
-      case NET_MOVE:
-	memcpy(&id, msg->data, sizeof(uint32_t));
-	memcpy(coords, msg->data + sizeof(uint32_t), 4*sizeof(double));
-	printf("SEND - MOVE %u: %lf, %lf\n %lf, %lf\n", id, coords[0], coords[1], coords[2], coords[3]); 
-	break;
-      case NET_PING:{
-	datagram[0] = msg->operation;
-	datagram[1] = msg->id;
-	datagram_size = 2;
-	printf("Sending Ping\n");
-	break;
-      }
-      case NET_LEAVE:
-	datagram[0] = msg->operation;
-	datagram_size = 1;
-	break;
-      case NET_ACK:{
-	datagram[0] = msg->operation;
-	datagram[1] = msg->data[0];
-	datagram_size = 2;
-	printf("Sending ACK\n");
-	break;}
-      case NET_MSG: case NET_JOIN:{
-	datagram[0] = msg->operation;
-	datagram[1] = msg->id;
-	memcpy(datagram+2, msg->data, msg->data_size);
-	datagram_size = msg->data_size +2;
-	break;
-      }
-      }
-      if(datagram_size>0){
-	if(address->ss_family == AF_INET)
-	  sendto(_server_socket, datagram, datagram_size, 0, (struct sockaddr*)address, sizeof(struct sockaddr_in));
-	else if(address->ss_family == AF_INET6)
-	  sendto(_server_socket, datagram, datagram_size, 0, (struct sockaddr*)address, sizeof(struct sockaddr_in6));
-	else{
-	  printf("error: malformed address\n");
-	}
-      }
+      net_send_message(msg);
       msg->attempts--;
       prev = current;
       if(current->next)
@@ -144,6 +97,57 @@ void net_flush_messages(){
     pthread_mutex_unlock(&net_out_mutex);
   }
   _net_tick++;
+  return;
+}
+
+void net_send_message(net_message *msg){
+  struct sockaddr_storage *address = &(msg->address);
+  unsigned int datagram_size = 0;
+  char datagram[2+msg->data_size];
+  if(!IS_SERVER)
+    address = &_server_address;
+  switch(msg->operation){
+  default:
+	break;
+  case NET_MOVE:
+    /* memcpy(&id, msg->data, sizeof(uint32_t));
+    memcpy(coords, msg->data + sizeof(uint32_t), 4*sizeof(double));
+    printf("SEND - MOVE %u: %lf, %lf\n %lf, %lf\n", id, coords[0], coords[1], coords[2], coords[3]); 
+    */break;
+  case NET_PING:{
+    datagram[0] = msg->operation;
+    datagram[1] = msg->id;
+    datagram_size = 2;
+    printf("Sending Ping\n");
+    break;
+  }
+  case NET_LEAVE:
+    datagram[0] = msg->operation;
+    datagram_size = 1;
+    break;
+  case NET_ACK:{
+    datagram[0] = msg->operation;
+    datagram[1] = msg->data[0];
+    datagram_size = 2;
+    printf("Sending ACK\n");
+    break;}
+  case NET_MSG: case NET_JOIN:{
+    datagram[0] = msg->operation;
+    datagram[1] = msg->id;
+    memcpy(datagram+2, msg->data, msg->data_size);
+    datagram_size = msg->data_size +2;
+    break;
+  }
+  }
+  if(datagram_size>0){
+    if(address->ss_family == AF_INET)
+      sendto(_server_socket, datagram, datagram_size, 0, (struct sockaddr*)address, sizeof(struct sockaddr_in));
+    else if(address->ss_family == AF_INET6)
+      sendto(_server_socket, datagram, datagram_size, 0, (struct sockaddr*)address, sizeof(struct sockaddr_in6));
+    else{
+      printf("error: malformed address\n");
+    }
+  }
   return;
 }
 
@@ -329,11 +333,19 @@ void net_remove_messages_to(struct sockaddr_storage *address){
 	  remove_message(current);
       }
       if(current->next)
-	  current=currnet->next;
+	  current=current->next;
 	else
 	  break;
       }
       }*/
   }
+  return;
+}
+
+void net_float_create(double val, net_float *res){
+  int exponent;
+  res->sign  = val>0;
+  res->mantissa = frexp(val, &exponent);
+  res->exponent = exponent;
   return;
 }

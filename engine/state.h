@@ -1,4 +1,4 @@
-enum states{
+enum state{
   PAUSED,
   STOPPED,
   EXIT,
