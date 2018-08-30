@@ -7,9 +7,12 @@ void player::init(actor *actor){
 }
 
 player::player(){
-  id=0;
-  last_ping = 0;
   return;
+}
+
+player::player(std::string _nickname){
+    nickname = _nickname;
+    return;
 }
 
 player::~player(){
@@ -17,13 +20,8 @@ player::~player(){
 }
 
 local_p :: local_p(std::string _nickname){
-  nickname = _nickname;
   for(unsigned int i = 0; i < _default_bindings.size(); i++)
     control_scheme.push_back(_default_bindings[i]);
-  return;
-}
-
-local_p :: ~local_p(){
   return;
 }
 
@@ -54,6 +52,6 @@ network_p::~network_p(){
   return;
 }
 
-network_p::network_p(){
-  return;
-}
+//network_p::network_p(){
+// return;
+//}

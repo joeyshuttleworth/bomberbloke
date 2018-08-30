@@ -9,22 +9,8 @@
 #include "engine.h"
 
 unsigned int _last_receive;
-//int    _default_bomb_time = DEFAULT_BOMB_TIMER;
-//double _bloke_size[2]     = {DEFAULT_BLOKE_SIZE, DEFAULT_BLOKE_SIZE};
-/*
-int main (int argc, char **argv){
-  pthread_t net_receive;
-  pthread_t read_console;
-  char *receive_port = (char*)malloc(sizeof(char) * 5);
-  net_messages_init();
-  pthread_create(&net_receive,  NULL, receive_loop, NULL);
-  pthread_create(&read_console, NULL, console_loop, NULL); 
-  log_message(INFO, "Bomberbloke starting...\n");
-  init_engine();
-  client_loop();
-  return 0;
-}
-*/
+bool _draw = true;
+bool _server = false;
 
 void handle_datagram(char *buf, struct sockaddr_storage *client_addr, unsigned int addr_len, unsigned int count){
   std::cout << "RECEIVED DATAGRAM: " << buf[0] << buf+1 <<"\n";
@@ -87,6 +73,21 @@ void handle_datagram(char *buf, struct sockaddr_storage *client_addr, unsigned i
     puts(str);
     break;
   }
+  case NET_NEW_GAME:
+    net_message msg;
+    msg.operation = NET_ACK;
+    msg.data = (char*)malloc(sizeof(char));
+    msg.data[0]= buf[1];
+    msg.data_size = 1;
+    msg.address_length = sizeof(struct sockaddr_storage);
+    msg.frequency = 0;
+    msg.attempts  = 1;
+    memcpy(&msg.address, client_addr, addr_len); 
+    net_add_message(&msg);
+    log_message(INFO, "Starting new game...\n");
+    _state = STOPPED;
+    engine_new_game("");
+    break;
   }
   return;
 }
@@ -97,37 +98,41 @@ void client_loop(){
   int delay;
 
   while(!_halt){
+     last = current;
+     if(_tick % NET_RATE == 0){
+       net_flush_messages();
+     }
+     delay=(1000/TICK_RATE) - current + last;
+     if(delay>0){
+	SDL_Delay(delay);
+      }
     switch(_state){
     case DISCONNECTED:
       sleep(1);
       break;
     case JOINING:
       _last_receive = _tick;
+      break;
     default:{
       if(_tick - _last_receive > 30*TICK_RATE){
 	handle_system_command(split_to_tokens("disconnect"));
 	log_message(INFO, "Disconnecting - timed out");
       }
-      last = current;
-      if(_tick % NET_RATE == 0){
-	net_flush_messages();
-      }
-      delay=(1000/TICK_RATE) - current + last;
-      if(delay>0){
-	SDL_Delay(delay);
-      }
-      _tick++;
-      //handle_input(level);
-      /*while(i!=level->actor_list.end()){
-	auto prev=i;
-	i++;
+      handle_input(&_level);
+      if(_state == PLAYING){
+	/*while(i!=level->actor_list.end()){
+	  auto prev=i;
+	  i++;
 	(*prev)->update();
-      */
-      //}
-      //level->actor_list.remove_if([](actor *a){return a->remove;});
-    }
+	*/
+	//}
+	//level->actor_list.remove_if([](actor *a){return a->remove;});
+      }
       break;
     }
+    }
+    draw_screen();
+    _tick++;
   }
 }
 
@@ -140,5 +145,15 @@ void timeout(net_message_node *node){
     _state = DISCONNECTED;
     break;
   }
+  return;
+}
+
+
+void engine_new_game(std::string tokens){
+  log_message(INFO, (char*)"New game ready to start...\n");
+  _state = PAUSED;
+  new_game(tokens);
+  _level = level(10,10);
+  //remove moves and SYNCS from message queue
   return;
 }

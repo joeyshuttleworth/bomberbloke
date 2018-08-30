@@ -1,9 +1,8 @@
 #include "engine.h"
 #include "server.h"
 
-unsigned int _tick = 1;
-bool _draw = true;
 bool _server = true;
+bool _draw   = true;
 unsigned int _ping_time = 0;
 const std::vector<command_binding> _default_bindings;
 
@@ -74,9 +73,17 @@ void server_loop(){
 	}
       }
     }
-    if(_state!=DISCONNECTED&&_state!=STOPPED){
-      handle_movement();
+    if(_state == PLAYING){
+      for(auto i=_level.actor_list.begin(); i!=_level.actor_list.end(); i++){
+	  auto prev=i;
+	  i++;
+	  prev->update();
+      }
+      _level.actor_list.remove_if([](actor a){return a.remove;});
     }
+    if(_state == PLAYING)
+      handle_movement();
+    draw_screen();
     _tick++;
   }
   return;
@@ -179,19 +186,14 @@ void handle_datagram(char *buf, struct sockaddr_storage *client_addr, unsigned i
       client->last_ping_time = _tick;
       client->last_ping      = _ping_time - _tick;
     }
+    case NET_NEW_GAME:
+      network_p client = *get_client(client_addr);
+      client.state = PAUSED;
+      break;
     }
   }
   default:
     break;
-  }
-  return;
-}
-
-void send_to_all(net_message *msg){
-  for(auto i = _client_list.begin(); i!= _client_list.end(); i++){
-    memcpy(&msg->address, i->address, i->address_length);
-    msg->address_length = i->address_length;
-    net_add_message(msg);
   }
   return;
 }
@@ -202,5 +204,95 @@ void timeout(net_message_node *node){
   default:
     break;
   }
+  return;
+}
+
+void send_player_list(){
+  char *player_list;
+
+  for(auto i = _client_list.begin();  i!= _client_list.end(); i++){
+
+  }
+  return;
+}
+
+void sync_players(){
+  char buf[513];
+  int c, j = 1;
+  net_message msg;
+  //todo add _client_list mutex and actor_list mutex
+  c = _client_list.size();
+  if(c > 255){
+    log_message(ERROR, "Client list is far too large\n");
+    return;    
+  }
+  buf[0] = c;
+  c = 1;
+  for(auto i = _client_list.begin(); i!= _client_list.end(); i++){
+    int len = i->nickname.length();
+    if(len == 0){
+      log_message(ERROR, "Empty nickname\n");
+      return;
+    }
+    strncpy(buf, i->nickname.c_str(), len);
+    c = c + len;
+    i->id = j;
+    j++;
+  }
+  j = 0;
+  for(auto i = _level.actor_list.begin(); i != _level.actor_list.end(); i++){
+    net_float tmp;
+    i->id = j;
+    j++;
+    if(i->controller == NULL)
+      buf[c] = 0;
+    else{
+      buf[c] = i->controller->id;
+    }
+    if(c + 4*sizeof(net_float) > 511){
+      log_message(ERROR, "NET_SYNC Package too large");
+      return;
+    }
+    buf[c] = i->dim[0];
+    buf[c+1] = i->dim[1];
+    c = c + 2 * sizeof(char);
+    net_float_create(i->position[0], &tmp);
+    memcpy(buf + c, &tmp, sizeof(net_float));
+    c = c + sizeof(net_float);
+    net_float_create(i->position[1], &tmp);
+    memcpy(buf + c, &tmp, sizeof(net_float));
+    c = c + sizeof(net_float);
+    net_float_create(i->velocity[0], &tmp);
+    memcpy(buf + c, &tmp, sizeof(net_float));
+    c = c + sizeof(net_float);
+    net_float_create(i->position[1], &tmp);
+    memcpy(buf + c, &tmp, sizeof(net_float));
+    c = c + sizeof(net_float);
+  }
+  msg.data = buf;
+  msg.data_size = c;
+  msg.frequency = 1;
+  msg.attempts  = MAX_ATTEMPTS;
+  buf[c+1] = 0;
+  log_message(DEBUG, buf);
+  send_to_all(&msg);
+  return;
+}
+
+void engine_new_game(std::string tokens){
+  char *actor_list;
+  net_message msg;
+  log_message(INFO, (char*)"New game ready to start...\n");
+  _state = PAUSED;
+  new_game(tokens);
+  _level = level(10,10);
+  if(_server){
+    for(auto i = _client_list.begin(); i != _client_list.end(); i++){
+      i->state = STOPPED;
+    }
+  }
+  //remove moves and SYNCS from message queue
+  sync_players();
+  draw_screen();
   return;
 }

@@ -27,14 +27,20 @@ class network_p;
 
 struct net_float;
 
+void send_to_all(net_message*);
+void send_to_list(net_message*, std::list<network_p>);
+void new_game(std::string);
+void engine_new_game(std::string);
 void client_loop();
+void server_loop();
 void log_message(int, const char*);
 void handle_system_command(std::list<std::string>);
+void handle_input(level*);
 void handle_movement();
 void init_engine();
 void *console_loop(void *);
 void draw_screen();
-
+void send_to_all(net_message*);
 std::list<std::string> split_to_tokens(std::string);
 
 extern SDL_Window  *_window;

@@ -73,7 +73,7 @@ void bloke :: update(){
 
 void bloke :: place_bomb(){
   if(bombs<max_bombs){
-    bomb *new_bomb = new bomb(current_level, round(position[0])+0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), round(position[1]) + 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE));
+    bomb *new_bomb = new bomb(round(position[0])+0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), round(position[1]) + 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE));
     new_bomb->init(this);
     bombs++;
   }
@@ -86,7 +86,12 @@ void bloke :: kick(bomb *bomb, uint8_t direction){
 
 void bloke :: init(){
   collides = true;
+  memset(&position, 0, sizeof(double)*2);
+  memset(&velocity, 0, sizeof(double)*2);
   sprite = SDL_CreateRGBSurface(0, _zoom * dim[0],dim[1] * _zoom ,32, 0, 0, 0, 0);
   return;
 }
 
+bloke :: bloke(){
+  return;
+}

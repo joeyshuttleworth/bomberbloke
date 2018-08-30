@@ -5,7 +5,7 @@ void actor :: draw(){
   rect.w=ceil(dim[0] * _zoom);
   rect.h=ceil(dim[1] * _zoom);
   rect.x=round(position[0] * _zoom);
-  rect.y=round((current_level->dim[1]-position[1]-dim[1]) * _zoom);
+  rect.y=round((_level.dim[1]-position[1]-dim[1]) * _zoom);
   SDL_BlitSurface(sprite, NULL, _surface, &rect);  
 }
 
@@ -16,8 +16,8 @@ int actor :: move(double x, double y){
   
   if(std::abs(x-position[0])+std::abs(y-position[1])<0.00001)
     moved = false;
-  if(x > current_level->dim[0] - dim[0]){
-    tmp_pos[0] = current_level->dim[0] - dim[0];
+  if(x > _level.dim[0] - dim[0]){
+    tmp_pos[0] = _level.dim[0] - dim[0];
     velocity[0] = 0;
     in_level = false;
   }
@@ -29,8 +29,8 @@ int actor :: move(double x, double y){
   else{
     tmp_pos[0] = x;
   }
-  if(y > current_level->dim[1] - dim[1]){
-    tmp_pos[1] = current_level->dim[1]-dim[1];
+  if(y > _level.dim[1] - dim[1]){
+    tmp_pos[1] = _level.dim[1]-dim[1];
     velocity[1] = 0;
     in_level = false;
   }
@@ -66,22 +66,18 @@ bool actor :: is_moving(){
     return true;
 }
 
-actor :: actor(level *lvl, double x, double y){
+actor :: actor(double x, double y){
   dim[0] = DEFAULT_ACTOR_SIZE;
   dim[1] = DEFAULT_ACTOR_SIZE;
-  current_level=lvl;
-  if(current_level->actor_list.size() > 0){
-    id = current_level->actor_list.back().id + 1;
-  }
-  else{
+
+  /*else{
     id = 0;
-  }
-  current_level->actor_list.push_back(*this);
+    }*/
   position[0] = x;
   position[1] = y;
   velocity[0] = 0;
   velocity[1] = 0;
-  sprite = SDL_CreateRGBSurface(0,_zoom * dim[0],dim[1] * _zoom ,32, 0, 0, 0, 0);
+  sprite = SDL_CreateRGBSurface(0, _zoom * dim[0],dim[1] * _zoom ,32, 0xff, 0, 0, 0);
   return;
 }
 
@@ -103,6 +99,7 @@ void actor :: update(){
 actor::actor(){
   dim[0] = DEFAULT_ACTOR_SIZE;
   dim[1] = DEFAULT_ACTOR_SIZE;
+  remove = false;
   return;
 }
 

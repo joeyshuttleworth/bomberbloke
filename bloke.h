@@ -4,6 +4,7 @@ class bloke : public actor{
   bool accelerated = false;
   void place_bomb();
  public:
+  bloke();
   void  draw();
   void  kick(bomb *bomb, uint8_t direction);
   void  die();

@@ -80,7 +80,7 @@ void net_flush_messages(){
 	  current=current->next;
 	else current = NULL;
 	net_remove_message(remove);
-	continue;
+	continue;		  
       }
       net_send_message(msg);
       msg->attempts--;
@@ -131,7 +131,7 @@ void net_send_message(net_message *msg){
     datagram_size = 2;
     printf("Sending ACK\n");
     break;}
-  case NET_MSG: case NET_JOIN:{
+  case NET_NEW_GAME: case NET_START: case NET_MSG: case NET_JOIN:{
     datagram[0] = msg->operation;
     datagram[1] = msg->id;
     memcpy(datagram+2, msg->data, msg->data_size);

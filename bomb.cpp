@@ -12,7 +12,6 @@ void bomb::init(bloke *bloke){
   memset(velocity, 0, 2*sizeof(double));
   timer = _default_bomb_timer;
   placed_by = bloke;
-  current_level = bloke->current_level;
   power = bloke->power;
   free(sprite);
   sprite = SDL_CreateRGBSurface(0, _zoom * dim[0], dim[1] * _zoom, 32, 0, 0, 0, 0);
@@ -46,8 +45,8 @@ void bomb::update(){
 }
 
 void bomb::explode(){
-  std::list<actor>::iterator actor = placed_by->current_level->actor_list.begin();
-  while(actor!=placed_by->current_level->actor_list.end()){
+  std::list<actor>::iterator actor = _level.actor_list.begin();
+  while(actor!=_level.actor_list.end()){
     auto prev = actor;
     actor++;
     if(&(*prev)!=((void*)this)){

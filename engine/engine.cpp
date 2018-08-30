@@ -10,8 +10,8 @@ std::list<network_p> _client_list;
 pthread_t net_receive, read_console;
 
 Uint8 *_kb_state = NULL;
-level _level(10,10);
-unsigned int _tick = 0;
+level _level;
+uint32_t  _tick = 0;
 
 void init_engine(){
   int size[2];
@@ -19,22 +19,29 @@ void init_engine(){
   
   SDL_Init(SDL_INIT_EVERYTHING);
   if(_draw){
-    _window = SDL_CreateWindow("Bomberbloke", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
+    std::string window_name = "Bomberbloke Client";
+    if(_server)
+      window_name = "Bomberbloke Server";
+    _window = SDL_CreateWindow(window_name.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
     _surface=SDL_GetWindowSurface(_window);
     SDL_GetWindowSize(_window, size, size+sizeof(int));
     SDL_FillRect(_surface, NULL, SDL_MapRGB(_surface->format, 0x00, 0x00, 0xFF));
     SDL_UpdateWindowSurface(_window);
     _zoom=size[0]/(_level.dim[0]);
   }
+  _level = level(10,10);
   _kb_state = (Uint8*)malloc(sizeof(Uint8) * SDL_SCANCODE_APP2); //max scancode
   memset((void*)_kb_state, 0, sizeof(Uint8) * SDL_SCANCODE_APP2);
   _level.init();
   net_messages_init();
-  if(!_server)
+  if(!_server){
     memset(&_server_address, 0, sizeof(_server_address));
-  if(!_server)
     receive_port = NULL;
-  pthread_create(&net_receive,  NULL, receive_loop, (void*) receive_port);
+  }
+  if(_server)
+    pthread_create(&net_receive,  NULL, receive_loop, (void*) receive_port);
+  else
+    pthread_create(&net_receive,  NULL, receive_loop, NULL);
   pthread_create(&read_console, NULL, console_loop, NULL); 
   _state = DISCONNECTED;
   return;
@@ -63,7 +70,7 @@ void handle_input(level *level){
 	  i->character->handle_command(j->command);
       }
     }
-    if(no_command)
+    if(no_command && i->character!=NULL)
       i->character->handle_command(std::string(""));
   }
   memcpy(_kb_state, kb_state, sizeof(Uint8) * SDL_SCANCODE_APP2); 
@@ -150,7 +157,7 @@ void draw_hud(){
 void draw_screen(){
   _level.draw();
   for(auto i = _level.actor_list.begin(); i != _level.actor_list.end(); i++){
-    (i)->draw();
+    i->draw();
   }
   draw_hud();
   SDL_UpdateWindowSurface(_window);
@@ -194,13 +201,17 @@ void handle_system_command(std::list<std::string> tokens){
   std::string command = tokens.front();
   struct addrinfo hints;
   char buf[512];
-  
+
+  tokens.pop_front(); //tokens no longer contains the command
   std::cout << command << "\n";
   if(command == "connect" && !_server){
       net_join_server(std::next(tokens.begin())->c_str(), "8888", "big_beef");
   }
   else if(_server && command == "pause"){
     _state = PAUSED;
+  }
+  else if(_server && command == "start"){
+    _state = PLAYING;    
   }
   else if(command == "disconnect" && !_server && _state!=DISCONNECTED){
     net_message msg;
@@ -220,9 +231,15 @@ void handle_system_command(std::list<std::string> tokens){
     if(_state == PAUSED)
       _state = PLAYING;
   }
-  else if(_server && command == "start"){
-    if(_state == STOPPED)
-      _state = PLAYING;
+  else if(_server && command == "new"){
+    net_message msg;
+    msg.operation = NET_NEW_GAME;
+    msg.data_size = sizeof(_tick);
+    msg.data = (char*)&_tick;
+    msg.frequency = 1;
+    msg.attempts = 20;
+    send_to_all(&msg);    
+    engine_new_game(""); // pass tokens as a parameter
   }
   else if(_server && command == "stop"){
     if(_state == PLAYING)
@@ -322,4 +339,18 @@ char *write_move(net_move move){
   char *rc;
   
   return rc;
+}
+
+void send_to_all(net_message *msg){
+  send_to_list(msg, _client_list);
+  return;
+}
+
+void send_to_list(net_message *msg, std::list<network_p> lst){
+  for(auto i = lst.begin(); i!= lst.end(); i++){
+    memcpy(&msg->address, i->address, i->address_length);
+    msg->address_length = i->address_length;
+    net_add_message(msg);
+  }
+  return;
 }

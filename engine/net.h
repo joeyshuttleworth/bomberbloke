@@ -15,6 +15,7 @@
 #define DEFAULT_ATTEMPTS 5
 #define NET_RATE 1
 #define TICK_RATE 1
+#define MAX_ATTEMPTS 65535
 
 enum opcode{
       NET_PING,
@@ -23,13 +24,13 @@ enum opcode{
       NET_UNPAUSE,
       NET_ACK,
       NET_ERROR,
-      NET_CREATE,
-      NET_DESTROY,
       NET_MOVE,
       NET_JOIN,
       NET_LEAVE,
       NET_KICK,
-      NET_MSG
+      NET_MSG,
+      NET_START,
+      NET_NEW_GAME
 };
 
 typedef struct{

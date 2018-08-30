@@ -11,11 +11,14 @@ class level{
   std::string name;
   std::string description;
  public:
+  std::vector<int> spawn_points;
   SDL_Surface *sprite=NULL;
   std::list<actor> actor_list;
   uint8_t *blocks=NULL;
   int dim[2];
   level(int x, int y);
+  level();
+  level(const level &lvl);
   ~level();
   uint8_t get_block(int, int);
   bool is_block_empty(actor *actor , int x, int y);

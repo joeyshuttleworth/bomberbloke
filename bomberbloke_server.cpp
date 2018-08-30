@@ -1,14 +1,36 @@
 #include "bomberbloke.h"
 #include <SDL2/SDL.h>
 
+int    _default_bomb_time = DEFAULT_BOMB_TIMER;
+double _bloke_size[2]     = {DEFAULT_BLOKE_SIZE, DEFAULT_BLOKE_SIZE};
+std::vector<int> _spawn_points = {0,0,0,9,9,9,9,0};
+
 int main (int argc, char **argv){
-  pthread_t net_receive;
-  pthread_t read_console;
-  char *receive_port = (char*)malloc(sizeof(char)*5);
-  receive_port = "8888";
-  init_engine(NULL);
-  log_message(INFO, "Bomberbloke dedicated server...\n");
+  log_message(INFO, "Bomberbloke client starting...");
+  init_engine();
+  _local_player_list.push_back(local_p("nickname"));
   server_loop();
-  return 0;
+  _level.spawn_points = _spawn_points;
+  SDL_Quit();
+  return 0;  
 }
 
+void new_game(std::string arguments){
+  _level = level(10,10);
+  _level.spawn_points = _spawn_points;
+  int c = 0;
+  for(auto i = _client_list.begin(); i != _client_list.end(); i++){
+    bloke b = bloke();
+    if(c < (double)(_level.spawn_points.size())/2){
+      b.position[0] = _level.spawn_points[c*2];
+      b.position[1] = _level.spawn_points[c*2+1];
+      _level.actor_list.push_back(b);
+      i->character = &_level.actor_list.back();
+    }
+    else{
+      log_message(ERROR, (char*)"Not enough spawn points for all players\n");
+      break;
+    }
+  }
+  return;
+}

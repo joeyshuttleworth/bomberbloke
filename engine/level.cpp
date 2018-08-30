@@ -1,17 +1,33 @@
 #include "engine.h"
 
 level :: level (int dim_x, int dim_y){
-  blocks = (uint8_t*) malloc(sizeof(uint8_t)*dim_x*dim_y);
   dim[0] = dim_x;
   dim[1] = dim_y;
+  if(blocks)
+    free(blocks);
+  blocks = (uint8_t*)malloc(dim[0] * dim[1] * sizeof(uint8_t));
+  return;
+}
+
+level :: level(){
+  dim[0] = 10;
+  dim[1] = 10;
+  if(_window){
+    sprite = SDL_GetWindowSurface(_window);
+    SDL_FillRect(sprite, NULL, SDL_MapRGB(sprite->format, 0x00, 0x00, 0xFF));
+  }
+  blocks = (uint8_t*)malloc(dim[0] * dim[1] * sizeof(uint8_t));
   return;
 }
 
 level :: ~level(){
-  dim[0] = 0;
-  dim[1] = 0;
   free(blocks);
   blocks=NULL;
+}
+
+level :: level(const level &lvl){
+  memcpy(sprite, lvl.sprite, sizeof(SDL_Surface));
+  memcpy(blocks, lvl.blocks, dim[0]*dim[1]);
 }
 
 uint8_t level :: get_block(int row, int column){
@@ -34,6 +50,10 @@ void level :: draw(){
   rect.h = _zoom * dim[1];
   rect.x = 0;
   rect.y = 0;
+  if(!sprite){
+    sprite = SDL_GetWindowSurface(_window);
+    SDL_FillRect(sprite, NULL, SDL_MapRGB(sprite->format, 0x00, 0x00, 0xFF));
+  }
   SDL_FillRect(sprite, NULL, SDL_MapRGB(sprite->format, 0xFF, 0, 0xFF));
   SDL_BlitSurface(sprite, NULL, _surface, &rect);
   return;
@@ -47,6 +67,7 @@ void level :: init(){
   if(sprite)
     free(sprite);
   sprite = SDL_CreateRGBSurface(0, int(dim[0] * _zoom), int(dim[1] * _zoom), 32, 0, 0, 0, 0);
+  blocks = (uint8_t*)malloc(dim[0]*dim[1]*sizeof(uint8_t));
   if(!sprite){
     //log_message(ERROR, (char*)SDL_GetError());
   }

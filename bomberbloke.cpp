@@ -1,11 +1,6 @@
 #include "bomberbloke.h"
 #include <SDL2/SDL.h>
 
-int    _default_bomb_time = DEFAULT_BOMB_TIMER;
-double _bloke_size[2]     = {DEFAULT_BLOKE_SIZE, DEFAULT_BLOKE_SIZE};
-bool _draw = true;
-bool _server = false;
-
 const std::vector<command_binding> _default_bindings =
   {{SDL_SCANCODE_W, "up"},
    {SDL_SCANCODE_S, "down"},
@@ -16,22 +11,14 @@ const std::vector<command_binding> _default_bindings =
    {SDL_SCANCODE_P, "pause"}};
 
 int main (){
-  level *level1 = new level(10, 10);
-  bloke *bloke1, *bloke2;
   log_message(INFO, "Bomberbloke client starting...");
   init_engine();
-  //local_p("Nickname");
-  // _local_player_list.push_back(local_p(std::string("Nickname")));
-   bloke1 = new bloke(level1, 0, 0);
-   bloke2 = new bloke(level1, double(10) ,0);
-   _local_player_list.back().init(bloke1);
-   bloke2->init(); 
-   bloke1->init();
-   bloke1->collides = true;
-   bloke1->velocity[0] = 0.01;
-   bloke2->velocity[0] =-0.01;
-  SDL_FillRect(bloke1->sprite, NULL, SDL_MapRGB(bloke1->sprite->format, 0x00, 0xFF, 0xFF));
+  _local_player_list.push_back(local_p("nickname"));
   client_loop();
   SDL_Quit();
   return 0;
+}
+
+void new_game(std::string){
+  return;
 }
