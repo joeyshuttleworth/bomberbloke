@@ -38,10 +38,13 @@ uint8_t level :: get_block(int row, int column){
 
 void level :: draw(){
   SDL_Rect rect;
+  int rgb[3];
+  //First draw the backgroud blocks
   for(int i=0; i<dim[0];i++){
     for(int j=0;j<dim[1];j++){
       switch(get_block(i, j)){
       default:
+	memset(&rgb, 0, sizeof(int)*3);
 	break;
       }
     }
@@ -52,10 +55,13 @@ void level :: draw(){
   rect.y = 0;
   if(!sprite){
     sprite = SDL_GetWindowSurface(_window);
-    SDL_FillRect(sprite, NULL, SDL_MapRGB(sprite->format, 0x00, 0x00, 0xFF));
   }
-  SDL_FillRect(sprite, NULL, SDL_MapRGB(sprite->format, 0xFF, 0, 0xFF));
+  SDL_FillRect(sprite, NULL, SDL_MapRGB(sprite->format, 0x00, 0xFF, 0xFF));
   SDL_BlitSurface(sprite, NULL, _surface, &rect);
+  //Next draw each Actor
+  for(auto i = actor_list.begin(); i!=actor_list.end(); i++){
+    i->draw();
+  }
   return;
 }
 

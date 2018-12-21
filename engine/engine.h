@@ -31,6 +31,7 @@ void send_to_all(net_message*);
 void send_to_list(net_message*, std::list<network_p>);
 void new_game(std::string);
 void engine_new_game(std::string);
+void engine_start_game();
 void client_loop();
 void server_loop();
 void log_message(int, const char*);

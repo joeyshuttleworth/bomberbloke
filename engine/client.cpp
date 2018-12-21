@@ -67,13 +67,28 @@ void handle_datagram(char *buf, struct sockaddr_storage *client_addr, unsigned i
     break;
     }
   case NET_MSG:{
+    std::cout << "message received: ";
     char str[count-1];
     strncpy(str, buf+2,count-1);
     str[count-2] = '\0';
     puts(str);
     break;
   }
-  case NET_NEW_GAME:
+  case NET_START:{
+    net_message msg;
+    msg.operation = NET_ACK;
+    msg.data = (char*)malloc(sizeof(char));
+    msg.data[0]= buf[1];
+    msg.data_size = 1;
+    msg.address_length = sizeof(struct sockaddr_storage);
+    msg.frequency = 0;
+    msg.attempts  = 1;
+    memcpy(&msg.address, client_addr, addr_len); 
+    net_add_message(&msg);
+    log_message(INFO, "Game resumed.\n");
+    break;
+  }
+  case NET_NEW_GAME:{
     net_message msg;
     msg.operation = NET_ACK;
     msg.data = (char*)malloc(sizeof(char));
@@ -88,6 +103,7 @@ void handle_datagram(char *buf, struct sockaddr_storage *client_addr, unsigned i
     _state = STOPPED;
     engine_new_game("");
     break;
+  }
   }
   return;
 }
@@ -155,5 +171,9 @@ void engine_new_game(std::string tokens){
   new_game(tokens);
   _level = level(10,10);
   //remove moves and SYNCS from message queue
+  return;
+}
+
+void engine_start_game(){
   return;
 }

@@ -211,6 +211,7 @@ void handle_system_command(std::list<std::string> tokens){
     _state = PAUSED;
   }
   else if(_server && command == "start"){
+    engine_start_game();
     _state = PLAYING;    
   }
   else if(command == "disconnect" && !_server && _state!=DISCONNECTED){
@@ -337,7 +338,7 @@ void *console_loop(void *arg){
 
 char *write_move(net_move move){
   char *rc;
-  
+  //TODO whatever this was supposed to be
   return rc;
 }
 

@@ -269,6 +269,8 @@ void sync_players(){
     memcpy(buf + c, &tmp, sizeof(net_float));
     c = c + sizeof(net_float);
   }
+  if(c+1 > 510)
+    log_message(WARNING, "Sync message size may be too large to send safely");
   msg.data = buf;
   msg.data_size = c;
   msg.frequency = 1;
@@ -291,8 +293,30 @@ void engine_new_game(std::string tokens){
       i->state = STOPPED;
     }
   }
-  //remove moves and SYNCS from message queue
-  sync_players();
+  //TODO:remove moves and SYNCS from message queue
+
+
+  //send NET_NEW_GAME message to all clients
+
+  msg.operation = NET_NEW_GAME;
+  msg.data = NULL;
+  msg.data_size = 0;
+  msg.frequency = 10*NET_RATE*TICK_RATE;
+  msg.attempts  = 10;
+  send_to_all(&msg);
   draw_screen();
+  return;
+}
+
+void engine_start_game(){
+  net_message msg;
+  msg.data_size = 0;
+  msg.operation = NET_START;
+  msg.data = NULL;
+  msg.frequency = 10*NET_RATE*TICK_RATE;
+  msg.attempts  = 10;
+  send_to_all(&msg);
+  log_message(INFO, (const char*)"Server starting game\n");
+  sync_players();
   return;
 }
