@@ -1,10 +1,11 @@
 class player;
 class actor{
  protected:
+
  public:
   actor(double, double);
   actor();
-  SDL_Surface *sprite = NULL; //protected
+  SDL_Texture *sprite = NULL; //should be protected
   void draw();
   int move(double x, double y);
   bool is_moving();

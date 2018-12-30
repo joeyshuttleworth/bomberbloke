@@ -1,5 +1,5 @@
 class bomb : public actor {
-  double timer;
+  Uint8 timer;
   Uint8 power;
   bloke *placed_by;
   bool penetration;
@@ -11,5 +11,6 @@ class bomb : public actor {
   void update();
   void handle_command(std::string command);
   ~bomb();
+  bomb();
   using actor::actor;
 };

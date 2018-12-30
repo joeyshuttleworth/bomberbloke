@@ -1,7 +1,19 @@
 #include "bomberbloke.h"
 
 unsigned int _default_bomb_timer = DEFAULT_BOMB_TIMER;
+
 bomb::~bomb(){
+  return;
+}
+
+bomb::bomb(){
+  if(sprite)
+    SDL_DestroyTexture(sprite);
+  sprite = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, 0, 128, 128);
+  SDL_SetRenderTarget(_renderer, sprite);
+  SDL_SetRenderDrawColor(_renderer, 0xFF, 0xFF, 0xFF, 0x00);
+  SDL_RenderFillRect(_renderer, NULL);
+  SDL_SetRenderTarget(_renderer, NULL);
   return;
 }
 
@@ -13,9 +25,6 @@ void bomb::init(bloke *bloke){
   timer = _default_bomb_timer;
   placed_by = bloke;
   power = bloke->power;
-  free(sprite);
-  sprite = SDL_CreateRGBSurface(0, _zoom * dim[0], dim[1] * _zoom, 32, 0, 0, 0, 0);
-  SDL_FillRect(sprite, NULL, SDL_MapRGB(sprite->format, 0xAF, 0xAF, 0x00));
   return;
 }
 

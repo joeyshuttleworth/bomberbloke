@@ -1,12 +1,13 @@
 #include "engine.h"
 
 void actor :: draw(){
-  SDL_Rect rect;
-  rect.w=ceil(dim[0] * _zoom);
-  rect.h=ceil(dim[1] * _zoom);
-  rect.x=round(position[0] * _zoom);
-  rect.y=round((_level.dim[1]-position[1]-dim[1]) * _zoom);
-  SDL_BlitSurface(sprite, NULL, _surface, &rect);  
+  SDL_Rect dstrect;
+  SDL_SetRenderTarget(_renderer, NULL);
+  dstrect.w=ceil(dim[0] * _zoom);
+  dstrect.h=ceil(dim[1] * _zoom);
+  dstrect.x=round(position[0] * _zoom);
+  dstrect.y=round((_level.dim[1]-position[1]-dim[1]) * _zoom);
+  SDL_RenderCopy(_renderer, sprite, NULL , &dstrect);  
 }
 
 int actor :: move(double x, double y){
@@ -77,7 +78,7 @@ actor :: actor(double x, double y){
   position[1] = y;
   velocity[0] = 0;
   velocity[1] = 0;
-  sprite = SDL_CreateRGBSurface(0, _zoom * dim[0],dim[1] * _zoom ,32, 0xff, 0, 0, 0);
+
   return;
 }
 
@@ -97,6 +98,15 @@ void actor :: update(){
 }
 
 actor::actor(){
+  if(!sprite){
+    sprite = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, 0, 128, 128);
+    SDL_SetRenderTarget(_renderer, sprite);
+    SDL_RenderClear(_renderer);
+    SDL_SetRenderDrawColor(_renderer, 0xFF, 0xFF, 0x00, 0xFF);
+    SDL_RenderFillRect(_renderer, NULL);
+    SDL_RenderPresent(_renderer);
+    SDL_SetRenderTarget(_renderer, NULL);
+  }
   dim[0] = DEFAULT_ACTOR_SIZE;
   dim[1] = DEFAULT_ACTOR_SIZE;
   remove = false;

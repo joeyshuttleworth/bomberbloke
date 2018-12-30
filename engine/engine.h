@@ -46,6 +46,7 @@ std::list<std::string> split_to_tokens(std::string);
 
 extern SDL_Window  *_window;
 extern SDL_Surface *_surface;
+extern SDL_Renderer *_renderer;
 extern double _screen_offset[2];
 extern bool _draw;
 extern bool _server;

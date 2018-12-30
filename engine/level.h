@@ -12,7 +12,7 @@ class level{
   std::string description;
  public:
   std::vector<int> spawn_points;
-  SDL_Surface *sprite=NULL;
+  SDL_Texture *sprite=NULL;
   std::list<actor> actor_list;
   uint8_t *blocks=NULL;
   int dim[2];

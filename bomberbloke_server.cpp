@@ -3,7 +3,7 @@
 
 int    _default_bomb_time = DEFAULT_BOMB_TIMER;
 double _bloke_size[2]     = {DEFAULT_BLOKE_SIZE, DEFAULT_BLOKE_SIZE};
-std::vector<int> _spawn_points = {0,0,0,9,9,9,9,0};
+std::vector<int> _spawn_points = {5,5};
 int colours[50][3];
 
 int main (int argc, char **argv){
@@ -27,7 +27,10 @@ void new_game(std::string arguments){
       b.position[1] = _level.spawn_points[c*2+1];
       _level.actor_list.push_back(b);
       i->character = &_level.actor_list.back();
-      SDL_FillRect(i->character->sprite, NULL, SDL_MapRGB(i->character->sprite->format, 0,0,0));
+      SDL_SetRenderTarget(_renderer, i->character->sprite);
+      SDL_SetRenderDrawColor(_renderer, 0x00, 0x00, 0xFF, 0xFF);
+      SDL_RenderFillRect(_renderer, NULL);
+      SDL_SetRenderTarget(_renderer, NULL);
     }
     else{
       log_message(ERROR, (char*)"Not enough spawn points for all players\n");

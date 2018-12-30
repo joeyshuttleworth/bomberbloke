@@ -8,6 +8,7 @@ unsigned int _state;
 std::list<local_p> _local_player_list;
 std::list<network_p> _client_list;
 pthread_t net_receive, read_console;
+SDL_Renderer *_renderer = NULL;
 
 Uint8 *_kb_state = NULL;
 level _level;
@@ -23,12 +24,13 @@ void init_engine(){
     if(_server)
       window_name = "Bomberbloke Server";
     _window = SDL_CreateWindow(window_name.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
-    _surface=SDL_GetWindowSurface(_window);
     SDL_GetWindowSize(_window, size, size+sizeof(int));
-    SDL_FillRect(_surface, NULL, SDL_MapRGB(_surface->format, 0x00, 0x00, 0xFF));
-    SDL_UpdateWindowSurface(_window);
     _zoom=size[0]/(_level.dim[0]);
   }
+  _renderer = SDL_CreateRenderer(_window, -1, 0);
+  SDL_SetRenderDrawColor(_renderer, 0xff, 0xff, 0, 0xff);
+  SDL_RenderClear(_renderer);
+  SDL_RenderPresent(_renderer);
   _level = level(10,10);
   _kb_state = (Uint8*)malloc(sizeof(Uint8) * SDL_SCANCODE_APP2); //max scancode
   memset((void*)_kb_state, 0, sizeof(Uint8) * SDL_SCANCODE_APP2);
@@ -155,12 +157,11 @@ void draw_hud(){
 }
 
 void draw_screen(){
+  SDL_SetRenderDrawColor(_renderer, 0, 0x00, 0xFF, 0xFF);
+  SDL_RenderClear(_renderer);
   _level.draw();
-  for(auto i = _level.actor_list.begin(); i != _level.actor_list.end(); i++){
-    i->draw();
-  }
   draw_hud();
-  SDL_UpdateWindowSurface(_window);
+  SDL_RenderPresent(_renderer);
   return;
 }
 
@@ -253,27 +254,23 @@ void handle_system_command(std::list<std::string> tokens){
       for(auto i = ++tokens.begin(); i!=tokens.end();i++){
 	str.append(*i + " ");
       }
-      str.pop_back();
-      msg.data_size = str.length();
-      msg.attempts = 1;
-      msg.frequency = 0;
+      msg.data_size = str.length()+1;
+      msg.attempts = 10;
+      msg.frequency = TICK_RATE;
       msg.operation = NET_MSG;
       if(!_server){
 	msg.data = (char*)malloc(str.length());
-	strncpy(msg.data, str.c_str(), str.length());
+	strncpy(msg.data, str.c_str(), str.length()+1);
 	msg.address = _server_address;
 	msg.address_length = sizeof(struct sockaddr_in);
 	net_add_message(&msg);
       }
       else{
 	str = "server: " + str;
-	msg.data = (char*)malloc(str.length());
+	msg.data = (char*)malloc(str.length()+1);
 	strncpy(msg.data, str.c_str(), str.length());
 	msg.data_size = str.length();
-	for(auto i = _client_list.begin(); i!=_client_list.end();i++){
-	  memcpy(&msg.address,i->address,sizeof(struct sockaddr_in));
-	  net_add_message(&msg);
-	}
+	send_to_all(&msg);
       }
       free(msg.data);
     }

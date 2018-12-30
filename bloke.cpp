@@ -88,7 +88,6 @@ void bloke :: init(){
   collides = true;
   memset(&position, 0, sizeof(double)*2);
   memset(&velocity, 0, sizeof(double)*2);
-  sprite = SDL_CreateRGBSurface(0, _zoom * dim[0],dim[1] * _zoom ,32, 0, 0, 0, 0);
   return;
 }
 
