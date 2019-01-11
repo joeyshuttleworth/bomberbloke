@@ -80,9 +80,8 @@ void server_loop(){
 	  prev->update();
       }
       _level.actor_list.remove_if([](actor a){return a.remove;});
-    }
-    if(_state == PLAYING)
       handle_movement();
+    }
     draw_screen();
     _tick++;
   }
@@ -216,6 +215,31 @@ void send_player_list(){
   return;
 }
 
+void send_actor_list(){
+  net_message msg;
+  int c = 0, j = 1;
+  std::vector<char> buf;
+
+  buf.reserve(512);
+  for(auto i = _level.actor_list.begin(); i != _level.actor_list.end(); i++){
+    buf[c] = i->type;
+    c++;
+    if(c > 511){
+      j++;
+      buf.reserve(512*j);
+    }
+  }
+
+  msg.data_size = c;
+  msg.data = (char*)malloc(sizeof(char)* c);
+  msg.operation = NET_ACTOR_LIST;
+  msg.frequency = 1;
+  msg.attempts  = TICK_RATE * 5;
+  printf("%s\n", msg.data);
+  send_to_all(&msg);
+  return;
+}
+
 void sync_players(){
   char buf[513];
   int c, j = 1;
@@ -304,6 +328,13 @@ void engine_new_game(std::string tokens){
   msg.frequency = 10*NET_RATE*TICK_RATE;
   msg.attempts  = 10;
   send_to_all(&msg);
+
+  //send NET_ACTOR_LIST to all clients
+  send_actor_list();
+
+  //send NET_SYNC
+  sync_players();
+  
   draw_screen();
   return;
 }

@@ -30,6 +30,7 @@ enum opcode{
       NET_KICK,
       NET_MSG,
       NET_START,
+      NET_ACTOR_LIST,
       NET_NEW_GAME
 };
 

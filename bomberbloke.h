@@ -26,12 +26,13 @@ enum direction{
   DIR_DOWN
 };
 
-enum block_types{
-  EMPTY,
-  WOOD,
-  METAL,
-  EXPLOSIVE,
-  DEATH,
+enum actor_types{
+  WOOD_BLOCK,
+  METAL_BLOCK,
+  EXPLOSIVE_BLOCK,
+  DEATH_BLOCK,
+  BLOKE,
+  BOMB
 };
 
 enum flags{

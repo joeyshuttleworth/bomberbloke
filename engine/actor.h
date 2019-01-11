@@ -21,5 +21,6 @@ class actor{
   double position[2];
   double velocity[2];
   double dim[2];
+  Uint16 type = 0;
   bool collides;
 };
