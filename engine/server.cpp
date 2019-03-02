@@ -219,8 +219,9 @@ void send_actor_list(){
   net_message msg;
   int c = 0, j = 1;
   std::vector<char> buf;
-
-  buf.reserve(512);
+  int len = _level.actor_list.size();
+  
+  buf.reserve(len);
   for(auto i = _level.actor_list.begin(); i != _level.actor_list.end(); i++){
     buf[c] = i->type;
     c++;
@@ -229,13 +230,12 @@ void send_actor_list(){
       buf.reserve(512*j);
     }
   }
-
   msg.data_size = c;
   msg.data = (char*)malloc(sizeof(char)* c);
   msg.operation = NET_ACTOR_LIST;
   msg.frequency = 1;
   msg.attempts  = TICK_RATE * 5;
-  printf("%s\n", msg.data);
+  printf("Actor info %s\n", msg.data);
   send_to_all(&msg);
   return;
 }

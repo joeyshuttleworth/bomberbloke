@@ -40,7 +40,7 @@ typedef struct{
   char *data;
   uint8_t address_length;
   uint16_t data_size;
-  uint8_t id;
+  uint16_t id;
   uint8_t frequency;
   uint16_t attempts;
   uint8_t offset;
@@ -62,7 +62,20 @@ typedef struct net_move{
   net_float position[2];
   net_float velocity[2];
 } net_move;
-  
+
+struct list_node;
+
+typedef struct list_node{
+  struct list_node *next;
+  void *data;
+}list_node;
+
+typedef struct multi_in{
+  unsigned int id;
+  unsigned int parts;
+  unsigned int operation;
+} multi_in;
+
 extern net_message_node *_net_out_current;
 extern net_message_node *_net_out_head;
 extern bool _net_on;
@@ -86,4 +99,5 @@ void timeout(net_message_node*);
 void net_remove_messages_to(struct sockaddr_storage*); 
 void net_clear_messages();
 void net_send_message();
+void list_add(list_node **head, void *data);
 extern pthread_mutex_t net_out_mutex;

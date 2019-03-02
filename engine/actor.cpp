@@ -2,12 +2,13 @@
 
 void actor :: draw(){
   SDL_Rect dstrect;
-  SDL_SetRenderTarget(_renderer, NULL);
+  /*SDL_SetRenderTarget(_renderer, NULL);
   dstrect.w=ceil(dim[0] * _zoom);
   dstrect.h=ceil(dim[1] * _zoom);
   dstrect.x=round(position[0] * _zoom);
   dstrect.y=round((_level.dim[1]-position[1]-dim[1]) * _zoom);
-  SDL_RenderCopy(_renderer, sprite, NULL , &dstrect);  
+  */
+  SDL_RenderFillRect(_renderer, &dstrect);  
 }
 
 int actor :: move(double x, double y){

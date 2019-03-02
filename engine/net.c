@@ -11,6 +11,7 @@
 pthread_mutex_t net_out_mutex;
 uint8_t _current_id = 0;
 net_message_node *_net_out_head = NULL, *_net_out_current = NULL, *_net_in_head = NULL, *_net_in_current;
+list_node *_net_multi_in_head, *_net_multi_out_head;
 bool _net_on = true;
 int _server_socket = -1;
 unsigned int _net_tick;
@@ -19,15 +20,20 @@ struct sockaddr_storage _server_address;
 void net_messages_init(){
   _net_out_head = NULL;
   _net_in_head  = NULL;
+  _net_multi_in_head = NULL;
+  _net_multi_out_head = NULL;
   memset(&_server_address, 0, sizeof(_server_address));
   _net_tick = 0;
   return;
 }
 
 void net_add_message(net_message *msg){
+  list_node *current;
+  bool reserved = false;
   pthread_mutex_lock(&net_out_mutex);
   msg->id = _current_id;
-  _current_id++;
+  //TODO make sure current_id isn't reserved _current_id++;
+  current = _net_multi_out_head;
   if(!_net_out_current){
     _net_out_head = malloc(sizeof(net_message));
     _net_out_current = _net_out_head;
@@ -138,6 +144,13 @@ void net_send_message(net_message *msg){
     datagram_size = msg->data_size +2;
     break;
   }
+  case NET_ACTOR_LIST: case NET_SYN:{
+    //send the multi package and reserve the id by storing it in the multi_out list
+    void *data = malloc(sizeof(msg->id));
+    *(uint16_t*)data = msg->id;    
+    list_add(&_net_multi_out_head, data);
+    break;
+  }
   }
   if(datagram_size>0){
     if(address->ss_family == AF_INET)
@@ -190,7 +203,7 @@ void *receive_loop(void *a){
     hints.ai_family = AF_INET;
     hints.ai_flags=AI_PASSIVE|AI_ADDRCONFIG;
     if(getaddrinfo(NULL, (char *)a, &hints, &res)!=0){
-      perror("Coudln't get address info\n");
+      perror("Couldn't get address info\n");
       exit(1);
       /*Error*/
     }
@@ -348,4 +361,23 @@ void net_float_create(double val, net_float *res){
   res->mantissa = frexp(val, &exponent);
   res->exponent = exponent;
   return;
+}
+
+void list_add(list_node **head, void *data){
+  list_node *current = *head;
+  if(*head = NULL){
+    *head = malloc(sizeof(list_node));
+    (*head)->data = data;
+    return;
+  }
+  else{
+    while(current->next){
+      current = current->next;
+    }
+    current->next = malloc(sizeof(list_node));
+    current = current->next;
+    current->next = NULL;
+    current->data = data;
+    return;
+  }
 }
