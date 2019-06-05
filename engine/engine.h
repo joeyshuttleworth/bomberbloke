@@ -9,6 +9,7 @@
 #include <array>
 #include <algorithm>
 #include <ctime>
+#include <signal.h>
 extern "C"{
 #include "net.h"
 }
@@ -27,7 +28,7 @@ class network_p;
 
 struct net_float;
 
-void send_to_all(net_message*);
+void exit_engine(int);
 void send_to_list(net_message*, std::list<network_p>);
 void new_game(std::string);
 void engine_new_game(std::string);
@@ -55,6 +56,7 @@ extern double _zoom;
 extern unsigned int _state;
 extern std::list<network_p> _client_list;
 extern pthread_t net_receive, read_console;
+extern std::string _nickname;
 
 typedef struct{
   SDL_Scancode scancode;

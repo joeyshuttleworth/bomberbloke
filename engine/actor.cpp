@@ -51,7 +51,7 @@ int actor :: move(double x, double y){
     memcpy(msg.data, &(controller->id), sizeof(Uint32));
     memcpy(msg.data + sizeof(Uint32), position, sizeof(double)*2);
     memcpy(msg.data + sizeof(Uint32)+2*sizeof(double), velocity, 2*sizeof (double)); 
-    net_add_message(&msg);
+    net_add_message(&msg, false);
   }
   memcpy(position, tmp_pos, sizeof(double) * 2);
   if(in_level){

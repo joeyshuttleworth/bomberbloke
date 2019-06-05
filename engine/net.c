@@ -10,14 +10,32 @@
 
 pthread_mutex_t net_out_mutex;
 uint8_t _current_id = 0;
-net_message_node *_net_out_head = NULL, *_net_out_current = NULL, *_net_in_head = NULL, *_net_in_current;
+list_node *_net_out_head = NULL, *_net_out_current = NULL, *_net_in_head = NULL, *_net_in_current;
 list_node *_net_multi_in_head, *_net_multi_out_head;
 bool _net_on = true;
 int _server_socket = -1;
 unsigned int _net_tick;
+FILE *f_out, *f_in; 
 struct sockaddr_storage _server_address;
 
+void net_exit(){
+  if(f_out)
+    fclose(f_out);
+  if(f_in)
+    fclose(f_in);
+  net_clear_messages();
+  return;
+}
+
 void net_messages_init(){
+  if(IS_SERVER){
+    f_out = fopen("s_net_out.bin", "wb");
+    f_in  = fopen("s_net_in.bin", "wb");
+  }
+  else{
+    f_out = fopen("net_out.bin", "wb");
+    f_in  = fopen("net_in.bin",  "wb");
+  }
   _net_out_head = NULL;
   _net_in_head  = NULL;
   _net_multi_in_head = NULL;
@@ -27,13 +45,48 @@ void net_messages_init(){
   return;
 }
 
-void net_add_message(net_message *msg){
+uint8_t get_unused_out_id(){
+  uint8_t id = 0;
+  for(int i=0;i!=255;i++){
+    int used = 0;
+    //Check id isn't in use in the _net_out list
+    if(_net_out_head){
+      list_node *current = _net_out_head;
+      while(current){
+	net_message *msg = current->data;
+	if(msg->id == id)
+	  used = 1;	
+	if(!current->next)
+	  break;
+	else
+	  current = current->next;	
+      }
+    }
+    if(_net_multi_out_head && !used){
+      list_node *current = _net_multi_out_head;
+      while(current){
+	net_message *msg = current->data;
+	if(msg->id == id)
+	  used = 1;	
+	if(!current->next)
+	  break;
+	else
+	  current = current->next;	
+      }
+    }
+  }
+  return id;
+}
+
+void net_add_message(net_message *msg, bool locked){
   list_node *current;
   bool reserved = false;
-  pthread_mutex_lock(&net_out_mutex);
+  if(!locked)
+    pthread_mutex_lock(&net_out_mutex);
   msg->id = _current_id;
-  //TODO make sure current_id isn't reserved _current_id++;
-  current = _net_multi_out_head;
+  //TODO make sure current_id isn't reserved
+  _current_id++;
+  current = _net_out_head;
   if(!_net_out_current){
     _net_out_head = malloc(sizeof(net_message));
     _net_out_current = _net_out_head;
@@ -44,12 +97,13 @@ void net_add_message(net_message *msg){
     _net_out_current = _net_out_current->next;
     _net_out_current->next = NULL;
   }
-  _net_out_current->msg = malloc(sizeof(net_message));
-  memcpy(_net_out_current->msg, msg, sizeof(net_message));
-  _net_out_current->msg->data = malloc(msg->data_size);
-  memcpy(_net_out_current->msg->data, msg->data, msg->data_size);
+  _net_out_current->data = (net_message *)malloc(sizeof(net_message));
+  memcpy(_net_out_current->data, msg, sizeof(net_message));
+  ((net_message *) _net_out_current->data)->data = malloc(msg->data_size);
+  memcpy(((net_message *) _net_out_current->data)->data, msg->data, msg->data_size);
   msg->offset = (uint8_t)_net_tick;
-  pthread_mutex_unlock(&net_out_mutex);
+  if(!locked)
+    pthread_mutex_unlock(&net_out_mutex);
   if(msg->attempts ==0)
     printf("WARNING: attempts = 0 - messages will be deleted without sending\n");
   return;
@@ -61,11 +115,11 @@ void net_flush_messages(){
     return;
   else{
     printf("tick: %d\n", _net_tick);
-    net_message_node *current = _net_out_head;
-    net_message_node *prev = NULL;
+    list_node *current = _net_out_head;
+    list_node *prev = NULL;
     pthread_mutex_lock(&net_out_mutex);
     while(current){
-      net_message *msg = current->msg;
+      net_message *msg = current->data;
       if(msg->frequency!=0){
 	if((int)(_net_tick - msg->offset) % msg->frequency != 0){
 	  prev    = current;
@@ -74,7 +128,7 @@ void net_flush_messages(){
 	}
       }
       if(msg->attempts==0){
-	net_message_node *remove = current;
+	list_node *remove = current;
 	if(prev){
 	  if(current->next)
 	    prev->next = current->next;
@@ -109,7 +163,7 @@ void net_flush_messages(){
 void net_send_message(net_message *msg){
   struct sockaddr_storage *address = &(msg->address);
   unsigned int datagram_size = 0;
-  char datagram[2+msg->data_size];
+  char datagram[3+msg->data_size];
   if(!IS_SERVER)
     address = &_server_address;
   switch(msg->operation){
@@ -123,7 +177,8 @@ void net_send_message(net_message *msg){
   case NET_PING:{
     datagram[0] = msg->operation;
     datagram[1] = msg->id;
-    datagram_size = 2;
+    datagram[2] = msg->id >> 8;
+    datagram_size = 3;
     printf("Sending Ping\n");
     break;
   }
@@ -133,26 +188,50 @@ void net_send_message(net_message *msg){
     break;
   case NET_ACK:{
     datagram[0] = msg->operation;
-    datagram[1] = msg->data[0];
-    datagram_size = 2;
+    memcpy(datagram + 1, msg->data, 2);
+    datagram_size = 3;
     printf("Sending ACK\n");
     break;}
   case NET_NEW_GAME: case NET_START: case NET_MSG: case NET_JOIN:{
     datagram[0] = msg->operation;
     datagram[1] = msg->id;
-    memcpy(datagram+2, msg->data, msg->data_size);
-    datagram_size = msg->data_size +2;
+    datagram[2] = msg->id >> 8;
+    memcpy(datagram+3, msg->data, msg->data_size);
+    datagram_size = msg->data_size + 3;
     break;
   }
   case NET_ACTOR_LIST: case NET_SYN:{
-    //send the multi package and reserve the id by storing it in the multi_out list
+    //send the multi package and store the id in the _out list
     void *data = malloc(sizeof(msg->id));
-    *(uint16_t*)data = msg->id;    
+    net_message multi_message;
+    *(uint16_t*)data = msg->id;
+    unsigned int no_packets = (msg->data_size / 500) + 1;
+    if(no_packets > 255){
+      printf("\nError: message too large to send \n");
+      return;
+    }
     list_add(&_net_multi_out_head, data);
+    multi_message.attempts = DEFAULT_ATTEMPTS;
+    multi_message.frequency = 1;
+    multi_message.operation = NET_MULTI;
+    //break the data into packets with maximum size 500 bytes
+    multi_message.data = malloc(sizeof(char) * 500);
+    for(unsigned int i = 0; i <= no_packets; i++){
+      memset(multi_message.data, 0, 500);
+      unsigned int length = 503;
+      multi_message.data[0] = msg->id;
+      multi_message.data[1] = msg->id >> 8;
+      multi_message.data[2] = i;
+      if(i == no_packets)
+	length = (no_packets-1) * 500 - msg->data_size;
+      memcpy(multi_message.data, data + 500*i, length+3);
+      net_add_message(&multi_message, true);
+    }
     break;
   }
   }
   if(datagram_size>0){
+    fwrite(datagram, datagram_size, 1, f_out);
     if(address->ss_family == AF_INET)
       sendto(_server_socket, datagram, datagram_size, 0, (struct sockaddr*)address, sizeof(struct sockaddr_in));
     else if(address->ss_family == AF_INET6)
@@ -165,15 +244,16 @@ void net_send_message(net_message *msg){
 }
 
 void net_clear_messages(){
-  net_message_node *current=_net_out_head;
+  list_node *current=_net_out_head;
   pthread_mutex_lock(&net_out_mutex);
   while(current){
-    net_message_node *tmp = current;
-    if(current->msg){
-      if(current->msg->data){
-	free(current->msg->data);
+    list_node *tmp = current;
+    if(current->data){
+      net_message *message = current->data;
+      if(message->data){
+	free(message->data);
       }
-      free(current->msg);
+      free(current->data);
     }
     current=current->next;
     free(tmp);
@@ -235,12 +315,13 @@ void *receive_loop(void *a){
     if(count>512){
       count = 512;
     }
-    handle_datagram(buf, &client_addr, src_addr_len, count); 
-  }
+    fwrite(buf, count, 1, f_in);
+    handle_datagram(buf, &client_addr, src_addr_len, count);
+   }
     return 0;
 }
     
-void net_join_server(const char *address, char *port, const char *nickname){
+void net_join_server(const char *address, const char *port, const char *nickname){
   char *buf;
   int count = strlen(nickname) + 1;
   
@@ -253,7 +334,7 @@ void net_join_server(const char *address, char *port, const char *nickname){
   hints.ai_socktype = SOCK_DGRAM;
   hints.ai_protocol = 0;
   hints.ai_flags=AI_PASSIVE|AI_ADDRCONFIG;
-  if(getaddrinfo(NULL, "8888", &hints, &res)!=0){
+  if(getaddrinfo(address, port, &hints, &res)!=0){
     printf("Invalid address\n");
   }
   memcpy(&_server_address, res->ai_addr, res->ai_addrlen);
@@ -264,12 +345,12 @@ void net_join_server(const char *address, char *port, const char *nickname){
   msg.frequency = 0;
   msg.attempts = 10;
   msg.data = nickname;
-  net_add_message(&msg);
+  net_add_message(&msg, false);
   printf("Joining server...\n");
   return;
 }
 
-void net_remove_message(net_message_node *node){
+void net_remove_message(list_node *node){
   if(!node)
     return; /*Error: null message*/
   else if(node == _net_out_head){
@@ -279,23 +360,25 @@ void net_remove_message(net_message_node *node){
       _net_out_head = NULL;
       _net_out_current = NULL;
     }
-    if(node->msg){
-      if(node->msg->data && node->msg->data_size>0)
-	free(node->msg->data);
-      free(node->msg);
+    if(node->data){
+      net_message *msg = node->data;
+      if(msg->data && msg->data_size>0)
+	free(msg->data);
+      free(msg);
     }
     free(node);
   }
   else{
-    net_message_node *current = _net_out_head;
+    list_node *current = _net_out_head;
     
     while(current){
       if(current->next == node){
 	current->next = node->next;
-	if(node->msg){
-	  if(node->msg->data && node->msg->data_size>0)
-	    free(node->msg->data);
-	  free(node->msg);
+	if(node->data){
+	  net_message *msg = node->data;
+	  if(msg->data && msg->data_size>0)
+	    free(msg->data);
+	  free(node->data);
 	}
 	free(node);
 	break;
@@ -307,14 +390,15 @@ void net_remove_message(net_message_node *node){
   return;
 }
 
-net_message_node *net_get_message(unsigned int id){
+list_node *net_get_message(unsigned int id){
   if(_net_out_head){
-    net_message_node *current = _net_out_head;
-    bool lower = _net_out_head->msg->id > id;
+    list_node *current = _net_out_head;
+    bool lower = ((net_message *)_net_out_head->data)->id > id;
     while(current){
-      if(current->msg->id == id)
+      net_message *msg = current->data;
+      if(msg->id == id)
 	return current;
-      if(lower && current->msg->id>id)
+      if(lower && msg->id>id)
 	return NULL;
       current=current->next;
     }
@@ -324,14 +408,15 @@ net_message_node *net_get_message(unsigned int id){
 
 void net_remove_messages_to(struct sockaddr_storage *address){
   if(_net_out_head){
-    net_message_node *current = _net_out_head;
+    list_node *current = _net_out_head;
 
     if(address->ss_family == AF_INET){
       struct sockaddr_in *remove_address = (struct sockaddr_in*) address;
       while(1){
-	if(current->msg->address.ss_family != AF_INET)
+	net_message *msg = current->data;
+	if(msg->address.ss_family != AF_INET)
 	  break;
-	if(((struct sockaddr_in*)address)->sin_addr.s_addr == ((struct sockaddr_in*)&current->msg->address)->sin_addr.s_addr && ((struct sockaddr_in*)address)->sin_port == ((struct sockaddr_in*)&current->msg->address)->sin_port)
+	if(((struct sockaddr_in*)address)->sin_addr.s_addr == ((struct sockaddr_in*)&msg->address)->sin_addr.s_addr && ((struct sockaddr_in*)address)->sin_port == ((struct sockaddr_in*)&msg->address)->sin_port)
 	  if(current->next)
 	    current=current->next;
 	  else
@@ -364,13 +449,13 @@ void net_float_create(double val, net_float *res){
 }
 
 void list_add(list_node **head, void *data){
-  list_node *current = *head;
-  if(*head = NULL){
+  if(*head == NULL){
     *head = malloc(sizeof(list_node));
     (*head)->data = data;
     return;
   }
   else{
+    list_node *current = *head;
     while(current->next){
       current = current->next;
     }

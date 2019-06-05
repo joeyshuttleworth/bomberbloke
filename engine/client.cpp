@@ -20,14 +20,19 @@ void handle_datagram(char *buf, struct sockaddr_storage *client_addr, unsigned i
     return;  
   switch(buf[0]){
   case NET_ACK:{      
-    unsigned int message_id = buf[1];
-    net_message_node *current = net_get_message(message_id);
+    unsigned int message_id;
+    list_node *current;
     net_message *msg = NULL;
-    
+    if(count < 3){
+      log_message(DEBUG, "Received malformed ACK - too short");
+      return;
+    }
+    message_id = buf[1] + (buf[2] << 8);
+    current = net_get_message(message_id);
     if(!current)
-      log_message(DEBUG, "Malformed NET_ACK datagram");
+      log_message(DEBUG, "Malformed NET_ACK datagram - no corresponding message");
     else{
-      msg = current->msg;
+      msg = (net_message *)current->data;
       switch(msg->operation){
       case NET_JOIN:
 	if(_state == JOINING){
@@ -48,7 +53,7 @@ void handle_datagram(char *buf, struct sockaddr_storage *client_addr, unsigned i
     break;
   }
   case NET_PING:{
-    if(count != 2){
+    if(count != 3){
       log_message(ERROR, "Received malformed ping");
     }
     else{
@@ -56,22 +61,22 @@ void handle_datagram(char *buf, struct sockaddr_storage *client_addr, unsigned i
       msg.operation = NET_ACK;
       msg.data = (char*)malloc(sizeof(char));
       msg.data[0]= buf[1];
-      msg.data_size = 1;
+      msg.data[1]= buf[2];
+      msg.data_size = 2;
       msg.address_length = sizeof(struct sockaddr_storage);
       msg.frequency = 0;
       msg.attempts  = 1;
       memcpy(&msg.address, client_addr, addr_len); 
-      net_add_message(&msg);
+      net_add_message(&msg, false);
       log_message(DEBUG, "PING received from server");
     }
     break;
     }
   case NET_MSG:{
-    std::cout << "message received: ";
-    char str[count-1];
-    strncpy(str, buf+2,count-1);
-    str[count-2] = '\0';
-    puts(str);
+    char str[count-3];
+    strncpy(str, buf+3,count-2);
+    str[count-3] = '\0';
+    std::cout << str << "\n";
     break;
   }
   case NET_START:{
@@ -79,12 +84,13 @@ void handle_datagram(char *buf, struct sockaddr_storage *client_addr, unsigned i
     msg.operation = NET_ACK;
     msg.data = (char*)malloc(sizeof(char));
     msg.data[0]= buf[1];
-    msg.data_size = 1;
+    msg.data[1] = buf[2];
+    msg.data_size = 2;
     msg.address_length = sizeof(struct sockaddr_storage);
     msg.frequency = 0;
     msg.attempts  = 1;
     memcpy(&msg.address, client_addr, addr_len); 
-    net_add_message(&msg);
+    net_add_message(&msg, false);
     log_message(INFO, "Game resumed.\n");
     break;
   }
@@ -93,12 +99,13 @@ void handle_datagram(char *buf, struct sockaddr_storage *client_addr, unsigned i
     msg.operation = NET_ACK;
     msg.data = (char*)malloc(sizeof(char));
     msg.data[0]= buf[1];
+    msg.data[1] = buf[2];
     msg.data_size = 1;
     msg.address_length = sizeof(struct sockaddr_storage);
     msg.frequency = 0;
     msg.attempts  = 1;
     memcpy(&msg.address, client_addr, addr_len); 
-    net_add_message(&msg);
+    net_add_message(&msg, false);
     log_message(INFO, "Starting new game...\n");
     _state = STOPPED;
     engine_new_game("");
@@ -153,8 +160,9 @@ void client_loop(){
 }
 
 
-void timeout(net_message_node *node){
-  unsigned int opcode = node->msg->operation;
+void timeout(list_node *node){
+  net_message *msg = (net_message *) node->data;
+  unsigned int opcode = msg->operation;
   //  std::cout << "opcode" << opcode << " timed out\n";
   switch(opcode){
   case NET_JOIN:

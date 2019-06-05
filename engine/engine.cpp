@@ -13,11 +13,27 @@ SDL_Renderer *_renderer = NULL;
 Uint8 *_kb_state = NULL;
 level _level;
 uint32_t  _tick = 0;
+std::string _nickname = "big_beef";
 
+void exit_engine(int signum){
+   //Destroy window
+  if(_window){
+    SDL_DestroyWindow(_window);
+    _window = NULL;
+  }
+  //Quit SDL subsystems
+  SDL_Quit();
+  _halt = true;
+  std::cout << "\nNow exiting the BLOKE engine. Hope you had fun. Wherever you are, we at the BLOKE project hope we have made your day just a little bit brighter. See you next time around! :)\n";
+  net_exit();
+  signal(SIGINT, NULL);
+  return;
+}
 void init_engine(){
   int size[2];
   char *receive_port = (char*)"8888";
-  
+
+  signal(SIGINT, exit_engine);
   SDL_Init(SDL_INIT_EVERYTHING);
   if(_draw){
     std::string window_name = "Bomberbloke Client";
@@ -202,11 +218,32 @@ void handle_system_command(std::list<std::string> tokens){
   std::string command = tokens.front();
   struct addrinfo hints;
   char buf[512];
-
-  tokens.pop_front(); //tokens no longer contains the command
+  tokens.pop_front();  //command no longer at the front of tokens
+  if(_halt)
+    return;
   std::cout << command << "\n";
-  if(command == "connect" && !_server){
-      net_join_server(std::next(tokens.begin())->c_str(), "8888", "big_beef");
+  if(command == "exit"){
+    exit_engine(0);
+  }
+  else if(command == "connect" && !_server){
+    const char *address = NULL;
+    const char *port    = "8888";
+    if(tokens.size() > 0){
+      const char *address = tokens.begin()->c_str();
+      if(tokens.size() > 1){
+	tokens.pop_front();
+	const char *port    = tokens.begin()->c_str();
+      }
+    }
+    net_join_server(address, port, _nickname.c_str());
+  }
+  else if(command == "nickname" && !_server){
+    if(tokens.size() == 1){
+      _nickname = tokens.front();
+      log_message(INFO, ("nickname has been set to: " + _nickname + "\n").c_str());
+    }
+    else
+      log_message(ERROR, "Couldn't reset nickname. Incorrect number of arguments. \n");
   }
   else if(_server && command == "pause"){
     _state = PAUSED;
@@ -227,7 +264,7 @@ void handle_system_command(std::list<std::string> tokens){
     msg.data = NULL;
     std::cout << "Disconnecting from server\n";
     _state = DISCONNECTED;
-    net_add_message(&msg);
+    net_add_message(&msg, false);
   }
   else if(_server && command == "unpause"){
     if(_state == PAUSED)
@@ -240,7 +277,7 @@ void handle_system_command(std::list<std::string> tokens){
     msg.data = (char*)&_tick;
     msg.frequency = 1;
     msg.attempts = 20;
-    send_to_all(&msg);    
+    send_to_list(&msg, _client_list);    
     engine_new_game(""); // pass tokens as a parameter
   }
   else if(_server && command == "stop"){
@@ -248,10 +285,10 @@ void handle_system_command(std::list<std::string> tokens){
       _state = STOPPED;
   }
   else if(command == "say"){
-    if(tokens.size() > 1){
+    if(tokens.size() >= 1 && _state != DISCONNECTED){
       std::string str;
       net_message msg;
-      for(auto i = ++tokens.begin(); i!=tokens.end();i++){
+      for(auto i = tokens.begin(); i!=tokens.end();i++){
 	str.append(*i + " ");
       }
       msg.data_size = str.length()+1;
@@ -263,14 +300,14 @@ void handle_system_command(std::list<std::string> tokens){
 	strncpy(msg.data, str.c_str(), str.length()+1);
 	msg.address = _server_address;
 	msg.address_length = sizeof(struct sockaddr_in);
-	net_add_message(&msg);
+	net_add_message(&msg, false);
       }
       else{
 	str = "server: " + str;
 	msg.data = (char*)malloc(str.length()+1);
 	strncpy(msg.data, str.c_str(), str.length());
 	msg.data_size = str.length();
-	send_to_all(&msg);
+	send_to_list(&msg, _client_list);
       }
       free(msg.data);
     }
@@ -339,16 +376,11 @@ char *write_move(net_move move){
   return rc;
 }
 
-void send_to_all(net_message *msg){
-  send_to_list(msg, _client_list);
-  return;
-}
-
 void send_to_list(net_message *msg, std::list<network_p> lst){
   for(auto i = lst.begin(); i!= lst.end(); i++){
     memcpy(&msg->address, i->address, i->address_length);
     msg->address_length = i->address_length;
-    net_add_message(msg);
+    net_add_message(msg, false);
   }
   return;
 }

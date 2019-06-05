@@ -19,14 +19,14 @@ std::list<network_p>::iterator get_client(sockaddr_storage *addr){
       if(family == AF_INET){
 	if(((sockaddr_in*)addr)->sin_addr.s_addr == ((sockaddr_in*)client->address)->sin_addr.s_addr && ((sockaddr_in*)addr)->sin_port == ((sockaddr_in*)client->address)->sin_port)
 	  return client;
-	
       }
       else if(family == AF_INET6){
 	//TODO IPV6
       }
     }
   }
-return _client_list.end();
+  log_message(ERROR, "No such player found \n");
+  return _client_list.end();
 }
 
 void remove_client(std::list<network_p>::iterator player){
@@ -44,7 +44,7 @@ void server_loop(){
   timespec t1, t2;
   t2.tv_nsec = 0;
   t2.tv_sec  = 0;
-  while(true){
+  while(!_halt){
     printf("%d\n", _tick);
     t1 = t2;
     do{
@@ -90,24 +90,31 @@ void server_loop(){
 
 void handle_datagram(char *buf, struct sockaddr_storage *client_addr, unsigned int count, unsigned int addr_len){
   char opcode = buf[0];
-  std::cout  << "Received datagram: " << buf[0] << buf << "\n";
+  std::cout  << "Received datagram: " << buf[0] << buf + 3 << "\n";
   switch(opcode){
   case NET_MSG:{
     net_message msg;
     std::string str;
-    str = get_client(client_addr)->nickname + ": " + std::string(buf+2);
+    str = get_client(client_addr)->nickname + ": " + std::string(buf+3);
+    std::cout << "message received: " <<  str << "\n";
     msg.data = (char*)malloc(str.length());
     msg.data_size = str.length();
     strncpy(msg.data, str.c_str(), str.length());
     msg.operation = NET_MSG;
     msg.attempts = 10;
     msg.frequency= 10 * TICK_RATE/NET_RATE;
-    for(auto i = _client_list.begin(); i != _client_list.end(); i++){
-      memcpy(&msg.address, i->address, sizeof(struct sockaddr_in));
-      msg.address_length = sizeof(struct sockaddr_in);
-      net_add_message(&msg);
-    }
+    send_to_list(&msg, _client_list);
     free(msg.data);
+    msg.operation = NET_ACK;
+    msg.data = (char*)malloc(sizeof(char));
+    msg.data[0] = buf[1];
+    msg.data[1] = buf[2];
+    msg.data_size = 2;
+    msg.address_length = sizeof(struct sockaddr_storage);
+    msg.frequency = 0;
+    msg.attempts  = 1;
+    memcpy(&msg.address, client_addr, addr_len); 
+    net_add_message(&msg, false);
     break;
   }
   case NET_JOIN:{
@@ -121,25 +128,27 @@ void handle_datagram(char *buf, struct sockaddr_storage *client_addr, unsigned i
       msg.operation = NET_ACK;
       msg.data = (char*)malloc(sizeof(char));
       msg.data[0]= buf[1];
+      msg.data[1]= buf[2];
       msg.data_size = strlen(msg.data);
       msg.address_length = addr_len;
       msg.frequency = 0;
       msg.attempts  = 1;
       memcpy(&msg.address,client_addr, addr_len); 
-      net_add_message(&msg);
+      net_add_message(&msg, false);
       log_message(DEBUG, "client is already joined\n");
     }
     else{
       net_message msg;
       msg.operation = NET_ACK;
-      msg.data = (char *)malloc(sizeof(char));
-      msg.data[0]  = buf[1];
-      msg.data_size = 1;
+      msg.data = (char *)malloc(2*sizeof(char));
+      msg.data[0] = buf[1];
+      msg.data[1] = buf[2]; 
+      msg.data_size = 2;
       msg.address_length = addr_len;
       msg.frequency = 0;
       msg.attempts  = 1;
       memcpy(&msg.address, client_addr, addr_len); 
-      net_add_message(&msg);
+      net_add_message(&msg, false);
       add_client(nickname, client_addr);
       std::cout << nickname << " has joined the server" << "\n";
       if(_state == DISCONNECTED)
@@ -160,23 +169,26 @@ void handle_datagram(char *buf, struct sockaddr_storage *client_addr, unsigned i
     break;
   }
   case NET_ACK:{
-    unsigned int message_id = buf[1];
-    net_message_node *current = net_get_message(message_id);
+    unsigned int message_id;
+    list_node *current;
     bool malformed = false;
-    pthread_mutex_lock(&net_out_mutex);
-    net_remove_message(current);
-    pthread_mutex_unlock(&net_out_mutex);
+    if(count < 3){
+      log_message(DEBUG, "Malformed NET_ACK - too short\n");
+      return;
+    }
+    message_id = buf[1] + (buf[2] << 8);
+    current = net_get_message(message_id);
     if(!current)
       malformed = true;
-    else if(!current->msg)
+    else if(!current->data)
       malformed = true;
     if(malformed){
-      log_message(DEBUG, "MALFORMED NET_ACK\n");
+      log_message(DEBUG, "MALFORMED NET_ACK - no such message\n");
       return;
     }
     if(count < 2)
       return;
-    switch(current->msg->operation){
+    switch(((net_message *)current->data)->operation){
     default:
       break;
     case NET_PING:{
@@ -190,6 +202,7 @@ void handle_datagram(char *buf, struct sockaddr_storage *client_addr, unsigned i
       client.state = PAUSED;
       break;
     }
+    net_remove_message(current);
   }
   default:
     break;
@@ -197,8 +210,8 @@ void handle_datagram(char *buf, struct sockaddr_storage *client_addr, unsigned i
   return;
 }
 
-void timeout(net_message_node *node){
-  net_message *msg = node->msg;
+void timeout(list_node *node){
+  net_message *msg = (net_message *)node->data;
   switch(msg->operation){
   default:
     break;
@@ -236,7 +249,7 @@ void send_actor_list(){
   msg.frequency = 1;
   msg.attempts  = TICK_RATE * 5;
   printf("Actor info %s\n", msg.data);
-  send_to_all(&msg);
+  send_to_list(&msg, _client_list);
   return;
 }
 
@@ -273,10 +286,6 @@ void sync_players(){
     else{
       buf[c] = i->controller->id;
     }
-    if(c + 4*sizeof(net_float) > 511){
-      log_message(ERROR, "NET_SYNC Package too large");
-      return;
-    }
     buf[c] = i->dim[0];
     buf[c+1] = i->dim[1];
     c = c + 2 * sizeof(char);
@@ -293,15 +302,13 @@ void sync_players(){
     memcpy(buf + c, &tmp, sizeof(net_float));
     c = c + sizeof(net_float);
   }
-  if(c+1 > 510)
-    log_message(WARNING, "Sync message size may be too large to send safely");
   msg.data = buf;
   msg.data_size = c;
   msg.frequency = 1;
   msg.attempts  = MAX_ATTEMPTS;
   buf[c+1] = 0;
   log_message(DEBUG, buf);
-  send_to_all(&msg);
+  send_to_list(&msg, _client_list);
   return;
 }
 
@@ -327,7 +334,7 @@ void engine_new_game(std::string tokens){
   msg.data_size = 0;
   msg.frequency = 10*NET_RATE*TICK_RATE;
   msg.attempts  = 10;
-  send_to_all(&msg);
+  send_to_list(&msg, _client_list);
 
   //send NET_ACTOR_LIST to all clients
   send_actor_list();
@@ -346,7 +353,7 @@ void engine_start_game(){
   msg.data = NULL;
   msg.frequency = 10*NET_RATE*TICK_RATE;
   msg.attempts  = 10;
-  send_to_all(&msg);
+  send_to_list(&msg, _client_list);
   log_message(INFO, (const char*)"Server starting game\n");
   sync_players();
   return;

@@ -8,7 +8,8 @@ const std::vector<command_binding> _default_bindings =
    {SDL_SCANCODE_D, "right"},
    {SDL_SCANCODE_J, "powerup"},
    {SDL_SCANCODE_K, "bomb"},
-   {SDL_SCANCODE_P, "pause"}};
+   {SDL_SCANCODE_P, "pause"}
+  };
 
 int main (){
   log_message(INFO, "Bomberbloke client starting...");
@@ -18,6 +19,7 @@ int main (){
   SDL_Quit();
   return 0;
 }
+
 
 void new_game(std::string){
   return;
