@@ -68,8 +68,11 @@ typedef struct list_node{
 
 typedef struct multi_in{
   unsigned int id;
-  unsigned int parts;
+  unsigned int no_parts;
+  void  **parts;
+  int *sizes;
   unsigned int operation;
+  int time_to_live;
 } multi_in;
 
 extern list_node *_net_out_current;
@@ -77,8 +80,9 @@ extern list_node *_net_out_head;
 extern bool _net_on;
 extern int _server_socket;
 extern struct sockaddr_storage _server_address;
-extern uint8_t _current_id;
+extern uint16_t _current_id;
 extern unsigned int _tick;
+extern list_node *_net_multi_in_head, *_net_multi_out_head;
 
 void net_flush_messages();
 void net_add_message(net_message*, bool);
@@ -89,12 +93,17 @@ void net_float_create(double, net_float*);
 void *receive_loop(void*);
 list_node *net_get_message(unsigned int);
 void handle_datagram(char*, struct sockaddr_storage*, unsigned int, unsigned int);
+void net_handle_datagram(char*, struct sockaddr_storage*, unsigned int, unsigned int);
 void net_join_server(const char*,const char*, const char*);
 void net_remove_message(list_node*);
 void timeout(list_node*);
 void net_remove_messages_to(struct sockaddr_storage*); 
 void net_clear_messages();
 void net_send_message();
-void list_add(list_node **head, void *data);
+void list_prepend(list_node **head, void *data);
 void net_exit();
+void remove_multi_in(list_node *head, list_node *remove);
+net_message *assemble_multi(multi_in *multi);
+void refresh_multi_lists();
+
 extern pthread_mutex_t net_out_mutex;

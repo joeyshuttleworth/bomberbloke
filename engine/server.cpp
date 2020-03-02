@@ -2,7 +2,7 @@
 #include "server.h"
 
 bool _server = true;
-bool _draw   = true;
+bool _draw   = false;
 unsigned int _ping_time = 0;
 const std::vector<command_binding> _default_bindings;
 
@@ -119,7 +119,7 @@ void handle_datagram(char *buf, struct sockaddr_storage *client_addr, unsigned i
   }
   case NET_JOIN:{
     char nickname[count];
-    memcpy(&nickname, buf + 2, count - 1);
+    memcpy(&nickname, buf + 3, count - 2);
     buf[count] = '\0';
     nickname[count-1] = '\0';
     printf("JOIN REQUEST RECEIVED FROM %s\n", nickname);
