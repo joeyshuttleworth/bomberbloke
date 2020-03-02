@@ -9,9 +9,9 @@
 #include "state.h"
 
 pthread_mutex_t net_out_mutex;
-uint8_t _current_id = 0;
-list_node *_net_out_head = NULL, *_net_out_current = NULL, *_net_in_head = NULL, *_net_in_current;
-list_node *_net_multi_in_head, *_net_multi_out_head;
+uint16_t _current_id = 0;
+list_node *_net_out_head = NULL, *_net_out_current = NULL, *_net_in_head = NULL, *_net_in_current = NULL;
+list_node *_net_multi_in_head = NULL, *_net_multi_out_head= NULL;
 bool _net_on = true;
 int _server_socket = -1;
 unsigned int _net_tick;
@@ -45,48 +45,57 @@ void net_messages_init(){
   return;
 }
 
-uint8_t get_unused_out_id(){
-  uint8_t id = 0;
-  for(int i=0;i!=255;i++){
-    int used = 0;
-    //Check id isn't in use in the _net_out list
-    if(_net_out_head){
-      list_node *current = _net_out_head;
-      while(current){
-	net_message *msg = current->data;
-	if(msg->id == id)
-	  used = 1;	
-	if(!current->next)
-	  break;
-	else
-	  current = current->next;	
-      }
-    }
-    if(_net_multi_out_head && !used){
-      list_node *current = _net_multi_out_head;
-      while(current){
-	net_message *msg = current->data;
-	if(msg->id == id)
-	  used = 1;	
-	if(!current->next)
-	  break;
-	else
-	  current = current->next;	
-      }
-    }
-  }
-  return id;
-}
-
 void net_add_message(net_message *msg, bool locked){
   list_node *current;
   bool reserved = false;
+  /* If we haven't locked the message queue, lock it now */
   if(!locked)
     pthread_mutex_lock(&net_out_mutex);
-  msg->id = _current_id;
-  //TODO make sure current_id isn't reserved
-  _current_id++;
+
+
+  /*Check that our id isn't reserved */
+  bool id_reserved;
+
+  for(uint16_t id = 1; id != 0; id++){
+
+    list_node *current_node = _net_multi_out_head;
+
+    id_reserved = false;
+    
+    while(current_node){
+      if(((net_message*)current_node->data)->id == _current_id){
+	id_reserved = true;
+	break;
+      }
+      current_node = current_node->next;
+    }
+
+    current_node = _net_out_head;
+    
+    while(current_node){
+      if(((net_message*)current_node->data)->id  == _current_id){
+	id_reserved = true;
+	break;
+      }
+      current_node = current_node->next;
+    }
+
+    if(id_reserved == false){
+      /*Use this id*/
+      _current_id = id;
+      msg->id = id - 1;
+      break;
+    }
+  }
+
+  if(id_reserved == true){
+    /*Message queue must be full */
+    printf("Error: Message queue is full!\n"); 
+    return;
+  }
+  
   current = _net_out_head;
+
   if(!_net_out_current){
     _net_out_head = malloc(sizeof(net_message));
     _net_out_current = _net_out_head;
@@ -128,14 +137,17 @@ void net_flush_messages(){
 	}
       }
       if(msg->attempts==0){
+	timeout(current);
+	/*Remove message from the queue*/
+
 	list_node *remove = current;
+	
 	if(prev){
 	  if(current->next)
 	    prev->next = current->next;
 	  else
 	    prev->next = NULL;
 	}
-	timeout(current);
 	if(current->next)
 	  current=current->next;
 	else current = NULL;
@@ -156,6 +168,10 @@ void net_flush_messages(){
     }
     pthread_mutex_unlock(&net_out_mutex);
   }
+
+  
+  refresh_multi_lists();
+  
   _net_tick++;
   return;
 }
@@ -201,7 +217,7 @@ void net_send_message(net_message *msg){
     break;
   }
   case NET_ACTOR_LIST: case NET_SYN:{
-    //send the multi package and store the id in the _out list
+    //send the multi packet and store the id in the _out list
     void *data = malloc(sizeof(msg->id));
     net_message multi_message;
     *(uint16_t*)data = msg->id;
@@ -210,7 +226,7 @@ void net_send_message(net_message *msg){
       printf("\nError: message too large to send \n");
       return;
     }
-    list_add(&_net_multi_out_head, data);
+    list_prepend(&_net_multi_out_head, data);
     multi_message.attempts = DEFAULT_ATTEMPTS;
     multi_message.frequency = 1;
     multi_message.operation = NET_MULTI;
@@ -219,8 +235,8 @@ void net_send_message(net_message *msg){
     for(unsigned int i = 0; i <= no_packets; i++){
       memset(multi_message.data, 0, 500);
       unsigned int length = 503;
-      multi_message.data[0] = msg->id;
-      multi_message.data[1] = msg->id >> 8;
+      multi_message.data[0] = msg->id >> 8;
+      multi_message.data[1] = msg->id;
       multi_message.data[2] = i;
       if(i == no_packets)
 	length = (no_packets-1) * 500 - msg->data_size;
@@ -240,6 +256,86 @@ void net_send_message(net_message *msg){
       printf("error: malformed address\n");
     }
   }
+  return;
+}
+
+void net_handle_datagram(char* buf, struct sockaddr_storage* client_addr, unsigned int src_addr_len, unsigned int count){
+  
+  /* Check if the message is a multi type */
+  unsigned int operation = buf[3];
+  unsigned int id = buf[0]  << 8 + buf[1];
+
+  switch(operation){
+  case NET_SYN: case NET_ACTOR_LIST:{
+      /*Find the relevant element in the _net_multi_in list*/
+
+      list_node *current_node = _net_multi_in_head;
+      bool found = false;
+      while(current_node){
+	multi_in *element = current_node->data;
+	
+	if(element->id == id){
+	  found = true;
+	  break;
+	}
+	current_node = current_node->next;
+      }
+      
+      if(!found){
+	/*Ignore the packet*/
+	break;
+      }
+      
+      multi_in *multi_data = current_node->data;
+      int part_number = buf[3];
+      multi_data->sizes[part_number] = count - 4;
+      multi_data->parts[part_number] = malloc((count - 4) * sizeof(char));
+      memcpy(multi_data->parts[part_number], buf + 4, count - 4);
+
+
+      /*TODO: refactor handle_datagram to take a net_message as paramater. 
+	Do we need access to the  client list in net.c? Could filter out packets
+	and rate limit, then we could just pass a client id in net_message?? */
+
+      /*Try to reassemble the whole packet */
+      net_message *msg = assemble_multi(multi_data);
+      if(msg){
+	/*Handle our reassembled net_message and remove multi_data from the queue*/
+	handle_datagram(msg->data, client_addr, src_addr_len, msg->data_size);
+	/*Remove our multi from the queue*/
+	remove_mutli_in(_net_multi_in_head, current_node);
+      }
+      break;    
+    }
+    
+  case NET_MULTI:{
+    /*Add a new node to the _net_multi_in queue*/
+    if(count < 4){
+      /*Packet too small - remove node and return */
+      printf("Error: packet too small \n");
+      return;
+    }
+    
+    multi_in *in_data = malloc(sizeof(multi_in));
+    in_data->id = id;
+    in_data->no_parts = buf[3];
+    in_data->operation = operation;
+    in_data->time_to_live = 200;   // TODO: Make this smarter
+    
+    /* Create storage for the datagram */
+    in_data->parts = malloc(buf[3] * sizeof(void*));
+    in_data->sizes = malloc(buf[3] * sizeof(int));
+      
+    for(unsigned int i = 0; i < buf[3]; i++)
+      in_data->parts[i] = NULL;
+
+    list_node *node = malloc(sizeof(list_node));
+    node->data = in_data;
+    list_prepend(&_net_multi_in_head, in_data);
+    break;
+  }
+
+  }  
   return;
 }
 
@@ -316,7 +412,7 @@ void *receive_loop(void *a){
       count = 512;
     }
     fwrite(buf, count, 1, f_in);
-    handle_datagram(buf, &client_addr, src_addr_len, count);
+    net_handle_datagram(buf, &client_addr, src_addr_len, count);
    }
     return 0;
 }
@@ -351,9 +447,11 @@ void net_join_server(const char *address, const char *port, const char *nickname
 }
 
 void net_remove_message(list_node *node){
+
   if(!node)
     return; /*Error: null message*/
-  else if(node == _net_out_head){
+  
+  if(node == _net_out_head){
     if(_net_out_head->next)
       _net_out_head = _net_out_head->next;
     else{
@@ -368,6 +466,7 @@ void net_remove_message(list_node *node){
     }
     free(node);
   }
+
   else{
     list_node *current = _net_out_head;
     
@@ -403,7 +502,7 @@ list_node *net_get_message(unsigned int id){
       current=current->next;
     }
   }
-  return NULL;;
+  return NULL;
 }
 
 void net_remove_messages_to(struct sockaddr_storage *address){
@@ -429,7 +528,7 @@ void net_remove_messages_to(struct sockaddr_storage *address){
       if(((struct sockaddr*)current->msg->address).ss_port==remove_address.ss_port){
 	if(((struct sockaddr*) current->->msg->address).ss_address == remove_address.ss_address)
 	  remove_message(current);
-      }
+	  }
       if(current->next)
 	  current=current->next;
 	else
@@ -448,21 +547,18 @@ void net_float_create(double val, net_float *res){
   return;
 }
 
-void list_add(list_node **head, void *data){
+void list_prepend(list_node **head, void *data){
   if(*head == NULL){
     *head = malloc(sizeof(list_node));
     (*head)->data = data;
+    (*head)->next = NULL;
     return;
   }
   else{
-    list_node *current = *head;
-    while(current->next){
-      current = current->next;
-    }
-    current->next = malloc(sizeof(list_node));
-    current = current->next;
-    current->next = NULL;
-    current->data = data;
-    return;
+    list_node *new_node =  malloc(sizeof(list_node));
+    new_node->data = data;
+    new_node->next = *head;
+    *head = new_node;
   }
+  return;
 }

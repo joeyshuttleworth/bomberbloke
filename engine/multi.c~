@@ -1,0 +1,37 @@
+#include <stdio.h>
+#include <memory.h>
+#include <unistd.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include "net.h"
+
+
+net_message assemble_multi(multi_in *multi){
+  /*This function takes a pointer to a multi_in structure and reassembles 
+    the parts back into a net_message object which is returned */ 
+  
+  net_message msg;
+
+  /*First calculate the total size of the packet*/
+  int total_size = 0;
+  for(unsigned int i = 0; i < multi->no_parts; i++){
+    total_size += multi->sizes[i];
+  }
+
+  /*Allocate space for the data */
+
+  msg->data = malloc(sizeof(char)*total_size);
+  msg->data_size = total_size;
+  msg->data = multi->operation;
+  msg->id   = mutli->id;
+
+  /*Populate msg->data */
+  int offset = 0;
+  for(unsigned int i = 0; i < multi->no_parts; i++){
+    memcpy(msg->data + offset, multi->parts[i], multi->sizes[i]); 
+    offset += mutli_sizes[i];
+  }
+  
+  return msg;
+}

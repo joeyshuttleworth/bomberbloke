@@ -13,7 +13,7 @@ bool _draw = true;
 bool _server = false;
 
 void handle_datagram(char *buf, struct sockaddr_storage *client_addr, unsigned int addr_len, unsigned int count){
-  std::cout << "RECEIVED DATAGRAM: " << buf[0] << buf+1 <<"\n";
+  std::cout << "RECEIVED DATAGRAM: " << buf[0] << buf[1] << buf + 2 <<"\n";
   /*TODO: Check datagram is from server */
   _last_receive = _tick;
   if(_state==DISCONNECTED)
@@ -23,10 +23,12 @@ void handle_datagram(char *buf, struct sockaddr_storage *client_addr, unsigned i
     unsigned int message_id;
     list_node *current;
     net_message *msg = NULL;
+    
     if(count < 3){
       log_message(DEBUG, "Received malformed ACK - too short");
       return;
     }
+    
     message_id = buf[1] + (buf[2] << 8);
     current = net_get_message(message_id);
     if(!current)
@@ -106,6 +108,13 @@ void handle_datagram(char *buf, struct sockaddr_storage *client_addr, unsigned i
     msg.attempts  = 1;
     memcpy(&msg.address, client_addr, addr_len); 
     net_add_message(&msg, false);
+
+    /*TODO: Create new actor_list */
+    std::list<actor> new_actor_list;
+
+  
+
+    
     log_message(INFO, "Starting new game...\n");
     _state = STOPPED;
     engine_new_game("");
