@@ -60,7 +60,7 @@ void remove_multi_in(list_node *head, list_node *remove){
     list_node *prev = current;
     if(current == remove){
       multi_in *tmp_multi;
-      free_multi(tmp_multi);
+      free_multi_in(tmp_multi);
       prev->next = current->next;
       free(current);
       return;

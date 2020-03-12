@@ -303,7 +303,7 @@ void net_handle_datagram(char* buf, struct sockaddr_storage* client_addr, unsign
 	/*Handle our reassembled net_message and remove multi_data from the queue*/
 	handle_datagram(msg->data, client_addr, src_addr_len, msg->data_size);
 	/*Remove our multi from the queue*/
-	remove_mutli_in(_net_multi_in_head, current_node);
+	remove_multi_in(_net_multi_in_head, current_node);
       }
       break;    
     }
