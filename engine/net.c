@@ -54,26 +54,27 @@ int net_add_message(net_message *msg, bool locked){
 
 
   /*Check that our id isn't reserved */
-  bool id_reserved;
+  bool id_reserved = false;
   uint16_t id;
+
   for(id = 1; id != 0; id++){
 
     list_node *current_node = _net_multi_out_head;
 
     id_reserved = false;
     
-    while(current_node){
+    /* while(current_node){
       if(((net_message*)current_node->data)->id == _current_id){
 	id_reserved = true;
 	break;
       }
       current_node = current_node->next;
     }
-
+    */
     current_node = _net_out_head;
     
     while(current_node){
-      if(((net_message*)current_node->data)->id  == _current_id){
+      if(((net_message*)current_node->data)->id  == id){
 	id_reserved = true;
 	break;
       }
@@ -564,6 +565,7 @@ void net_remove_messages_to(struct sockaddr_storage *address){
   return;
 }
 
+/*Create a net_float and store it in rest*/
 void net_float_create(double val, net_float *res){
   int exponent;
   res->sign  = val>0;
