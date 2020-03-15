@@ -91,12 +91,19 @@ void server_loop(){
 void handle_datagram(char *buf, struct sockaddr_storage *client_addr, unsigned int count, unsigned int addr_len){
   char opcode = buf[0];
   std::cout  << "Received datagram: " << buf[0] << buf + 3 << "\n";
+  bool send_ack = false;
+  
   switch(opcode){
   case NET_MSG:{
+    
     net_message msg;
     std::string str;
+
+    /*Send this message to the rest of the server*/
+
     str = get_client(client_addr)->nickname + ": " + std::string(buf+3);
     std::cout << "message received: " <<  str << "\n";
+
     msg.data = (char*)malloc(str.length());
     msg.data_size = str.length();
     strncpy(msg.data, str.c_str(), str.length());
@@ -105,16 +112,7 @@ void handle_datagram(char *buf, struct sockaddr_storage *client_addr, unsigned i
     msg.frequency= 10 * TICK_RATE/NET_RATE;
     send_to_list(&msg, _client_list);
     free(msg.data);
-    msg.operation = NET_ACK;
-    msg.data = (char*)malloc(sizeof(char));
-    msg.data[0] = buf[1];
-    msg.data[1] = buf[2];
-    msg.data_size = 2;
-    msg.address_length = sizeof(struct sockaddr_storage);
-    msg.frequency = 0;
-    msg.attempts  = 1;
-    memcpy(&msg.address, client_addr, addr_len); 
-    net_add_message(&msg, false);
+    
     break;
   }
   case NET_JOIN:{
@@ -206,6 +204,20 @@ void handle_datagram(char *buf, struct sockaddr_storage *client_addr, unsigned i
   }
   default:
     break;
+  }
+  if(send_ack){
+    /*Send a NET_ACK*/
+    net_message msg;
+    msg.operation = NET_ACK;
+    msg.data = (char*)malloc(sizeof(char));
+    msg.data[0] = buf[1];
+    msg.data[1] = buf[2];
+    msg.data_size = 2;
+    msg.address_length = sizeof(struct sockaddr_storage);
+    msg.frequency = 0;
+    msg.attempts  = 1;
+    memcpy(&msg.address, client_addr, addr_len); 
+    net_add_message(&msg, false);
   }
   return;
 }
@@ -319,16 +331,13 @@ void engine_new_game(std::string tokens){
   _state = PAUSED;
   new_game(tokens);
   _level = level(10,10);
-  if(_server){
-    for(auto i = _client_list.begin(); i != _client_list.end(); i++){
-      i->state = STOPPED;
-    }
+
+  for(auto i = _client_list.begin(); i != _client_list.end(); i++){
+    i->state = STOPPED;
   }
   //TODO:remove moves and SYNCS from message queue
-
-
+  
   //send NET_NEW_GAME message to all clients
-
   msg.operation = NET_NEW_GAME;
   msg.data = NULL;
   msg.data_size = 0;

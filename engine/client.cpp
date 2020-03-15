@@ -9,7 +9,7 @@
 #include "engine.h"
 
 unsigned int _last_receive;
-bool _draw = true;
+bool _draw = false;
 bool _server = false;
 
 void handle_datagram(char *buf, struct sockaddr_storage *client_addr, unsigned int addr_len, unsigned int count){
@@ -18,6 +18,9 @@ void handle_datagram(char *buf, struct sockaddr_storage *client_addr, unsigned i
   _last_receive = _tick;
   if(_state==DISCONNECTED)
     return;  
+
+  // Flag to track whether we need to acknowledge the packet or not
+  bool send_ack = false;
   switch(buf[0]){
   case NET_ACK:{      
     unsigned int message_id;
@@ -59,17 +62,7 @@ void handle_datagram(char *buf, struct sockaddr_storage *client_addr, unsigned i
       log_message(ERROR, "Received malformed ping");
     }
     else{
-      net_message msg;
-      msg.operation = NET_ACK;
-      msg.data = (char*)malloc(sizeof(char));
-      msg.data[0]= buf[1];
-      msg.data[1]= buf[2];
-      msg.data_size = 2;
-      msg.address_length = sizeof(struct sockaddr_storage);
-      msg.frequency = 0;
-      msg.attempts  = 1;
-      memcpy(&msg.address, client_addr, addr_len); 
-      net_add_message(&msg, false);
+      send_ack = true;
       log_message(DEBUG, "PING received from server");
     }
     break;
@@ -82,21 +75,23 @@ void handle_datagram(char *buf, struct sockaddr_storage *client_addr, unsigned i
     break;
   }
   case NET_START:{
-    net_message msg;
-    msg.operation = NET_ACK;
-    msg.data = (char*)malloc(sizeof(char));
-    msg.data[0]= buf[1];
-    msg.data[1] = buf[2];
-    msg.data_size = 2;
-    msg.address_length = sizeof(struct sockaddr_storage);
-    msg.frequency = 0;
-    msg.attempts  = 1;
-    memcpy(&msg.address, client_addr, addr_len); 
-    net_add_message(&msg, false);
-    log_message(INFO, "Game resumed.\n");
+    send_ack = true;
     break;
   }
   case NET_NEW_GAME:{
+    send_ack = true;
+
+    /*TODO: Create new actor_list */
+    std::list<actor> new_actor_list; 
+    log_message(INFO, "Starting new game...\n");
+    _state = STOPPED;
+    engine_new_game("");
+    break;
+  }
+  }
+  
+  if(send_ack){
+    //Send a packet acknowledging that we received the packet
     net_message msg;
     msg.operation = NET_ACK;
     msg.data = (char*)malloc(sizeof(char));
@@ -109,17 +104,6 @@ void handle_datagram(char *buf, struct sockaddr_storage *client_addr, unsigned i
     memcpy(&msg.address, client_addr, addr_len); 
     net_add_message(&msg, false);
 
-    /*TODO: Create new actor_list */
-    std::list<actor> new_actor_list;
-
-  
-
-    
-    log_message(INFO, "Starting new game...\n");
-    _state = STOPPED;
-    engine_new_game("");
-    break;
-  }
   }
   return;
 }

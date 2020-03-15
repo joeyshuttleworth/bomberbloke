@@ -66,6 +66,7 @@ typedef struct list_node{
   void *data;
 }list_node;
 
+/*Used to keep track of NET_MULTI packets we received. These are then reassembled*/
 typedef struct multi_in{
   unsigned int id;
   unsigned int no_parts;
@@ -74,6 +75,18 @@ typedef struct multi_in{
   unsigned int operation;
   int time_to_live;
 } multi_in;
+
+/*Used to keep track of NET_MULTI that we are sending*/
+typedef struct multi_out{
+  unsigned int id;
+  unsigned int no_parts;
+  bool *parts_received;
+  void  **parts;
+  int *sizes;
+  unsigned int operation;
+  int time_to_live;
+} multi_in;
+
 
 extern list_node *_net_out_current;
 extern list_node *_net_out_head;
