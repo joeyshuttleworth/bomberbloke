@@ -45,7 +45,7 @@ void net_messages_init(){
   return;
 }
 
-void net_add_message(net_message *msg, bool locked){
+int net_add_message(net_message *msg, bool locked){
   list_node *current;
   bool reserved = false;
   /* If we haven't locked the message queue, lock it now */
@@ -55,8 +55,8 @@ void net_add_message(net_message *msg, bool locked){
 
   /*Check that our id isn't reserved */
   bool id_reserved;
-
-  for(uint16_t id = 1; id != 0; id++){
+  uint16_t id;
+  for(id = 1; id != 0; id++){
 
     list_node *current_node = _net_multi_out_head;
 
@@ -83,7 +83,7 @@ void net_add_message(net_message *msg, bool locked){
     if(id_reserved == false){
       /*Use this id*/
       _current_id = id;
-      msg->id = id - 1;
+      msg->id = id;
       break;
     }
   }
@@ -91,7 +91,7 @@ void net_add_message(net_message *msg, bool locked){
   if(id_reserved == true){
     /*Message queue must be full */
     printf("Error: Message queue is full!\n"); 
-    return;
+    return -1;
   }
   
   current = _net_out_head;
@@ -111,11 +111,12 @@ void net_add_message(net_message *msg, bool locked){
   ((net_message *) _net_out_current->data)->data = malloc(msg->data_size);
   memcpy(((net_message *) _net_out_current->data)->data, msg->data, msg->data_size);
   msg->offset = (uint8_t)_net_tick;
+
   if(!locked)
     pthread_mutex_unlock(&net_out_mutex);
   if(msg->attempts ==0)
     printf("WARNING: attempts = 0 - messages will be deleted without sending\n");
-  return;
+  return id;
 }
 
 void net_flush_messages(){
@@ -217,30 +218,51 @@ void net_send_message(net_message *msg){
     break;
   }
   case NET_ACTOR_LIST: case NET_SYN:{
-    //send the multi packet and store the id in the _out list
-    void *data = malloc(sizeof(msg->id));
     net_message multi_message;
-    *(uint16_t*)data = msg->id;
+
+
+    void *data = malloc(sizeof(msg));
+    memcpy(data, msg, sizeof(msg));
+
     unsigned int no_packets = (msg->data_size / 500) + 1;
     if(no_packets > 255){
       printf("\nError: message too large to send \n");
       return;
     }
+
+    
+    //Send first message detailing the message operation and number of parts
+    multi_message.operation = msg->operation;
+    multi_message.data = malloc(sizeof(char));
+    multi_message.data[0] = (unsigned int) no_packets;
+
+    int id = net_add_message(&multi_message, true);
+
+    //Now send the parts of the message
+    
     list_prepend(&_net_multi_out_head, data);
     multi_message.attempts = DEFAULT_ATTEMPTS;
     multi_message.frequency = 1;
     multi_message.operation = NET_MULTI;
+    
     //break the data into packets with maximum size 500 bytes
     multi_message.data = malloc(sizeof(char) * 500);
+    
     for(unsigned int i = 0; i <= no_packets; i++){
       memset(multi_message.data, 0, 500);
       unsigned int length = 503;
       multi_message.data[0] = msg->id >> 8;
       multi_message.data[1] = msg->id;
       multi_message.data[2] = i;
-      if(i == no_packets)
+      multi_message.data_size = 500;
+      
+      if(i == no_packets){
 	length = (no_packets-1) * 500 - msg->data_size;
+	multi_message.data_size = length;
+      }
+      
       memcpy(multi_message.data, data + 500*i, length+3);
+      //Don't use net_add_message here. We must use the same ID as the multi packet
       net_add_message(&multi_message, true);
     }
     break;
@@ -334,7 +356,10 @@ void net_handle_datagram(char* buf, struct sockaddr_storage* client_addr, unsign
     list_prepend(&_net_multi_in_head, in_data);
     break;
   }
-
+  default:{
+    handle_datagram(buf, client_addr, src_addr_len, count);
+    break;
+  }
   }  
   return;
 }

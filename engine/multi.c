@@ -56,10 +56,15 @@ void remove_multi_in(list_node *head, list_node *remove){
   /*Remove a multi_in object from a list*/
 
   list_node *current = head;
+
+  if(current==remove){
+    free_multi_in(current->data);
+  }
+  
   do{
     list_node *prev = current;
     if(current == remove){
-      multi_in *tmp_multi;
+      multi_in *tmp_multi = current->data;
       free_multi_in(tmp_multi);
       prev->next = current->next;
       free(current);
@@ -79,7 +84,7 @@ void refresh_multi_lists(){
 
   list_node *current = _net_multi_in_head;
 
-  do{
+  while(current){
     multi_in *multi = current->data;
     multi->time_to_live--;
     current = current->next;
@@ -88,10 +93,11 @@ void refresh_multi_lists(){
       current = current->next;
       remove_multi_in(_net_multi_in_head, remove);
     }
-  }while(current);
+  };
 
+  current = _net_multi_out_head;
   
-  do{
+  while(current){
     net_message *msg = current->data;
     msg->attempts--;
     current = current->next;
@@ -100,7 +106,6 @@ void refresh_multi_lists(){
       current = current->next;
       net_remove_message(remove);
     }
-  }while(current);
-
+  }
   return;
 }

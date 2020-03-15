@@ -85,7 +85,7 @@ extern unsigned int _tick;
 extern list_node *_net_multi_in_head, *_net_multi_out_head;
 
 void net_flush_messages();
-void net_add_message(net_message*, bool);
+int net_add_message(net_message*, bool);
 void net_handle_messages();
 void net_messages_init();
 void net_init();
