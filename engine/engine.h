@@ -10,26 +10,20 @@
 #include <algorithm>
 #include <ctime>
 #include <signal.h>
-extern "C"{
-#include "net.h"
-}
 
-#define OUT_OF_BOUNDS 127
 #define DEFAULT_ZOOM  50
 #define DEFAULT_ACTOR_SIZE 1
 #define DEFAULT_WINDOW_WIDTH  700
 #define DEFAULT_WINDOW_HEIGHT 700
 #define MIN_VELOCITY 0.00000000001
+#define TICK_RATE 64
 
 class actor;
 class level;
-class local_p;
-class network_p;
-
-struct net_float;
+class localPlayer;
+class networkPlayer;
 
 void exit_engine(int);
-void send_to_list(net_message*, std::list<network_p>);
 void new_game(std::string);
 void engine_new_game(std::string);
 void engine_start_game();
@@ -42,7 +36,6 @@ void handle_movement();
 void init_engine();
 void *console_loop(void *);
 void draw_screen();
-void send_to_all(net_message*);
 std::list<std::string> split_to_tokens(std::string);
 
 extern SDL_Window  *_window;
@@ -54,7 +47,7 @@ extern bool _server;
 extern bool _halt;
 extern double _zoom;
 extern unsigned int _state;
-extern std::list<network_p> _client_list;
+extern std::list<networkPlayer> _client_list;
 extern pthread_t net_receive, read_console;
 extern std::string _nickname;
 
@@ -76,17 +69,17 @@ enum player_types{
   NETWORK
 };
 
-typedef struct{
-  uint16_t id;
-  net_float position[2];
-  net_float velocity[2];
-} move;
+class level;
 
+extern level _level;
+extern unsigned int _tick;
 extern const std::vector<command_binding> _default_bindings;
-extern std::list<local_p> _local_player_list;
+extern std::list<localPlayer> _local_player_list;
 const std::array<std::string, 2> _system_commands  = {"bind", "set"};
 
 #include "state.h"
 #include "level.h"
 #include "actor.h"
 #include "player.h"
+#include "localPlayer.h"
+#include "networkPlayer.h"

@@ -12,11 +12,26 @@ const std::vector<command_binding> _default_bindings =
   };
 
 int main (){
-  log_message(INFO, "Bomberbloke client starting...");
+  SDL_Init(SDL_INIT_EVERYTHING);
   init_engine();
-  _local_player_list.push_back(local_p("nickname"));
+  localPlayer p(std::string("big_beef"));
+  _local_player_list.push_back(localPlayer(std::string("Nickname")));
+  
+  bloke *bloke1 = new bloke(10, 10);
+  
+  bloke1->init();
+  bloke1->mCollides = false;
+
+  //  bloke1.mVelocity[0]= 0.01;
+
+  _level.actorList.push_back(bloke1);
+  _local_player_list.back().character = _level.actorList.back();
+  
   client_loop();
+  
   SDL_Quit();
+
+  delete(bloke1);
   return 0;
 }
 
@@ -24,3 +39,12 @@ int main (){
 void new_game(std::string){
   return;
 }
+
+
+
+
+
+
+
+
+

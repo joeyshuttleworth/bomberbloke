@@ -6,24 +6,32 @@ extern double _zoom;
 
 class actor;
 
+/* Actor which stores information about the level including the actors present and methods for updating and drawing the level */ 
 class level{
- private:
+ protected:
+  /*name and description are information about this level*/
   std::string name;
   std::string description;
  public:
-  std::vector<int> spawn_points;
-  SDL_Texture *sprite=NULL;
-  std::list<actor> actor_list;
-  uint8_t *blocks=NULL;
-  int dim[2];
-  level(int x, int y);
+  /* Spawnpoints is a collection of coordinates where players can be spawned */ 
+  std::vector<int> spawnPoints;
+
+  /* Sprite holds the SDL_Texture which will be applied to the level background
+     when draw is called */
+  SDL_Texture *mpSprite = NULL;
+
+  /* actorList holds each object in our level */
+  std::list<actor*> actorList;
+
+  /* dim_x and dim_y are the size of our level in the x and y axis respectively */
+  double mDimmension[2];
+
+  /*Draw our level on the window. Then draw every actor in actorList*/
+  void  draw();
+
+  level(double x, double y);
   level();
   level(const level &lvl);
   ~level();
-  uint8_t get_block(int, int);
-  bool is_block_empty(actor *actor , int x, int y);
-  void draw();
-  void init();
 };
 
-extern level _level;

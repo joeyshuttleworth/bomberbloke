@@ -2,7 +2,7 @@
 
 void bloke :: accelerate(int direction){
   int accel[2] = {0,0};
-  accelerated = true;
+  mAccelerated = true;
   switch(direction){
   case DIR_UP:
     accel[1]=1;
@@ -22,18 +22,18 @@ void bloke :: accelerate(int direction){
   }
   for(int i=0; i<2; i++){
     if(accel[i] != 0){
-      velocity[i] = velocity[i] + accel[i]*max_speed*ACCELERATION_RATIO;
-      if(std::abs(velocity[i]) > max_speed)
-	velocity[i] = max_speed * accel[i];
+      mVelocity[i] = mVelocity[i] + accel[i]*mMaxSpeed*ACCELERATION_RATIO;
+      if(std::abs(mVelocity[i]) > mMaxSpeed)
+	mVelocity[i] = mMaxSpeed;
     }
     else{
-      double decell = max_speed*DECCELERATION_RATIO;
-      if(velocity[i]<0)
+      double decell = mMaxSpeed*DECCELERATION_RATIO;
+      if(mVelocity[i]<0)
 	decell = -decell;
-      if(std::abs(decell) > std::abs(velocity[i]))
-	velocity[i]=0;
+      if(std::abs(decell) > std::abs(mVelocity[i]))
+	mVelocity[i]=0;
       else
-	velocity[i] = velocity[i] - decell;
+	mVelocity[i] = mVelocity[i] - decell;
     }
   }
   return;
@@ -41,10 +41,10 @@ void bloke :: accelerate(int direction){
 
 void bloke :: handle_command(std::string command){
   if(command == "kill"){
-    remove=true;
+    mRemove=true;
     return;
   }
-  if(!accelerated){
+  if(!mAccelerated){
     if(command == "up"){
       accelerate(DIR_UP);
     }
@@ -68,14 +68,14 @@ void bloke :: handle_command(std::string command){
 }
 
 void bloke :: update(){
-  accelerated = false;
+  mAccelerated = false;
 }
 
 void bloke :: place_bomb(){
-  if(bombs<max_bombs){
-    bomb *new_bomb = new bomb(round(position[0])+0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), round(position[1]) + 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE));
+  if(mBombs<mMaxBombs){
+    bomb *new_bomb = new bomb(round(mPosition[0])+0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), round(mPosition[1]) + 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE));
     new_bomb->init(this);
-    bombs++;
+    mBombs++;
   }
   return;
 }
@@ -85,9 +85,11 @@ void bloke :: kick(bomb *bomb, uint8_t direction){
 }
 
 void bloke :: init(){
-  collides = true;
-  memset(&position, 0, sizeof(double)*2);
-  memset(&velocity, 0, sizeof(double)*2);
+  mCollides = true;
+  memset(&mPosition, 0, sizeof(double)*2);
+  memset(&mVelocity, 0, sizeof(double)*2);
+  mPosition[0] = 5;
+  mPosition[1] = 3;
   return;
 }
 

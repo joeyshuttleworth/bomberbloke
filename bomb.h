@@ -1,10 +1,11 @@
 class bomb : public actor {
-  Uint8 timer;
-  Uint8 power;
-  bloke *placed_by;
-  bool penetration;
-  bool big_bomb;
-  bool satellite;
+ protected:
+  Uint8 mTimer;
+  Uint8 mPower;
+  bloke *mpPlacedBy;
+  bool mPenetration;
+  bool mBig_bomb;
+  bool mSatellite;
  public:
   void init(bloke*);
   void explode();
