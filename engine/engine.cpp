@@ -73,12 +73,16 @@ void handle_input(level *level){
     /*Iterate over key bindings */
     for(auto j = i->mControlScheme.begin(); j!=i->mControlScheme.end(); j++){
       if(kb_state[j->scancode]){
+	no_command = false;
 	if(std::find(_system_commands.begin(), _system_commands.end(), j->command)!=_system_commands.end()){
 	  handle_system_command(split_to_tokens(j->command));
 	}
 	else
 	  i->character->handle_command(j->command);
       }
+    }
+    if(no_command){
+      //      i->character->handle_command("");
     }
   }
   memcpy(_kb_state, kb_state, sizeof(Uint8) * SDL_SCANCODE_APP2); 
@@ -121,6 +125,11 @@ void handle_movement(){
   /*Iterate over all moving actors*/
   for(auto i = _level.actorList.begin(); i!=_level.actorList.end(); i++){
     bool collision = false;
+
+    /*Update actors*/
+
+    (*i)->update();
+
     if(!(*i)->is_moving())
       continue;
     if((*i)->mCollides==false)

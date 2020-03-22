@@ -3,7 +3,7 @@
 void bloke :: accelerate(int direction){
   int accel[2] = {0,0};
   mAccelerated = true;
-  switch(direction){
+    switch(direction){
   case DIR_UP:
     accel[1]=1;
     break;
@@ -17,25 +17,29 @@ void bloke :: accelerate(int direction){
     accel[0]=-1;
     break;
   case DIR_NONE:
+    break;
   default:
     break;
   }
   for(int i=0; i<2; i++){
     if(accel[i] != 0){
       mVelocity[i] = mVelocity[i] + accel[i]*mMaxSpeed*ACCELERATION_RATIO;
-      if(std::abs(mVelocity[i]) > mMaxSpeed)
-	mVelocity[i] = mMaxSpeed;
+      if(std::abs(mVelocity[i]) > mMaxSpeed){
+	mVelocity[i] = accel[i]*mMaxSpeed;
+	break;
+      }
     }
     else{
-      double decell = mMaxSpeed*DECCELERATION_RATIO;
+      double decceleration = mMaxSpeed*0.1;
       if(mVelocity[i]<0)
-	decell = -decell;
-      if(std::abs(decell) > std::abs(mVelocity[i]))
-	mVelocity[i]=0;
+	decceleration = - decceleration;
+      if(std::abs(decceleration) > std::abs(mVelocity[i]))
+	mVelocity[i] = 0;
       else
-	mVelocity[i] = mVelocity[i] - decell;
+	mVelocity[i] -= decceleration;
     }
   }
+  
   return;
 }
 
@@ -46,19 +50,16 @@ void bloke :: handle_command(std::string command){
   }
   if(!mAccelerated){
     if(command == "up"){
-      accelerate(DIR_UP);
+      direction = DIR_UP;
     }
     else if(command == "right"){
-      accelerate(DIR_RIGHT);
+      direction = DIR_RIGHT;
     }
     else if(command == "down"){
-      accelerate(DIR_DOWN);
+      direction = DIR_DOWN;
     }
     else if(command == "left"){
-      accelerate(DIR_LEFT);
-    }
-    else{
-      accelerate(DIR_NONE);
+      direction = DIR_LEFT;
     }
   }
   if(command == "bomb"){
@@ -68,7 +69,10 @@ void bloke :: handle_command(std::string command){
 }
 
 void bloke :: update(){
+  accelerate(direction);
   mAccelerated = false;
+  direction = DIR_NONE;
+  return;
 }
 
 void bloke :: place_bomb(){
