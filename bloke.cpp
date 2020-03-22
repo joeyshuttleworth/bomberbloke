@@ -79,6 +79,7 @@ void bloke :: place_bomb(){
   if(mBombs<mMaxBombs){
     bomb *new_bomb = new bomb(round(mPosition[0])+0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), round(mPosition[1]) + 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE));
     new_bomb->init(this);
+    _level.actorList.push_back(new_bomb);
     mBombs++;
   }
   return;

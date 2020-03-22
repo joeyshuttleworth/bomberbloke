@@ -6,7 +6,10 @@ bomb::~bomb(){
   return;
 }
 
-bomb::bomb(){
+
+void bomb::init(bloke *bloke){
+  mDimmension[0]=0.5;
+  mDimmension[1]=0.5;
   if(mpSprite)
     SDL_DestroyTexture(mpSprite);
   mpSprite = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, 0, 128, 128);
@@ -14,13 +17,7 @@ bomb::bomb(){
   SDL_SetRenderDrawColor(_renderer, 0xFF, 0xFF, 0xFF, 0x00);
   SDL_RenderFillRect(_renderer, NULL);
   SDL_SetRenderTarget(_renderer, NULL);
-  return;
-}
-
-void bomb::init(bloke *bloke){
   mCollides = false;
-  mDimmension[0]=BOMB_SIZE;
-  mDimmension[1]=BOMB_SIZE;
   memset(mVelocity, 0, 2*sizeof(double));
   mTimer = _default_bomb_timer;
   mpPlacedBy = bloke;
@@ -61,8 +58,8 @@ void bomb::explode(){
   while(actor!=_level.actorList.end()){
     auto prev = *actor;
     actor++;
-    /* Do not kill this bomb yet*/
-    if(*actor != this){
+    /* Do not kill this bomb*/
+    if(prev != this){
       bool dead=false;
 
       /* Check we are in the kill zone - if so set dead to true */
