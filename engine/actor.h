@@ -1,26 +1,45 @@
 class player;
 class actor{
  protected:
+  SDL_Texture *mpSprite = NULL; //should be protected
 
+  player *mpController = NULL;
+  Uint32 id;
+  
+  /*Pointer to the level we're in*/
+  level *mpLevel;
  public:
   actor(double, double);
   actor();
-  SDL_Texture *sprite = NULL; //should be protected
+
+  /*Do we collide with other actors*/
+  bool mCollides;
+
+  
+  /*Position is the bottom left hand side of the actor */  
+  double mPosition[2];
+  double mDimmension[2];
+  double mVelocity[2];
+
+  bool mRemove;
+  
   void draw();
   int move(double x, double y);
   bool is_moving();
-  int init( double, double);
+  int init(double, double);
   int direction();
   double *get_midpoint();
-  player *controller = NULL;
-  virtual ~actor();
-  virtual void handle_command(std::string);
   virtual void update();
-  Uint32 id;
-  bool remove;
-  double position[2];
-  double velocity[2];
-  double dim[2];
-  Uint16 type = 0;
-  bool collides;
+
+  virtual void handle_command(std::string) = 0;
+
+  player *getController(){
+    return mpController;
+  };
+  
+  void setController(player *controller){
+    mpController = controller;
+    return;
+  };
+  
 };

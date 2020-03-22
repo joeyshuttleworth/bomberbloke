@@ -7,10 +7,10 @@ bomb::~bomb(){
 }
 
 bomb::bomb(){
-  if(sprite)
-    SDL_DestroyTexture(sprite);
-  sprite = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, 0, 128, 128);
-  SDL_SetRenderTarget(_renderer, sprite);
+  if(mpSprite)
+    SDL_DestroyTexture(mpSprite);
+  mpSprite = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, 0, 128, 128);
+  SDL_SetRenderTarget(_renderer, mpSprite);
   SDL_SetRenderDrawColor(_renderer, 0xFF, 0xFF, 0xFF, 0x00);
   SDL_RenderFillRect(_renderer, NULL);
   SDL_SetRenderTarget(_renderer, NULL);
@@ -18,18 +18,18 @@ bomb::bomb(){
 }
 
 void bomb::init(bloke *bloke){
-  collides=false;
-  dim[0]=BOMB_SIZE;
-  dim[1]=BOMB_SIZE;
-  memset(velocity, 0, 2*sizeof(double));
-  timer = _default_bomb_timer;
-  placed_by = bloke;
-  power = bloke->power;
+  mCollides = false;
+  mDimmension[0]=BOMB_SIZE;
+  mDimmension[1]=BOMB_SIZE;
+  memset(mVelocity, 0, 2*sizeof(double));
+  mTimer = _default_bomb_timer;
+  mpPlacedBy = bloke;
+  mPower = mpPlacedBy->getPower();
   return;
 }
 
 void bomb::handle_command(std::string command){
-  if(remove==false){
+  if(mRemove==false){
     if(command=="kill"){
       explode();
     }
@@ -38,39 +38,46 @@ void bomb::handle_command(std::string command){
 }
 
 void bomb::update(){
-  if(collides == false){
-    for(int i=0;i<2;i++){
-      if(std::abs(position[i]-placed_by->position[i]) > 0.5*(dim[i]+placed_by->dim[i])){
-       	collides=true;
-	break;
-      }
+  /*Bomb collision is only turned on when the actor which placed it has 
+    moved away*/
+  if(mCollides == false){
+    if(std::abs(mPosition[0]-mpPlacedBy->mPosition[0]) > 0.5*(mDimmension[0]+mpPlacedBy->mDimmension[0])){
+      mCollides=true;
+    }
+    else if(std::abs(mPosition[1]-mpPlacedBy->mPosition[1]) > 0.5*(mDimmension[1]+mpPlacedBy->mDimmension[1])){
+      mCollides = true;
     }
   }
-  if(timer==0)
+  if(mTimer==0)
     explode();
   else
-    timer--;
+    mTimer--;
   return;
 }
 
 void bomb::explode(){
-  std::list<actor>::iterator actor = _level.actor_list.begin();
-  while(actor!=_level.actor_list.end()){
-    auto prev = actor;
+  std::list<actor*>::iterator actor = _level.actorList.begin();
+  /*Iterate over all actors and kill them*/
+  while(actor!=_level.actorList.end()){
+    auto prev = *actor;
     actor++;
-    if(&(*prev)!=((void*)this)){
+    /* Do not kill this bomb yet*/
+    if(*actor != this){
       bool dead=false;
-      for(int i = 0; i<2; i++){
-	if((round(position[!i])==round(prev->position[!i])) && (std::abs(round(position[i])-round(prev->position[i])) <= power)){
-	  dead=true;
+
+      /* Check we are in the kill zone - if so set dead to true */
+      for(int i = 0; i < 2; i++){
+	if((round(mPosition[!i])==round(prev->mPosition[!i])) && (std::abs(round(mPosition[i])-round(prev->mPosition[i])) <= mPower)){     
+	  dead = true;
 	  break;
 	}
       }
+      
       if(dead)
 	prev->handle_command("kill");
     }
   }
-  remove = true;
-  placed_by->bombs--;
+  mRemove = true;
+  mpPlacedBy->mBombs--;
   return;
 }

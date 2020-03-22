@@ -18,23 +18,3 @@ public:
   unsigned int last_ping_time = 0;
   unsigned int last_ping = 0;
 };
-
-class network_p : public player{
- public:
-  ~network_p();
-  network_p();
-  network_p(std::string, sockaddr_storage *addr);
-  struct sockaddr_storage *address;
-  unsigned int address_length = sizeof(struct sockaddr_in);
-  void      *input_buffer;
-  int       input_buffer_size;
-  unsigned int state = DISCONNECTED;
-  void       ping();
-  bool synced = false;
-};
-
-class local_p : public player{
- public:
-  std::list<command_binding> control_scheme;
-  local_p(std::string);
-};
