@@ -1,0 +1,5 @@
+class localPlayer : public player{
+ public:
+  std::list<command_binding> control_scheme;
+  localPlayer(std::string);
+};

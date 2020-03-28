@@ -45,6 +45,7 @@ void bloke :: accelerate(int direction){
 
 void bloke :: handle_command(std::string command){
 
+  std::cout << command << "\n";
   
   if(command == "kill"){
     mRemove=true;
@@ -69,7 +70,7 @@ void bloke :: handle_command(std::string command){
     else if(command == "-down" && direction == DIR_DOWN){
       direction = DIR_NONE;
     }
-    else if(command == "-up" && direction == DIR_RIGHT){
+    else if(command == "-right" && direction == DIR_RIGHT){
       direction = DIR_NONE;
     }
     else if(command == "-left" && direction == DIR_LEFT){
@@ -85,7 +86,6 @@ void bloke :: handle_command(std::string command){
 void bloke :: update(){
   accelerate(direction);
   mAccelerated = false;
-  direction = DIR_NONE;
   return;
 }
 
