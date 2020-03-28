@@ -50,6 +50,11 @@ void init_engine() {
     SDL_RenderClear(_renderer);
     SDL_RenderPresent(_renderer);
     _level = level();
+
+    // init controller
+    _controller = handle_input_controller();
+    _controller_connected = _controller != NULL ? true: false;
+
     _kb_state = (Uint8 *) malloc(sizeof(Uint8) * SDL_SCANCODE_APP2); //max scancode
     memset((void *) _kb_state, 0, sizeof(Uint8) * SDL_SCANCODE_APP2);
     pthread_create(&read_console, NULL, console_loop, NULL);
@@ -89,6 +94,17 @@ void handle_input(level *level) {
     memcpy(_kb_state, kb_state, sizeof(Uint8) * SDL_SCANCODE_APP2);
     return;
 }
+
+SDL_Joystick* handle_input_controller() {
+    SDL_Init(SDL_INIT_JOYSTICK);
+
+    if (SDL_NumJoysticks() > 0) {
+        return SDL_JoystickOpen(0); // return joystick identifier
+    } else { return NULL; } // no joystick found
+}
+
+
+
 
 bool handle_collision(actor *a, actor *b) {
     bool collision = true;
