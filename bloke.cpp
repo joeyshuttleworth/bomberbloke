@@ -3,7 +3,7 @@
 void bloke :: accelerate(int direction){
   int accel[2] = {0,0};
   mAccelerated = true;
-    switch(direction){
+  switch(direction){
   case DIR_UP:
     accel[1]=1;
     break;
@@ -44,23 +44,37 @@ void bloke :: accelerate(int direction){
 }
 
 void bloke :: handle_command(std::string command){
+
+  
   if(command == "kill"){
     mRemove=true;
     return;
   }
   if(!mAccelerated){
-    if(command == "up"){
+    if(command == "+up"){
       direction = DIR_UP;
     }
-    else if(command == "right"){
+    else if(command == "+right"){
       direction = DIR_RIGHT;
     }
-    else if(command == "down"){
+    else if(command == "+down"){
       direction = DIR_DOWN;
     }
-    else if(command == "left"){
+    else if(command == "+left"){
       direction = DIR_LEFT;
     }
+    else if(command == "-up" && direction == DIR_UP){
+      direction = DIR_NONE;
+    }
+    else if(command == "-down" && direction == DIR_DOWN){
+      direction = DIR_NONE;
+    }
+    else if(command == "-up" && direction == DIR_RIGHT){
+      direction = DIR_NONE;
+    }
+    else if(command == "-left" && direction == DIR_LEFT){
+      direction = DIR_NONE;
+    } 
   }
   if(command == "bomb"){
     place_bomb();
