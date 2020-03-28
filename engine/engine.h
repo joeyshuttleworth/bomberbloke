@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <ctime>
 #include <signal.h>
+#include <SDL_joystick.h>
 
 #define DEFAULT_ZOOM  50
 #define DEFAULT_ACTOR_SIZE 1
@@ -36,6 +37,7 @@ void handle_movement();
 void init_engine();
 void *console_loop(void *);
 void draw_screen();
+SDL_Joystick* handle_input_controller();
 std::list<std::string> split_to_tokens(std::string);
 
 extern SDL_Window  *_window;
@@ -50,6 +52,8 @@ extern unsigned int _state;
 extern std::list<networkPlayer> _client_list;
 extern pthread_t net_receive, read_console;
 extern std::string _nickname;
+extern SDL_Joystick* _controller = nullptr;
+extern bool _controller_connected;
 
 typedef struct{
   SDL_Scancode scancode;
