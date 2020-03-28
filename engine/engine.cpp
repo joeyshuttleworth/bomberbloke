@@ -73,12 +73,15 @@ void handle_input(level *level) {
     /*Iterate over local players */
     for (auto i = _local_player_list.begin(); i != _local_player_list.end(); i++) {
         /*Iterate over key bindings */
-        for (auto j = i->mControlScheme.begin(); j != i->mControlScheme.end(); j++) {
+      for (auto j = i->mControlScheme.begin(); j != i->mControlScheme.end(); j++) {
             if (kb_state[j->scancode] != _kb_state[j->scancode]) { // ensure that current keymap is different to old
+	        //We will prepend "+" or "-" to the command depending on keystate
+         	std::string command_to_send = kb_state[j->scancode]? "+" +  j->command : "-" + j->command;
                 if (std::find(_system_commands.begin(), _system_commands.end(), j->command) != _system_commands.end()) {
-                    handle_system_command(split_to_tokens(j->command)); // process system command
-                } else
-                    i->character->handle_command(j->command); // handle normal command
+                    handle_system_command(split_to_tokens(command_to_send)); // process system command
+                } else{
+		  i->character->handle_command(command_to_send); // handle normal command  
+		}
             }
         }
     }
