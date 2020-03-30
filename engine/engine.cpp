@@ -59,7 +59,7 @@ void init_engine() {
     _kb_state = (Uint8 *) malloc(sizeof(Uint8) * SDL_SCANCODE_APP2); //max scancode
     memset((void *) _kb_state, 0, sizeof(Uint8) * SDL_SCANCODE_APP2);
     std::thread console(console_loop);
-    console.join();
+    console.detach();
     _state = DISCONNECTED;
     return;
 }
