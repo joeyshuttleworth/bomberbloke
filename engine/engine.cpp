@@ -274,6 +274,6 @@ void console_loop() {
                 break;
         }
     }
-//_creturn NULL;
+    return;
 }
 
