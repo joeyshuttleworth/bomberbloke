@@ -6,8 +6,9 @@ bool _halt = false;
 unsigned int _state;
 std::list <localPlayer> _local_player_list;
 std::list <networkPlayer> _client_list;
-pthread_t net_receive, read_console;
 SDL_Renderer *_renderer = NULL;
+SDL_Joystick* _controller = nullptr;
+bool _controller_connected = false;
 
 Uint8 *_kb_state = NULL;
 level _level;
@@ -57,7 +58,8 @@ void init_engine() {
 
     _kb_state = (Uint8 *) malloc(sizeof(Uint8) * SDL_SCANCODE_APP2); //max scancode
     memset((void *) _kb_state, 0, sizeof(Uint8) * SDL_SCANCODE_APP2);
-    pthread_create(&read_console, NULL, console_loop, NULL);
+    std::thread console(console_loop);
+    console.join();
     _state = DISCONNECTED;
     return;
 }
@@ -99,6 +101,7 @@ SDL_Joystick* handle_input_controller() {
     SDL_Init(SDL_INIT_JOYSTICK);
 
     if (SDL_NumJoysticks() > 0) {
+        std::cout << "Controlled connected\n ";
         return SDL_JoystickOpen(0); // return joystick identifier
     } else { return NULL; } // no joystick found
 }
@@ -253,7 +256,7 @@ std::list <std::string> split_to_tokens(std::string str) {
     return tokens;
 }
 
-void *console_loop(void *arg) {
+void console_loop() {
     std::cout << "Bomberbloke console\n";
     while (!_halt) {
         switch (_state) {
@@ -271,6 +274,6 @@ void *console_loop(void *arg) {
                 break;
         }
     }
-    return NULL;
+//_creturn NULL;
 }
 

@@ -11,6 +11,7 @@
 #include <ctime>
 #include <signal.h>
 #include <SDL_joystick.h>
+#include <thread>
 
 #define DEFAULT_ZOOM  50
 #define DEFAULT_ACTOR_SIZE 1
@@ -35,7 +36,7 @@ void handle_system_command(std::list<std::string>);
 void handle_input(level*);
 void handle_movement();
 void init_engine();
-void *console_loop(void *);
+void console_loop();
 void draw_screen();
 SDL_Joystick* handle_input_controller();
 std::list<std::string> split_to_tokens(std::string);
@@ -50,9 +51,8 @@ extern bool _halt;
 extern double _zoom;
 extern unsigned int _state;
 extern std::list<networkPlayer> _client_list;
-extern pthread_t net_receive, read_console;
 extern std::string _nickname;
-extern SDL_Joystick* _controller = nullptr;
+extern SDL_Joystick* _controller;
 extern bool _controller_connected;
 
 typedef struct{
