@@ -7,9 +7,10 @@ unsigned int _state;
 std::list <localPlayer> _local_player_list;
 std::list <networkPlayer> _client_list;
 SDL_Renderer *_renderer = NULL;
-SDL_Joystick* _controller = nullptr;
+SDL_Joystick *_controller = nullptr;
 bool _controller_connected = false;
-
+int DEADZONE = 9000;
+std::string dX = "0.1";
 Uint8 *_kb_state = NULL;
 level _level;
 uint32_t _tick = 0;
@@ -54,7 +55,7 @@ void init_engine() {
 
     // init controller
     _controller = handle_input_controller();
-    _controller_connected = _controller != NULL ? true: false;
+    _controller_connected = _controller != NULL ? true : false;
 
     _kb_state = (Uint8 *) malloc(sizeof(Uint8) * SDL_SCANCODE_APP2); //max scancode
     memset((void *) _kb_state, 0, sizeof(Uint8) * SDL_SCANCODE_APP2);
@@ -73,6 +74,7 @@ void handle_input(level *level) {
             case SDL_QUIT:
                 _halt = true;
                 break;
+
         }
     }
     kb_state = (Uint8 *) SDL_GetKeyboardState(NULL);
@@ -80,24 +82,56 @@ void handle_input(level *level) {
     /*Iterate over local players */
     for (auto i = _local_player_list.begin(); i != _local_player_list.end(); i++) {
         /*Iterate over key bindings */
-      for (auto j = i->mControlScheme.begin(); j != i->mControlScheme.end(); j++) {
-            if (kb_state[j->scancode] != _kb_state[j->scancode]) { // ensure that current keymap is different to old
-	        //We will prepend "+" or "-" to the command depending on keystate
-         	std::string command_to_send = kb_state[j->scancode]? "+" +  j->command : "-" + j->command;
-                if (std::find(_system_commands.begin(), _system_commands.end(), j->command) != _system_commands.end()) {
-                    handle_system_command(split_to_tokens(command_to_send)); // process system command
-                } else{
-		  i->character->handle_command(command_to_send); // handle normal command  
-		}
+        if (event.type != SDL_JOYAXISMOTION) {
+            for (auto j = i->mControlScheme.begin(); j != i->mControlScheme.end(); j++) {
+                if (kb_state[j->scancode] != _kb_state[j->scancode]) { // ensure that current keymap is different to old
+                    //We will prepend "+" or "-" to the command depending on keystate
+                    std::string command_to_send = kb_state[j->scancode] ? "+" + j->command : "-" + j->command;
+                    if (std::find(_system_commands.begin(), _system_commands.end(), j->command) !=
+                        _system_commands.end()) {
+                        handle_system_command(split_to_tokens(command_to_send)); // process system command
+                    } else {
+                        i->character->handle_command(command_to_send); // handle normal command
+                    }
+                }
             }
+        } else {
+            if (event.jaxis.which == 0) {
+                if (event.jaxis.axis == 0) { //x axis
+                    if (event.jaxis.value < -DEADZONE) {
+                        i->character->handle_command("left"+dX);
+                    } else if (event.jaxis.value > DEADZONE) {
+                        i->character->handle_command("+right"+dX);
+
+                    } else {
+                        i->character->handle_command("-XAxis"+dX);
+                    }
+
+                } else if (event.jaxis.axis == 1) {
+                    if (event.jaxis.value < -DEADZONE) {
+                        i->character->handle_command("+up"+dX);
+                    } else if (event.jaxis.value > DEADZONE) {
+                        i->character->handle_command("+down"+dX);
+
+                    } else {
+                        i->character->handle_command("-YAxis"+dX);
+                    }
+
+                }
+            }
+
         }
+
+
     }
+
     //old key state, new key state
     memcpy(_kb_state, kb_state, sizeof(Uint8) * SDL_SCANCODE_APP2);
     return;
+
 }
 
-SDL_Joystick* handle_input_controller() {
+SDL_Joystick *handle_input_controller() {
     SDL_Init(SDL_INIT_JOYSTICK);
 
     if (SDL_NumJoysticks() > 0) {
@@ -105,8 +139,6 @@ SDL_Joystick* handle_input_controller() {
         return SDL_JoystickOpen(0); // return joystick identifier
     } else { return NULL; } // no joystick found
 }
-
-
 
 
 bool handle_collision(actor *a, actor *b) {
