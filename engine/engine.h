@@ -40,7 +40,6 @@ void console_loop();
 void draw_screen();
 SDL_Joystick* handle_input_controller();
 std::list<std::string> split_to_tokens(std::string);
-
 extern SDL_Window  *_window;
 extern SDL_Surface *_surface;
 extern SDL_Renderer *_renderer;
@@ -54,6 +53,7 @@ extern std::list<networkPlayer> _client_list;
 extern std::string _nickname;
 extern SDL_Joystick* _controller;
 extern bool _controller_connected;
+
 
 typedef struct{
   SDL_Scancode scancode;

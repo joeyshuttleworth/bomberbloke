@@ -52,6 +52,7 @@ void bloke :: handle_command(std::string command){
     return;
   }
   if(!mAccelerated){
+
     if(command == "+up"){
       direction = DIR_UP;
     }
@@ -63,6 +64,12 @@ void bloke :: handle_command(std::string command){
     }
     else if(command == "+left"){
       direction = DIR_LEFT;
+    }
+    else if(command == "-YAxis"){
+        direction = DIR_NONE;
+    }
+    else if (command == "-XAxis"){
+        direction = DIR_NONE;
     }
     else if(command == "-up" && direction == DIR_UP){
       direction = DIR_NONE;
