@@ -1,3 +1,11 @@
+# Emacs Misc
+GPATH
+GRTAGS
+GTAGS
+
+*.bin
+*~
+
 # Remove CLion Folders
 /.idea
 
