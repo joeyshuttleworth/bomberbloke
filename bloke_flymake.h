@@ -5,7 +5,9 @@ class bloke : public actor{
   void place_bomb();
   double mMaxSpeed = double(DEFAULT_MAX_SPEED);
   Uint8 mMaxBombs = 1;
-  int direction = DIR_NONE;
+
+  bool mDirectionsHeld[4] = {false, false, false, false};
+  int mDirectionOfAcceleration = -1;
  public:
   bloke();
   void  draw();
@@ -15,15 +17,13 @@ class bloke : public actor{
   using actor::actor;
 
   void handle_command(std::string command);
-  void accelerate(int);
+  void accelerate();
   void update();
   void init();
   
   int getPower(){
     return mPower;
   }
-  
-  bool mAccelerated = false;
   
   int  mBombs = 0;
   int  mPower = 1;

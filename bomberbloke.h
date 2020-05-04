@@ -1,7 +1,7 @@
 #include "engine/engine.h"
 
 #define DEFAULT_BLOKE_SIZE 1
-#define ACCELERATION_RATIO 1
+#define ACCELERATION_RATIO 0.5
 #define DECCELERATION_RATIO 0.1
 #define DEFAULT_MAX_SPEED 10 / double(TICK_RATE)
 #define DEFAULT_BOMB_TIMER 5*TICK_RATE
@@ -20,8 +20,8 @@ enum powerups{
   PENETRATION
 };
 
+//Direction listed clockwise from UP
 enum direction{
-  DIR_NONE,
   DIR_UP,
   DIR_RIGHT,
   DIR_LEFT,
