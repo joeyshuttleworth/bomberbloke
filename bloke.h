@@ -1,7 +1,7 @@
 class bloke : public actor{
  private:
   std::list<int> mPowerups;
-  
+
   void place_bomb();
   double mMaxSpeed = double(DEFAULT_MAX_SPEED);
   Uint8 mMaxBombs = 1;
@@ -20,13 +20,12 @@ class bloke : public actor{
   void accelerate();
   void update();
   void init();
-  
+
   int getPower(){
     return mPower;
   }
-  
   int  mBombs = 0;
   int  mPower = 1;
-  
+
 };
 

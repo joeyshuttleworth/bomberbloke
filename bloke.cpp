@@ -78,19 +78,39 @@ void bloke :: handle_command(std::string command){
     mRemove=true;
     return;
   }
- 
-  std::string tmp_command = command.substr(1);
-  if(tmp_command == "up"){
-    mDirectionsHeld[DIR_UP] = key_up;
-  }
-  else if(tmp_command == "right"){
-    mDirectionsHeld[DIR_RIGHT] = key_up;
-  }
-  else if(tmp_command == "down"){
-    mDirectionsHeld[DIR_DOWN] = key_up;
-  }
-  else if(tmp_command == "left"){
-    mDirectionsHeld[DIR_LEFT] = key_up;
+
+  if(!mAccelerated){
+
+    if(command == "+up"){
+      direction = DIR_UP;
+    }
+    else if(command == "+right"){
+      direction = DIR_RIGHT;
+    }
+    else if(command == "+down"){
+      direction = DIR_DOWN;
+    }
+    else if(command == "+left"){
+      direction = DIR_LEFT;
+    }
+    else if(command == "-YAxis"){
+        direction = DIR_NONE;
+    }
+    else if (command == "-XAxis"){
+        direction = DIR_NONE;
+    }
+    else if(command == "-up" && direction == DIR_UP){
+      direction = DIR_NONE;
+    }
+    else if(command == "-down" && direction == DIR_DOWN){
+      direction = DIR_NONE;
+    }
+    else if(command == "-right" && direction == DIR_RIGHT){
+      direction = DIR_NONE;
+    }
+    else if(command == "-left" && direction == DIR_LEFT){
+      direction = DIR_NONE;
+    }
   }
   if(command == "+bomb"){
     place_bomb();
