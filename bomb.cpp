@@ -27,7 +27,7 @@ void bomb::init(bloke *bloke){
 
 void bomb::handle_command(std::string command){
   if(mRemove==false){
-    if(command=="kill"){
+    if(command=="+kill"){
       explode();
     }
   }
@@ -71,7 +71,7 @@ void bomb::explode(){
       }
       
       if(dead)
-	prev->handle_command("kill");
+	prev->handle_command("+kill");
     }
   }
   mRemove = true;
