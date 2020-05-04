@@ -1,0 +1,1 @@
+/usr/bin/c++     CMakeFiles/server.dir/engine/server.cpp.o  -o server /usr/lib/x86_64-linux-gnu/libenet.so /usr/lib/x86_64-linux-gnu/libSDL2main.a /usr/lib/x86_64-linux-gnu/libSDL2.so -lpthread 

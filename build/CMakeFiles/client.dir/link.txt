@@ -1,0 +1,1 @@
+/usr/bin/c++     CMakeFiles/client.dir/engine/client.cpp.o  -o client /usr/lib/x86_64-linux-gnu/libenet.so /usr/lib/x86_64-linux-gnu/libSDL2main.a /usr/lib/x86_64-linux-gnu/libSDL2.so -lpthread 
