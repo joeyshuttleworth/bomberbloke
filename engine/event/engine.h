@@ -81,9 +81,9 @@ extern const std::vector<command_binding> _default_bindings;
 extern std::list<localPlayer> _local_player_list;
 const std::array<std::string, 2> _system_commands  = {"bind", "set"};
 
-#include "state.h"
-#include "level.h"
-#include "actor.h"
-#include "player.h"
-#include "localPlayer.h"
-#include "networkPlayer.h"
+#include "../state.h"
+#include "../level/level.h"
+#include "../actor/actor.h"
+#include "../player/player.h"
+#include "../player/localPlayer.h"
+#include "../player/networkPlayer.h"

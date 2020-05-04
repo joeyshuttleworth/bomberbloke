@@ -1,5 +1,0 @@
-/home/dave/code/bomberbloke/build/CMakeFiles/rebuild_cache.dir
-/home/dave/code/bomberbloke/build/CMakeFiles/fmt.dir
-/home/dave/code/bomberbloke/build/CMakeFiles/edit_cache.dir
-/home/dave/code/bomberbloke/build/CMakeFiles/client.dir
-/home/dave/code/bomberbloke/build/CMakeFiles/server.dir
