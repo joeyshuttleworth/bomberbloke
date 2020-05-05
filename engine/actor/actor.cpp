@@ -1,4 +1,4 @@
-#include "engine.h"
+#include "../engine.h"
 
 void actor :: draw(){
   /*dstrect is a structure detailing the rectangle we will draw our sprite to */
