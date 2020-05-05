@@ -12,20 +12,27 @@ include_directories(${ENET_INCLUDE_DIRS})
 include_directories("include")
 
 find_package(SDL2 REQUIRED)
-include_directories(${SDL2_INCLUDE_DIR})
+include_directories(${SDL2_INCLUDE_DIRS})
 
-
+file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/headers.cmake HEADERS)
+file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/sources.cmake SOURCES)
+add_library(${LIB_TARGET_NAME} SHARED
+            ${HEADERS}
+            ${SOURCES}
+            )
 
 
 # Client setup
 set(client_src "engine/client.cpp")
 add_executable(client ${client_src})
-target_link_libraries(client ${ENET_LIBRARIES} ${SDL2_LIBRARY})
+set_target_properties(client PROPERTIES PUBLIC_HEADER "engine/client.h" )
+target_link_libraries(client ${ENET_LIBRARIES} ${SDL2_LIBRARIES})
+
 
 # Server setup
-set(server_src "engine/server.cpp")
-add_executable(server ${server_src})
-target_link_libraries(server ${ENET_LIBRARIES} ${SDL2_LIBRARY})
+#set(server_src "engine/server.cpp")
+#add_executable(server ${server_src})
+#target_link_libraries(server ${ENET_LIBRARIES} ${SDL2_LIBRARY})
 
 # Format in clang
 file(GLOB_RECURSE all_sources include/*.h src/*.cpp)

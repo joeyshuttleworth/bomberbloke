@@ -1,4 +1,4 @@
-#include "engine.h"
+#include "../engine.h"
 
 void player::init(actor *actor){
   character = actor;

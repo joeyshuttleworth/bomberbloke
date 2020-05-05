@@ -6,7 +6,7 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 
-#include "event/engine.h"
+#include "engine.h"
 
 unsigned int _last_receive;
 bool _draw = true;

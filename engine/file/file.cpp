@@ -1,3 +1,8 @@
+#include <string>
+#include <fstream>  
+#include <algorithm>    
+#include <iostream>  
+
 void load_config(std::string fname){
   std::ifstream fin(fname, std::ifstream::in);
   std::string buf;
