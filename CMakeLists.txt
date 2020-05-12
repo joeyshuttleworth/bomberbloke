@@ -14,6 +14,15 @@ include_directories("include")
 find_package(SDL2 REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS})
 
+#Include directories
+include_directories(${PROJECT_SOURCE_DIR}/engine/event)
+include_directories(${PROJECT_SOURCE_DIR}/engine/file)
+include_directories(${PROJECT_SOURCE_DIR}/engine/level)
+include_directories(${PROJECT_SOURCE_DIR}/engine/network)
+include_directories(${PROJECT_SOURCE_DIR}/engine/player)
+include_directories(${PROJECT_SOURCE_DIR}/engine/actor)
+include_directories(${PROJECT_SOURCE_DIR}/engine/control)
+
 file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/headers.cmake HEADERS)
 file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/sources.cmake SOURCES)
 add_library(${LIB_TARGET_NAME} SHARED
@@ -44,7 +53,7 @@ add_custom_target(fmt
 # Warning messages are treated as errors
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror -Wpedantic -Wfatal-errors")
 
-file(COPY
-    ${CMAKE_CURRENT_SOURCE_DIR}/resources/
-    DESTINATION
-    ${CMAKE_CURRENT_BINARY_DIR}/resources/)
+# file(COPY
+#     ${CMAKE_CURRENT_SOURCE_DIR}/resources/
+#     DESTINATION
+#     ${CMAKE_CURRENT_BINARY_DIR}/resources/)
