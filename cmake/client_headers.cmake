@@ -10,6 +10,4 @@ engine/player/localPlayer.h
 engine/player/networkPlayer.h
 engine/player/player.h
 engine/server.h
-common/bloke.h
-common/bomb.h
 common/bomberbloke.h
