@@ -124,30 +124,111 @@ fmt/fast:
 .PHONY : fmt/fast
 
 #=============================================================================
-# Target rules for targets named SHARED
+# Target rules for targets named CLIENT_ENGINE
 
 # Build rule for target.
-SHARED: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 SHARED
-.PHONY : SHARED
+CLIENT_ENGINE: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 CLIENT_ENGINE
+.PHONY : CLIENT_ENGINE
 
 # fast build rule for target.
-SHARED/fast:
-	$(MAKE) -f CMakeFiles/SHARED.dir/build.make CMakeFiles/SHARED.dir/build
-.PHONY : SHARED/fast
+CLIENT_ENGINE/fast:
+	$(MAKE) -f CMakeFiles/CLIENT_ENGINE.dir/build.make CMakeFiles/CLIENT_ENGINE.dir/build
+.PHONY : CLIENT_ENGINE/fast
 
 #=============================================================================
-# Target rules for targets named client
+# Target rules for targets named bomberbloke_client
 
 # Build rule for target.
-client: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 client
-.PHONY : client
+bomberbloke_client: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 bomberbloke_client
+.PHONY : bomberbloke_client
 
 # fast build rule for target.
-client/fast:
-	$(MAKE) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/build
-.PHONY : client/fast
+bomberbloke_client/fast:
+	$(MAKE) -f CMakeFiles/bomberbloke_client.dir/build.make CMakeFiles/bomberbloke_client.dir/build
+.PHONY : bomberbloke_client/fast
+
+client/bomberbloke.o: client/bomberbloke.cpp.o
+
+.PHONY : client/bomberbloke.o
+
+# target to build an object file
+client/bomberbloke.cpp.o:
+	$(MAKE) -f CMakeFiles/bomberbloke_client.dir/build.make CMakeFiles/bomberbloke_client.dir/client/bomberbloke.cpp.o
+.PHONY : client/bomberbloke.cpp.o
+
+client/bomberbloke.i: client/bomberbloke.cpp.i
+
+.PHONY : client/bomberbloke.i
+
+# target to preprocess a source file
+client/bomberbloke.cpp.i:
+	$(MAKE) -f CMakeFiles/bomberbloke_client.dir/build.make CMakeFiles/bomberbloke_client.dir/client/bomberbloke.cpp.i
+.PHONY : client/bomberbloke.cpp.i
+
+client/bomberbloke.s: client/bomberbloke.cpp.s
+
+.PHONY : client/bomberbloke.s
+
+# target to generate assembly for a file
+client/bomberbloke.cpp.s:
+	$(MAKE) -f CMakeFiles/bomberbloke_client.dir/build.make CMakeFiles/bomberbloke_client.dir/client/bomberbloke.cpp.s
+.PHONY : client/bomberbloke.cpp.s
+
+common/bloke.o: common/bloke.cpp.o
+
+.PHONY : common/bloke.o
+
+# target to build an object file
+common/bloke.cpp.o:
+	$(MAKE) -f CMakeFiles/CLIENT_ENGINE.dir/build.make CMakeFiles/CLIENT_ENGINE.dir/common/bloke.cpp.o
+.PHONY : common/bloke.cpp.o
+
+common/bloke.i: common/bloke.cpp.i
+
+.PHONY : common/bloke.i
+
+# target to preprocess a source file
+common/bloke.cpp.i:
+	$(MAKE) -f CMakeFiles/CLIENT_ENGINE.dir/build.make CMakeFiles/CLIENT_ENGINE.dir/common/bloke.cpp.i
+.PHONY : common/bloke.cpp.i
+
+common/bloke.s: common/bloke.cpp.s
+
+.PHONY : common/bloke.s
+
+# target to generate assembly for a file
+common/bloke.cpp.s:
+	$(MAKE) -f CMakeFiles/CLIENT_ENGINE.dir/build.make CMakeFiles/CLIENT_ENGINE.dir/common/bloke.cpp.s
+.PHONY : common/bloke.cpp.s
+
+common/bomb.o: common/bomb.cpp.o
+
+.PHONY : common/bomb.o
+
+# target to build an object file
+common/bomb.cpp.o:
+	$(MAKE) -f CMakeFiles/CLIENT_ENGINE.dir/build.make CMakeFiles/CLIENT_ENGINE.dir/common/bomb.cpp.o
+.PHONY : common/bomb.cpp.o
+
+common/bomb.i: common/bomb.cpp.i
+
+.PHONY : common/bomb.i
+
+# target to preprocess a source file
+common/bomb.cpp.i:
+	$(MAKE) -f CMakeFiles/CLIENT_ENGINE.dir/build.make CMakeFiles/CLIENT_ENGINE.dir/common/bomb.cpp.i
+.PHONY : common/bomb.cpp.i
+
+common/bomb.s: common/bomb.cpp.s
+
+.PHONY : common/bomb.s
+
+# target to generate assembly for a file
+common/bomb.cpp.s:
+	$(MAKE) -f CMakeFiles/CLIENT_ENGINE.dir/build.make CMakeFiles/CLIENT_ENGINE.dir/common/bomb.cpp.s
+.PHONY : common/bomb.cpp.s
 
 engine/actor/actor.o: engine/actor/actor.cpp.o
 
@@ -155,7 +236,7 @@ engine/actor/actor.o: engine/actor/actor.cpp.o
 
 # target to build an object file
 engine/actor/actor.cpp.o:
-	$(MAKE) -f CMakeFiles/SHARED.dir/build.make CMakeFiles/SHARED.dir/engine/actor/actor.cpp.o
+	$(MAKE) -f CMakeFiles/CLIENT_ENGINE.dir/build.make CMakeFiles/CLIENT_ENGINE.dir/engine/actor/actor.cpp.o
 .PHONY : engine/actor/actor.cpp.o
 
 engine/actor/actor.i: engine/actor/actor.cpp.i
@@ -164,7 +245,7 @@ engine/actor/actor.i: engine/actor/actor.cpp.i
 
 # target to preprocess a source file
 engine/actor/actor.cpp.i:
-	$(MAKE) -f CMakeFiles/SHARED.dir/build.make CMakeFiles/SHARED.dir/engine/actor/actor.cpp.i
+	$(MAKE) -f CMakeFiles/CLIENT_ENGINE.dir/build.make CMakeFiles/CLIENT_ENGINE.dir/engine/actor/actor.cpp.i
 .PHONY : engine/actor/actor.cpp.i
 
 engine/actor/actor.s: engine/actor/actor.cpp.s
@@ -173,7 +254,7 @@ engine/actor/actor.s: engine/actor/actor.cpp.s
 
 # target to generate assembly for a file
 engine/actor/actor.cpp.s:
-	$(MAKE) -f CMakeFiles/SHARED.dir/build.make CMakeFiles/SHARED.dir/engine/actor/actor.cpp.s
+	$(MAKE) -f CMakeFiles/CLIENT_ENGINE.dir/build.make CMakeFiles/CLIENT_ENGINE.dir/engine/actor/actor.cpp.s
 .PHONY : engine/actor/actor.cpp.s
 
 engine/client.o: engine/client.cpp.o
@@ -182,8 +263,7 @@ engine/client.o: engine/client.cpp.o
 
 # target to build an object file
 engine/client.cpp.o:
-	$(MAKE) -f CMakeFiles/SHARED.dir/build.make CMakeFiles/SHARED.dir/engine/client.cpp.o
-	$(MAKE) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/engine/client.cpp.o
+	$(MAKE) -f CMakeFiles/CLIENT_ENGINE.dir/build.make CMakeFiles/CLIENT_ENGINE.dir/engine/client.cpp.o
 .PHONY : engine/client.cpp.o
 
 engine/client.i: engine/client.cpp.i
@@ -192,8 +272,7 @@ engine/client.i: engine/client.cpp.i
 
 # target to preprocess a source file
 engine/client.cpp.i:
-	$(MAKE) -f CMakeFiles/SHARED.dir/build.make CMakeFiles/SHARED.dir/engine/client.cpp.i
-	$(MAKE) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/engine/client.cpp.i
+	$(MAKE) -f CMakeFiles/CLIENT_ENGINE.dir/build.make CMakeFiles/CLIENT_ENGINE.dir/engine/client.cpp.i
 .PHONY : engine/client.cpp.i
 
 engine/client.s: engine/client.cpp.s
@@ -202,8 +281,7 @@ engine/client.s: engine/client.cpp.s
 
 # target to generate assembly for a file
 engine/client.cpp.s:
-	$(MAKE) -f CMakeFiles/SHARED.dir/build.make CMakeFiles/SHARED.dir/engine/client.cpp.s
-	$(MAKE) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/engine/client.cpp.s
+	$(MAKE) -f CMakeFiles/CLIENT_ENGINE.dir/build.make CMakeFiles/CLIENT_ENGINE.dir/engine/client.cpp.s
 .PHONY : engine/client.cpp.s
 
 engine/control/controls.o: engine/control/controls.cpp.o
@@ -212,7 +290,7 @@ engine/control/controls.o: engine/control/controls.cpp.o
 
 # target to build an object file
 engine/control/controls.cpp.o:
-	$(MAKE) -f CMakeFiles/SHARED.dir/build.make CMakeFiles/SHARED.dir/engine/control/controls.cpp.o
+	$(MAKE) -f CMakeFiles/CLIENT_ENGINE.dir/build.make CMakeFiles/CLIENT_ENGINE.dir/engine/control/controls.cpp.o
 .PHONY : engine/control/controls.cpp.o
 
 engine/control/controls.i: engine/control/controls.cpp.i
@@ -221,7 +299,7 @@ engine/control/controls.i: engine/control/controls.cpp.i
 
 # target to preprocess a source file
 engine/control/controls.cpp.i:
-	$(MAKE) -f CMakeFiles/SHARED.dir/build.make CMakeFiles/SHARED.dir/engine/control/controls.cpp.i
+	$(MAKE) -f CMakeFiles/CLIENT_ENGINE.dir/build.make CMakeFiles/CLIENT_ENGINE.dir/engine/control/controls.cpp.i
 .PHONY : engine/control/controls.cpp.i
 
 engine/control/controls.s: engine/control/controls.cpp.s
@@ -230,7 +308,7 @@ engine/control/controls.s: engine/control/controls.cpp.s
 
 # target to generate assembly for a file
 engine/control/controls.cpp.s:
-	$(MAKE) -f CMakeFiles/SHARED.dir/build.make CMakeFiles/SHARED.dir/engine/control/controls.cpp.s
+	$(MAKE) -f CMakeFiles/CLIENT_ENGINE.dir/build.make CMakeFiles/CLIENT_ENGINE.dir/engine/control/controls.cpp.s
 .PHONY : engine/control/controls.cpp.s
 
 engine/engine.o: engine/engine.cpp.o
@@ -239,7 +317,7 @@ engine/engine.o: engine/engine.cpp.o
 
 # target to build an object file
 engine/engine.cpp.o:
-	$(MAKE) -f CMakeFiles/SHARED.dir/build.make CMakeFiles/SHARED.dir/engine/engine.cpp.o
+	$(MAKE) -f CMakeFiles/CLIENT_ENGINE.dir/build.make CMakeFiles/CLIENT_ENGINE.dir/engine/engine.cpp.o
 .PHONY : engine/engine.cpp.o
 
 engine/engine.i: engine/engine.cpp.i
@@ -248,7 +326,7 @@ engine/engine.i: engine/engine.cpp.i
 
 # target to preprocess a source file
 engine/engine.cpp.i:
-	$(MAKE) -f CMakeFiles/SHARED.dir/build.make CMakeFiles/SHARED.dir/engine/engine.cpp.i
+	$(MAKE) -f CMakeFiles/CLIENT_ENGINE.dir/build.make CMakeFiles/CLIENT_ENGINE.dir/engine/engine.cpp.i
 .PHONY : engine/engine.cpp.i
 
 engine/engine.s: engine/engine.cpp.s
@@ -257,7 +335,7 @@ engine/engine.s: engine/engine.cpp.s
 
 # target to generate assembly for a file
 engine/engine.cpp.s:
-	$(MAKE) -f CMakeFiles/SHARED.dir/build.make CMakeFiles/SHARED.dir/engine/engine.cpp.s
+	$(MAKE) -f CMakeFiles/CLIENT_ENGINE.dir/build.make CMakeFiles/CLIENT_ENGINE.dir/engine/engine.cpp.s
 .PHONY : engine/engine.cpp.s
 
 engine/level/level.o: engine/level/level.cpp.o
@@ -266,7 +344,7 @@ engine/level/level.o: engine/level/level.cpp.o
 
 # target to build an object file
 engine/level/level.cpp.o:
-	$(MAKE) -f CMakeFiles/SHARED.dir/build.make CMakeFiles/SHARED.dir/engine/level/level.cpp.o
+	$(MAKE) -f CMakeFiles/CLIENT_ENGINE.dir/build.make CMakeFiles/CLIENT_ENGINE.dir/engine/level/level.cpp.o
 .PHONY : engine/level/level.cpp.o
 
 engine/level/level.i: engine/level/level.cpp.i
@@ -275,7 +353,7 @@ engine/level/level.i: engine/level/level.cpp.i
 
 # target to preprocess a source file
 engine/level/level.cpp.i:
-	$(MAKE) -f CMakeFiles/SHARED.dir/build.make CMakeFiles/SHARED.dir/engine/level/level.cpp.i
+	$(MAKE) -f CMakeFiles/CLIENT_ENGINE.dir/build.make CMakeFiles/CLIENT_ENGINE.dir/engine/level/level.cpp.i
 .PHONY : engine/level/level.cpp.i
 
 engine/level/level.s: engine/level/level.cpp.s
@@ -284,7 +362,7 @@ engine/level/level.s: engine/level/level.cpp.s
 
 # target to generate assembly for a file
 engine/level/level.cpp.s:
-	$(MAKE) -f CMakeFiles/SHARED.dir/build.make CMakeFiles/SHARED.dir/engine/level/level.cpp.s
+	$(MAKE) -f CMakeFiles/CLIENT_ENGINE.dir/build.make CMakeFiles/CLIENT_ENGINE.dir/engine/level/level.cpp.s
 .PHONY : engine/level/level.cpp.s
 
 engine/player/player.o: engine/player/player.cpp.o
@@ -293,7 +371,7 @@ engine/player/player.o: engine/player/player.cpp.o
 
 # target to build an object file
 engine/player/player.cpp.o:
-	$(MAKE) -f CMakeFiles/SHARED.dir/build.make CMakeFiles/SHARED.dir/engine/player/player.cpp.o
+	$(MAKE) -f CMakeFiles/CLIENT_ENGINE.dir/build.make CMakeFiles/CLIENT_ENGINE.dir/engine/player/player.cpp.o
 .PHONY : engine/player/player.cpp.o
 
 engine/player/player.i: engine/player/player.cpp.i
@@ -302,7 +380,7 @@ engine/player/player.i: engine/player/player.cpp.i
 
 # target to preprocess a source file
 engine/player/player.cpp.i:
-	$(MAKE) -f CMakeFiles/SHARED.dir/build.make CMakeFiles/SHARED.dir/engine/player/player.cpp.i
+	$(MAKE) -f CMakeFiles/CLIENT_ENGINE.dir/build.make CMakeFiles/CLIENT_ENGINE.dir/engine/player/player.cpp.i
 .PHONY : engine/player/player.cpp.i
 
 engine/player/player.s: engine/player/player.cpp.s
@@ -311,7 +389,7 @@ engine/player/player.s: engine/player/player.cpp.s
 
 # target to generate assembly for a file
 engine/player/player.cpp.s:
-	$(MAKE) -f CMakeFiles/SHARED.dir/build.make CMakeFiles/SHARED.dir/engine/player/player.cpp.s
+	$(MAKE) -f CMakeFiles/CLIENT_ENGINE.dir/build.make CMakeFiles/CLIENT_ENGINE.dir/engine/player/player.cpp.s
 .PHONY : engine/player/player.cpp.s
 
 engine/server.o: engine/server.cpp.o
@@ -320,7 +398,7 @@ engine/server.o: engine/server.cpp.o
 
 # target to build an object file
 engine/server.cpp.o:
-	$(MAKE) -f CMakeFiles/SHARED.dir/build.make CMakeFiles/SHARED.dir/engine/server.cpp.o
+	$(MAKE) -f CMakeFiles/CLIENT_ENGINE.dir/build.make CMakeFiles/CLIENT_ENGINE.dir/engine/server.cpp.o
 .PHONY : engine/server.cpp.o
 
 engine/server.i: engine/server.cpp.i
@@ -329,7 +407,7 @@ engine/server.i: engine/server.cpp.i
 
 # target to preprocess a source file
 engine/server.cpp.i:
-	$(MAKE) -f CMakeFiles/SHARED.dir/build.make CMakeFiles/SHARED.dir/engine/server.cpp.i
+	$(MAKE) -f CMakeFiles/CLIENT_ENGINE.dir/build.make CMakeFiles/CLIENT_ENGINE.dir/engine/server.cpp.i
 .PHONY : engine/server.cpp.i
 
 engine/server.s: engine/server.cpp.s
@@ -338,7 +416,7 @@ engine/server.s: engine/server.cpp.s
 
 # target to generate assembly for a file
 engine/server.cpp.s:
-	$(MAKE) -f CMakeFiles/SHARED.dir/build.make CMakeFiles/SHARED.dir/engine/server.cpp.s
+	$(MAKE) -f CMakeFiles/CLIENT_ENGINE.dir/build.make CMakeFiles/CLIENT_ENGINE.dir/engine/server.cpp.s
 .PHONY : engine/server.cpp.s
 
 # Help Target
@@ -348,10 +426,19 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... rebuild_cache"
-	@echo "... fmt"
 	@echo "... edit_cache"
-	@echo "... SHARED"
-	@echo "... client"
+	@echo "... fmt"
+	@echo "... CLIENT_ENGINE"
+	@echo "... bomberbloke_client"
+	@echo "... client/bomberbloke.o"
+	@echo "... client/bomberbloke.i"
+	@echo "... client/bomberbloke.s"
+	@echo "... common/bloke.o"
+	@echo "... common/bloke.i"
+	@echo "... common/bloke.s"
+	@echo "... common/bomb.o"
+	@echo "... common/bomb.i"
+	@echo "... common/bomb.s"
 	@echo "... engine/actor/actor.o"
 	@echo "... engine/actor/actor.i"
 	@echo "... engine/actor/actor.s"
