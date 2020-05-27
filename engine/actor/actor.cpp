@@ -1,4 +1,8 @@
 #include "../engine.h"
+#include "MoveEvent.hpp"
+#include <cereal/archives/json.hpp>
+#include <fstream>
+
 
 void actor :: draw(){
   /*dstrect is a structure detailing the rectangle we will draw our sprite to */
@@ -52,7 +56,15 @@ int actor :: move(double x, double y){
   /*Move to our new coordinate*/
   mPosition[0] = tmp_pos[0];
   mPosition[1] = tmp_pos[1];
-  
+
+  /*Create a MoveEvent and send/save it*/
+
+  MoveEvent e(this);
+  cereal::JSONOutputArchive oArchive(std::cout);
+
+  oArchive(e);
+
+
   if(in_level){
     return -1;
   }
@@ -94,7 +106,7 @@ void actor :: update(){
   return;
 }
 
-actor::actor(){
+actor::actor(){ 
   if(!mpSprite){
     mpSprite = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 128, 128);
     SDL_SetRenderTarget(_renderer, mpSprite);

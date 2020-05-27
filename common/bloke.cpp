@@ -1,85 +1,59 @@
 #include "bomberbloke.h"
 
 void bloke :: accelerate(){
+  /*Count how many directions we are accelerating in*/
+  int directions_accelerated_in = (mDirectionOfAcceleration[1] != 0)+ (mDirectionOfAcceleration[0] != 0);
 
+  const double velocity_increase = (directions_accelerated_in==1)? mMaxSpeed*ACCELERATION_RATIO: mMaxSpeed*ACCELERATION_RATIO * 0.5;
 
-  if(!mDirectionsHeld[mDirectionOfAcceleration]){
-    mDirectionOfAcceleration = -1; 
-  }
-
-  if(mDirectionOfAcceleration < 0){
-    // Loop over directions
-    for(int i = 0; i < 4; i++){
-      if(mDirectionsHeld[i] == true){
-	mDirectionOfAcceleration = i;
-	break;   
-      }
-    }
-  }
-  
-  double accel[2] = {0, 0};
-
-  switch(mDirectionOfAcceleration){
-  case DIR_UP:
-    accel[1] = 1;
-    break;
-  case DIR_DOWN:
-    accel[1] = -1;
-    break;
-  case DIR_LEFT:
-    accel[0] = -1;
-    break;
-  case DIR_RIGHT:
-    accel[0] = 1;
-    break;
-  }
-
-  
-  //Apply acceleration and decelleration in the two directions
-  
-  for(unsigned int i = 0; i < 2; i++){
-    if(accel[i]){
-      mVelocity[i] = mVelocity[i] + accel[i]*mMaxSpeed*ACCELERATION_RATIO;
-      if(std::abs(mVelocity[i]) > mMaxSpeed){
-	mVelocity[i] = accel[i]*mMaxSpeed;
-      }
+  for(int i=0; i<2; i++){
+    if(mDirectionOfAcceleration[i] != 0){
+      mVelocity[i] = mVelocity[i] + mDirectionOfAcceleration[i]*velocity_increase;
     }
     else{
-      double decceleration = mMaxSpeed*0.1;
-      if(mVelocity[i]<0)
-	decceleration = - decceleration;
+      double decceleration = (mVelocity[i]>0)?-mMaxSpeed*0.5: mMaxSpeed*0.5;
       if(std::abs(decceleration) > std::abs(mVelocity[i]))
-	mVelocity[i] = 0;
+        mVelocity[i] = 0;
       else
-	mVelocity[i] -= decceleration;
+        mVelocity[i] += decceleration;
     }
   }
-      
   return;
 }
 
 void bloke :: handle_command(std::string command){
 
   std::cout << command << "\n";
-  bool key_up;
-  
-  
-  if(command[0] == '+'){
-    key_up = true;
-  }
-  else if(command[0] == '-'){
-    key_up = false;
-  }
-  else{
-    return;
-  }
-  
+  /*True if the key is pressed down- false if it is up*/
+  bool key_down = (command[0]=='+');
   if(command == "+kill"){
     mRemove=true;
     return;
   }
+  const std::string direction_strings[4] = {"up", "right", "down", "left"};
 
- if(command == "+bomb"){
+  for(unsigned int i = 0; i < 4; i++){
+    if(command.substr(1) == direction_strings[i]){
+      if(key_down){
+        if(mDirectionsHeld[i] == false){
+          mDirectionsHeld[i] = true;
+          mDirectionOfAcceleration[(i+1)%2] = (i<2)?1:-1;
+        }
+      }
+      else{
+        if(mDirectionsHeld[i] == true){
+          mDirectionsHeld[i] = false;
+          if(mDirectionsHeld[(i+2)%4])
+            mDirectionOfAcceleration[(i + 1)%2] = (i<2)?1:-1;
+          else{
+            mDirectionOfAcceleration[(i+1)%2] = 0;
+          }
+        }
+      }
+    }
+  }
+
+  if(command == "bomb"){
     place_bomb();
   }
   return;

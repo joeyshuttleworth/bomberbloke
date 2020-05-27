@@ -1,13 +1,20 @@
 class bloke : public actor{
  private:
   std::list<int> mPowerups;
-
+  enum DIR{
+    DIR_UP,
+    DIR_RIGHT,
+    DIR_DOWN,
+    DIR_LEFT,
+    DIR_NONE
+  };
+  int mDirection;
   void place_bomb();
   double mMaxSpeed = double(DEFAULT_MAX_SPEED);
   Uint8 mMaxBombs = 1;
-
+  bool mAccelerated;
   bool mDirectionsHeld[4] = {false, false, false, false};
-  int  mDirectionOfAcceleration = -1;
+  int  mDirectionOfAcceleration[2] = {0,0};
  public:
   bloke();
   void  draw();
