@@ -3,7 +3,7 @@
 #define DEFAULT_BLOKE_SIZE 1
 #define ACCELERATION_RATIO 0.5
 #define DECCELERATION_RATIO 0.1
-#define DEFAULT_MAX_SPEED 10 / double(TICK_RATE)
+#define DEFAULT_MAX_SPEED double(0.5 / TICK_RATE)
 #define DEFAULT_BOMB_TIMER 5*TICK_RATE
 #define BOMB_SIZE 1
 
@@ -18,14 +18,6 @@ enum powerups{
   SATELLITE,
   KICK,
   PENETRATION
-};
-
-//Direction listed clockwise from UP
-enum direction{
-  DIR_UP,
-  DIR_RIGHT,
-  DIR_LEFT,
-  DIR_DOWN
 };
 
 enum actor_types{

@@ -1,11 +1,11 @@
 class player;
 class actor{
+  friend class MoveEvent;
  protected:
-  SDL_Texture *mpSprite = NULL; //should be protected
+  SDL_Texture *mpSprite = NULL;
 
   player *mpController = NULL;
-  Uint32 id;
-  
+  Uint32 mId;
   /*Pointer to the level we're in*/
   level *mpLevel;
  public:
@@ -27,7 +27,6 @@ class actor{
   int move(double x, double y);
   bool is_moving();
   int init(double, double);
-  int direction();
   double *get_midpoint();
   virtual void update();
 

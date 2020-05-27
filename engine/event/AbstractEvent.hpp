@@ -6,14 +6,16 @@
 
 #define ABSTRACTEVENT_HPP
 
-typedef enum EventType{
-  join,
-  clientmessage,
-  servermessage,
-  sync,
-  newgame,
-  start,
-  stop
+enum EventType{
+  JOIN,
+  CLIENT_MESSAGE,
+  SERVER_MESSAGE,
+  CREATE,
+  REMOVE,
+  SYNC,
+  NEW_GAME,
+  START,
+  STOP
 };
 
 class AbstractEvent{
