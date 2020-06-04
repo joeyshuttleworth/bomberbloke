@@ -1,6 +1,7 @@
 /* Abstract class for events to be sent to the client/server.*/
 
 #include <cereal/types/base_class.hpp>
+#include <cereal/types/vector.hpp>
 
 #ifndef ABSTRACTEVENT_HPP
 
@@ -27,7 +28,7 @@ public:
   int mType = 0;
   template <class Archive>
   void serialize(Archive &ar){
-    ar(mType);
+    ar(cereal::make_nvp("EventType", mType));
   };
 };
 
