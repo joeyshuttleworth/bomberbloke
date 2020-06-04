@@ -1,6 +1,7 @@
 #include "engine.h"
 #include "QueryEvent.hpp"
 #include "MoveEvent.hpp"
+#include "ServerInfo.hpp"
 #include <cereal/archives/json.hpp>
 #include <fstream>
 
@@ -9,7 +10,7 @@ SDL_Window *_window;
 bool _halt = false;
 unsigned int _state;
 std::list <localPlayer> _local_player_list;
-std::list <networkPlayer> _client_list;
+std::list <player> _player_list;
 SDL_Renderer *_renderer = NULL;
 SDL_Joystick *_controller = nullptr;
 bool _controller_connected = false;
@@ -17,8 +18,9 @@ int DEADZONE = 9000;
 std::string dX = "0.1";
 Uint8 *_kb_state = NULL;
 level _level;
-uint32_t _tick = 0;
+unsigned int _tick = 0;
 std::string _nickname = "big_beef";
+ServerInfo _server_info;
 
 void exit_engine(int signum) {
     //Destroy window
@@ -29,8 +31,7 @@ void exit_engine(int signum) {
     //Quit SDL subsystems
     SDL_Quit();
     _halt = true;
-    std::cout
-            << "\nNow exiting the BLOKE engine. Hope you had fun. Wherever you are, we at the BLOKE project hope we have made your day just a little bit brighter. See you next time around! :)\n";
+    std::cout  << "\nNow exiting the BLOKE engine. Hope you had fun. Wherever you are, we at the BLOKE project hope we have made your day just a little bit brighter. See you next time around! :)\n";
     //  net_exit();
     signal(SIGINT, NULL);
     return;
@@ -39,6 +40,8 @@ void exit_engine(int signum) {
 void init_engine() {
     int size[2];
     char *receive_port = (char *) "8888";
+
+    _server_info;
 
     signal(SIGINT, exit_engine);
     SDL_Init(SDL_INIT_EVERYTHING);

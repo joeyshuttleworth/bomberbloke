@@ -5,8 +5,8 @@ Event used to request information from a server
 #ifndef QUERYEVENT_HPP
 
 #define QUERYEVENT_HPP
+#include <cereal/types/vector.hpp>
 #include "AbstractEvent.hpp"
-//#include <cereal/types/vector.hpp>
 #include <cereal/types/base_class.hpp>
 
 class QueryEvent :  public  AbstractEvent{
@@ -22,7 +22,7 @@ public:
   template<class Archive>
   void serialize(Archive &archive){
     archive(cereal::base_class<AbstractEvent>(this), mNickname);
-      };
+  };
 
 };
 
