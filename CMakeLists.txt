@@ -25,22 +25,28 @@ include_directories(${PROJECT_SOURCE_DIR}/engine/actor)
 include_directories(${PROJECT_SOURCE_DIR}/engine/control)
 include_directories(${PROJECT_SOURCE_DIR}/client)
 include_directories(${PROJECT_SOURCE_DIR}/common)
+include_directories(${PROJECT_SOURCE_DIR}/engine)
 
-file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/client_sources.cmake CLIENT_SOURCES)
-add_library(${LIB_TARGET_NAME} CLIENT_ENGINE
-            ${CLIENT_SOURCES}
+file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/sources.cmake SHARED_SOURCES)
+add_library(${LIB_TARGET_NAME} SHARED_ENGINE
+            ${SHARED_SOURCES}
             )
 
 
 # Client setup
 set(client_src "client/bomberbloke.cpp")
-
-add_executable(bomberbloke_client ${client_src})
+add_executable(bomberbloke_client ${client_src} "engine/client.cpp")
 set_target_properties(bomberbloke_client PROPERTIES PUBLIC_HEADER "engine/client.h" )
-target_link_libraries(bomberbloke_client ${ENET_LIBRARIES} ${SDL2_LIBRARIES} CLIENT_ENGINE)
+target_link_libraries(bomberbloke_client ${ENET_LIBRARIES} ${SDL2_LIBRARIES} SHARED_ENGINE)
 
 
 # Server setup
+set(server_src "server/bomberbloke_server.cpp" "engine/server.cpp")
+add_executable(bomberbloke_server ${server_src})
+set_target_properties(bomberbloke_server PROPERTIES PUBLIC_HEADER "engine/server.h")
+target_link_libraries(bomberbloke_server ${ENET_LIBRARIES} ${SDL2_LIBRARIES} SHARED_ENGINE)
+
+
 #set(server_src "engine/server.cpp")
 #add_executable(server ${server_src})
 #target_link_libraries(server ${ENET_LIBRARIES} ${SDL2_LIBRARY})
