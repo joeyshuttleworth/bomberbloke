@@ -22,6 +22,7 @@ private:
 public:
 
   MoveEvent(actor* Actor){
+    mType = MOVE;
     mActorId  = Actor->mId;
     mPosition[0] = Actor->mPosition[0];
     mPosition[1] = Actor->mPosition[1];
@@ -38,3 +39,5 @@ public:
 };
 
 #endif
+
+

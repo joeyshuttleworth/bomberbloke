@@ -1,4 +1,8 @@
 #include "engine.h"
+#include "QueryEvent.hpp"
+#include "MoveEvent.hpp"
+#include <cereal/archives/json.hpp>
+#include <fstream>
 
 double _zoom = DEFAULT_ZOOM;
 SDL_Window *_window;
@@ -255,8 +259,18 @@ void load_config(std::string fname) {
     }
 }
 
-void handle_system_command(std::list <std::string> tokens) {
-    return;
+void handle_system_command(std::list<std::string> tokens) {
+  std::string command = tokens.front();
+
+  if(command == "info"){
+    QueryEvent e("big_beef");
+    cereal::JSONOutputArchive oArchive(std::cout);
+    oArchive(e);
+  }
+
+
+
+  return;
 }
 
 std::list <std::string> split_to_tokens(std::string str) {
@@ -308,4 +322,3 @@ void console_loop() {
     }
     return;
 }
-

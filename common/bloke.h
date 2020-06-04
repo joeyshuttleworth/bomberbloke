@@ -14,7 +14,7 @@ class bloke : public actor{
   Uint8 mMaxBombs = 1;
   bool mAccelerated;
   bool mDirectionsHeld[4] = {false, false, false, false};
-  int  mDirectionOfAcceleration[2] = {0,0};
+  double mAcceleration[2] = {0,0};
  public:
   bloke();
   void  draw();
