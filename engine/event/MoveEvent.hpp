@@ -14,7 +14,7 @@
 #include "AbstractEvent.hpp"
 #include <cereal/types/vector.hpp>
 
-class MoveEvent : AbstractEvent{
+class MoveEvent : public AbstractEvent{
 private:
   int mActorId;
   double mPosition[2];
@@ -22,7 +22,7 @@ private:
 public:
 
   MoveEvent(actor* Actor){
-    mType = MOVE;
+    mType = MOVE; 
     mActorId  = Actor->mId;
     mPosition[0] = Actor->mPosition[0];
     mPosition[1] = Actor->mPosition[1];
@@ -33,7 +33,7 @@ public:
   template<class Archive>
   /*Used by cereal to serialize the event for it to be sent/received*/
   void serialize(Archive &archive){
-    archive(cereal::make_nvp("id", mActorId), cereal::make_nvp("position", mPosition), cereal::make_nvp("velocity", mVelocity));
+    archive(cereal::base_class<AbstractEvent>(this), cereal::make_nvp("id", mActorId), cereal::make_nvp("position", mPosition), cereal::make_nvp("velocity", mVelocity));
   }
 
 };

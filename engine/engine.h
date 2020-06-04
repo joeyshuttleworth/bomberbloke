@@ -49,7 +49,8 @@ extern bool _server;
 extern bool _halt;
 extern double _zoom;
 extern unsigned int _state;
-extern std::list<networkPlayer> _client_list;
+class player;
+extern std::list<player> _player_list;
 extern std::string _nickname;
 extern SDL_Joystick* _controller;
 extern bool _controller_connected;
@@ -75,6 +76,11 @@ enum player_types{
 
 class level;
 
+/*Define global variables.
+  TODO: consider changing these so that they're all contained in one class
+ */
+class ServerInfo;
+extern ServerInfo _server_info;
 extern level _level;
 extern unsigned int _tick;
 extern const std::vector<command_binding> _default_bindings;
