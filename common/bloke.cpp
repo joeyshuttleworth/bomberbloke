@@ -58,7 +58,7 @@ void bloke :: handle_command(std::string command){
         if(mDirectionsHeld[i] == true){
           mDirectionsHeld[i] = false;
           if(mDirectionsHeld[(i+2)%4])
-            mAcceleration[(i + 1)%2] = (i<2)?1:-1;
+            mAcceleration[(i + 1)%2] = (i<2)?-1:1;
           else{
             mAcceleration[(i+1)%2] = 0;
           }
