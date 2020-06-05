@@ -2,7 +2,8 @@
 #include "MoveEvent.hpp"
 #include <cereal/archives/json.hpp>
 #include <fstream>
-
+#include <string>
+#include <iostream>
 
 void actor :: draw(){
   /*dstrect is a structure detailing the rectangle we will draw our sprite to */
@@ -121,4 +122,25 @@ actor::actor(){
   return;
 }
 
+player* actor::getPlayer(){
+  if(!mIsControlled){
+    return NULL;
+  }
+  else{
+    /*Perform a horrible looking search over the _player_list*/
+    auto iterator = std::find_if(_player_list.begin(), _player_list.end(), [&](player p) -> bool {p.id == mPlayerId;});
 
+
+    if(iterator == _player_list.end()){
+      /*We haven't found a player with the ID. This probably means that something has gone wrong*/
+      log_message(WARNING, ("Unable to find controlling player for actor:" + std::to_string(mId)).c_str());
+    } 
+  }
+}
+
+void actor::setController(player* p){
+  mPlayerId = p->id;
+  mpControllingPlayer = p;
+  mIsControlled = true;
+  return;
+} 
