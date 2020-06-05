@@ -1,4 +1,4 @@
-#include "../engine.h"
+#include "engine.h"
 #include "MoveEvent.hpp"
 #include <cereal/archives/json.hpp>
 #include <fstream>
@@ -62,7 +62,7 @@ int actor :: move(double x, double y){
 
   MoveEvent e(this);
   cereal::JSONOutputArchive oArchive(std::cout);
-  oArchive(e);
+  //oArchive(e);
 
 
   if(in_level){
@@ -123,24 +123,30 @@ actor::actor(){
 }
 
 player* actor::getPlayer(){
-  if(!mIsControlled){
-    return NULL;
-  }
+  if(mpControllingPlayer)
+    return mpControllingPlayer;
   else{
-    /*Perform a horrible looking search over the _player_list*/
-    auto iterator = std::find_if(_player_list.begin(), _player_list.end(), [&](player p) -> bool {p.id == mPlayerId;});
-
-
-    if(iterator == _player_list.end()){
-      /*We haven't found a player with the ID. This probably means that something has gone wrong*/
-      log_message(WARNING, ("Unable to find controlling player for actor:" + std::to_string(mId)).c_str());
-    } 
+    if(mPlayerId==0)
+      return NULL;
+    else{
+      /*Perform a horrible looking search over the _player_list*/
+      auto iterator = std::find_if(_player_list.begin(), _player_list.end(), [&](player p) -> bool {p.id == mPlayerId;});
+    
+      if(iterator == _player_list.end()){
+        /*We haven't found a player with the ID. This probably means that something has gone wrong*/
+        log_message(WARNING, ("Unable to find controlling player for actor:" + std::to_string(mId)).c_str());
+        return NULL;
+      }
+      else{
+        /*We have found the player. Store this point in mpControllingPlayer for later use.*/
+        mpControllingPlayer = &(*iterator); // This gives a pointer to the player object. I don't know of any less ugly way.
+        return mpControllingPlayer;
+      }
+    }
   }
 }
-
 void actor::setController(player* p){
   mPlayerId = p->id;
   mpControllingPlayer = p;
-  mIsControlled = true;
   return;
 } 
