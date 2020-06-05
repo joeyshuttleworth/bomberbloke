@@ -8,7 +8,7 @@ public:
   ~player();
   player(std::string);
   player();
-  uint8_t id;
+  int id;
   std::string nickname;
   int   *get_input();
   int   type;

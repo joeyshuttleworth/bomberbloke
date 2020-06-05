@@ -89,7 +89,7 @@ const std::array<std::string, 2> _system_commands  = {"bind", "set"};
 
 #include "state.h"
 #include "level/level.h"
-#include "actor/actor.h"
+#include "actor/actor.hpp"
 #include "player/player.h"
 #include "player/localPlayer.h"
 #include "player/networkPlayer.h"
