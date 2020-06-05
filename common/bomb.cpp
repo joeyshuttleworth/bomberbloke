@@ -2,11 +2,6 @@
 
 unsigned int _default_bomb_timer = DEFAULT_BOMB_TIMER;
 
-bomb::~bomb(){
-  return;
-}
-
-
 void bomb::init(bloke *bloke){
   mDimmension[0]=0.5;
   mDimmension[1]=0.5;

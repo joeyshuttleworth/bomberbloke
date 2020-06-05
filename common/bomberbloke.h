@@ -34,5 +34,5 @@ enum flags{
   FLAG_DEAD,
 };
 
-#include "bloke.h"
-#include "bomb.h"
+#include "bloke.hpp"
+#include "bomb.hpp"

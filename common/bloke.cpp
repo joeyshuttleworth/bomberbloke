@@ -1,7 +1,7 @@
 #include "bomberbloke.h"
 #include "CommandEvent.hpp"
-#include <cereal/archives/json.hpp>
 #include <sstream>
+#include <cereal/archives/json.hpp>
 
 void bloke :: accelerate(){
   /*Count how many directions we are accelerating in*/
@@ -29,7 +29,7 @@ void bloke :: accelerate(){
   CommandEvent event(command.str());
   // Output in JSON for debugging
   cereal::JSONOutputArchive oArchive(std::cout);
-  oArchive(event);
+  //oArchive(event);
   return;
 }
 
@@ -97,6 +97,9 @@ void bloke :: place_bomb(){
     bomb *new_bomb = new bomb(round(mPosition[0])+0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), round(mPosition[1]) + 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE));
     new_bomb->init(this);
     _level.actorList.push_back(new_bomb);
+    /*Output the serilisation of the bomb to std::cout*/
+    cereal::JSONOutputArchive oArchive(std::cout);
+    oArchive(*new_bomb);
     mBombs++;
   }
   return;
@@ -116,5 +119,6 @@ void bloke :: init(){
 }
 
 bloke :: bloke(){
+  mType = BLOKE;
   return;
 }
