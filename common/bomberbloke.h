@@ -33,6 +33,3 @@ enum flags{
   FLAG_NONE = 0,
   FLAG_DEAD,
 };
-
-#include "bloke.hpp"
-#include "bomb.hpp"

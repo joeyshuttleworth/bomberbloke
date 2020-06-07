@@ -24,12 +24,12 @@ void server_loop(){
       _ping_time = _tick; 
     }
     if(_state == PLAYING){
-      for(auto i=_level.actorList.begin(); i!=_level.actorList.end(); i++){
+      for(auto i=_level.mActors.begin(); i!=_level.mActors.end(); i++){
         auto prev=i;
         i++;
         (*prev)->update();
       }
-      _level.actorList.remove_if([](actor *a){return a->mRemove;});
+      _level.mActors.remove_if([](std::shared_ptr<actor>a){return a->mRemove;});
       handle_movement();
     }
     draw_screen();

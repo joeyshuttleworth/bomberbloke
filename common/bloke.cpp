@@ -1,5 +1,7 @@
 #include "bomberbloke.h"
 #include "CommandEvent.hpp"
+#include "bloke.hpp"
+#include "bomb.hpp"
 #include <sstream>
 #include <cereal/archives/json.hpp>
 
@@ -94,9 +96,9 @@ void bloke :: update(){
 
 void bloke :: place_bomb(){
   if(mBombs<mMaxBombs){
-    bomb *new_bomb = new bomb(round(mPosition[0])+0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), round(mPosition[1]) + 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE));
+    std::shared_ptr<bomb> new_bomb(new bomb(round(mPosition[0])+0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), round(mPosition[1]) + 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE)));
     new_bomb->init(this);
-    _level.actorList.push_back(new_bomb);
+    _level.mActors.push_back(new_bomb);
     /*Output the serilisation of the bomb to std::cout*/
     cereal::JSONOutputArchive oArchive(std::cout);
     oArchive(*new_bomb);

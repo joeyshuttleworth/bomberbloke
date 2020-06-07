@@ -1,8 +1,11 @@
+#ifndef PLAYER_HPP
+#define PLAYER_HPP
+
 #include <list>
 #include <sys/socket.h>
 #include <unistd.h>
 #include <string>
-
+#include <memory> 
 class player{
 public:
   ~player();
@@ -13,8 +16,9 @@ public:
   int   *get_input();
   int   type;
   virtual void ping();
-  actor *character = NULL;
+  std::shared_ptr<actor> character = NULL;
   void init(actor*);
   unsigned int last_ping_time = 0;
   unsigned int last_ping = 0;
 };
+#endif

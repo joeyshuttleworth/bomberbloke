@@ -91,11 +91,15 @@ actor :: actor(double x, double y){
   return;
 }
 
-double *actor :: get_midpoint(){
-   double *rc = (double *)malloc(2*sizeof(double));
-   rc[0] = mPosition[0] + mDimmension[0]/2;
-   rc[1] = mPosition[1] + mDimmension[1]/2;
-   return rc;
+double actor :: get_midpoint(int index){
+  if(index == 0){
+   return mPosition[0] + mDimmension[0]/2;
+  }
+  else if(index==1){
+    return mPosition[1] + mDimmension[1]/2;
+  }
+  log_message(ERROR, "error actor::get_midpoint was given a dodgy index!\n");
+   return 0;
  }
 
 void actor :: handle_command(std::string str){

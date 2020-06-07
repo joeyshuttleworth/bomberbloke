@@ -43,7 +43,7 @@ public:
   int move(double x, double y);
   bool is_moving();
   int init(double, double);
-  double *get_midpoint();
+  double get_midpoint(int);
   virtual void update() = 0;
 
   virtual void handle_command(std::string) = 0;

@@ -1,4 +1,4 @@
-#include "../engine.h"
+#include "engine.h"
 
 level :: level(){
   mDimmension[0] = 10;
@@ -36,7 +36,7 @@ void level :: draw(){
   SDL_RenderCopy(_renderer, mpSprite, NULL, NULL);
 
     //Next draw each actor
-  for(auto i = actorList.begin(); i!=actorList.end(); i++){
+  for(auto i = mActors.begin(); i!=mActors.end(); i++){
     (*i)->draw();
   }
   return;
