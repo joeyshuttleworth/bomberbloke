@@ -27,13 +27,15 @@ protected:
   bool   mDirectionsHeld[4] = {false, false, false, false};
   double mAcceleration[2] = {0,0};
  public:
-  bloke();
+  bloke(double x=1, double y=1){
+    mType = BLOKE;
+    mPosition[0]=x;
+    mPosition[1]=y;
+    return;
+  };
   void  draw();
   void  kick(bomb *bomb, uint8_t direction);
   void  die();
-
-  using actor::actor;
-
   void handle_command(std::string command);
   void accelerate();
   void update();
@@ -50,10 +52,12 @@ protected:
   */
 
   template<class Archive>
-  void serialize(Archive *archive){
-    archive(cereal::base_class<actor>(this));
+  void serialize(Archive &archive){
+    archive(cereal::base_class<actor>(this), mSpeed);
+    return;
   }
 };
-/*This is requried for classes that use polymorphism*/
+
+/*This is requried by cereal for classes that use polymorphism*/
 CEREAL_REGISTER_TYPE(bloke);
 #endif

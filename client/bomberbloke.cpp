@@ -1,4 +1,5 @@
 #include "bomberbloke.h"
+#include "cereal/archives/json.hpp"
 #include <SDL2/SDL.h>
 #include "bloke.hpp"
 #include "bomb.hpp"
@@ -18,18 +19,24 @@ int main (){
   init_engine();
   localPlayer p(std::string("big_beef"));
   _local_player_list.push_back(localPlayer(std::string("Nickname")));
-  
-  std::shared_ptr<bloke> bloke1(new bloke(10, 10));
-  
+
+  bloke bloke2;
+  std::shared_ptr<bloke> bloke1(new bloke);
+  std::shared_ptr<bomb>  bomb1(new bomb);
+  cereal::JSONOutputArchive oArchive(std::cout);
+
+  std::shared_ptr<int> i(new int(0));
+
+  oArchive(bloke1);
+
   bloke1->init();
   bloke1->mCollides = false;
-
-  //  bloke1.mVelocity[0]= 0.01;
-
   _level.mActors.push_back(bloke1);
-  
+  _level.mActors.push_back(bomb1);
   _local_player_list.back().character = _level.mActors.back();
-  
+
+  oArchive(bloke1,bomb1);
+
   client_loop();
   
   SDL_Quit();

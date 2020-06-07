@@ -5,7 +5,7 @@ engine/control/controls.h
 engine/engine.h
 engine/event/AbstractEvent.hpp
 engine/event/MoveEvent.hpp
-engine/level/level.h
+engine/level/level.hpp
 engine/player/localPlayer.h
 engine/player/networkPlayer.h
 engine/player/player.h

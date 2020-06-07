@@ -120,7 +120,3 @@ void bloke :: init(){
   return;
 }
 
-bloke :: bloke(){
-  mType = BLOKE;
-  return;
-}
