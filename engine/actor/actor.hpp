@@ -9,20 +9,24 @@ protected:
 
   /* Defined by the game - used to keep track of what the actor is.
      For example, a bomb, block or player's character*/
-  int mType;
   player *mpControllingPlayer = NULL;
   /* GetPlayer uses mPlayerId to return a pointer to the controlling player (if it exists)
      A value of 0 indicates that the actor is not controlled by any player.
   */
-  int     mPlayerId;
+  int    mPlayerId;
   Uint32 mId;
 
 public:
   /*Flag to indicate removal when next updated*/
-  bool mRemove;
+  bool mRemove = false;
   void setController(player* p);
   actor(double, double);
   actor();
+  /*Returns an enum defined by the game identifying what type of actor this is
+    e.g block, bloke.*/
+  
+  virtual int getType() const = 0;
+
 
   /*Returns a pointer to the player object.
     This is found by searching _player_list
@@ -55,7 +59,8 @@ public:
     it seems silly to send a double[2] in this case.*/
   template<class Archive> 
   void serialize(Archive &archive){
-    archive(mType, mId, mPlayerId, mPosition, mVelocity);
+    archive(mId, mPlayerId, mPosition, mVelocity);
+    
   };
 
 

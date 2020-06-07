@@ -26,12 +26,16 @@ class bomb : public actor {
   void explode();
   void update();
   void handle_command(std::string command);
-  // ~bomb(return;);
+
   bomb(bloke *placed_by = NULL){
-    mType = BOMB;
     mpPlacedBy = placed_by;
     return;
   };
+
+  int getType() const{
+    return BOMB;
+  };
+
   using actor::actor;
 };
 

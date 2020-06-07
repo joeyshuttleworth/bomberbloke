@@ -28,11 +28,15 @@ protected:
   double mAcceleration[2] = {0,0};
  public:
   bloke(double x=1, double y=1){
-    mType = BLOKE;
     mPosition[0]=x;
     mPosition[1]=y;
     return;
   };
+
+  int getType() const{
+    return BLOKE;
+  };
+
   void  draw();
   void  kick(bomb *bomb, uint8_t direction);
   void  die();
