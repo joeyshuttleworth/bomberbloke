@@ -35,7 +35,7 @@ int main (){
   _level.mActors.push_back(bomb1);
   _local_player_list.back().character = _level.mActors.back();
 
-  oArchive(bloke1,bomb1);
+  oArchive(bloke1,bomb1, _level);
 
   client_loop();
   
