@@ -33,7 +33,7 @@ int main (){
   bloke1->mCollides = false;
   _level.mActors.push_back(bloke1);
   _level.mActors.push_back(bomb1);
-  _local_player_list.back().character = _level.mActors.back();
+  _local_player_list.back().mpCharacter = _level.mActors.back();
 
   oArchive(bloke1,bomb1, _level);
 

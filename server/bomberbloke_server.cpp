@@ -10,20 +10,26 @@ std::vector<int> _spawn_points = {5,5};
 int colours[50][3];
 
 int main (int argc, char **argv){
+  std::shared_ptr<localPlayer> local_p(new localPlayer("big_beef"));
+
   log_message(INFO, "Bomberbloke client starting...");
   init_engine();
-  //_local_player_list.push_back(local_p("nickname"));
+   _local_player_list.push_back(localPlayer("nickname"));
+   _player_list.push_back(std::shared_ptr<AbstractPlayer>(local_p));
+
   ServerInfoEvent e(_server_info, _player_list);
   cereal::JSONOutputArchive oArchive(std::cout);
   //Pretend we're loading - makes output look nice. 
-  sleep(1);
+  SDL_Delay(1);
   oArchive(e);
+  oArchive(_local_player_list);
+
   //  oArchive(_level);
   std::cout << std::endl;
   server_loop();
   // _level.spawn_points = _spawn_points;
-  SDL_Quit();
-  return 0;  
+
+  return 0;
 }
 
 void new_game(std::string arguments){

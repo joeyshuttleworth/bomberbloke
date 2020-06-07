@@ -126,7 +126,7 @@ actor::actor(){
   return;
 }
 
-player* actor::getPlayer(){
+std::shared_ptr<AbstractPlayer> actor::getPlayer(){
   if(mpControllingPlayer)
     return mpControllingPlayer;
   else{
@@ -134,7 +134,8 @@ player* actor::getPlayer(){
       return NULL;
     else{
       /*Perform a horrible looking search over the _player_list*/
-      auto iterator = std::find_if(_player_list.begin(), _player_list.end(), [&](player p) -> bool {p.id == mPlayerId;});
+      auto iterator = std::find_if(_player_list.begin(), _player_list.end(), [&](std::shared_ptr<AbstractPlayer> p) -> bool {p->getId() == mPlayerId;});
+      
     
       if(iterator == _player_list.end()){
         /*We haven't found a player with the ID. This probably means that something has gone wrong*/
@@ -143,14 +144,14 @@ player* actor::getPlayer(){
       }
       else{
         /*We have found the player. Store this point in mpControllingPlayer for later use.*/
-        mpControllingPlayer = &(*iterator); // This gives a pointer to the player object. I don't know of any less ugly way.
+        mpControllingPlayer = *iterator;
         return mpControllingPlayer;
       }
     }
   }
 }
-void actor::setController(player* p){
-  mPlayerId = p->id;
-  mpControllingPlayer = p;
+void actor::setController(AbstractPlayer* p){
+  mPlayerId = p->getId();
+  mpControllingPlayer.reset(p);
   return;
 } 

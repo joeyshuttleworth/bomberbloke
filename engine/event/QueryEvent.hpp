@@ -3,8 +3,8 @@ Event used to request information from a server
 */
 
 #ifndef QUERYEVENT_HPP
-
 #define QUERYEVENT_HPP
+
 #include <cereal/types/vector.hpp>
 #include "AbstractEvent.hpp"
 #include <cereal/types/base_class.hpp>

@@ -24,7 +24,7 @@ private:
   int mMaxPlayers;
 public:
 
-  ServerInfoEvent(ServerInfo info, std::list<player> players){
+  ServerInfoEvent(ServerInfo info, std::list<std::shared_ptr<AbstractPlayer>> players){
     mType = SERVER_INFO;
     mTitle = info.mTitle;
     mDescription = info.mDescription;

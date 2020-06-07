@@ -10,7 +10,7 @@ SDL_Window *_window;
 bool _halt = false;
 unsigned int _state;
 std::list <localPlayer> _local_player_list;
-std::list <player> _player_list;
+std::list <std::shared_ptr<AbstractPlayer>> _player_list;
 SDL_Renderer *_renderer = NULL;
 SDL_Joystick *_controller = nullptr;
 bool _controller_connected = false;
@@ -24,15 +24,15 @@ ServerInfo _server_info;
 
 void exit_engine(int signum) {
     //Destroy window
-    if (_window) {
-        SDL_DestroyWindow(_window);
-        _window = NULL;
-    }
+    // // if (_window) {
+    // //   //     SDL_DestroyWindow(_window);
+    //     _window = NULL;
+    // }
     //Quit SDL subsystems
+    SDL_Delay(500);
     SDL_Quit();
     _halt = true;
     std::cout  << "\nNow exiting the BLOKE engine. Hope you had fun. Wherever you are, we at the BLOKE project hope we have made your day just a little bit brighter. See you next time around! :)\n";
-    //  net_exit();
     signal(SIGINT, NULL);
     return;
 }
@@ -98,7 +98,7 @@ void handle_input(level *level) {
                         _system_commands.end()) {
                         handle_system_command(split_to_tokens(command_to_send)); // process system command
                     } else {
-                        i->character->handle_command(command_to_send); // handle normal command
+                        i->mpCharacter->handle_command(command_to_send); // handle normal command
                     }
                 }
             }
@@ -106,22 +106,21 @@ void handle_input(level *level) {
             if (event.jaxis.which == 0) {
                 if (event.jaxis.axis == 0) { //x axis
                     if (event.jaxis.value < -DEADZONE) {
-                        i->character->handle_command("left"+dX);
+                        i->mpCharacter->handle_command("left"+dX);
                     } else if (event.jaxis.value > DEADZONE) {
-                        i->character->handle_command("+right"+dX);
+                        i->mpCharacter->handle_command("+right"+dX);
 
                     } else {
-                        i->character->handle_command("-XAxis"+dX);
+                        i->mpCharacter->handle_command("-XAxis"+dX);
                     }
 
                 } else if (event.jaxis.axis == 1) {
                     if (event.jaxis.value < -DEADZONE) {
-                        i->character->handle_command("+up"+dX);
+                        i->mpCharacter->handle_command("+up"+dX);
                     } else if (event.jaxis.value > DEADZONE) {
-                        i->character->handle_command("+down"+dX);
-
+                        i->mpCharacter->handle_command("+down"+dX);
                     } else {
-                        i->character->handle_command("-YAxis"+dX);
+                        i->mpCharacter->handle_command("-YAxis"+dX);
                     }
 
                 }
