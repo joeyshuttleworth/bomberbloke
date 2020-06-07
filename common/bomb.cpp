@@ -34,18 +34,20 @@ void bomb::handle_command(std::string command){
 void bomb::update(){
   /*Bomb collision is only turned on when the actor which placed it has 
     moved away*/
-  if(mCollides == false){
-    if(std::abs(mPosition[0]-mpPlacedBy->mPosition[0]) > 0.5*(mDimmension[0]+mpPlacedBy->mDimmension[0])){
-      mCollides=true;
-    }
-    else if(std::abs(mPosition[1]-mpPlacedBy->mPosition[1]) > 0.5*(mDimmension[1]+mpPlacedBy->mDimmension[1])){
-      mCollides = true;
+  if(mpPlacedBy){
+    if(mCollides == false){
+      if(std::abs(mPosition[0]-mpPlacedBy->mPosition[0]) > 0.5*(mDimmension[0]+mpPlacedBy->mDimmension[0])){
+        mCollides=true;
+      }
+      else if(std::abs(mPosition[1]-mpPlacedBy->mPosition[1]) > 0.5*(mDimmension[1]+mpPlacedBy->mDimmension[1])){
+        mCollides = true;
+      }
     }
   }
-  if(mTimer==0)
-    explode();
-  else
-    mTimer--;
+    if(mTimer==0)
+      explode();
+    else
+      mTimer--;
   return;
 }
 
@@ -62,7 +64,7 @@ void bomb::explode(){
 
       /* Check we are in the kill zone - if so set dead to true */
       for(int i = 0; i < 2; i++){
-        if((round(mPosition[!i])==round(prev->mPosition[!i])) && (std::abs(round(mPosition[i])-round(prev->mPosition[i])) <= mPower)){     
+        if((round(mPosition[!i])==round(prev->mPosition[!i])) && (std::abs(round(mPosition[i])-round(prev->mPosition[i])) <= mPower)){
           dead = true;
           break;
         }
@@ -72,6 +74,7 @@ void bomb::explode(){
     }
   }
   mRemove = true;
-  mpPlacedBy->mBombs--;
+  if(mpPlacedBy)
+    mpPlacedBy->mBombs--;
   return;
 }

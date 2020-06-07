@@ -88,7 +88,7 @@ extern std::list<localPlayer> _local_player_list;
 const std::array<std::string, 2> _system_commands  = {"bind", "set"};
 
 #include "state.h"
-#include "level/level.h"
+#include "level/level.hpp"
 #include "actor/actor.hpp"
 #include "player/player.h"
 #include "player/localPlayer.h"

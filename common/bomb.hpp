@@ -1,5 +1,7 @@
+#ifndef BOMB_HPP
+#define BOMB_HPP
+
 #include <cereal/types/base_class.hpp>
-#include <cereal/archives/json.hpp>
 #include <cereal/types/polymorphic.hpp>
 
 class bomb : public actor {
@@ -16,7 +18,7 @@ class bomb : public actor {
 
   template<class Archive>
   void serialize(Archive &archive){
-    archive(mPower, mTimer, mSatellite, mBigBomb);
+    archive(cereal::base_class<actor>(this), mPower, mTimer, mSatellite, mBigBomb);
     return;
   }
 
@@ -25,9 +27,14 @@ class bomb : public actor {
   void update();
   void handle_command(std::string command);
   // ~bomb(return;);
-  // bomb(){return;};
+  bomb(bloke *placed_by = NULL){
+    mType = BOMB;
+    mpPlacedBy = placed_by;
+    return;
+  };
   using actor::actor;
 };
 
 /*This is required for classes using polymorphism*/
 CEREAL_REGISTER_TYPE(bomb);
+#endif
