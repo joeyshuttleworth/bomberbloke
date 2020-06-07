@@ -1,7 +1,10 @@
 #ifndef ACTOR_HPP
 #define ACTOR_HPP
 
-class player;
+#include <SDL2/SDL.h>
+#include <memory>
+
+class AbstractPlayer;
 class actor{
   friend class MoveEvent;
 protected:
@@ -9,7 +12,7 @@ protected:
 
   /* Defined by the game - used to keep track of what the actor is.
      For example, a bomb, block or player's character*/
-  player *mpControllingPlayer = NULL;
+  std::shared_ptr<AbstractPlayer> mpControllingPlayer;
   /* GetPlayer uses mPlayerId to return a pointer to the controlling player (if it exists)
      A value of 0 indicates that the actor is not controlled by any player.
   */
@@ -19,7 +22,7 @@ protected:
 public:
   /*Flag to indicate removal when next updated*/
   bool mRemove = false;
-  void setController(player* p);
+  void setController(AbstractPlayer* p);
   actor(double, double);
   actor();
   /*Returns an enum defined by the game identifying what type of actor this is
@@ -31,7 +34,7 @@ public:
   /*Returns a pointer to the player object.
     This is found by searching _player_list
     if we haven't already*/
-  player* getPlayer();
+  std::shared_ptr<AbstractPlayer> getPlayer();
   
   /*Do we collide with other actors*/
   bool mCollides;
@@ -63,6 +66,6 @@ public:
     
   };
 
-
 };
+
 #endif

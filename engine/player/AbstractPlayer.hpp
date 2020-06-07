@@ -1,39 +1,45 @@
-#include "../engine.h"
+/*Class to store info for players. These may
+  be clients connected to a server, or localPlayers
+  connected to a client (or server).
 
-void player::init(actor *actor){
-  character.reset(actor);
-  actor->setController(this);
-  return;
-}
+  This class stores some game specific AbstractProperties
+  (such as mMaxSpeed in bomberbloke). It is also used by
+  the server to handle the input from local players and
+  clients.
+ */
 
-player::player(){
-  return;
-}
 
-player::player(std::string _nickname){
-    nickname = _nickname;
+#ifndef ABSTRACTPLAYER_HPP
+#define ABSTRACTPLAYER_HPP
+#include<string>
+#include<memory>
+
+class actor;
+
+class AbstractPlayer{
+public:
+  AbstractPlayer(std::string);
+  AbstractPlayer();
+  std::string mNickname;
+  int getId(){
+    return mId;
+  }
+  std::shared_ptr<actor> mpCharacter;
+protected:
+  int mType;
+  virtual void ping() = 0;
+  void init(actor*);
+  double mPingElapsedTime = 0;
+  unsigned int mLastPingSent = 0;
+  int mId;
+  double getPing(){
+    return mPingElapsedTime;
+  }
+  /*Cereal serialisation*/
+  template<class Archive>
+  void serialize(Archive &archive){
+    archive(mNickname);
     return;
-}
-
-player::~player(){
-  return;
-}
-
-localPlayer :: localPlayer(std::string _nickname){
-  for(unsigned int i = 0; i < _default_bindings.size(); i++)
-    mControlScheme.push_back(_default_bindings[i]);
-  return;
-}
-
-void player :: ping(){
-  return;
-}
-
-void networkPlayer :: ping(){
-  //TODO
-  return;
-}
-
-networkPlayer::~networkPlayer(){
-  return;
-}
+  }
+};
+#endif

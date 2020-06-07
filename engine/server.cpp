@@ -16,7 +16,7 @@ void server_loop(){
   while(!_halt){
     t1 = t2;
     do{
-      sleep(0);
+      SDL_Delay(0);
       if(clock_gettime(CLOCK_REALTIME, &t2)==-1)
         log_message(ERROR, "Failed to get time");
     }while(t2.tv_nsec - t1.tv_nsec + (float)(BILLION * (t2.tv_sec - t1.tv_sec))  < (float)BILLION/(float)TICK_RATE);

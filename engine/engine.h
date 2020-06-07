@@ -49,8 +49,8 @@ extern bool _server;
 extern bool _halt;
 extern double _zoom;
 extern unsigned int _state;
-class player;
-extern std::list<player> _player_list;
+class AbstractPlayer;
+extern std::list<std::shared_ptr<AbstractPlayer>> _player_list;
 extern std::string _nickname;
 extern SDL_Joystick* _controller;
 extern bool _controller_connected;
@@ -88,8 +88,7 @@ extern std::list<localPlayer> _local_player_list;
 const std::array<std::string, 2> _system_commands  = {"bind", "set"};
 
 #include "state.h"
-#include "level/level.hpp"
-#include "actor/actor.hpp"
-#include "player/player.h"
-#include "player/localPlayer.h"
-#include "player/networkPlayer.h"
+#include "networkPlayer.hpp"
+#include "localPlayer.hpp"
+#include "level.hpp"
+#include "actor.hpp"

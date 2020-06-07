@@ -16,10 +16,10 @@
 
 class MoveEvent : AbstractEvent{
 private:
-  player mPlayer;
+ AbstractPlayer mPlayer;
 public:
 
-  MoveEvent(player* Player){
+  MoveEvent(player*AbstractPlayer){
     mPlayer = *Player;
     return;
   };
