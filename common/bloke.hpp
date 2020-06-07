@@ -5,7 +5,8 @@
 #include "actor.hpp"
 
 class bloke : public actor{
- private:
+  friend bomb;
+protected:
   std::list<int> mPowerups;
   enum DIR{
     DIR_UP,
@@ -16,9 +17,10 @@ class bloke : public actor{
   };
   void place_bomb();
   double mMaxSpeed = double(DEFAULT_MAX_SPEED);
+  int    mBombs=0;
   Uint8  mMaxBombs = 1;
-  double mSpeed;
-  double mPower;
+  int mPower;
+  int mSpeed;
   bool mSatellite;
   bool mBombKick;
   bool   mAccelerated;
@@ -40,8 +42,6 @@ class bloke : public actor{
   int getPower(){
     return mPower;
   }
-  int  mBombs = 0;
-  int  mPower = 1;
 
   /*Cereal serialisation. No info is needed that isn't provided by actor.
     We could serialise mMaxBombs, mBombKick etc here because they are

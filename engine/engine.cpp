@@ -148,18 +148,16 @@ SDL_Joystick *handle_input_controller() {
 }
 
 
-bool handle_collision(actor *a, actor *b) {
+bool handle_collision(std::shared_ptr<actor> a, std::shared_ptr<actor> b) {
     bool collision = true;
-    double *a_tmp_pos;
-    double *b_midpoint;
+    double a_tmp_midpoint[2] = {a->get_midpoint(0), a->get_midpoint(1)}; 
+    double b_midpoint[2] = {b->get_midpoint(0), b->get_midpoint(1)};
     double distance[2];
     if (!a->is_moving())
         return false;
-    a_tmp_pos = a->get_midpoint();
-    b_midpoint = b->get_midpoint();
     for (int i = 0; i < 2; i++) {
-        a_tmp_pos[i] = a_tmp_pos[i] + a->mVelocity[i];
-        if ((distance[i] = std::abs(a_tmp_pos[i] - b_midpoint[i])) >
+        a_tmp_midpoint[i] = a_tmp_midpoint[i] + a->mVelocity[i];
+        if ((distance[i] = std::abs(a_tmp_midpoint[i] - b_midpoint[i])) >
             double(0.5 * (a->mDimmension[i] + b->mDimmension[i]))) {
             collision = false;
             break;
@@ -172,19 +170,17 @@ bool handle_collision(actor *a, actor *b) {
             i = 1;
         if (a->mVelocity[i] < 0)
             x_iter = -1;
-        a_tmp_pos[i] = a_tmp_pos[i] - x_iter * (1e-8 + (a->mDimmension[i] + b->mDimmension[i]) * 0.5 -
-                                                std::abs(a_tmp_pos[i] - b_midpoint[i]));
+        a_tmp_midpoint[i] = a_tmp_midpoint[i] - x_iter * (1e-8 + (a->mDimmension[i] + b->mDimmension[i]) * 0.5 -
+                                                std::abs(a_tmp_midpoint[i] - b_midpoint[i]));
         a->mVelocity[i] = 0;
-        a->move(a_tmp_pos[0] - a->mDimmension[0] / 2, a_tmp_pos[1] - a->mDimmension[1] / 2);
+        a->move(a_tmp_midpoint[0] - a->mDimmension[0] / 2, a_tmp_midpoint[1] - a->mDimmension[1] / 2);
     }
-    free(a_tmp_pos);
-    free(b_midpoint);
     return collision;
 }
 
 void handle_movement() {
     /*Iterate over all moving actors*/
-    for (auto i = _level.actorList.begin(); i != _level.actorList.end(); i++) {
+    for (auto i = _level.mActors.begin(); i != _level.mActors.end(); i++) {
         bool collision = false;
 
         /*Update actors*/
@@ -200,7 +196,7 @@ void handle_movement() {
 
             /*Check for collisions*/
 
-            for (auto j = _level.actorList.begin(); j != _level.actorList.end(); j++) {
+            for (auto j = _level.mActors.begin(); j != _level.mActors.end(); j++) {
                 if (i == j)
                     continue;
                 if ((*j)->mCollides == true)

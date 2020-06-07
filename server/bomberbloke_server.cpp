@@ -27,14 +27,14 @@ int main (int argc, char **argv){
 
 void new_game(std::string arguments){
   int c=0;
-  _level.spawnPoints = _spawn_points;
+  _level.mSpawnPoints = _spawn_points;
   /*for(auto i = _client_list.begin(); i != _client_list.end(); i++){
      bloke b = bloke();
     if(c < (double)(_level.spawn_points.size())/2){
       b.position[0] = _level.spawn_points[c*2];
       b.position[1] = _level.spawn_points[c*2+1];
-      _level.actorList.push_back(b);
-      i->character = &_level.actorList.back();
+      _level.mActors.push_back(b);
+      i->character = &_level.mActors.back();
       SDL_SetRenderTarget(_renderer, i->character->sprite);
       SDL_SetRenderDrawColor(_renderer, 0x00, 0x00, 0xFF, 0xFF);
       SDL_RenderFillRect(_renderer, NULL);

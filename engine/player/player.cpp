@@ -1,7 +1,7 @@
 #include "../engine.h"
 
 void player::init(actor *actor){
-  character = actor;
+  character.reset(actor);
   actor->setController(this);
   return;
 }

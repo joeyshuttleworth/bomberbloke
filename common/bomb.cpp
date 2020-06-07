@@ -1,4 +1,6 @@
 #include "bomberbloke.h"
+#include "bloke.hpp"
+#include "bomb.hpp"
 
 unsigned int _default_bomb_timer = DEFAULT_BOMB_TIMER;
 
@@ -48,25 +50,25 @@ void bomb::update(){
 }
 
 void bomb::explode(){
-  std::list<actor*>::iterator actor = _level.actorList.begin();
-  /*Iterate over all actors and kill them*/
-  while(actor!=_level.actorList.end()){
+  auto actor = _level.mActors.begin();
+
+  /*Iterate over all actors and kill the ones if they are in the right (wrong) zone.*/
+  while(actor!=_level.mActors.end()){
     auto prev = *actor;
     actor++;
     /* Do not kill this bomb*/
-    if(prev != this){
+    if(prev.get() != this){
       bool dead=false;
 
       /* Check we are in the kill zone - if so set dead to true */
       for(int i = 0; i < 2; i++){
-	if((round(mPosition[!i])==round(prev->mPosition[!i])) && (std::abs(round(mPosition[i])-round(prev->mPosition[i])) <= mPower)){     
-	  dead = true;
-	  break;
-	}
+        if((round(mPosition[!i])==round(prev->mPosition[!i])) && (std::abs(round(mPosition[i])-round(prev->mPosition[i])) <= mPower)){     
+          dead = true;
+          break;
+        }
       }
-      
       if(dead)
-	prev->handle_command("+kill");
+        prev->handle_command("+kill");
     }
   }
   mRemove = true;
