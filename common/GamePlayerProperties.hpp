@@ -6,12 +6,13 @@
 */
 
 
-#ifndef GAMEPLAYERPROPERTIES_HPP
-#define GAMEPLAYERPROPERTIES_HPP
+#ifndef  GAMEPLAYERPROPERTIES_HPP
+#define  GAMEPLAYERPROPERTIES_HPP
+#include "AbstractPlayerProperties.hpp"
 
 class GamePlayerProperties : public AbstractPlayerProperties{
 public:
-  Properties() mSpeed(1), mMaxBombs(1), mBombKick(1), mSatellite(false),
+  GamePlayerProperties() mSpeed(1), mMaxBombs(1), mBombKick(1), mSatellite(false),
     mBigBomb(false){
     return;
   };

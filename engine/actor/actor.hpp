@@ -10,19 +10,23 @@ class actor{
 protected:
   SDL_Texture *mpSprite = NULL;
 
-  /* Defined by the game - used to keep track of what the actor is.
-     For example, a bomb, block or player's character*/
-  std::shared_ptr<AbstractPlayer> mpControllingPlayer;
   /* GetPlayer uses mPlayerId to return a pointer to the controlling player (if it exists)
      A value of 0 indicates that the actor is not controlled by any player.
   */
-  int    mPlayerId;
+
+
+  /*Who does is this actor controlled by? This corresponds
+    to a unique id of a player in _player_list. 0 corresponds
+    to the server.
+  */
+  int    mPlayerId = 0;
+
+  /*The id of this actor. Used by  _level.mActors*/
   Uint32 mId;
 
 public:
   /*Flag to indicate removal when next updated*/
   bool mRemove = false;
-  void setController(AbstractPlayer* p);
   actor(double, double);
   actor();
   /*Returns an enum defined by the game identifying what type of actor this is

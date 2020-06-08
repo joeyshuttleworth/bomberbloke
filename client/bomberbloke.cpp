@@ -17,25 +17,13 @@ const std::vector<command_binding> _default_bindings =
 int main (){
   SDL_Init(SDL_INIT_EVERYTHING);
   init_engine();
-  localPlayer p(std::string("big_beef"));
-  _local_player_list.push_back(localPlayer(std::string("Nickname")));
-
-  bloke bloke2;
-  std::shared_ptr<bloke> bloke1(new bloke);
-  std::shared_ptr<bomb>  bomb1(new bomb);
+  _local_player_list.push_back(localPlayer(std::string("big_beef")));
   cereal::JSONOutputArchive oArchive(std::cout);
 
-  std::shared_ptr<int> i(new int(0));
-
-  oArchive(bloke1);
-
-  bloke1->init();
-  bloke1->mCollides = false;
-  _level.mActors.push_back(bloke1);
-  _level.mActors.push_back(bomb1);
-  _local_player_list.back().mpCharacter = _level.mActors.back();
-
-  oArchive(bloke1,bomb1, _level);
+  std::shared_ptr<bloke> b1(new bloke(5,5));
+  _level.mActors.push_back(b1);
+  _local_player_list.back().init(b1);
+  oArchive(b1,  _level);
 
   client_loop();
   
