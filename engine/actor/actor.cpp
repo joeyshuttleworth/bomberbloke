@@ -134,7 +134,7 @@ std::shared_ptr<AbstractPlayer> actor::getPlayer(){
       return NULL;
     else{
       /*Perform a horrible looking search over the _player_list*/
-      auto iterator = std::find_if(_player_list.begin(), _player_list.end(), [&](std::shared_ptr<AbstractPlayer> p) -> bool {p->getId() == mPlayerId;});
+      auto iterator = std::find_if(_player_list.begin(), _player_list.end(), [&](std::shared_ptr<AbstractPlayer> p) ->  bool {return p->getId() == mPlayerId;});
       
     
       if(iterator == _player_list.end()){
