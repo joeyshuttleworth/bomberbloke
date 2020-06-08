@@ -43,7 +43,7 @@ protected:
   void handle_command(std::string command);
   void accelerate();
   void update();
-  void init();
+  void init(std::shared_ptr<AbstractPlayer> );
 
   int getPower(){
     return mPower;
