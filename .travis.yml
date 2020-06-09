@@ -1,0 +1,17 @@
+#Used by travis CI for testing
+
+language: cpp
+
+compiler:
+  - gcc
+  - clang
+
+before_install:
+  - sudo apt-get install -qq libsdl2-dev libenet-dev libcereal-dev
+
+before_script:
+  - cmake ..
+
+script:
+  - cmake --build .
+  - ctest --verbose
