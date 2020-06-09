@@ -40,6 +40,13 @@ void level :: ReloadSprites(){
   SDL_SetRenderTarget(_renderer, NULL);
   return;
 }
+std::shared_ptr<actor> level :: GetActor(int id){
+  /*search over actors*/
+  auto iterator = std::find_if(mActors.begin(), mActors.end(), [&](std::shared_ptr<actor> a) -> bool {return a->GetId() == id;});
+  // return the first one (should be unique anyway)
+  return *iterator;
+};
+
 
 void level :: draw(){
   SDL_Rect rect;

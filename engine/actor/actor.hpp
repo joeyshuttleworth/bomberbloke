@@ -28,6 +28,11 @@ protected:
 
 public:
   /*Flag to indicate removal when next updated*/
+
+  int GetId(){
+    return mId;
+  }
+
   bool mRemove = false;
   actor(double, double);
   actor();
