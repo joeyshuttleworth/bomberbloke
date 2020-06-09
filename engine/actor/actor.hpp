@@ -4,6 +4,8 @@
 #include <SDL2/SDL.h>
 #include <memory>
 
+extern SDL_Renderer *_renderer;
+
 class AbstractPlayer;
 class actor{
   friend class MoveEvent;
@@ -49,7 +51,20 @@ public:
   double mDimmension[2];
   double mVelocity[2];
 
- 
+
+  virtual void ReloadSprite(){
+    if(mpSprite)
+      SDL_DestroyTexture(mpSprite);
+    mpSprite = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET,1024, 1024);
+    SDL_SetRenderTarget(_renderer, mpSprite);
+    SDL_SetRenderDrawColor(_renderer, 0xFF, 0xA1, 0x0A, 0xFF);
+    SDL_RenderClear(_renderer);
+    SDL_RenderFillRect(_renderer, NULL);
+    SDL_RenderPresent(_renderer);
+    SDL_SetRenderTarget(_renderer, NULL);
+    return;
+  }
+
   void draw();
   int move(double x, double y);
   bool is_moving();

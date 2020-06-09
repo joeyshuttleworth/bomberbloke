@@ -5,11 +5,12 @@
 #include <cereal/archives/json.hpp>
 #include <fstream>
 
+int _window_size[] = {DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT};
 double _zoom = DEFAULT_ZOOM;
 SDL_Window *_window;
 bool _halt = false;
 unsigned int _state;
-std::list <localPlayer> _local_player_list;
+std::list <LocalPlayer> _local_player_list;
 std::list <std::shared_ptr<AbstractPlayer>> _player_list;
 SDL_Renderer *_renderer = NULL;
 SDL_Joystick *_controller = nullptr;
@@ -36,29 +37,46 @@ void exit_engine(int signum) {
     signal(SIGINT, NULL);
     return;
 }
+void create_window(){
+  std::string window_name = "Bomberbloke Client";
+  if (_server)
+    window_name = "Bomberbloke Server";
+  _window = SDL_CreateWindow(window_name.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+                             _window_size[0], _window_size[1], SDL_WINDOW_SHOWN);
+  _zoom = (double)(_window_size[0]) / (_level.mDimmension[0]);
+  if(_renderer){
+    SDL_DestroyRenderer(_renderer);
+  }
+  _renderer = SDL_CreateRenderer(_window, -1, 0);
+  SDL_SetRenderDrawColor(_renderer, 0xff, 0x00, 0x00, 0xff);
+  SDL_RenderClear(_renderer);
+  SDL_RenderPresent(_renderer);
+}
+
+void resize_window(int x, int y){
+  _window_size[0] = x;
+  _window_size[1] = y;
+
+  if(_window){
+    SDL_DestroyWindow(_window);
+    create_window();
+  }
+  _level.ReloadSprites();
+  return;
+}
 
 void init_engine() {
     int size[2];
     char *receive_port = (char *) "8888";
 
     _server_info;
-
     signal(SIGINT, exit_engine);
     SDL_Init(SDL_INIT_EVERYTHING);
+
     if (_draw) {
-        std::string window_name = "Bomberbloke Client";
-        if (_server)
-            window_name = "Bomberbloke Server";
-        _window = SDL_CreateWindow(window_name.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-                                   DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
-        SDL_GetWindowSize(_window, size, size + sizeof(int));
-        _zoom = size[0] / (_level.mDimmension[0]);
+      create_window();
     }
-    _renderer = SDL_CreateRenderer(_window, -1, 0);
-    SDL_SetRenderDrawColor(_renderer, 0xff, 0xff, 0, 0xff);
-    SDL_RenderClear(_renderer);
-    SDL_RenderPresent(_renderer);
-    _level = level();
+   _level = level();
 
     // init controller
     _controller = handle_input_controller();
@@ -231,8 +249,8 @@ void logic_loop() {
     return;
 }
 
-void log_message(int level, const char *string) {
-    std::cout << level << std::string(string) << std::endl;
+void log_message(int level, std::string str) {
+    std::cout << level << str << std::endl;
     return;
 }
 
@@ -259,7 +277,7 @@ void load_config(std::string fname) {
     }
 }
 
-void handle_system_command(std::list<std::string> tokens) {
+bool handle_system_command(std::list<std::string> tokens) {
   std::string command = tokens.front();
 
   if(command == "info"){
@@ -268,9 +286,37 @@ void handle_system_command(std::list<std::string> tokens) {
     oArchive(e);
   }
 
+  if(command ==  "generate_config"){
+    if(tokens.size() == 1){
+      GenerateConfig("generated_config.conf");
+    }
+    else if(tokens.size() == 2){
+      std::string fname = tokens.back();
+      GenerateConfig(fname);
+    }
+    else{
+      log_message(ERROR, "To many arguments supplied to generate_config");
+    }
+  }
 
+  if(command == "resize"){
+    if(tokens.size() == 3){
+      auto i = tokens.begin();
+      i++;
+      /*TODO: Try catch here*/
+      std::cout << *i << "\n";
+      int x = std::stoi(*i);
+      i++;
+      int y = std::stoi(*i);
 
-  return;
+      resize_window(x,y);
+    }
+    else{
+      log_message(ERROR, "Incorrect number of arguments for resize");
+    }
+  }
+
+  return true;
 }
 
 std::list <std::string> split_to_tokens(std::string str) {

@@ -12,13 +12,27 @@
 
 class GamePlayerProperties : public AbstractPlayerProperties{
 public:
-  GamePlayerProperties() mSpeed(1), mMaxBombs(1), mBombKick(1), mSatellite(false),
-    mBigBomb(false){
+  GamePlayerProperties(){
+    mSpeed     = 1;
+    mMaxBombs  = 1;
+    mBombKick  = 1;
+    mSatellite = false;
+    mBigBomb   = false;
     return;
   };
-protected:
+
+  template<class Archive>
+  void serialize(Archive &archive){
+    archive(mSpeed, mMaxBombs, mBombKick, mSatellite, mBigBomb);
+  }
+
+  std::vector<std::string> GetProperties(){
+    std::vector<std::string> rc = {std::string("TODO: player properties\n")};
+    return rc;
+  }
   int  mSpeed;
   int  mMaxBombs;
+  int  mPower;
   bool mBombKick;
   bool mSatellite;
   bool mBigBomb;

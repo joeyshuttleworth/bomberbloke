@@ -10,11 +10,11 @@ std::vector<int> _spawn_points = {5,5};
 int colours[50][3];
 
 int main (int argc, char **argv){
-  std::shared_ptr<localPlayer> local_p(new localPlayer("big_beef"));
+  std::shared_ptr<LocalPlayer> local_p(new LocalPlayer("big_beef"));
 
   log_message(INFO, "Bomberbloke client starting...");
   init_engine();
-   _local_player_list.push_back(localPlayer("nickname"));
+   _local_player_list.push_back(LocalPlayer("nickname"));
    _player_list.push_back(std::shared_ptr<AbstractPlayer>(local_p));
 
   ServerInfoEvent e(_server_info, _player_list);

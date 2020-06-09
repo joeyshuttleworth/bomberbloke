@@ -4,7 +4,7 @@
 bool _server = true;
 bool _draw   = false;
 unsigned int _ping_time = 0;
-const std::vector<command_binding> _default_bindings;
+const std::vector<CommandBinding> _default_bindings;
 
 
 void server_loop(){
@@ -38,15 +38,3 @@ void server_loop(){
   return;
 }
 
-void send_player_list(){
- //  char *player_list;
-  
-//   for(auto i = _client_list.begin();  i!= _client_list.end(); i++){
-
-//   }
-//     return;
-// } 
-//   void engine_start_game(){
-//     log_message(INFO, (const char*)"Server starting game\n");
-//     return;
-  }

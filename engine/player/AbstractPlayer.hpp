@@ -1,5 +1,5 @@
 /*Class to store info for players. These may
-  be clients connected to a server, or localPlayers
+  be clients connected to a server, or LocalPlayers
   connected to a client (or server).
 
   This class stores some game specific AbstractProperties

@@ -5,7 +5,7 @@
 #include <cereal/types/polymorphic.hpp>
 #include "AbstractPlayer.hpp"
 
-class networkPlayer : public AbstractPlayer{
+class NetworkPlayer : public AbstractPlayer{
  public:
   unsigned int state = DISCONNECTED;
   void ping(){
@@ -20,7 +20,7 @@ class networkPlayer : public AbstractPlayer{
 };
 
 /*Polymorphic types have to be registered for cereal*/
-CEREAL_REGISTER_TYPE(networkPlayer);
+CEREAL_REGISTER_TYPE(NetworkPlayer);
 
 
 #endif

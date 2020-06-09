@@ -1,1 +1,1 @@
-void load_default_key_bindings(std::list<command_binding>*);
+void load_default_key_bindings(std::list<CommandBinding>*);

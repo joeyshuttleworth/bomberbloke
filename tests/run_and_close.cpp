@@ -4,7 +4,7 @@
 #include "bloke.hpp"
 #include "bomb.hpp"
 
-const std::vector<command_binding> _default_bindings;
+const std::vector<CommandBinding> _default_bindings;
 
 int main (){
   _draw=false;
@@ -12,7 +12,7 @@ int main (){
   SDL_Init(SDL_INIT_EVERYTHING);
 
   init_engine();
-  _local_player_list.push_back(localPlayer(std::string("big_beef")));
+  _local_player_list.push_back(LocalPlayer(std::string("big_beef")));
   cereal::JSONOutputArchive oArchive(std::cout);
 
   std::shared_ptr<bloke> b1(new bloke(5,5));

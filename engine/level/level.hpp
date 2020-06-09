@@ -34,7 +34,8 @@ std::list<std::shared_ptr<actor>> mActors;
 double mDimmension[2];
 
   /*Draw our level on the window. Then draw every actor in mActors*/
-  void  draw();
+  void draw();
+  void ReloadSprites();
 
   level(double x, double y);
   level();
