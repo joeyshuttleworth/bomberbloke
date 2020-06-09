@@ -10,7 +10,7 @@ before_install:
   - sudo apt-get install -qq libsdl2-dev libenet-dev libcereal-dev
 
 before_script:
-  - cmake ..
+  - cmake .
 
 script:
   - cmake --build .
