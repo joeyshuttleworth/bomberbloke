@@ -16,19 +16,11 @@ int main (int argc, char **argv){
   init_engine();
    _local_player_list.push_back(LocalPlayer("nickname"));
    _player_list.push_back(std::shared_ptr<AbstractPlayer>(local_p));
-
-   ServerInfoEvent e(_server_info);
   cereal::JSONOutputArchive oArchive(std::cout);
   //Pretend we're loading - makes output look nice. 
   SDL_Delay(1);
-  /*Output some JSON archives to console.*/
-  oArchive(e);
-  oArchive(_local_player_list);
-  oArchive(_level);
   std::cout << std::endl;
   server_loop();
-  // _level.spawn_points = _spawn_points;
-
   return 0;
 }
 
