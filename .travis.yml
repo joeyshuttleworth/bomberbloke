@@ -1,4 +1,5 @@
 #Used by travis CI for testing
+dist: bionic
 
 language: cpp
 
@@ -6,14 +7,6 @@ compiler:
   - gcc
   - clang
   
-os: linux
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - g++-7
-
 before_install:
   - sudo apt-get install -qq libsdl2-dev libenet-dev libcereal-dev
 
@@ -21,7 +14,5 @@ before_script:
   - cmake .
 
 script:
-  - export CC=gcc-7
-  - export CXX=g++-7
   - cmake --build .
   - ctest --verbose
