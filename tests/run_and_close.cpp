@@ -10,9 +10,9 @@ int main (){
   _draw=false;
 
   SDL_Init(SDL_INIT_EVERYTHING);
-
+  std::string username = "big_beef";
   init_engine();
-  _local_player_list.push_back(LocalPlayer(std::string("big_beef")));
+  _local_player_list.push_back(LocalPlayer(username));
   cereal::JSONOutputArchive oArchive(std::cout);
 
   std::shared_ptr<bloke> b1(new bloke(5,5));
