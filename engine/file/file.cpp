@@ -35,7 +35,7 @@ void load_config(std::string fname){
 
 std::string remove_extra_whitespace(std::string str){
   bool space = true;
-  std::string rc = "";
+  std::string rc;
   for(char& ch : str){
     if(isspace(ch) && ch != ' ')
       continue;
