@@ -26,7 +26,7 @@ int main (){
   oArchive(b1,  _level);
 
   client_loop();
-  
+
   SDL_Quit();
 
   return 0;

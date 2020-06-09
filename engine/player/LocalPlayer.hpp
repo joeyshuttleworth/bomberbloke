@@ -23,7 +23,6 @@ class LocalPlayer : public AbstractPlayer{
   }
 
   using AbstractPlayer::AbstractPlayer;
-  using AbstractPlayer::serialize;
 
 };
 

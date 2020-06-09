@@ -41,11 +41,11 @@ protected:
   }
 
   /*Cereal serialisation*/
-  template<class Archive>
-  void serialize(Archive &archive){
-    archive(mNickname);
-    return;
-  }
+  // template<class Archive>
+  // void serialize(Archive &archive){
+  //   archive(mNickname);
+  //   return;
+  // }
 };
 
 #endif

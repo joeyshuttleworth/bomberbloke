@@ -17,7 +17,7 @@ int main (int argc, char **argv){
    _local_player_list.push_back(LocalPlayer("nickname"));
    _player_list.push_back(std::shared_ptr<AbstractPlayer>(local_p));
 
-  ServerInfoEvent e(_server_info, _player_list);
+   ServerInfoEvent e(_server_info);
   cereal::JSONOutputArchive oArchive(std::cout);
   //Pretend we're loading - makes output look nice. 
   SDL_Delay(1);
