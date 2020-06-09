@@ -68,8 +68,12 @@ void resize_window(int x, int y){
 }
 
 static int resizeWatcher(void *data, SDL_Event *event){
+  if(!event)
+    return 0;
+
   if(event->type == SDL_WINDOWEVENT && event->window.event == SDL_WINDOWEVENT_RESIZED)
     resize_window(event->window.data1, event->window.data2);
+  return 0;
 }
 
 void init_engine() {
@@ -109,6 +113,8 @@ void handle_input(level *level) {
           _halt = true;
           break;
         case SDL_KEYDOWN:{
+          if(!_bind_next_key)
+            break;
           /*We only look at keyboard events here in order to bind keys*/
           CommandBinding new_binding;
           new_binding.scancode = event.key.keysym.scancode;
@@ -135,6 +141,7 @@ void handle_input(level *level) {
                         _system_commands.end()) {
                         handle_system_command(split_to_tokens(command_to_send)); // process system command
                     } else {
+                      std::cout << command_to_send << "\n";
                       i->getCharacter()->handle_command(command_to_send); // handle normal command
                     }
                 }
