@@ -6,7 +6,7 @@
 #include <fstream>
 
 bool _bind_next_key = false;
-std::string _next_bind_command = "";
+std::string _next_bind_command;
 int _window_size[] = {DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT};
 double _zoom = DEFAULT_ZOOM;
 SDL_Window *_window;
