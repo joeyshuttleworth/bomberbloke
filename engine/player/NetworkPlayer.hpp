@@ -16,7 +16,6 @@ class NetworkPlayer : public AbstractPlayer{
   bool synced = false;
 
   using AbstractPlayer::AbstractPlayer;
-  using AbstractPlayer::serialize;
 };
 
 /*Polymorphic types have to be registered for cereal*/
