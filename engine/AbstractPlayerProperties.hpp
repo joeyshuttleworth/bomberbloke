@@ -3,7 +3,7 @@
 
 class AbstractPlayerProperties{
 public:
-  virtual SetProperty() = 0;
+  //virtual void SetProperty() = 0;
   virtual std::vector<std::string> GetProperties() = 0;
 };
 

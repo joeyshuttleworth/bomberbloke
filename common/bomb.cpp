@@ -7,18 +7,16 @@ unsigned int _default_bomb_timer = DEFAULT_BOMB_TIMER;
 void bomb::init(bloke *bloke){
   mDimmension[0]=0.5;
   mDimmension[1]=0.5;
-  if(mpSprite)
-    SDL_DestroyTexture(mpSprite);
-  mpSprite = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, 0, 128, 128);
+  mpSprite = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 128, 128);
   SDL_SetRenderTarget(_renderer, mpSprite);
-  SDL_SetRenderDrawColor(_renderer, 0xFF, 0xFF, 0xFF, 0x00);
+  SDL_SetRenderDrawColor(_renderer, 0xFF, 0xFF, 0xFF, 0xFF);
   SDL_RenderFillRect(_renderer, NULL);
   SDL_SetRenderTarget(_renderer, NULL);
   mCollides = false;
   memset(mVelocity, 0, 2*sizeof(double));
   mTimer = _default_bomb_timer;
   mpPlacedBy = bloke;
-  mPower = mpPlacedBy->getPower();
+  mPower = mpPlacedBy->GetProperties().mPower;
   return;
 }
 

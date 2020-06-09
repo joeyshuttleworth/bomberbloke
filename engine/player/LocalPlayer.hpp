@@ -4,11 +4,11 @@
 #include "AbstractPlayer.hpp"
 #include <cereal/types/polymorphic.hpp>
 
-class localPlayer : public AbstractPlayer{
+class LocalPlayer : public AbstractPlayer{
  public:
-  std::list<command_binding> mControlScheme;
+  std::list<CommandBinding> mControlScheme;
   
-  localPlayer(std::string _nickname){
+  LocalPlayer(std::string _nickname){
     for(unsigned int i = 0; i < _default_bindings.size(); i++)
       mControlScheme.push_back(_default_bindings[i]);
     return;
@@ -27,6 +27,6 @@ class localPlayer : public AbstractPlayer{
 
 };
 
-CEREAL_REGISTER_TYPE(localPlayer);
+CEREAL_REGISTER_TYPE(LocalPlayer);
 
 #endif

@@ -3,6 +3,7 @@
 #include <cereal/types/polymorphic.hpp>
 #include <cereal/types/base_class.hpp>
 #include "actor.hpp"
+#include "GamePlayerProperties.hpp"
 
 class bloke : public actor{
   friend bomb;
@@ -19,10 +20,7 @@ protected:
   double mMaxSpeed = double(DEFAULT_MAX_SPEED);
   int    mBombs=0;
   Uint8  mMaxBombs = 1;
-  int mPower;
-  int mSpeed;
-  bool mSatellite;
-  bool mBombKick;
+  GamePlayerProperties mProperties;
   bool   mAccelerated;
   bool   mDirectionsHeld[4] = {false, false, false, false};
   double mAcceleration[2] = {0,0};
@@ -37,6 +35,10 @@ protected:
     return BLOKE;
   };
 
+  GamePlayerProperties GetProperties(){
+    return mProperties;
+  }
+
   void  draw();
   void  kick(bomb *bomb, uint8_t direction);
   void  die();
@@ -44,10 +46,6 @@ protected:
   void accelerate();
   void update();
   void init(std::shared_ptr<AbstractPlayer> );
-
-  int getPower(){
-    return mPower;
-  }
 
   /*Cereal serialisation. No info is needed that isn't provided by actor.
     We could serialise mMaxBombs, mBombKick etc here because they are
@@ -57,7 +55,7 @@ protected:
 
   template<class Archive>
   void serialize(Archive &archive){
-    archive(cereal::base_class<actor>(this), mSpeed);
+    archive(cereal::base_class<actor>(this));
     return;
   }
 };

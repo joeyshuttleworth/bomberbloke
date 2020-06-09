@@ -1,5 +1,6 @@
 #include "AbstractPlayer.hpp"
 #include "actor.hpp"
+
 void AbstractPlayer::init(std::shared_ptr<actor> a){
   mpCharacter = a;
   return;

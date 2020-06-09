@@ -1,3 +1,6 @@
+#ifndef ENGINE_HPP
+#define ENGINE_HPP
+
 #include <cmath>
 #include <SDL2/SDL.h>
 #include <iostream>
@@ -17,13 +20,13 @@
 #define DEFAULT_ACTOR_SIZE 1
 #define DEFAULT_WINDOW_WIDTH  700
 #define DEFAULT_WINDOW_HEIGHT 700
-#define MIN_VELOCITY 0.00000000001
+#define MIN_VELOCITY 1e-8
 #define TICK_RATE 64
 
 class actor;
 class level;
-class localPlayer;
-class networkPlayer;
+class LocalPlayer;
+class NetworkPlayer;
 
 void exit_engine(int);
 void new_game(std::string);
@@ -31,8 +34,8 @@ void engine_new_game(std::string);
 void engine_start_game();
 void client_loop();
 void server_loop();
-void log_message(int, const char*);
-void handle_system_command(std::list<std::string>);
+void log_message(int, std::string);
+bool handle_system_command(std::list<std::string>);
 void handle_input(level*);
 void handle_movement();
 void init_engine();
@@ -59,7 +62,7 @@ extern bool _controller_connected;
 typedef struct{
   SDL_Scancode scancode;
   std::string command;
-} command_binding;
+} CommandBinding;
 
 enum LOG_LEVELS{
   DEBUG,
@@ -83,12 +86,15 @@ class ServerInfo;
 extern ServerInfo _server_info;
 extern level _level;
 extern unsigned int _tick;
-extern const std::vector<command_binding> _default_bindings;
-extern std::list<localPlayer> _local_player_list;
+extern const std::vector<CommandBinding> _default_bindings;
+extern std::list<LocalPlayer> _local_player_list;
 const std::array<std::string, 2> _system_commands  = {"bind", "set"};
 
 #include "state.h"
-#include "networkPlayer.hpp"
-#include "localPlayer.hpp"
+#include "NetworkPlayer.hpp"
+#include "LocalPlayer.hpp"
 #include "level.hpp"
 #include "actor.hpp"
+#include "config.hpp"
+
+#endif
