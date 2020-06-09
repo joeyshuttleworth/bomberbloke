@@ -5,6 +5,8 @@
 #include <cereal/archives/json.hpp>
 #include <fstream>
 
+bool _bind_next_key = false;
+std::string _next_bind_command = "";
 int _window_size[] = {DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT};
 double _zoom = DEFAULT_ZOOM;
 SDL_Window *_window;
@@ -42,7 +44,7 @@ void create_window(){
   if (_server)
     window_name = "Bomberbloke Server";
   _window = SDL_CreateWindow(window_name.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-                             _window_size[0], _window_size[1], SDL_WINDOW_SHOWN);
+                             _window_size[0], _window_size[1], SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
   _zoom = (double)(_window_size[0]) / (_level.mDimmension[0]);
   if(_renderer){
     SDL_DestroyRenderer(_renderer);
@@ -63,6 +65,11 @@ void resize_window(int x, int y){
   }
   _level.ReloadSprites();
   return;
+}
+
+static int resizeWatcher(void *data, SDL_Event *event){
+  if(event->type == SDL_WINDOWEVENT && event->window.event == SDL_WINDOWEVENT_RESIZED)
+    resize_window(event->window.data1, event->window.data2);
 }
 
 void init_engine() {
@@ -87,6 +94,8 @@ void init_engine() {
     std::thread console(console_loop);
     console.detach();
     _state = DISCONNECTED;
+
+    SDL_AddEventWatch(resizeWatcher, _window);
     return;
 }
 
@@ -96,12 +105,22 @@ void handle_input(level *level) {
     Uint8 *kb_state = NULL;
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
-            case SDL_QUIT:
-                _halt = true;
-                break;
-
+        case SDL_QUIT:
+          _halt = true;
+          break;
+        case SDL_KEYDOWN:{
+          /*We only look at keyboard events here in order to bind keys*/
+          CommandBinding new_binding;
+          new_binding.scancode = event.key.keysym.scancode;
+          new_binding.command  = _next_bind_command;
+          _local_player_list.back().mControlScheme.push_back(new_binding);
+          _bind_next_key = false;
+          log_message(INFO, "Successfully bound " + new_binding.command + " to " + std::to_string(new_binding.scancode));
+          break;
+        }
         }
     }
+
     kb_state = (Uint8 *) SDL_GetKeyboardState(NULL);
 
     /*Iterate over local players */
@@ -316,6 +335,28 @@ bool handle_system_command(std::list<std::string> tokens) {
     }
   }
 
+  if(command == "bind"){
+    if(tokens.size() == 3){
+      auto i = tokens.begin();
+      i++;
+      CommandBinding new_command;
+      new_command.command = *i;
+      i++;
+      /*TODO: try catch*/
+      new_command.scancode = SDL_Scancode(std::stoi(*i));
+      _local_player_list.front().mControlScheme.push_back(new_command);
+      log_message(INFO, "Successfully bound command " +  new_command.command + " to " + std::to_string(new_command.scancode));
+    }
+    else if(tokens.size() == 2){
+      _bind_next_key = true;
+      auto i = tokens.begin();
+      i++;
+      _next_bind_command = *i;
+      log_message(INFO, "binding next keypress to command: " + _next_bind_command);
+    }
+
+  }
+
   return true;
 }
 
@@ -343,8 +384,11 @@ std::list <std::string> split_to_tokens(std::string str) {
                 count++;
         }
     }
-    if (last_index != str.length() - 1)
+    if (last_index != str.length() - 1){
+      std::string last_token = str.substr(last_index);
+      if(last_token.size()>0 && !std::isspace(last_token[0]))
         tokens.push_back(str.substr(last_index));
+    }
     return tokens;
 }
 

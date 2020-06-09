@@ -68,7 +68,7 @@ void bloke :: handle_command(std::string command){
       }
     }
   }
-  if(command == "+bomb"){
+  if(command == "+bomb"){// && _server){
     place_bomb();
   }
 

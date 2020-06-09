@@ -15,8 +15,13 @@ void bomb::init(bloke *bloke){
   mCollides = false;
   memset(mVelocity, 0, 2*sizeof(double));
   mTimer = _default_bomb_timer;
-  mpPlacedBy = bloke;
-  mPower = mpPlacedBy->GetProperties().mPower;
+  if(bloke){
+    mPlacedById = bloke->mId;
+    mPower = bloke->GetProperties().mPower;
+  }
+  else{
+    log_message(ERROR, "Bomb placed by malformed actor");
+  }
   return;
 }
 
@@ -32,12 +37,13 @@ void bomb::handle_command(std::string command){
 void bomb::update(){
   /*Bomb collision is only turned on when the actor which placed it has 
     moved away*/
-  if(mpPlacedBy){
+  if(mPlacedById != 0){
     if(mCollides == false){
-      if(std::abs(mPosition[0]-mpPlacedBy->mPosition[0]) > 0.5*(mDimmension[0]+mpPlacedBy->mDimmension[0])){
+      std::shared_ptr<actor> placed_by = _level.GetActor(mPlacedById);
+      if(std::abs(mPosition[0]-placed_by->mPosition[0]) > 0.5*(mDimmension[0]+placed_by->mDimmension[0])){
         mCollides=true;
       }
-      else if(std::abs(mPosition[1]-mpPlacedBy->mPosition[1]) > 0.5*(mDimmension[1]+mpPlacedBy->mDimmension[1])){
+      else if(std::abs(mPosition[1]-placed_by->mPosition[1]) > 0.5*(mDimmension[1]+placed_by->mDimmension[1])){
         mCollides = true;
       }
     }
@@ -52,27 +58,32 @@ void bomb::update(){
 void bomb::explode(){
   auto actor = _level.mActors.begin();
 
-  /*Iterate over all actors and kill the ones if they are in the right (wrong) zone.*/
-  while(actor!=_level.mActors.end()){
-    auto prev = *actor;
-    actor++;
-    /* Do not kill this bomb*/
-    if(prev.get() != this){
-      bool dead=false;
+  if(_server){
+    /*Iterate over all actors and kill the ones if they are in the right (wrong) zone.*/
+    while(actor!=_level.mActors.end()){
+      auto prev = *actor;
+      actor++;
+      /* Do not kill this bomb*/
+      if(prev.get() != this){
+        bool dead=false;
 
-      /* Check we are in the kill zone - if so set dead to true */
-      for(int i = 0; i < 2; i++){
-        if((round(mPosition[!i])==round(prev->mPosition[!i])) && (std::abs(round(mPosition[i])-round(prev->mPosition[i])) <= mPower)){
-          dead = true;
-          break;
+        /* Check we are in the kill zone - if so set dead to true */
+        for(int i = 0; i < 2; i++){
+          if((round(mPosition[!i])==round(prev->mPosition[!i])) && (std::abs(round(mPosition[i])-round(prev->mPosition[i])) <= mPower)){
+            dead = true;
+            break;
+          }
         }
+        if(dead)
+          prev->handle_command("kill");
       }
-      if(dead)
-        prev->handle_command("+kill");
     }
   }
   mRemove = true;
-  if(mpPlacedBy)
-    mpPlacedBy->mBombs--;
+
+  /*Cast to a bloke pointer.*/
+  std::shared_ptr<bloke> placed_by = std::dynamic_pointer_cast<bloke>(_level.GetActor(mPlacedById));
+  if(placed_by)
+    placed_by->mBombs--;
   return;
 }

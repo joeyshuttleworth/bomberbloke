@@ -41,7 +41,7 @@ double mDimmension[2];
   level();
   level(const level &lvl);
   ~level();
-
+  std::shared_ptr<actor> GetActor(int id);
   /*We only need to send mDimmension and the mActorList*/
   template <class Archive>
   void serialize(Archive &archive){

@@ -8,7 +8,7 @@ class bomb : public actor {
  protected:
   Uint8 mTimer;
   Uint8 mPower;
-  bloke *mpPlacedBy;
+  int  mPlacedById = 0;
   bool mPenetration;
   bool mBigBomb;
   bool mSatellite;
@@ -28,7 +28,8 @@ class bomb : public actor {
   void handle_command(std::string command);
 
   bomb(bloke *placed_by = NULL){
-    mpPlacedBy = placed_by;
+    if(placed_by)
+      mPlacedById = placed_by->mId;
     return;
   };
 
