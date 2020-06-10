@@ -127,31 +127,15 @@ actor::actor(){
 }
 
 std::shared_ptr<AbstractPlayer> actor::getPlayer(){
-  if(mpControllingPlayer)
-    return mpControllingPlayer;
+  if(mPlayerId==0)
+    return nullptr;
   else{
-    if(mPlayerId==0)
-      return NULL;
-    else{
-      /*Perform a horrible looking search over the _player_list*/
-      auto iterator = std::find_if(_player_list.begin(), _player_list.end(), [&](std::shared_ptr<AbstractPlayer> p) ->  bool {return p->getId() == mPlayerId;});
-      
-    
-      if(iterator == _player_list.end()){
-        /*We haven't found a player with the ID. This probably means that something has gone wrong*/
-        log_message(WARNING, ("Unable to find controlling player for actor:" + std::to_string(mId)).c_str());
-        return NULL;
-      }
-      else{
-        /*We have found the player. Store this point in mpControllingPlayer for later use.*/
-        mpControllingPlayer = *iterator;
-        return mpControllingPlayer;
-      }
+    /*Perform a horrible looking search over the _player_list*/
+    auto iterator = std::find_if(_player_list.begin(), _player_list.end(), [&](std::shared_ptr<AbstractPlayer> p) -> bool {p->getId() == mPlayerId;});
+    if(iterator == _player_list.end()){
+      /*We haven't found a player with the ID. This probably means that something has gone wrong*/
+      log_message(WARNING, ("Unable to find controlling player for actor:" + std::to_string(mId)).c_str());
+      return nullptr;
     }
   }
 }
-void actor::setController(AbstractPlayer* p){
-  mPlayerId = p->getId();
-  mpControllingPlayer.reset(p);
-  return;
-} 

@@ -4,18 +4,13 @@
 #include "bloke.hpp"
 #include "bomb.hpp"
 
-const std::vector<command_binding> _default_bindings =
-  {{SDL_SCANCODE_W, "up"},
-   {SDL_SCANCODE_S, "down"},
-   {SDL_SCANCODE_A, "left"},
-   {SDL_SCANCODE_D, "right"},
-   {SDL_SCANCODE_J, "powerup"},
-   {SDL_SCANCODE_K, "bomb"},
-   {SDL_SCANCODE_P, "pause"}
-  };
+const std::vector<command_binding> _default_bindings;
 
 int main (){
+  _draw=false;
+
   SDL_Init(SDL_INIT_EVERYTHING);
+
   init_engine();
   _local_player_list.push_back(localPlayer(std::string("big_beef")));
   cereal::JSONOutputArchive oArchive(std::cout);
@@ -25,8 +20,10 @@ int main (){
   _local_player_list.back().init(b1);
   oArchive(b1,  _level);
 
+  _halt = true;
   client_loop();
-  
+
+  SDL_Delay(2000);
   SDL_Quit();
 
   return 0;

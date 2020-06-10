@@ -1,12 +1,16 @@
 #include "AbstractPlayer.hpp"
 #include "actor.hpp"
-void AbstractPlayer::init(actor *actor){
-  mpCharacter.reset(actor);
-  actor->setController(this);
+void AbstractPlayer::init(std::shared_ptr<actor> a){
+  mpCharacter = a;
   return;
 }
 
 AbstractPlayer::AbstractPlayer(){
+  return;
+}
+
+AbstractPlayer::~AbstractPlayer(){
+
   return;
 }
 
