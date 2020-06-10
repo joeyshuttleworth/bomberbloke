@@ -55,9 +55,11 @@ target_link_libraries(bomberbloke_client ${ENET_LIBRARIES} ${SDL2_LIBRARIES} SHA
 
 
 # Server setup
-set(server_src "server/bomberbloke_server.cpp" "engine/server.cpp")
+set(server_src "server/bomberbloke_server.cpp" "engine/server.cpp" "engine/network/NetServer.cpp")
 add_executable(bomberbloke_server ${server_src})
-target_link_libraries(bomberbloke_server ${ENET_LIBRARIES} ${SDL2_LIBRARIES} SHARED_ENGINE)
+set_target_properties(bomberbloke_server PROPERTIES PUBLIC_HEADER "engine/server.h")
+target_link_libraries(bomberbloke_server ${ENET_LIBRARIES} ${SDL2_LIBRARIES} curl SHARED_ENGINE)
+
 
 # Format in clang
 file(GLOB_RECURSE all_sources include/*.h src/*.cpp)

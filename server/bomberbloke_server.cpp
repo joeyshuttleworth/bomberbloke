@@ -12,7 +12,7 @@ int colours[50][3];
 int main (int argc, char **argv){
   std::shared_ptr<LocalPlayer> local_p(new LocalPlayer("big_beef"));
 
-  log_message(INFO, "Bomberbloke client starting...");
+  log_message(INFO, "Bomberbloke server starting...");
   init_engine();
    _local_player_list.push_back(LocalPlayer("nickname"));
    _player_list.push_back(std::shared_ptr<AbstractPlayer>(local_p));
