@@ -9,8 +9,7 @@ class NetworkPlayer : public AbstractPlayer{
  public:
   unsigned int state = DISCONNECTED;
   void ping(){
-    int mLastPingElapsedTime = 0;
-    int mPingStart = _tick;
+    //int mLastPingElapsedTime = 0;
     return;
   }
   bool synced = false;
@@ -19,7 +18,7 @@ class NetworkPlayer : public AbstractPlayer{
 };
 
 /*Polymorphic types have to be registered for cereal*/
-CEREAL_REGISTER_TYPE(NetworkPlayer);
+CEREAL_REGISTER_TYPE(NetworkPlayer)
 
 
 #endif

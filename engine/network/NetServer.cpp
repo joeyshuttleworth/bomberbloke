@@ -2,11 +2,12 @@
 // Created by dave on 08.06.20.
 //
 
-#include "Server.h"
+#include "NetServer.h"
+#include "engine.h"
 #include <enet/enet.h>
-#include <stdio.h>
 #include <curl/curl.h>
-
+#include <string>
+#include <sstream>
 Server::Server() {
     init_enet();
 }
@@ -20,29 +21,32 @@ Server::~Server() {
 //! Poll and Handle events from ENet, by default will wait one second for an event before processing
 void Server::poll() {
     // wait one second for event
-    while (enet_host_service(this->server, &event, 1000) > 0) {
+
+  while (enet_host_service(this->server, &event, 1000) > 0) {
         switch (event.type) {
-            case ENET_EVENT_TYPE_CONNECT:
-                printf("A new client connected from %x:%u.\n",
-                       event.peer->address.host,
-                       event.peer->address.port);
-                // TODO: Add user to user_list
+        case ENET_EVENT_TYPE_CONNECT:{
+              std::stringstream message;
+              message <<  "A packet of length " << event.packet->dataLength << " containing ";
+              message << event.packet->data << " was received from " << event.peer->data;
+              message << " on channel " << event.channelID << ".\n";
+              log_message(INFO, message.str());
+              // TODO: Add user to user_list
                 break;
-            case ENET_EVENT_TYPE_RECEIVE:
-                printf("A packet of length %u containing %s was received from %s on channel %u.\n",
-                       event.packet->dataLength,
-                       event.packet->data,
-                       event.peer->data,
-                       event.channelID);
+        }
+        case ENET_EVENT_TYPE_RECEIVE:{
+              std::stringstream message;
+              message << "A packet of length " << event.packet->dataLength << " was received from ";
+              message << event.peer->data << "on channel " << event.channelID;
+              log_message(INFO, message.str());
                 /* Clean up the packet now that we're done using it. */
                 enet_packet_destroy(event.packet);
-
                 break;
-
-            case ENET_EVENT_TYPE_DISCONNECT:
-                printf("%s disconnected.\n", event.peer->data);
-                // Reset the peer's client information.
-                event.peer->data = NULL;
+        }
+        case ENET_EVENT_TYPE_DISCONNECT:
+          // Reset the peer's client information.
+          event.peer->data = NULL;
+        default:
+          break;
         }
     }
 }
@@ -73,7 +77,8 @@ bool Server::stop() {
 }
 
 void Server::removeFromMasterServer(){
-    updateGameMasterServer(true)
+  updateGameMasterServer(true);
+  // printf("%s disconnected.\n", event.peer->data);
 }
 
 
@@ -81,26 +86,29 @@ void Server::updateGameMasterServer(bool disconnect)
 {
     CURL *curl;
     CURLcode res;
-
-    /* In windows, this will init the winsock stuff */
-    curl_global_init(CURL_GLOBAL_ALL);
-    
-    curl = curl_easy_init();
-    if(curl) {
-        curl_easy_setopt(curl, CURLOPT_URL, this->masterServerAddress);
-        std::string postData = this->getCurrentServerInfo;
+    if(!disconnect){
+      /* In windows, this will init the winsock stuff */
+      curl_global_init(CURL_GLOBAL_ALL);
+      curl = curl_easy_init();
+      if(curl) {
+        curl_easy_setopt(curl, CURLOPT_URL, this->mMasterServerAddress.c_str());
+        std::string postData =  _server_info.getInfo();
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, postData);
 
         /* Perform the request, res will get the return code */
         res = curl_easy_perform(curl);
         /* Check for errors */
         if(res != CURLE_OK)
-            fprintf(stderr, "curl_easy_perform() failed: %s\n",
-                    curl_easy_strerror(res));
+          fprintf(stderr, "curl_easy_perform() failed: %s\n",
+                  curl_easy_strerror(res));
 
         curl_easy_cleanup(curl);
+      }
+      curl_global_cleanup();
+
     }
-    curl_global_cleanup();
+    else
+        return;
 }
 
 void Server::broadcastPacket(ENetPacket *packet, enet_uint8 channel) {

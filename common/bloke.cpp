@@ -107,10 +107,6 @@ void bloke :: place_bomb(){
   return;
 }
 
-void bloke :: kick(bomb *bomb, uint8_t direction){
-  return;
-}
-
 void bloke :: init(std::shared_ptr<AbstractPlayer> p = nullptr){
   mCollides = true;
   memset(&mPosition, 0, sizeof(double)*2);

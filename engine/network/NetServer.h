@@ -4,10 +4,9 @@
 
 #ifndef BOMBERBLOKE_SERVER_H
 #define BOMBERBLOKE_SERVER_H
-
-#endif //BOMBERBLOKE_SERVER_H
-
+#include <string>
 #include <enet/enet.h>
+#include "ServerInfoEvent.hpp"
 
 class Server {
 public:
@@ -31,11 +30,19 @@ public:
 
     void poll();
 
+    /* Update the master server about us. If disconnect is true, we will disconnect from the master server
+       otherwise, we will send our info to the master server.
+     */
+    void updateGameMasterServer(bool disconnect);
+
+    void removeFromMasterServer();
+
 private:
     ENetHost *server = nullptr;
     ENetAddress address;
     ENetEvent event;
     ENetPacket *packet;
+    std::string mMasterServerAddress;
 
     bool stop();
 
@@ -44,3 +51,4 @@ private:
     enet_uint16 PORT = 4500;
 
 };
+#endif

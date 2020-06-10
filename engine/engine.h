@@ -36,7 +36,7 @@ void client_loop();
 void server_loop();
 void log_message(int, std::string);
 bool handle_system_command(std::list<std::string>);
-void handle_input(level*);
+void handle_input();
 void handle_movement();
 void init_engine();
 void console_loop();

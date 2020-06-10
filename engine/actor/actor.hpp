@@ -88,7 +88,7 @@ public:
   void serialize(Archive &archive){
     archive(mId, mPlayerId, mPosition, mVelocity);
     
-  };
+  }
 
 };
 
