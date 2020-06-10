@@ -8,8 +8,9 @@
 #endif //BOMBERBLOKE_SERVER_H
 
 #include <enet/enet.h>
+#include <string>
 
-class Server {
+class NetServer {
 public:
     uint32_t clientCount() const;
 
@@ -17,9 +18,9 @@ public:
 
     enet_uint32 packetsRecieved() const;
 
-    Server();
+    NetServer();
 
-    ~Server();
+    ~NetServer();
 
     bool status();
 
@@ -40,7 +41,8 @@ private:
     bool stop();
 
     bool init_enet();
-
+    void updateGameMasterServer(bool disconnect);
     enet_uint16 PORT = 4500;
+    std::string masterServerAddress = "http://ptsv2.com/t/faryp-1591787919/post";
 
 };

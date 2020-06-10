@@ -2,23 +2,23 @@
 // Created by dave on 08.06.20.
 //
 
-#include "Server.h"
+#include "NetServer.hpp"
 #include <enet/enet.h>
 #include <stdio.h>
 #include <curl/curl.h>
 
-Server::Server() {
+NetServer::NetServer() {
     init_enet();
 }
 
-Server::~Server() {
+NetServer::~NetServer() {
     // Clean up ENet
     stop();
     enet_deinitialize();
 }
 
 //! Poll and Handle events from ENet, by default will wait one second for an event before processing
-void Server::poll() {
+void NetServer::poll() {
     // wait one second for event
     while (enet_host_service(this->server, &event, 1000) > 0) {
         switch (event.type) {
@@ -49,7 +49,7 @@ void Server::poll() {
 
 //! Initialise ENet, and create server instance.
 // Returns: false if failed to create server
-bool Server::init_enet() {
+bool NetServer::init_enet() {
     if (enet_initialize() != 0) {
         printf("FATAL: Could not init enet\n");
         return 0;
@@ -67,17 +67,14 @@ bool Server::init_enet() {
     } else { return 1; };
 }
 
-bool Server::stop() {
+bool NetServer::stop() {
     //TODO: Disconnect clients gracefully
+    updateGameMasterServer(true);
     return 0;
 }
 
-void Server::removeFromMasterServer(){
-    updateGameMasterServer(true)
-}
 
-
-void Server::updateGameMasterServer(bool disconnect)
+void NetServer::updateGameMasterServer(bool disconnect)
 {
     CURL *curl;
     CURLcode res;
@@ -87,51 +84,55 @@ void Server::updateGameMasterServer(bool disconnect)
     
     curl = curl_easy_init();
     if(curl) {
-        curl_easy_setopt(curl, CURLOPT_URL, this->masterServerAddress);
-        std::string postData = this->getCurrentServerInfo;
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, postData);
+        curl_easy_setopt(curl, CURLOPT_URL, this->masterServerAddress.c_str());
+        //TODO: update with proper data
+        std::string postData = "param1=value1&param2=value2";
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, "name=Server&project=Bomberbloke");
 
         /* Perform the request, res will get the return code */
         res = curl_easy_perform(curl);
         /* Check for errors */
-        if(res != CURLE_OK)
-            fprintf(stderr, "curl_easy_perform() failed: %s\n",
-                    curl_easy_strerror(res));
+        if(res != CURLE_OK){
+            fprintf(stderr, "\ncurl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+        }
+        else {
+            printf("\nSuccessfully updated game server at: %s\n", this->masterServerAddress.c_str());
+        }
 
         curl_easy_cleanup(curl);
     }
     curl_global_cleanup();
 }
 
-void Server::broadcastPacket(ENetPacket *packet, enet_uint8 channel) {
+void NetServer::broadcastPacket(ENetPacket *packet, enet_uint8 channel) {
     enet_host_broadcast(this->server, channel, packet);
 
 }
 
-void Server::sendPacket(ENetPeer *peer, ENetPacket *packet, enet_uint8 channel) {
+void NetServer::sendPacket(ENetPeer *peer, ENetPacket *packet, enet_uint8 channel) {
     enet_peer_send(peer, channel, packet);
 }
 
 
-void Server::disconnectPeer(ENetPeer *peer) {
+void NetServer::disconnectPeer(ENetPeer *peer) {
     // forcefully disconnect peer
     enet_peer_reset(peer);
 }
 
-bool Server::status() {
+bool NetServer::status() {
     // True if server is still active
     return this->server != nullptr;
 }
 
-uint32_t Server::clientCount() const {
+uint32_t NetServer::clientCount() const {
     return this->server->connectedPeers;
 }
 
-enet_uint32 Server::packetsSent() const {
+enet_uint32 NetServer::packetsSent() const {
     return this->server->totalSentPackets;
 }
 
-enet_uint32 Server::packetsRecieved() const {
+enet_uint32 NetServer::packetsRecieved() const {
     return this->server->totalReceivedPackets;
 }
 

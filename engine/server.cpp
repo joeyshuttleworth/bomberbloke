@@ -1,6 +1,6 @@
 #include "engine.h"
 #include "server.h"
-#include "network/NetServer.h"
+#include "network/NetServer.hpp"
 bool _server = true;
 bool _draw   = false;
 unsigned int _ping_time = 0;
@@ -40,7 +40,6 @@ void server_loop(){
     draw_screen();
       _tick++;
   }
-  // Explicity call deconstructor (probably not necessary)
-  //server.~Server();
+
 }
 
