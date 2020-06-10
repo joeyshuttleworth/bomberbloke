@@ -111,12 +111,14 @@ void bloke :: kick(bomb *bomb, uint8_t direction){
   return;
 }
 
-void bloke :: init(){
+void bloke :: init(std::shared_ptr<AbstractPlayer> p = nullptr){
   mCollides = true;
   memset(&mPosition, 0, sizeof(double)*2);
   memset(&mVelocity, 0, sizeof(double)*2);
   mPosition[0] = 5;
   mPosition[1] = 3;
+  if(p!=nullptr)
+    mPlayerId = p->getId();
   return;
 }
 

@@ -20,21 +20,26 @@ class AbstractPlayer{
 public:
   AbstractPlayer(std::string);
   AbstractPlayer();
+  ~AbstractPlayer();
   std::string mNickname;
   int getId(){
     return mId;
   }
-  std::shared_ptr<actor> mpCharacter;
+  void init(std::shared_ptr<actor>);
+  std::shared_ptr<actor> getCharacter(){
+    return mpCharacter;
+  }
 protected:
   int mType;
+  std::shared_ptr<actor> mpCharacter;
   virtual void ping() = 0;
-  void init(actor*);
   double mPingElapsedTime = 0;
   unsigned int mLastPingSent = 0;
   int mId;
   double getPing(){
     return mPingElapsedTime;
   }
+
   /*Cereal serialisation*/
   template<class Archive>
   void serialize(Archive &archive){
@@ -42,4 +47,5 @@ protected:
     return;
   }
 };
+
 #endif

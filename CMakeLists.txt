@@ -1,6 +1,13 @@
 cmake_minimum_required(VERSION 3.10)
 project(BOMBERBLOKE)
 set(CMAKE_BUILD_TYPE Debug)
+
+enable_testing()
+
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
+  include(CTest)
+  add_subdirectory(tests)
+endif()
 message(STATUS "CMAKE_SYSTEM_NAME = ${CMAKE_SYSTEM_NAME}")
 message(STATUS "CMAKE_CXX_COMPILER_ID = ${CMAKE_CXX_COMPILER_ID}")
 message(STATUS "CMAKE_CXX_COMPILER_VERSION = ${CMAKE_CXX_COMPILER_VERSION}")
@@ -26,17 +33,24 @@ include_directories(${PROJECT_SOURCE_DIR}/engine/control)
 include_directories(${PROJECT_SOURCE_DIR}/client)
 include_directories(${PROJECT_SOURCE_DIR}/common)
 include_directories(${PROJECT_SOURCE_DIR}/engine)
+include_directories(${PROJECT_SOURCE_DIR}/tests)
+
+
 
 file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/sources.cmake SHARED_SOURCES)
 add_library(${LIB_TARGET_NAME} SHARED_ENGINE
-            ${SHARED_SOURCES}
-            )
+  ${SHARED_SOURCES}
+  )
 
+
+# file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/tests.cmake TEST_SOURCES)
+add_executable(run_and_close "tests/run_and_close.cpp" "engine/client.cpp")
+target_link_libraries(run_and_close ${ENET_LIBRARIES} ${SDL2_LIBRARIES} SHARED_ENGINE)
+add_test(RUN_AND_CLOSE run_and_close COMMAND)
 
 # Client setup
 set(client_src "client/bomberbloke.cpp")
 add_executable(bomberbloke_client ${client_src} "engine/client.cpp")
-set_target_properties(bomberbloke_client PROPERTIES PUBLIC_HEADER "engine/client.h" )
 target_link_libraries(bomberbloke_client ${ENET_LIBRARIES} ${SDL2_LIBRARIES} SHARED_ENGINE)
 
 
@@ -46,10 +60,6 @@ add_executable(bomberbloke_server ${server_src})
 set_target_properties(bomberbloke_server PROPERTIES PUBLIC_HEADER "engine/server.h")
 target_link_libraries(bomberbloke_server ${ENET_LIBRARIES} ${SDL2_LIBRARIES} curl SHARED_ENGINE)
 
-
-#set(server_src "engine/server.cpp")
-#add_executable(server ${server_src})
-#target_link_libraries(server ${ENET_LIBRARIES} ${SDL2_LIBRARY})
 
 # Format in clang
 file(GLOB_RECURSE all_sources include/*.h src/*.cpp)

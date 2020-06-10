@@ -98,7 +98,7 @@ void handle_input(level *level) {
                         _system_commands.end()) {
                         handle_system_command(split_to_tokens(command_to_send)); // process system command
                     } else {
-                        i->mpCharacter->handle_command(command_to_send); // handle normal command
+                      i->getCharacter()->handle_command(command_to_send); // handle normal command
                     }
                 }
             }
@@ -106,21 +106,21 @@ void handle_input(level *level) {
             if (event.jaxis.which == 0) {
                 if (event.jaxis.axis == 0) { //x axis
                     if (event.jaxis.value < -DEADZONE) {
-                        i->mpCharacter->handle_command("left"+dX);
+                      i->getCharacter()->handle_command("left"+dX);
                     } else if (event.jaxis.value > DEADZONE) {
-                        i->mpCharacter->handle_command("+right"+dX);
+                      i->getCharacter()->handle_command("+right"+dX);
 
                     } else {
-                        i->mpCharacter->handle_command("-XAxis"+dX);
+                      i->getCharacter()->handle_command("-XAxis"+dX);
                     }
 
                 } else if (event.jaxis.axis == 1) {
                     if (event.jaxis.value < -DEADZONE) {
-                        i->mpCharacter->handle_command("+up"+dX);
+                      i->getCharacter()->handle_command("+up"+dX);
                     } else if (event.jaxis.value > DEADZONE) {
-                        i->mpCharacter->handle_command("+down"+dX);
+                      i->getCharacter()->handle_command("+down"+dX);
                     } else {
-                        i->mpCharacter->handle_command("-YAxis"+dX);
+                      i->getCharacter()->handle_command("-YAxis"+dX);
                     }
 
                 }
@@ -218,11 +218,13 @@ void draw_hud() {
 }
 
 void draw_screen() {
-    SDL_SetRenderDrawColor(_renderer, 0x10, 0xFF, 0x00, 0xFF);
-    SDL_RenderClear(_renderer);
-    _level.draw();
-    SDL_RenderPresent(_renderer);
+  if(_halt)
     return;
+  SDL_SetRenderDrawColor(_renderer, 0x10, 0xFF, 0x00, 0xFF);
+  SDL_RenderClear(_renderer);
+  _level.draw();
+  SDL_RenderPresent(_renderer);
+  return;
 }
 
 void logic_loop() {
