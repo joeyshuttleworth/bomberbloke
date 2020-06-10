@@ -8,6 +8,7 @@
 #ifndef SERVERINFOEVENT_HPP
 
 #define SERVERINFOEVENT_HPP
+#include "ServerInfo.hpp"
 #include "AbstractEvent.hpp"
 #include <cereal/types/vector.hpp>
 

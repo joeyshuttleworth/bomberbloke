@@ -1,6 +1,7 @@
 #include "engine.h"
 #include "server.h"
 #include "network/NetServer.h"
+
 bool _server = true;
 bool _draw   = false;
 unsigned int _ping_time = 0;
@@ -8,14 +9,12 @@ const std::vector<CommandBinding> _default_bindings;
 
 
 void server_loop(){
-  unsigned int last_tick, current_tick=0;
-  int delay;
   timespec t1, t2;
   t2.tv_nsec = 0;
   t2.tv_sec  = 0;
 
   // Initialise network
-  NetServer server;
+  Server server;
 
 
   while(!_halt){

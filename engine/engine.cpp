@@ -37,6 +37,7 @@ void exit_engine(int signum) {
     _halt = true;
     std::cout  << "\nNow exiting the BLOKE engine. Hope you had fun. Wherever you are, we at the BLOKE project hope we have made your day just a little bit brighter. See you next time around! :)\n";
     signal(SIGINT, NULL);
+    std::cout << "Received signal " << strsignal(signum) << ".\nExiting...\n";
     return;
 }
 void create_window(){
@@ -67,20 +68,8 @@ void resize_window(int x, int y){
   return;
 }
 
-static int resizeWatcher(void *data, SDL_Event *event){
-  if(!event)
-    return 0;
-
-  if(event->type == SDL_WINDOWEVENT && event->window.event == SDL_WINDOWEVENT_RESIZED)
-    resize_window(event->window.data1, event->window.data2);
-  return 0;
-}
-
 void init_engine() {
-    int size[2];
-    char *receive_port = (char *) "8888";
 
-    _server_info;
     signal(SIGINT, exit_engine);
     SDL_Init(SDL_INIT_EVERYTHING);
 
@@ -99,11 +88,10 @@ void init_engine() {
     console.detach();
     _state = DISCONNECTED;
 
-    SDL_AddEventWatch(resizeWatcher, _window);
     return;
 }
 
-void handle_input(level *level) {
+void handle_input() {
     SDL_Event event;
     //  bool key_up = true;
     Uint8 *kb_state = NULL;
@@ -124,6 +112,12 @@ void handle_input(level *level) {
           log_message(INFO, "Successfully bound " + new_binding.command + " to " + std::to_string(new_binding.scancode));
           break;
         }
+        case SDL_WINDOWEVENT:
+          if(event.window.event == SDL_WINDOWEVENT_RESIZED){
+            _window_size[0] = event.window.data1;
+            _window_size[1] = event.window.data2;
+            _zoom = (double)(_window_size[0]) / (_level.mDimmension[0]);
+          }
         }
     }
 

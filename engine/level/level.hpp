@@ -46,6 +46,6 @@ double mDimmension[2];
   template <class Archive>
   void serialize(Archive &archive){
     archive(mDimmension, mActors);
-  };
+  }
 };
 #endif

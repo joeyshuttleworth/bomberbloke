@@ -69,9 +69,5 @@ add_custom_target(fmt
 
 
 # Warning messages are treated as errors
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror -Wpedantic -Wfatal-errors")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror -Wpedantic -Wfatal-errors")
 
-# file(COPY
-#     ${CMAKE_CURRENT_SOURCE_DIR}/resources/
-#     DESTINATION
-#     ${CMAKE_CURRENT_BINARY_DIR}/resources/)

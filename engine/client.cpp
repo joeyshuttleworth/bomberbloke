@@ -23,7 +23,7 @@ void client_loop(){
      if(delay>0){
        SDL_Delay(delay);
      }
-     handle_input(&_level);
+     handle_input();
      handle_movement();
      draw_screen();
      _tick++;

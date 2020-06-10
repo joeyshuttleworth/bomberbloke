@@ -40,7 +40,6 @@ protected:
   }
 
   void  draw();
-  void  kick(bomb *bomb, uint8_t direction);
   void  die();
   void handle_command(std::string command);
   void accelerate();
@@ -61,5 +60,5 @@ protected:
 };
 
 /*This is requried by cereal for classes that use polymorphism*/
-CEREAL_REGISTER_TYPE(bloke);
+CEREAL_REGISTER_TYPE(bloke)
 #endif

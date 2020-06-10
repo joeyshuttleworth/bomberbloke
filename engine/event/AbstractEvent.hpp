@@ -29,7 +29,7 @@ public:
   template <class Archive>
   void serialize(Archive &ar){
     ar(cereal::make_nvp("EventType", mType));
-  };
+  }
 };
 
 
