@@ -50,7 +50,7 @@ add_test(RUN_AND_CLOSE run_and_close COMMAND)
 
 # Client setup
 set(client_src "client/bomberbloke.cpp")
-add_executable(bomberbloke_client ${client_src} "engine/client.cpp")
+add_executable(bomberbloke_client ${client_src} "engine/network/NetClient.cpp" "engine/client.cpp")
 target_link_libraries(bomberbloke_client ${ENET_LIBRARIES} ${SDL2_LIBRARIES} SHARED_ENGINE)
 
 
