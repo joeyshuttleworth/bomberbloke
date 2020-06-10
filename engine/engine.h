@@ -42,7 +42,13 @@ void init_engine();
 void console_loop();
 void draw_screen();
 SDL_Joystick* handle_input_controller();
+
+/* Removes white space and turns a string into a list of words.
+   This is used for parsing commands.
+*/
 std::list<std::string> split_to_tokens(std::string);
+
+
 extern SDL_Window  *_window;
 extern SDL_Surface *_surface;
 extern SDL_Renderer *_renderer;
