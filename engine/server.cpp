@@ -1,6 +1,6 @@
 #include "engine.h"
 #include "server.h"
-
+#include "network/NetServer.h"
 bool _server = true;
 bool _draw   = false;
 unsigned int _ping_time = 0;
@@ -13,6 +13,11 @@ void server_loop(){
   timespec t1, t2;
   t2.tv_nsec = 0;
   t2.tv_sec  = 0;
+
+  // Initialise network
+  NetServer server;
+
+
   while(!_halt){
     t1 = t2;
     do{
@@ -35,7 +40,8 @@ void server_loop(){
     draw_screen();
       _tick++;
   }
-  return;
+  // Explicity call deconstructor (probably not necessary)
+  //server.~Server();
 }
 
 void send_player_list(){
