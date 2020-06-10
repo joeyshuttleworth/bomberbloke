@@ -5,6 +5,7 @@
 #include <cereal/archives/json.hpp>
 #include <fstream>
 
+
 bool _bind_next_key = false;
 std::string _next_bind_command;
 int _window_size[] = {DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT};
@@ -303,6 +304,19 @@ void load_config(std::string fname) {
     }
 }
 
+// void parseServerIP(std::string ip){
+//   //potentially has : for port. we need to split this strng
+//   size_t found = ip.find_first_of(":");
+  
+//   if (found != std::string::npos){
+//     setAddress(ip.substr(0,found),std::stoi((ip.substr(found))));
+//   }
+//   else{
+//     // assume default port
+//     setAddress(ip);
+//   }
+// }
+
 bool handle_system_command(std::list<std::string> tokens) {
   std::string command = tokens.front();
 
@@ -311,6 +325,14 @@ bool handle_system_command(std::list<std::string> tokens) {
     cereal::JSONOutputArchive oArchive(std::cout);
     oArchive(e);
   }
+
+  // if(command == "connect"){
+  //   if (tokens.size() == 2){
+  //     parseServerIP(std::string(tokens.back()));
+  //   } else{
+  //     setAddress();
+  //   }
+  // }
 
   if(command ==  "generate_config"){
     if(tokens.size() == 1){

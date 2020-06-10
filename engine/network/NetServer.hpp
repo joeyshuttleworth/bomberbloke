@@ -31,7 +31,7 @@ public:
     void sendPacket(ENetPeer *peer, ENetPacket *packet, enet_uint8 channel = 0);
 
     void poll();
-
+    bool isConnected();
 private:
     ENetHost *server = nullptr;
     ENetAddress address;
