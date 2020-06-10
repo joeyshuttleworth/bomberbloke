@@ -48,3 +48,5 @@ GTAGS
 *\#*
 *.o
 *.bin
+*.cmake
+CMakeFiles/
