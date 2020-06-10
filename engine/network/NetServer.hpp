@@ -42,7 +42,7 @@ private:
 
     bool init_enet();
     void updateGameMasterServer(bool disconnect);
-    enet_uint16 PORT = 4500;
+    enet_uint16 PORT = 8888;
     std::string masterServerAddress = "http://ptsv2.com/t/faryp-1591787919/post";
 
 };
