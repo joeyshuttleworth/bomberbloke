@@ -10,10 +10,10 @@
 #include <enet/enet.h>
 #include <string>
 
-class Client {
-    Client();
+class NetClient {
+    NetClient();
 
-    ~Client();
+    ~NetClient();
 
 public:
     void connectClient(std::string serverAddress, enet_uint16 port);
