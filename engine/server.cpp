@@ -1,6 +1,6 @@
 #include "engine.h"
 #include "server.h"
-#include "network/NetServer.h"
+#include "network/NetServer.hpp"
 
 bool _server = true;
 bool _draw   = false;
@@ -14,7 +14,7 @@ void server_loop(){
   t2.tv_sec  = 0;
 
   // Initialise network
-  Server server;
+  NetServer server;
 
 
   while(!_halt){
@@ -39,7 +39,6 @@ void server_loop(){
     draw_screen();
       _tick++;
   }
-  // Explicity call deconstructor (probably not necessary)
-  //server.~Server();
+
 }
 
