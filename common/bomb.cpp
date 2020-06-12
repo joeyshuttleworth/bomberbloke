@@ -1,6 +1,7 @@
 #include "bomberbloke.h"
 #include "bloke.hpp"
 #include "bomb.hpp"
+#include "Explosion.hpp"
 
 unsigned int _default_bomb_timer = DEFAULT_BOMB_TIMER;
 
@@ -79,6 +80,8 @@ void bomb::explode(){
       }
     }
   }
+  _particle_list.push_back(std::shared_ptr<Explosion>(new Explosion(mPosition[0], mPosition[1], 1 ,1)));
+
   mRemove = true;
 
   /*Cast to a bloke pointer.*/

@@ -28,7 +28,7 @@ int main (){
   _local_player_list.back().init(b1);
 
   std::shared_ptr<Explosion> exp1(new Explosion(5,5,0.8, 0.8));
-  _particle_list.push_back(exp1);
+  // _particle_list.push_back(exp1);
 
   client_loop();
 

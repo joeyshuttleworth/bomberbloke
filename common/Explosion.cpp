@@ -23,7 +23,7 @@ void Explosion::draw(){
 
   else{
     /*Set colour to red*/
-    SDL_SetRenderDrawColor(_renderer, alpha, 1 - alpha, 1 - alpha, alpha);
+    SDL_SetRenderDrawColor(_renderer, 0xff, 1 - alpha, 1 - alpha, alpha);
   }
 
   /*  Set renderer target back to the window */
@@ -31,9 +31,9 @@ void Explosion::draw(){
   /*  Copy our texture across to the window */
   SDL_Rect dstrect;
   dstrect.x = round(_zoom * mPosition[0]);
-  dstrect.y = round(_zoom * mPosition[1]);
-  dstrect.w = round(_zoom * mDimmensions[0]);
-  dstrect.h = round (_zoom *mDimmensions[1]);
+  dstrect.y = round((_level.mDimmension[1]-mPosition[1]-mDimmension[1]) * _zoom);
+  dstrect.w = round(_zoom * mDimmension[0]);
+  dstrect.h = round(_zoom * mDimmension[1]);
   SDL_RenderFillRect(_renderer, &dstrect);
   return;
 }

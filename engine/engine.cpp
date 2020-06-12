@@ -298,7 +298,8 @@ void draw_screen() {
 
   /* Remove particles with mRemove set! */
   _particle_list.remove_if([](std::shared_ptr<AbstractSpriteHandler> s){return s->mRemove;});
-
+  /* Now clean up actors */
+  _level.mActors.remove_if([](std::shared_ptr<actor> a){return a->mRemove;});
   SDL_RenderPresent(_renderer);
   return;
 }
