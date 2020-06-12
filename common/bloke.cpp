@@ -40,7 +40,7 @@ void bloke :: handle_command(std::string command){
   std::cout << command << "\n";
   /*True if the key is pressed down- false if it is up*/
   bool key_down = (command[0]=='+');
-  if(command == "+kill"){
+  if(command == "kill"){
     mRemove=true;
     return;
   }
@@ -64,15 +64,16 @@ void bloke :: handle_command(std::string command){
           else{
             mAcceleration[(i+1)%2] = 0;
           }
-        } 
+        }
       }
     }
   }
+
   if(command == "+bomb"){// && _server){
     place_bomb();
   }
 
-  /*Command(s) that take parameters*/
+  /*Command(s) that take parameters go here*/
   std::list<std::string> tokens = split_to_tokens(command);
 
   if(tokens.back() == "accel" && tokens.size() == 3){
