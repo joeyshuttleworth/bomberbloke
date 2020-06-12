@@ -11,39 +11,29 @@ void Explosion::draw(){
   }
 
   unsigned int frame_no = (_tick - mStartTick) % mAnimationSpeed;
-  if(!mpSprite){
-    log_message(ERROR, "Explosion: missing sprite!");
-    return;
-  }
-  /*  Make background transparent (should really only do this when we need to) */
-  SDL_SetRenderTarget(_renderer, mpSprite);
-  /*  Make background transparent */
-  SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 0);
-  SDL_RenderFillRect(_renderer, nullptr);
+  unsigned int alpha = 0xFF * (1 - (double)(_tick - mStartTick) / (2*mTimeout));
+
+  /*  Set our blend mode so that our shapes blend nicely */
+  SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
 
   if(frame_no < mAnimationSpeed/2){
     /*Set colour to white*/
-    SDL_SetRenderDrawColor(_renderer, 0xff, 0xff, 0xff, 0xff);
-    SDL_RenderFillRect(_renderer, nullptr);
+    SDL_SetRenderDrawColor(_renderer, 0xff, 0xff, 0xff, alpha);
   }
 
   else{
     /*Set colour to red*/
-    SDL_SetRenderDrawColor(_renderer, 0xff, 0, 0, 0xff);
-    SDL_RenderFillRect(_renderer, nullptr);
+    SDL_SetRenderDrawColor(_renderer, alpha, 1 - alpha, 1 - alpha, alpha);
   }
 
   /*  Set renderer target back to the window */
   SDL_SetRenderTarget(_renderer, nullptr);
-  SDL_SetRenderDrawColor(_renderer, 0x10, 0x10, 0x02, 0xff);
-
   /*  Copy our texture across to the window */
   SDL_Rect dstrect;
   dstrect.x = round(_zoom * mPosition[0]);
   dstrect.y = round(_zoom * mPosition[1]);
   dstrect.w = round(_zoom * mDimmensions[0]);
   dstrect.h = round (_zoom *mDimmensions[1]);
-  SDL_RenderCopy(_renderer, mpSprite, nullptr, &dstrect);
-
+  SDL_RenderFillRect(_renderer, &dstrect);
   return;
 }

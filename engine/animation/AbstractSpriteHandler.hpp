@@ -25,17 +25,10 @@ public:
    return;
   }
 
-  virtual void ReloadSprite() = 0;
+  virtual void ReloadSprite(){};
 
-  ~AbstractSpriteHandler(){
-    if(mpSprite){
-      SDL_DestroyTexture(mpSprite);
-    }
-    return;
-  }
   bool mRemove;
 protected:
-  SDL_Texture *mpSprite = nullptr;
   double mPosition[2];
   double mDimmensions[2];
   unsigned int mStartTick;

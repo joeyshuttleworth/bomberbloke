@@ -100,6 +100,9 @@ void init_engine() {
     signal(SIGINT, exit_engine);
     SDL_Init(SDL_INIT_EVERYTHING);
 
+    /*  Set blendmode */
+    SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
+
     if (_draw) {
       create_window();
     }
