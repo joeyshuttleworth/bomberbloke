@@ -1,11 +1,9 @@
-#include "engine.h"
+#include "engine.hpp"
 #include "server.h"
 #include "network/NetServer.hpp"
 bool _server = true;
 bool _draw   = false;
 unsigned int _ping_time = 0;
-const std::vector<CommandBinding> _default_bindings;
-
 
 void server_loop(){
   unsigned int last_tick, current_tick=0;

@@ -1,7 +1,9 @@
+cmake_minimum_required(VERSION 3.10)
 project(BOMBERBLOKE)
 set(CMAKE_BUILD_TYPE Debug)
 
 enable_testing()
+
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
   include(CTest)
@@ -33,7 +35,7 @@ include_directories(${PROJECT_SOURCE_DIR}/client)
 include_directories(${PROJECT_SOURCE_DIR}/common)
 include_directories(${PROJECT_SOURCE_DIR}/engine)
 include_directories(${PROJECT_SOURCE_DIR}/tests)
-
+include_directories(${PROJECT_SOURCE_DIR}/engine/animation)
 
 
 file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/sources.cmake SHARED_SOURCES)
@@ -42,9 +44,14 @@ file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/sources.cmake SHARED_SOURCES)
 
 add_library(${LIB_TARGET_NAME} CLIENT ${SHARED_SOURCES} "engine/client.cpp" "engine/network/NetClient.cpp")
 
+# run_and_close test
 add_executable(run_and_close "tests/run_and_close.cpp" "engine/client.cpp")
 target_link_libraries(run_and_close CLIENT ${ENET_LIBRARIES} ${SDL2_LIBRARIES})
 add_test(RUN_AND_CLOSE run_and_close COMMAND)
+
+# explosion demo
+add_executable(explosion_demo "tests/ExplosionDemo.cpp" "engine/client.cpp")
+target_link_libraries(explosion_demo CLIENT ${ENET_LIBRARIES} ${SDL2_LIBRARIES})
 
 # Client setup
 set(client_src "client/bomberbloke.cpp")
