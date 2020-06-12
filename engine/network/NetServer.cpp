@@ -29,11 +29,11 @@ void NetServer::poll() {
                 // TODO: Add user to user_list
                 break;
             case ENET_EVENT_TYPE_RECEIVE:
-                printf("A packet of length %u containing %s was received from %s on channel %u.\n",
-                       event.packet->dataLength,
-                       event.packet->data,
-                       event.peer->data,
-                       event.channelID);
+                // printf("A packet of length %u containing %s was received from %s on channel %u.\n",
+                //        event.packet->dataLength,
+                //        event.packet->data,
+                //        event.peer->data,
+                //        event.channelID);
                 /* Clean up the packet now that we're done using it. */
                 enet_packet_destroy(event.packet);
 
