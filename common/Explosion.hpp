@@ -21,24 +21,9 @@ public:
     return;
   }
 
-  /*  In draw() we program a simple flash between red and white.
-  */
+  /*  In draw() we program a simple flash between red and white. */
 
   void draw();
-
-  ~Explosion(){
-    if(mpSprite){
-      SDL_DestroyTexture(mpSprite);
-    }
-  };
-
-void ReloadSprite(){
-  if(mpSprite){
-    SDL_DestroyTexture(mpSprite);
-  }
-  mpSprite = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, EXPLOSION_SPRITE_SIZE, EXPLOSION_SPRITE_SIZE);
-}
-
 
 protected:
   int mCurrentColour;
