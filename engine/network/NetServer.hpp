@@ -4,10 +4,9 @@
 
 #ifndef BOMBERBLOKE_SERVER_H
 #define BOMBERBLOKE_SERVER_H
-
-#endif //BOMBERBLOKE_SERVER_H
-
+#include <string>
 #include <enet/enet.h>
+#include "ServerInfoEvent.hpp"
 #include <string>
 
 class NetServer {
@@ -31,12 +30,20 @@ public:
     void sendPacket(ENetPeer *peer, ENetPacket *packet, enet_uint8 channel = 0);
 
     void poll();
-    bool isConnected();
+    /* Update the master server about us. If disconnect is true, we will disconnect from the master server
+       otherwise, we will send our info to the master server.
+     */
+
+  void removeFromMasterServer();
+
+  bool isConnected();
+
 private:
     ENetHost *server = nullptr;
     ENetAddress address;
     ENetEvent event;
     ENetPacket *packet;
+    std::string mMasterServerAddress;
 
     bool stop();
 
@@ -46,3 +53,4 @@ private:
     std::string masterServerAddress = "http://ptsv2.com/t/faryp-1591787919/post";
 
 };
+#endif

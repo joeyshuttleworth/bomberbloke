@@ -5,7 +5,7 @@
 #include "NetClient.hpp"
 #include <string>
 #include <iostream>
-#include "engine.h"
+#include "engine.hpp"
 
 
 NetClient::NetClient() {
@@ -14,7 +14,7 @@ NetClient::NetClient() {
         return;
     }
     //TODO: insert variables for host
-    this->host = enet_host_create(nullptr, 0, 0, 0, 0);
+    this->host = enet_host_create(nullptr, 1, 1, 0, 0);
 }
 
 NetClient::~NetClient() {
@@ -55,12 +55,14 @@ void NetClient::disconnectClient() {
     enet_peer_disconnect(this->peer, 0);
     while (enet_host_service(this->host, &event, 3000) > 0) {
         switch (event.type) {
-            case ENET_EVENT_TYPE_RECEIVE:
-                enet_packet_destroy(event.packet);
-                break;
-            case ENET_EVENT_TYPE_DISCONNECT:
-                printf("Disconnection succeeded.\n");
-                return;
+          case ENET_EVENT_TYPE_RECEIVE:
+            enet_packet_destroy(event.packet);
+            break;
+          case ENET_EVENT_TYPE_DISCONNECT:
+            printf("Disconnection succeeded.\n");
+            return;
+          default:
+            break;
         }
     }
     //Disconnect didn't happen in three seconds, force reset peer

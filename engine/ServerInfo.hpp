@@ -3,6 +3,8 @@
  */
 #ifndef SERVERINFO_HPP
 #define    SERVERINFO_HPP
+#include <sstream>
+#include "engine.hpp"
 
 class ServerInfo{
 public:
@@ -23,6 +25,15 @@ public:
   std::string mTitle = "Bomberbloke server";
   std::string mDescription = "A server for the game multiplayer game, bomberbloke - enjoy!!";
   int mMaxPlayers = 2;
+
+  std::string getInfo(){
+    std::stringstream info_s;
+    info_s << mTitle << "\n";
+    info_s << mDescription << "\n";
+    info_s << mMaxPlayers << ":" << _player_list.size() << "\n";
+    info_s << "password no";
+    return info_s.str();
+  }
 };
 
 #endif

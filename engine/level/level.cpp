@@ -1,4 +1,4 @@
-#include "engine.h"
+#include "engine.hpp"
 
 level :: level(){
   mDimmension[0] = 10;
@@ -21,7 +21,7 @@ level :: ~level(){
 level :: level(const level &lvl){
   mpSprite = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 1024, 1024);
   memcpy(mpSprite, lvl.mpSprite, sizeof(SDL_Surface));
-};
+}
 
 void level :: ReloadSprites(){
   if(mpSprite)
@@ -45,12 +45,20 @@ std::shared_ptr<actor> level :: GetActor(int id){
   auto iterator = std::find_if(mActors.begin(), mActors.end(), [&](std::shared_ptr<actor> a) -> bool {return a->GetId() == id;});
   // return the first one (should be unique anyway)
   return *iterator;
-};
+}
+
+void level::cleanUp(){
+  /* Remove particles with mRemove set! */
+  mParticleList.remove_if([](std::shared_ptr<AbstractSpriteHandler> s){return s->ToRemove();});
+  /* Now clean up actors */
+  mActors.remove_if([](std::shared_ptr<actor> a){return a->mRemove;});
+  return;
+}
 
 
 void level :: draw(){
-  SDL_Rect rect;
-  int rgb[3];
+  // SDL_Rect rect;
+  // int rgb[3];
 
   SDL_SetRenderTarget(_renderer, NULL);
 
@@ -64,5 +72,11 @@ void level :: draw(){
   for(auto i = mActors.begin(); i!=mActors.end(); i++){
     (*i)->draw();
   }
-  return;
+  /*  Draw all particles.*/
+  for(auto i = mParticleList.begin(); i!= mParticleList.end(); i++){
+    /* Remove the previous node if its remove flag is set */
+    (*i)->draw();
+  }
+
+ return;
 }

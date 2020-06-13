@@ -1,11 +1,13 @@
-#include "engine.h"
+#include "engine.hpp"
 #include "QueryEvent.hpp"
 #include "MoveEvent.hpp"
 #include "ServerInfo.hpp"
+#include "AbstractSpriteHandler.hpp"
 #include <cereal/archives/json.hpp>
 #include <fstream>
 
-
+/*  Globals */
+int _log_message_level = 0;
 bool _bind_next_key = false;
 std::string _next_bind_command;
 int _window_size[] = {DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT};
@@ -25,6 +27,10 @@ level _level;
 unsigned int _tick = 0;
 std::string _nickname = "big_beef";
 ServerInfo _server_info;
+std::ofstream _console_log_file;
+std::list<std::shared_ptr<AbstractSpriteHandler>> _particle_list;
+std::vector<CommandBinding> _default_bindings;
+
 
 void exit_engine(int signum) {
     //Destroy window
@@ -38,6 +44,7 @@ void exit_engine(int signum) {
     _halt = true;
     std::cout  << "\nNow exiting the BLOKE engine. Hope you had fun. Wherever you are, we at the BLOKE project hope we have made your day just a little bit brighter. See you next time around! :)\n";
     signal(SIGINT, NULL);
+    std::cout << "Received signal " << strsignal(signum) << ".\nExiting...\n";
     return;
 }
 void create_window(){
@@ -56,6 +63,16 @@ void create_window(){
   SDL_RenderPresent(_renderer);
 }
 
+/*  Reload all of our sprites */
+void ReloadSprites(){
+  _level.ReloadSprites();
+  for(auto i = _particle_list.begin(); i != _particle_list.end(); i++){
+    (*i)->ReloadSprite();
+  }
+  return;
+}
+
+
 void resize_window(int x, int y){
   _window_size[0] = x;
   _window_size[1] = y;
@@ -64,26 +81,17 @@ void resize_window(int x, int y){
     SDL_DestroyWindow(_window);
     create_window();
   }
-  _level.ReloadSprites();
+  ReloadSprites();
   return;
 }
 
-static int resizeWatcher(void *data, SDL_Event *event){
-  if(!event)
-    return 0;
-
-  if(event->type == SDL_WINDOWEVENT && event->window.event == SDL_WINDOWEVENT_RESIZED)
-    resize_window(event->window.data1, event->window.data2);
-  return 0;
-}
-
 void init_engine() {
-    int size[2];
-    char *receive_port = (char *) "8888";
 
-    _server_info;
     signal(SIGINT, exit_engine);
     SDL_Init(SDL_INIT_EVERYTHING);
+
+    /*  Set blendmode */
+    SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
 
     if (_draw) {
       create_window();
@@ -99,12 +107,13 @@ void init_engine() {
     std::thread console(console_loop);
     console.detach();
     _state = DISCONNECTED;
+    /*  Open a log file  */
+    _console_log_file.open("/tmp/bloke.log");
 
-    SDL_AddEventWatch(resizeWatcher, _window);
     return;
 }
 
-void handle_input(level *level) {
+void handle_input() {
     SDL_Event event;
     //  bool key_up = true;
     Uint8 *kb_state = NULL;
@@ -125,6 +134,12 @@ void handle_input(level *level) {
           log_message(INFO, "Successfully bound " + new_binding.command + " to " + std::to_string(new_binding.scancode));
           break;
         }
+        case SDL_WINDOWEVENT:
+          if(event.window.event == SDL_WINDOWEVENT_RESIZED){
+            _window_size[0] = event.window.data1;
+            _window_size[1] = event.window.data2;
+            _zoom = (double)(_window_size[0]) / (_level.mDimmension[0]);
+          }
         }
     }
 
@@ -170,9 +185,7 @@ void handle_input(level *level) {
 
                 }
             }
-
         }
-
 
     }
 
@@ -184,7 +197,6 @@ void handle_input(level *level) {
 
 SDL_Joystick *handle_input_controller() {
     SDL_Init(SDL_INIT_JOYSTICK);
-
     if (SDL_NumJoysticks() > 0) {
         std::cout << "Controlled connected\n ";
         return SDL_JoystickOpen(0); // return joystick identifier
@@ -267,7 +279,11 @@ void draw_screen() {
     return;
   SDL_SetRenderDrawColor(_renderer, 0x10, 0xFF, 0x00, 0xFF);
   SDL_RenderClear(_renderer);
+
   _level.draw();
+
+  _level.cleanUp();
+
   SDL_RenderPresent(_renderer);
   return;
 }
@@ -277,8 +293,20 @@ void logic_loop() {
 }
 
 void log_message(int level, std::string str) {
-    std::cout << level << str << std::endl;
+  if(level > ALL)
+    level = ALL;
+
+  /* Output to our log file */
+  _console_log_file << str << "\n";
+
+  if(level < _log_message_level){
+    /*Ignore the message*/
     return;
+  }
+  else{
+    std::cout << LOG_LEVEL_STRINGS[level] << ": " << str << std::endl;
+    return;
+  }
 }
 
 void load_config(std::string fname) {
@@ -326,6 +354,31 @@ bool handle_system_command(std::list<std::string> tokens) {
     oArchive(e);
   }
 
+  if(command == "log_level"){
+    if(tokens.size()!=2){
+      log_message(ERROR, "Command: log_level requires exactly one argument.");
+      return false;
+    }
+    else{
+      //Critical is our highest warning level
+      auto iterator = tokens.begin();
+      iterator++;
+      std::string input_string = *iterator;
+      for(unsigned int i = 0; i <= CRITICAL; i++){
+        if(input_string == LOG_LEVEL_STRINGS[i]){
+          _log_message_level = i;
+          log_message(ALL, "Log level set to " + LOG_LEVEL_STRINGS[i]);
+        }
+      }
+
+    }
+  }
+
+
+  else if(command == "quit"){
+    exit_engine(0);
+  }
+
   // if(command == "connect"){
   //   if (tokens.size() == 2){
   //     parseServerIP(std::string(tokens.back()));
@@ -334,7 +387,7 @@ bool handle_system_command(std::list<std::string> tokens) {
   //   }
   // }
 
-  if(command ==  "generate_config"){
+  else if(command ==  "generate_config"){
     if(tokens.size() == 1){
       GenerateConfig("generated_config.conf");
     }
@@ -347,7 +400,7 @@ bool handle_system_command(std::list<std::string> tokens) {
     }
   }
 
-  if(command == "resize"){
+  else if(command == "resize"){
     if(tokens.size() == 3){
       auto i = tokens.begin();
       i++;
@@ -364,7 +417,7 @@ bool handle_system_command(std::list<std::string> tokens) {
     }
   }
 
-  if(command == "bind"){
+  else if(command == "bind"){
     if(tokens.size() == 3){
       auto i = tokens.begin();
       i++;
@@ -385,7 +438,6 @@ bool handle_system_command(std::list<std::string> tokens) {
     }
 
   }
-
   return true;
 }
 

@@ -36,9 +36,10 @@ public:
   bool mRemove = false;
   actor(double, double);
   actor();
+
+
   /*Returns an enum defined by the game identifying what type of actor this is
     e.g block, bloke.*/
-  
   virtual int getType() const = 0;
 
 
@@ -88,7 +89,7 @@ public:
   void serialize(Archive &archive){
     archive(mId, mPlayerId, mPosition, mVelocity);
     
-  };
+  }
 
 };
 

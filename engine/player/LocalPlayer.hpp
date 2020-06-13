@@ -7,10 +7,11 @@
 class LocalPlayer : public AbstractPlayer{
  public:
   std::list<CommandBinding> mControlScheme;
-  
-  LocalPlayer(std::string _nickname){
+
+  LocalPlayer(std::string nickname = "player"){
     for(unsigned int i = 0; i < _default_bindings.size(); i++)
       mControlScheme.push_back(_default_bindings[i]);
+    mNickname = nickname;
     return;
   }
 
@@ -26,6 +27,6 @@ class LocalPlayer : public AbstractPlayer{
 
 };
 
-CEREAL_REGISTER_TYPE(LocalPlayer);
+CEREAL_REGISTER_TYPE(LocalPlayer)
 
 #endif

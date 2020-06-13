@@ -3,10 +3,12 @@
 #include <SDL2/SDL.h>
 #include "bloke.hpp"
 #include "bomb.hpp"
+#include "Explosion.hpp"
 
 int main (){
-
-   _default_bindings =
+  _draw=true;
+  _server=true;
+  _default_bindings =
     {{SDL_SCANCODE_W, "up"},
      {SDL_SCANCODE_S, "down"},
      {SDL_SCANCODE_A, "left"},
@@ -18,27 +20,35 @@ int main (){
 
   SDL_Init(SDL_INIT_EVERYTHING);
   init_engine();
-  _local_player_list.push_back(LocalPlayer(std::string("big_beef")));
-  cereal::JSONOutputArchive oArchive(std::cout);
 
-  std::shared_ptr<bloke> b1(new bloke(1,2));
-  _level.mActors.push_back(b1);
-  _local_player_list.back().init(b1);
-  // oArchive(b1,  _level);
+  for(unsigned int i = 0; i < 10; i++)
+    for(unsigned int j = 0; j < 10; j++){
+      _level.mParticleList.push_back(std::shared_ptr<Explosion>(new Explosion(i, j, 1, 1, 60 + i + 2*j, 600 - 2*i - j)));
+  }
 
   client_loop();
+
+  SDL_Delay(2000);
   SDL_Quit();
 
   return 0;
 }
 
 void gameUpdate(){
+  if(_tick > 600){
+    _halt=true;
+    return;
+  }
   return;
 }
 
 void new_game(std::string){
   return;
 }
+
+
+
+
 
 
 
