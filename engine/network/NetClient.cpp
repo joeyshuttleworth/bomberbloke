@@ -5,6 +5,8 @@
 #include "NetClient.hpp"
 #include <string>
 #include <iostream>
+#include "engine.hpp"
+
 
 NetClient::NetClient() {
     if (enet_initialize() != 0) {
@@ -12,7 +14,7 @@ NetClient::NetClient() {
         return;
     }
     //TODO: insert variables for host
-    this->host = enet_host_create(nullptr, 0, 0, 0, 0);
+    this->host = enet_host_create(nullptr, 1, 1, 0, 0);
 }
 
 NetClient::~NetClient() {
@@ -25,7 +27,7 @@ NetClient::~NetClient() {
 void NetClient::connectClient(std::string serverAddress, enet_uint16 port) {
     this->serverAddress = serverAddress;
     this->port = port;
-    std::cout << "attempting to connect";
+    log_message(INFO, "attempting to connect");
     enet_address_set_host(&address, this->serverAddress.c_str());
     address.port = this->port;
 
