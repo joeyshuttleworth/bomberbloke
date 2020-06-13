@@ -6,3 +6,5 @@ engine/config.cpp
 common/bloke.cpp
 common/bomb.cpp
 common/Explosion.cpp
+engine/network/NetClient.cpp
+engine/network/NetServer.cpp

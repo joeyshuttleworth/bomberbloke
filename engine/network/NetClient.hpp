@@ -26,6 +26,6 @@ private:
     ENetPeer *peer;
     ENetHost *host = nullptr;
 
-    std::string serverAddress = "localhost";
+    std::string serverAddress = "127.0.0.1";
     enet_uint16 port = 8888;
 };
