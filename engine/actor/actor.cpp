@@ -1,4 +1,4 @@
-#include "engine.h"
+#include "engine.hpp"
 #include "MoveEvent.hpp"
 #include <cereal/archives/json.hpp>
 #include <fstream>
@@ -20,8 +20,7 @@ void actor :: draw(){
 int actor :: move(double x, double y){
   double tmp_pos[2];
   bool in_level = true;
-  bool moved = true;
-  
+
   /* Are we out of the left side of the level? */
   if(x > _level.mDimmension[0] - mDimmension[0]){
     tmp_pos[0] = _level.mDimmension[0] - mDimmension[0];
@@ -37,7 +36,7 @@ int actor :: move(double x, double y){
   else{
     tmp_pos[0] = x;
   }
-  
+
   /*Are we too high?*/
   if(y > _level.mDimmension[1] - mDimmension[1]){
     tmp_pos[1] = _level.mDimmension[1]-mDimmension[1];
@@ -102,22 +101,18 @@ double actor :: get_midpoint(int index){
    return 0;
  }
 
-void actor :: handle_command(std::string str){
-  return;
-}
-
 void actor :: update(){
   return;
 }
 
-actor::actor(){ 
+actor::actor(){
   mpSprite = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 128, 128);
   SDL_SetRenderTarget(_renderer, mpSprite);
   SDL_RenderClear(_renderer);
   SDL_SetRenderDrawColor(_renderer, 0xF0, 0x12, 0x00, 0xFF);
-  SDL_RenderFillRect(_renderer, NULL);
+  SDL_RenderFillRect(_renderer, nullptr);
   SDL_RenderPresent(_renderer);
-  SDL_SetRenderTarget(_renderer, NULL);
+  SDL_SetRenderTarget(_renderer, nullptr);
   mDimmension[0] = DEFAULT_ACTOR_SIZE;
   mDimmension[1] = DEFAULT_ACTOR_SIZE;
   mRemove = false;
@@ -129,11 +124,12 @@ std::shared_ptr<AbstractPlayer> actor::getPlayer(){
     return nullptr;
   else{
     /*Perform a horrible looking search over the _player_list*/
-    auto iterator = std::find_if(_player_list.begin(), _player_list.end(), [&](std::shared_ptr<AbstractPlayer> p) -> bool {p->getId() == mPlayerId;});
+    auto iterator = std::find_if(_player_list.begin(), _player_list.end(), [&](std::shared_ptr<AbstractPlayer> p) -> bool {return p->getId() == mPlayerId;});
     if(iterator == _player_list.end()){
       /*We haven't found a player with the ID. This probably means that something has gone wrong*/
       log_message(WARNING, ("Unable to find controlling player for actor:" + std::to_string(mId)).c_str());
       return nullptr;
     }
+    return *iterator;
   }
 }

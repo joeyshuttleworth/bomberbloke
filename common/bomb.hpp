@@ -41,5 +41,5 @@ class bomb : public actor {
 };
 
 /*This is required for classes using polymorphism*/
-CEREAL_REGISTER_TYPE(bomb);
+CEREAL_REGISTER_TYPE(bomb)
 #endif

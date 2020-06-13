@@ -10,15 +10,19 @@ bool ExecFile(std::string fname){
     line_no++;
     if(handle_system_command(split_to_tokens(tmp_line))){
       log_message(ERROR, "error executing file at " + fname + ":" + std::to_string(line_no) + ". The rest of the file was not read." );
+      return false;
     };
   }
+  return true;
 }
 
 bool LoadConfig(std::string fname = "default.config"){
   log_message(DEBUG, "Reading config file " + fname +"." );
   /*TODO: Here we should default all settings and remove all command bindings*/
   ExecFile(fname);
+  return true;
 }
+
 
 /*
   Produces a list of commands which reproduce the current settings.
@@ -35,4 +39,5 @@ std::ofstream config_file(fname, std::ios::out);
 config_file << "bind " <<   i->command  << " " <<i->scancode<< "\n";
   }
   /*TODO: add every single command which could go in a config file*/
+  return true;
 }

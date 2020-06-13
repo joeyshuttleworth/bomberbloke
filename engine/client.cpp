@@ -6,7 +6,7 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include "network/NetClient.hpp"
-#include "engine.h"
+#include "engine.hpp"
 
 unsigned int _last_receive;
 bool _draw = true;
@@ -18,8 +18,8 @@ void client_loop(){
   unsigned int current=0, last;
   int delay;
   _state = PLAYING;
-  NetClient net;
-  net.connectClient(_serverIP, _port);
+  // NetClient net;
+  // net.connectClient(_serverIP, _port);
   while(!_halt){
     // if (_server){
     //   if(net.isConnected()){
@@ -32,9 +32,10 @@ void client_loop(){
      if(delay>0){
        SDL_Delay(delay);
      }
-     handle_input(&_level);
+     handle_input();
      handle_movement();
      draw_screen();
+     gameUpdate();
      _tick++;
   }
 }

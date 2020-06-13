@@ -9,7 +9,7 @@ double _bloke_size[2]     = {DEFAULT_BLOKE_SIZE, DEFAULT_BLOKE_SIZE};
 std::vector<int> _spawn_points = {5,5};
 int colours[50][3];
 
-int main (int argc, char **argv){
+int main (){
   std::shared_ptr<LocalPlayer> local_p(new LocalPlayer("big_beef"));
 
   log_message(INFO, "Bomberbloke server starting...");
@@ -25,8 +25,8 @@ int main (int argc, char **argv){
 }
 
 void new_game(std::string arguments){
-  int c=0;
   _level.mSpawnPoints = _spawn_points;
+  log_message(INFO, "Stating new game with arguments: " + arguments + ".");
   /*for(auto i = _client_list.begin(); i != _client_list.end(); i++){
      bloke b = bloke();
     if(c < (double)(_level.spawn_points.size())/2){
