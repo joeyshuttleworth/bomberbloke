@@ -30,13 +30,13 @@ public:
     void sendPacket(ENetPeer *peer, ENetPacket *packet, enet_uint8 channel = 0);
 
     void poll();
-
     /* Update the master server about us. If disconnect is true, we will disconnect from the master server
        otherwise, we will send our info to the master server.
      */
-    void updateGameMasterServer(bool disconnect);
 
-    void removeFromMasterServer();
+  void removeFromMasterServer();
+
+  bool isConnected();
 
 private:
     ENetHost *server = nullptr;
@@ -48,7 +48,8 @@ private:
     bool stop();
 
     bool init_enet();
-    enet_uint16 PORT = 4500;
+    void updateGameMasterServer(bool disconnect);
+    enet_uint16 PORT = 8888;
     std::string masterServerAddress = "http://ptsv2.com/t/faryp-1591787919/post";
 
 };

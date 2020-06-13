@@ -4,6 +4,7 @@
 
 #include "NetClient.hpp"
 #include <string>
+#include <iostream>
 
 NetClient::NetClient() {
     if (enet_initialize() != 0) {
@@ -24,10 +25,7 @@ NetClient::~NetClient() {
 void NetClient::connectClient(std::string serverAddress, enet_uint16 port) {
     this->serverAddress = serverAddress;
     this->port = port;
-
-    ENetAddress address;
-    ENetEvent event;
-    ENetPeer *peer;
+    std::cout << "attempting to connect";
     enet_address_set_host(&address, this->serverAddress.c_str());
     address.port = this->port;
 
@@ -55,19 +53,23 @@ void NetClient::disconnectClient() {
     enet_peer_disconnect(this->peer, 0);
     while (enet_host_service(this->host, &event, 3000) > 0) {
         switch (event.type) {
-            case ENET_EVENT_TYPE_RECEIVE:
-                enet_packet_destroy(event.packet);
-                break;
-            case ENET_EVENT_TYPE_DISCONNECT:
-                printf("Disconnection succeeded.\n");
-                return;
+          case ENET_EVENT_TYPE_RECEIVE:
+            enet_packet_destroy(event.packet);
+            break;
+          case ENET_EVENT_TYPE_DISCONNECT:
+            printf("Disconnection succeeded.\n");
+            return;
+          default:
+            break;
         }
     }
     //Disconnect didn't happen in three seconds, force reset peer
     enet_peer_reset(this->peer);
 }
 
-enet_uint32 rttTime() {
-    // return time of last round trip
-    return 0;
+bool NetClient::isConnected(){
+    if(&this->host != nullptr){
+        return true;
+    }
+    return false;
 }
