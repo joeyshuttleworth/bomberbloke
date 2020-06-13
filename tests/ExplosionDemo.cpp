@@ -19,16 +19,12 @@ int main (){
     };
 
   SDL_Init(SDL_INIT_EVERYTHING);
-  std::string username = "big_beef";
   init_engine();
-  _local_player_list.push_back(LocalPlayer(username));
 
-  std::shared_ptr<bloke> b1(new bloke(1,1));
-  _level.mActors.push_back(b1);
-  _local_player_list.back().init(b1);
-
-  std::shared_ptr<Explosion> exp1(new Explosion(5,5,0.8, 0.8));
-  // _particle_list.push_back(exp1);
+  for(unsigned int i = 0; i < 10; i++)
+    for(unsigned int j = 0; j < 10; j++){
+      _particle_list.push_back(std::shared_ptr<Explosion>(new Explosion(i, j, 1, 1, 60 + i + 2*j, 600 - 2*i - j)));
+  }
 
   client_loop();
 
@@ -38,6 +34,12 @@ int main (){
   return 0;
 }
 
+void gameUpdate(){
+  if(_tick > 2000){
+    return;
+  }
+  return;
+}
 
 void new_game(std::string){
   return;
