@@ -52,7 +52,6 @@ add_test(RUN_AND_CLOSE run_and_close COMMAND)
 # explosion demo
 add_executable(explosion_demo "tests/ExplosionDemo.cpp" "engine/client.cpp")
 target_link_libraries(explosion_demo CLIENT ${ENET_LIBRARIES} ${SDL2_LIBRARIES})
-add_test(EXPLOSION_DEMO explosion_demo COMMAND)
 
 # Client setup
 set(client_src "client/bomberbloke.cpp")
