@@ -18,7 +18,7 @@ void client_loop(){
   unsigned int current=0, last;
   int delay;
   _state = PLAYING;
-  NetClient net;
+  // NetClient net;
   //net.connectClient(_serverIP, _port);
   while(!_halt){
     // if (_server){
