@@ -6,8 +6,8 @@
 unsigned int _default_bomb_timer = DEFAULT_BOMB_TIMER;
 
 void bomb::init(bloke *bloke){
-  mDimmension[0]=0.5;
-  mDimmension[1]=0.5;
+  mDimmension[0]=BOMB_SIZE;
+  mDimmension[1]=BOMB_SIZE;
   mpSprite = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 128, 128);
   SDL_SetRenderTarget(_renderer, mpSprite);
   SDL_SetRenderDrawColor(_renderer, 0xFF, 0xFF, 0xFF, 0xFF);
@@ -80,7 +80,7 @@ void bomb::explode(){
       }
     }
   }
-  _particle_list.push_back(std::shared_ptr<Explosion>(new Explosion(mPosition[0], mPosition[1], 1 ,1)));
+  _particle_list.push_back(std::shared_ptr<Explosion>(new Explosion(mPosition[0] - 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), mPosition[1] - 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), 1 ,1)));
 
   mRemove = true;
 
