@@ -2,7 +2,7 @@
 // Created by dave on 08.06.20.
 //
 
-#include "engine.h"
+#include "engine.hpp"
 #include "NetServer.hpp"
 #include <enet/enet.h>
 #include <curl/curl.h>
@@ -39,9 +39,9 @@ void NetServer::poll() {
               message << "A packet of length " << event.packet->dataLength << " was received from ";
               message << event.peer->data << "on channel " << event.channelID;
               log_message(INFO, message.str());
-                /* Clean up the packet now that we're done using it. */
-                enet_packet_destroy(event.packet);
-                break;
+              /* Clean up the packet now that we're done using it. */
+              enet_packet_destroy(event.packet);
+              break;
         }
         case ENET_EVENT_TYPE_DISCONNECT:
           // Reset the peer's client information.

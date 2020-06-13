@@ -11,20 +11,21 @@
 #include <string>
 
 class NetClient {
+public:
     NetClient();
 
     ~NetClient();
-
-public:
     void connectClient(std::string serverAddress, enet_uint16 port);
 
     void disconnectClient();
-
-    enet_uint32 rttTime();
+    bool isConnected();
 
 private:
+    ENetAddress address;
+    ENetEvent event;
+    ENetPeer *peer;
     ENetHost *host = nullptr;
-    ENetPeer *peer = nullptr;
+
     std::string serverAddress = "localhost";
     enet_uint16 port = 8888;
 };
