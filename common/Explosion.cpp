@@ -5,6 +5,11 @@ void Explosion::draw(){
     return;
   }
 
+  if(mDelay > 0){
+    mDelay--;
+    return;
+  }
+
   if(_tick - mStartTick > mTimeout){
     mRemove = true;
     return;

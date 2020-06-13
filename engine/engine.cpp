@@ -297,9 +297,10 @@ void draw_screen() {
   }
 
   /* Remove particles with mRemove set! */
-  _particle_list.remove_if([](std::shared_ptr<AbstractSpriteHandler> s){return s->mRemove;});
+  _particle_list.remove_if([](std::shared_ptr<AbstractSpriteHandler> s){return s->ToRemove();});
   /* Now clean up actors */
   _level.mActors.remove_if([](std::shared_ptr<actor> a){return a->mRemove;});
+
   SDL_RenderPresent(_renderer);
   return;
 }
@@ -391,6 +392,10 @@ bool handle_system_command(std::list<std::string> tokens) {
   }
 
 
+  else if(command == "quit"){
+    exit_engine(0);
+  }
+
   // if(command == "connect"){
   //   if (tokens.size() == 2){
   //     parseServerIP(std::string(tokens.back()));
@@ -399,7 +404,7 @@ bool handle_system_command(std::list<std::string> tokens) {
   //   }
   // }
 
-  if(command ==  "generate_config"){
+  else if(command ==  "generate_config"){
     if(tokens.size() == 1){
       GenerateConfig("generated_config.conf");
     }
@@ -412,7 +417,7 @@ bool handle_system_command(std::list<std::string> tokens) {
     }
   }
 
-  if(command == "resize"){
+  else if(command == "resize"){
     if(tokens.size() == 3){
       auto i = tokens.begin();
       i++;
@@ -429,7 +434,7 @@ bool handle_system_command(std::list<std::string> tokens) {
     }
   }
 
-  if(command == "bind"){
+  else if(command == "bind"){
     if(tokens.size() == 3){
       auto i = tokens.begin();
       i++;
@@ -450,7 +455,6 @@ bool handle_system_command(std::list<std::string> tokens) {
     }
 
   }
-
   return true;
 }
 
