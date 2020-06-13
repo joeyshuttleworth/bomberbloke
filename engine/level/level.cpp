@@ -47,6 +47,14 @@ std::shared_ptr<actor> level :: GetActor(int id){
   return *iterator;
 };
 
+void level::cleanUp(){
+  /* Remove particles with mRemove set! */
+  mParticleList.remove_if([](std::shared_ptr<AbstractSpriteHandler> s){return s->ToRemove();});
+  /* Now clean up actors */
+  mActors.remove_if([](std::shared_ptr<actor> a){return a->mRemove;});
+  return;
+}
+
 
 void level :: draw(){
   SDL_Rect rect;
@@ -64,5 +72,11 @@ void level :: draw(){
   for(auto i = mActors.begin(); i!=mActors.end(); i++){
     (*i)->draw();
   }
-  return;
+  /*  Draw all particles.*/
+  for(auto i = mParticleList.begin(); i!= mParticleList.end(); i++){
+    /* Remove the previous node if its remove flag is set */
+    (*i)->draw();
+  }
+
+ return;
 }

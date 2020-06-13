@@ -108,7 +108,7 @@ const std::array<std::string, 2> _system_commands  = {"bind", "set"};
 void gameUpdate();
 
 
-
+#include "AbstractSpriteHandler.hpp"
 #include "state.h"
 #include "NetworkPlayer.hpp"
 #include "LocalPlayer.hpp"

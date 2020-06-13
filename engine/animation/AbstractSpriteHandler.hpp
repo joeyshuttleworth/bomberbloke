@@ -1,7 +1,8 @@
 #ifndef ABSTRACTSPRITEHANDLER_HPP
 #define ABSTRACTSPRITEHANDLER_HPP
 #include <SDL2/SDL.h>
-#include "engine.hpp"
+
+extern unsigned int _tick;
 
 class AbstractSpriteHandler{
 public:
@@ -57,5 +58,4 @@ protected:
   bool mRemove;
 };
 
-extern std::list<std::shared_ptr<AbstractSpriteHandler>> _particle_list;
 #endif
