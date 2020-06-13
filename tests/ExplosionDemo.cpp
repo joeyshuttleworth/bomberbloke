@@ -23,7 +23,7 @@ int main (){
 
   for(unsigned int i = 0; i < 10; i++)
     for(unsigned int j = 0; j < 10; j++){
-      _particle_list.push_back(std::shared_ptr<Explosion>(new Explosion(i, j, 1, 1, 60 + i + 2*j, 600 - 2*i - j)));
+      _level.mParticleList.push_back(std::shared_ptr<Explosion>(new Explosion(i, j, 1, 1, 60 + i + 2*j, 600 - 2*i - j)));
   }
 
   client_loop();

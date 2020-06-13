@@ -21,7 +21,7 @@ int actor :: move(double x, double y){
   double tmp_pos[2];
   bool in_level = true;
   bool moved = true;
-  
+
   /* Are we out of the left side of the level? */
   if(x > _level.mDimmension[0] - mDimmension[0]){
     tmp_pos[0] = _level.mDimmension[0] - mDimmension[0];
@@ -37,7 +37,7 @@ int actor :: move(double x, double y){
   else{
     tmp_pos[0] = x;
   }
-  
+
   /*Are we too high?*/
   if(y > _level.mDimmension[1] - mDimmension[1]){
     tmp_pos[1] = _level.mDimmension[1]-mDimmension[1];
