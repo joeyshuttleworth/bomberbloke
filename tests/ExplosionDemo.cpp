@@ -35,7 +35,8 @@ int main (){
 }
 
 void gameUpdate(){
-  if(_tick > 2000){
+  if(_tick > 600){
+    _halt=true;
     return;
   }
   return;
