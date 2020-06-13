@@ -10,7 +10,7 @@ void Explosion::draw(){
     return;
   }
 
-  if(_tick - mStartTick > mTimeout){
+  if(_tick - mStartTick >= mTimeout){
     mRemove = true;
     return;
   }

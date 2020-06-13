@@ -61,7 +61,7 @@ void create_window(){
   SDL_RenderClear(_renderer);
   SDL_RenderPresent(_renderer);
 }
-
+ 
 /*  Reload all of our sprites */
 void ReloadSprites(){
   _level.ReloadSprites();
@@ -190,9 +190,7 @@ void handle_input(level *level) {
 
                 }
             }
-
         }
-
 
     }
 
@@ -204,7 +202,6 @@ void handle_input(level *level) {
 
 SDL_Joystick *handle_input_controller() {
     SDL_Init(SDL_INIT_JOYSTICK);
-
     if (SDL_NumJoysticks() > 0) {
         std::cout << "Controlled connected\n ";
         return SDL_JoystickOpen(0); // return joystick identifier

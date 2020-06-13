@@ -32,6 +32,9 @@ int main (){
   return 0;
 }
 
+void gameUpdate(){
+  return;
+}
 
 void new_game(std::string){
   return;

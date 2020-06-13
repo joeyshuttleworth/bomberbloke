@@ -35,6 +35,7 @@ void client_loop(){
      handle_input(&_level);
      handle_movement();
      draw_screen();
+     gameUpdate();
      _tick++;
   }
 }
