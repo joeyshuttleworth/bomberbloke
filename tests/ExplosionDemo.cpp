@@ -7,7 +7,7 @@
 
 int main (){
   _draw=true;
-
+  _server=true;
   _default_bindings =
     {{SDL_SCANCODE_W, "up"},
      {SDL_SCANCODE_S, "down"},
