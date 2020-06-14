@@ -8,7 +8,6 @@
 #include "engine.hpp"
 
 
-
 NetClient::NetClient() {
     if (enet_initialize() != 0) {
         printf("ERROR: An error occurred while initializing ENet");
@@ -42,10 +41,12 @@ bool NetClient::connectClient(std::string serverAddress, enet_uint16 port) {
     if (enet_host_service(this->host, &event, 5000) > 0 &&
         event.type == ENET_EVENT_TYPE_CONNECT) {
         printf("Connection to %s%u succeeded.\n", this->serverAddress.c_str(), this->port);
+        // Send follow up message
+        sendStringMessage("game_info");
         return true;
 
     } else {
-        enet_peer_reset(peer);
+        enet_peer_reset(this->peer);
         printf("Connection to %s:%u failed.\n", this->serverAddress.c_str(), this->port);
         return false;
     }
@@ -58,22 +59,30 @@ void NetClient::disconnectClient() {
     enet_peer_disconnect(this->peer, 0);
     while (enet_host_service(this->host, &event, 3000) > 0) {
         switch (event.type) {
-          case ENET_EVENT_TYPE_RECEIVE:
-            enet_packet_destroy(event.packet);
-            break;
-          case ENET_EVENT_TYPE_DISCONNECT:
-            printf("Disconnection succeeded.\n");
-            return;
-          default:
-            break;
+            case ENET_EVENT_TYPE_RECEIVE:
+                enet_packet_destroy(event.packet);
+                break;
+            case ENET_EVENT_TYPE_DISCONNECT:
+                printf("Disconnection succeeded.\n");
+                return;
+            default:
+                break;
         }
     }
     //Disconnect didn't happen in three seconds, force reset peer
     enet_peer_reset(this->peer);
 }
 
-bool NetClient::isConnected(){
-    if(&this->host != nullptr){
+void NetClient::sendStringMessage(std::string message) {
+    ENetPacket *packet = enet_packet_create(message.c_str(), strlen(message.c_str())+1, ENET_PACKET_FLAG_RELIABLE);
+    enet_peer_send(this->peer, 0, packet);
+    enet_host_flush(this->host);
+    std::cout << "Sent Message\n";
+}
+
+
+bool NetClient::isConnected() {
+    if (&this->host != nullptr) {
         return true;
     }
     return false;
