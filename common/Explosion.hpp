@@ -8,8 +8,6 @@
 class Explosion : public AbstractSpriteHandler{
 public:
 
-  using AbstractSpriteHandler::AbstractSpriteHandler;
-
   Explosion(){
     return;
   }
