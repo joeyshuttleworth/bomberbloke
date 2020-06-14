@@ -1,24 +1,18 @@
 #include "AbstractPlayer.hpp"
 #include "actor.hpp"
+#include "engine.hpp"
 
-void AbstractPlayer::init(std::shared_ptr<actor> a){
-  mpCharacter = a;
-  return;
-}
-
-AbstractPlayer::AbstractPlayer(){
-  return;
-}
-
-AbstractPlayer::~AbstractPlayer(){
-
-  return;
-}
 
 AbstractPlayer::AbstractPlayer(std::string _nickname){
   mNickname = _nickname;
   return;
 }
 
-
-
+void AbstractPlayer::setCharacter(std::shared_ptr<actor> a){
+  if(!a){
+    log_message(WARNING, "Tried setting the player character to a null actor");
+    return;
+  }
+  mpCharacter = a;
+  return;
+}
