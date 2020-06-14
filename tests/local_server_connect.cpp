@@ -29,13 +29,17 @@ int main() {
     *  so there's no need for additional checking at this stage.
     */
     if (net_client.connectClient("127.0.0.1", 8888)) {
+        net_client.sendStringMessage("Test_Connect");
+        SDL_Delay(900);
+        net_client.sendStringMessage("ping");
+        SDL_Delay(900);
         server_thread.detach();
         //stop thread nicely, call destructor
     } else {
         server_thread.detach();
         exit(EXIT_FAILURE);
     }
-    
+
     return 0;
 }
 

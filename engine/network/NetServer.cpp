@@ -21,28 +21,59 @@ NetServer::~NetServer() {
 
 //! Poll and Handle events from ENet, by default will wait one second for an event before processing
 void NetServer::poll() {
+    std::cout << "connected";
+
     while (true) {
-        // wait one second before processing all requests
-        while (enet_host_service(this->server, &event, 1000) > 0) {
+        // wait half a second second before processing all requests
+        while (enet_host_service(this->server, &event, 500) > 0) {
             switch (event.type) {
-                case ENET_EVENT_TYPE_CONNECT: {
+                case ENET_EVENT_TYPE_RECEIVE: {
+
+                    const std::string command ((char*) event.packet->data, event.packet->dataLength);
+
+
+                    if (command == "ping"){
+                        ENetPacket * pong_packet = enet_packet_create ("pong",
+                                                                       strlen ("pong") + 1,
+                                                                       ENET_PACKET_FLAG_RELIABLE);
+                        sendPacket(event.peer, pong_packet, 0);
+                    }
+                    if (command == "ping_all"){
+                        ENetPacket * pong_packet = enet_packet_create ("pong_all!",
+                                                                       strlen ("pong_all!") + 1,
+                                                                       ENET_PACKET_FLAG_RELIABLE);
+                        broadcastPacket(pong_packet, 0);
+                    }
+                    log_message(0, "Recieved packet");
+
                     std::stringstream message;
-                    message << "A packet of length " << event.packet->dataLength << " containing ";
-                    message << event.packet->data << " was received from " << event.peer->data;
+                    message << "A packet of length " << event.packet->dataLength << " was received from '";
+                    message << event.peer->data << "' on channel: " << event.channelID;
+                    log_message(0, message.str());
+
+                    std::stringstream packet_message;
+                    packet_message << "Packet message: '" << event.packet->data << "'";
+                    log_message(0, packet_message.str());
+
+                    // handle packet hereenet_uint32
+
+                    /* Clean up the packet now that we're done using it. */
+                    enet_packet_destroy(event.packet);
+
+                    break;
+                }
+                case ENET_EVENT_TYPE_CONNECT: {
+                    log_message(0, "User Connected");
+                    std::stringstream message;
+    //message << "A packet of length " << event.packet->dataLength << " containing ";
+      //              message << event.packet->data << " was received from " << event.peer->data;
                     message << " on channel " << event.channelID << ".\n";
-                    log_message(INFO, message.str());
+                    std::cout << message.str();
+                    //log_message(INFO, message.str());
                     // TODO: Add user to user_list
                     break;
                 }
-                case ENET_EVENT_TYPE_RECEIVE: {
-                    std::stringstream message;
-                    message << "A packet of length " << event.packet->dataLength << " was received from ";
-                    message << event.peer->data << "on channel " << event.channelID;
-                    log_message(INFO, message.str());
-                    /* Clean up the packet now that we're done using it. */
-                    enet_packet_destroy(event.packet);
-                    break;
-                }
+
                 case ENET_EVENT_TYPE_DISCONNECT:
                     // Reset the peer's client information.
                     event.peer->data = NULL;

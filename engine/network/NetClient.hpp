@@ -16,7 +16,7 @@ public:
 
     ~NetClient();
     bool connectClient(std::string serverAddress, enet_uint16 port);
-
+    void sendStringMessage(std::string message);
     void disconnectClient();
     bool isConnected();
 

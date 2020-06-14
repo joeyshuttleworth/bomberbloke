@@ -3,6 +3,7 @@
 #include <SDL2/SDL.h>
 #include "bloke.hpp"
 #include "bomb.hpp"
+#include <network/NetClient.hpp>
 
 int main (){
 
@@ -20,6 +21,12 @@ int main (){
   init_engine();
   _local_player_list.push_back(LocalPlayer(std::string("big_beef")));
   cereal::JSONOutputArchive oArchive(std::cout);
+
+    NetClient net_client;
+    if(net_client.connectClient("127.0.0.1", 8888)){
+        SDL_Delay(1500);
+        net_client.sendStringMessage("follow up message");
+    }
 
   std::shared_ptr<bloke> b1(new bloke(1,2));
   _level.mActors.push_back(b1);
