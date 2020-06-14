@@ -78,7 +78,16 @@ bool actor :: is_moving(){
     return true;
 }
 
-actor :: actor(double x, double y){
+actor :: actor(double x, double y, bool collides){
+  mpSprite = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 128, 128);
+  SDL_SetRenderTarget(_renderer, mpSprite);
+  SDL_RenderClear(_renderer);
+  SDL_SetRenderDrawColor(_renderer, 0xF0, 0x12, 0x00, 0xFF);
+  SDL_RenderFillRect(_renderer, nullptr);
+  SDL_RenderPresent(_renderer);
+  SDL_SetRenderTarget(_renderer, nullptr);
+  mRemove = false;
+
   mDimmension[0] = DEFAULT_ACTOR_SIZE;
   mDimmension[1] = DEFAULT_ACTOR_SIZE;
 
@@ -86,6 +95,7 @@ actor :: actor(double x, double y){
   mPosition[1] = y;
   mVelocity[0] = 0;
   mVelocity[1] = 0;
+  mCollides = collides;
 
   return;
 }
@@ -102,20 +112,6 @@ double actor :: get_midpoint(int index){
  }
 
 void actor :: update(){
-  return;
-}
-
-actor::actor(){
-  mpSprite = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 128, 128);
-  SDL_SetRenderTarget(_renderer, mpSprite);
-  SDL_RenderClear(_renderer);
-  SDL_SetRenderDrawColor(_renderer, 0xF0, 0x12, 0x00, 0xFF);
-  SDL_RenderFillRect(_renderer, nullptr);
-  SDL_RenderPresent(_renderer);
-  SDL_SetRenderTarget(_renderer, nullptr);
-  mDimmension[0] = DEFAULT_ACTOR_SIZE;
-  mDimmension[1] = DEFAULT_ACTOR_SIZE;
-  mRemove = false;
   return;
 }
 
