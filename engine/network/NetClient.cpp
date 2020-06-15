@@ -8,6 +8,7 @@
 #include "engine.hpp"
 
 
+
 NetClient::NetClient() {
     if (enet_initialize() != 0) {
         printf("ERROR: An error occurred while initializing ENet");
@@ -24,7 +25,7 @@ NetClient::~NetClient() {
     enet_deinitialize();
 }
 
-void NetClient::connectClient(std::string serverAddress, enet_uint16 port) {
+bool NetClient::connectClient(std::string serverAddress, enet_uint16 port) {
     this->serverAddress = serverAddress;
     this->port = port;
     log_message(INFO, "attempting to connect");
@@ -35,16 +36,18 @@ void NetClient::connectClient(std::string serverAddress, enet_uint16 port) {
     this->peer = enet_host_connect(this->host, &address, 1, 0);
     if (peer == NULL) {
         fprintf(stderr, "No available peers for initiating an ENet connection.\n");
-        exit(EXIT_FAILURE);
+        return false;
     }
     // Wait up to 5 seconds for the connection attempt to succeed. */
     if (enet_host_service(this->host, &event, 5000) > 0 &&
         event.type == ENET_EVENT_TYPE_CONNECT) {
         printf("Connection to %s%u succeeded.\n", this->serverAddress.c_str(), this->port);
+        return true;
 
     } else {
         enet_peer_reset(peer);
-        printf("Connection to %s%u failed.\n", this->serverAddress.c_str(), this->port);
+        printf("Connection to %s:%u failed.\n", this->serverAddress.c_str(), this->port);
+        return false;
     }
 }
 

@@ -10,6 +10,7 @@ class bloke : public actor{
   friend bomb;
 protected:
   std::list<int> mPowerups;
+
   enum DIR{
     DIR_UP,
     DIR_RIGHT,
@@ -17,6 +18,7 @@ protected:
     DIR_LEFT,
     DIR_NONE
   };
+
   void place_bomb();
   double mMaxSpeed = double(DEFAULT_MAX_SPEED);
   int    mBombs=0;
@@ -25,9 +27,11 @@ protected:
   bool   mAccelerated;
   bool   mDirectionsHeld[4] = {false, false, false, false};
   double mAcceleration[2] = {0,0};
+
  public:
 
-  bloke(double x=1, double y=1){
+  bloke(double x=1, double y=1, bool collides = true){
+    mCollides = collides;
     mPosition[0]=x;
     mPosition[1]=y;
     std::shared_ptr<PlaceHolderSprite> sprite(new  PlaceHolderSprite(mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]));
@@ -48,7 +52,6 @@ protected:
   void handle_command(std::string command);
   void accelerate();
   void update();
-  void init(std::shared_ptr<AbstractPlayer> );
 
   /*Cereal serialisation. No info is needed that isn't provided by actor.
     We could serialise mMaxBombs, mBombKick etc here because they are

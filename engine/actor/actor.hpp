@@ -8,6 +8,7 @@
 extern SDL_Renderer *_renderer;
 
 class AbstractPlayer; class AbstractSpriteHandler;
+
 class actor{
   friend class MoveEvent;
 protected:
@@ -41,9 +42,7 @@ public:
 
   /*Flag to indicate removal when next updated*/
   bool mRemove = false;
-  actor(double, double);
-  actor();
-
+  actor(double x = 0, double y = 0, bool = false);
 
   /*Returns an enum defined by the game identifying what type of actor this is
     e.g block, bloke.*/

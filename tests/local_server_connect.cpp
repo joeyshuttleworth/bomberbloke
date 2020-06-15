@@ -5,34 +5,44 @@
 #include "bomb.hpp"
 #include "NetClient.hpp"
 #include "NetServer.hpp"
+#include <thread>
 
 
+int main() {
+    // Don't display any graphics for this test, or even create a window
+    _draw = false;
 
-int main (){
-  // Don't display any graphics for this test, or even create a window
-  _draw=false;
+    /* Create a NetClient and NetServer
+     * By default the server runs on port 8888
+     */
+    NetClient net_client;
+    NetServer net_server;
 
-  /* Create a NetClient and NetServer
-   * By default the server runs on port 8888
-   */
-  NetClient net_client;
-  NetServer net_server;
 
-  /* Wait for a few moments */
-  SDL_Delay(2000);
+    /* Wait for a few moments */
+    SDL_Delay(1000);
+    std::thread server_thread;
 
-  /* Connect to the server. If uncessful this will exit(EXIT_FAILURE)
-  *  so there's no need for additional checking at this stage.
-  */
-  net_client.connectClient("127.0.0.1", 8888);
+    server_thread = std::thread(&NetServer::poll, &net_server);
 
-  return 0;
+    /* Connect to the server. If uncessful this will exit(EXIT_FAILURE)
+    *  so there's no need for additional checking at this stage.
+    */
+    if (net_client.connectClient("127.0.0.1", 8888)) {
+        server_thread.detach();
+        //stop thread nicely, call destructor
+    } else {
+        server_thread.detach();
+        exit(EXIT_FAILURE);
+    }
+    
+    return 0;
 }
 
-void gameUpdate(){
-  return;
+void gameUpdate() {
+    return;
 }
 
-void new_game(std::string){
-  return;
+void new_game(std::string) {
+    return;
 }
