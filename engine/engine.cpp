@@ -98,7 +98,7 @@ void init_engine() {
 
     /* Initialise the controller if it exists */
     _controller = handle_input_controller();
-    _controller_connected = _controller != NULL ? true : false;
+    _controller_connected = _controller != nullptr ? true : false;
 
     _kb_state = (Uint8 *) malloc(sizeof(Uint8) * SDL_SCANCODE_APP2); //max scancode
     memset((void *) _kb_state, 0, sizeof(Uint8) * SDL_SCANCODE_APP2);
@@ -155,7 +155,13 @@ void handle_input() {
                         _system_commands.end()) {
                         handle_system_command(split_to_tokens(command_to_send)); // process system command
                     } else {
-                      i->getCharacter()->handle_command(command_to_send); // handle normal command
+                      std::cout << command_to_send << "\n";
+                      std::shared_ptr<actor> character = i->getCharacter();
+                      if(i->getCharacter())
+                        i->getCharacter()->handle_command(command_to_send); // handle normal command
+                      else{
+                        log_message(INFO, "No character connected to character");
+                      }
                     }
                 }
             }

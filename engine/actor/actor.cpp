@@ -66,7 +66,9 @@ bool actor :: is_moving(){
     return true;
 }
 
-actor :: actor(double x, double y){
+actor :: actor(double x, double y, bool collides){
+  mRemove = false;
+
   mDimmension[0] = DEFAULT_ACTOR_SIZE;
   mDimmension[1] = DEFAULT_ACTOR_SIZE;
 
@@ -74,6 +76,7 @@ actor :: actor(double x, double y){
   mPosition[1] = y;
   mVelocity[0] = 0;
   mVelocity[1] = 0;
+  mCollides = collides;
 
   return;
 }
@@ -89,10 +92,7 @@ double actor :: get_midpoint(int index){
    return 0;
  }
 
-actor::actor(){
-  mDimmension[0] = DEFAULT_ACTOR_SIZE;
-  mDimmension[1] = DEFAULT_ACTOR_SIZE;
-  mRemove = false;
+void actor :: update(){
   return;
 }
 

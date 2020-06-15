@@ -69,7 +69,7 @@ void bloke :: handle_command(std::string command){
   }
 
   if(command == "+bomb"){// && _server){
-    place_bomb();
+   place_bomb();
   }
 
   /*Command(s) that take parameters go here*/
@@ -96,7 +96,7 @@ void bloke :: update(){
 
 void bloke :: place_bomb(){
   if(mBombs<mMaxBombs){
-    std::shared_ptr<bomb> new_bomb(new bomb(round(mPosition[0])+0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), round(mPosition[1]) + 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE)));
+    std::shared_ptr<bomb> new_bomb(new bomb(round(mPosition[0])+0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), round(mPosition[1]) + 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), false));
     new_bomb->init(this);
     _pLevel->mActors.push_back(new_bomb);
     /*Output the serilisation of the bomb to std::cout*/
@@ -104,17 +104,6 @@ void bloke :: place_bomb(){
     oArchive(*new_bomb);
     mBombs++;
   }
-  return;
-}
-
-void bloke :: init(std::shared_ptr<AbstractPlayer> p = nullptr){
-  mCollides = true;
-  memset(&mPosition, 0, sizeof(double)*2);
-  memset(&mVelocity, 0, sizeof(double)*2);
-  mPosition[0] = 5;
-  mPosition[1] = 3;
-  if(p!=nullptr)
-    mPlayerId = p->getId();
   return;
 }
 

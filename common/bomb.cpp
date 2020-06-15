@@ -33,12 +33,13 @@ void bomb::handle_command(std::string command){
 }
 
 void bomb::update(){
-  /*Bomb collision is only turned on when the actor which placed it has 
+  /*Bomb collision is only turned on when the actor which placed it has
     moved away*/
   if(mPlacedById != 0){
     if(mCollides == false){
       std::shared_ptr<actor> placed_by = _pLevel->GetActor(mPlacedById);
-      if(std::abs(mPosition[0]-placed_by->mPosition[0]) > 0.5*(mDimmension[0]+placed_by->mDimmension[0])){
+      /*TODO this is wrong. Use a corner or midpoint here*/
+        if(std::abs(mPosition[0]-placed_by->mPosition[0]) > 0.5*(mDimmension[0]+placed_by->mDimmension[0])){
         mCollides=true;
       }
       else if(std::abs(mPosition[1]-placed_by->mPosition[1]) > 0.5*(mDimmension[1]+placed_by->mDimmension[1])){
