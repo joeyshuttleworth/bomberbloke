@@ -19,6 +19,7 @@ public:
     void sendStringMessage(std::string message);
     void disconnectClient();
     bool isConnected();
+    void pollServer();
 
 private:
     ENetAddress address;
@@ -28,4 +29,6 @@ private:
 
     std::string serverAddress = "127.0.0.1";
     enet_uint16 port = 8888;
+
+
 };

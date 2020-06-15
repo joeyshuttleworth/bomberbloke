@@ -25,24 +25,40 @@ void NetServer::poll() {
 
     while (true) {
         // wait half a second second before processing all requests
-        while (enet_host_service(this->server, &event, 500) > 0) {
+        while (enet_host_service(this->server, &event, 0) > 0) {
             switch (event.type) {
                 case ENET_EVENT_TYPE_RECEIVE: {
 
-                    const std::string command ((char*) event.packet->data, event.packet->dataLength);
+//                    const std::string command((char *) event.packet->data, event.packet->dataLength);
 
+                    if (std::strcmp(reinterpret_cast<const char *>(event.packet->data), "ping") == 0) {
+                        log_message(0,"Recieved ping command from peer");
 
-                    if (command == "ping"){
-                        ENetPacket * pong_packet = enet_packet_create ("pong",
-                                                                       strlen ("pong") + 1,
-                                                                       ENET_PACKET_FLAG_RELIABLE);
+                        ENetPacket *pong_packet = enet_packet_create("pong",
+                                                                     strlen("pong") + 1,
+                                                                     ENET_PACKET_FLAG_RELIABLE);
                         sendPacket(event.peer, pong_packet, 0);
+                        log_message(0,"Sent Packet to Peer");
+                        enet_host_flush(this->server);
                     }
-                    if (command == "ping_all"){
-                        ENetPacket * pong_packet = enet_packet_create ("pong_all!",
-                                                                       strlen ("pong_all!") + 1,
-                                                                       ENET_PACKET_FLAG_RELIABLE);
+                    if (std::strcmp(reinterpret_cast<const char *>(event.packet->data), "ping_all") == 0) {
+                        log_message(0,"Recieved ping all command");
+                        SDL_Delay(500);
+                        ENetPacket *pong_packet = enet_packet_create("pong_all!",
+                                                                     strlen("pong_all!") + 1,
+                                                                     ENET_PACKET_FLAG_RELIABLE);
                         broadcastPacket(pong_packet, 0);
+                        log_message(0,"Sent Packet to ALL");
+                        enet_host_flush(this->server);
+                        SDL_Delay(500);
+
+                        broadcastPacket(pong_packet, 0);
+                        log_message(0,"Sent Packet to ALL");
+                        enet_host_flush(this->server);
+                        SDL_Delay(500);
+                        broadcastPacket(pong_packet, 0);
+                        log_message(0,"Sent Packet to ALL");
+                        enet_host_flush(this->server);
                     }
                     log_message(0, "Recieved packet");
 
@@ -65,8 +81,8 @@ void NetServer::poll() {
                 case ENET_EVENT_TYPE_CONNECT: {
                     log_message(0, "User Connected");
                     std::stringstream message;
-    //message << "A packet of length " << event.packet->dataLength << " containing ";
-      //              message << event.packet->data << " was received from " << event.peer->data;
+                    //message << "A packet of length " << event.packet->dataLength << " containing ";
+                    //              message << event.packet->data << " was received from " << event.peer->data;
                     message << " on channel " << event.channelID << ".\n";
                     std::cout << message.str();
                     //log_message(INFO, message.str());
@@ -110,46 +126,48 @@ bool NetServer::stop() {
     return 0;
 }
 
-void NetServer::removeFromMasterServer(){
-  updateGameMasterServer(true);
-  // printf("%s disconnected.\n", event.peer->data);
+void NetServer::removeFromMasterServer() {
+    updateGameMasterServer(true);
+    // printf("%s disconnected.\n", event.peer->data);
 }
 
-void NetServer::updateGameMasterServer(bool disconnect)
-{
+void NetServer::updateGameMasterServer(bool disconnect) {
     CURL *curl;
     CURLcode res;
-    if(!disconnect){
-    /* In windows, this will init the winsock stuff */
-    curl_global_init(CURL_GLOBAL_ALL);
-    
-    curl = curl_easy_init();
-    if(curl) {
-        curl_easy_setopt(curl, CURLOPT_URL, this->masterServerAddress.c_str());
-        //TODO: update with proper data
-        std::string postData = "param1=value1&param2=value2";
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, "name=Server&project=Bomberbloke");
+    if (!disconnect) {
+        /* In windows, this will init the winsock stuff */
+        curl_global_init(CURL_GLOBAL_ALL);
 
-        /* Perform the request, res will get the return code */
-        res = curl_easy_perform(curl);
-        /* Check for errors */
-        if(res != CURLE_OK){
-            fprintf(stderr, "\ncurl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+        curl = curl_easy_init();
+        if (curl) {
+            curl_easy_setopt(curl, CURLOPT_URL, this->masterServerAddress.c_str());
+            //TODO: update with proper data
+            std::string postData = "param1=value1&param2=value2";
+            curl_easy_setopt(curl, CURLOPT_POSTFIELDS, "name=Server&project=Bomberbloke");
+
+            /* Perform the request, res will get the return code */
+            res = curl_easy_perform(curl);
+            /* Check for errors */
+            if (res != CURLE_OK) {
+                fprintf(stderr, "\ncurl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+            } else {
+                printf("\nSuccessfully updated game server at: %s\n", this->masterServerAddress.c_str());
+            }
+            curl_easy_cleanup(curl);
         }
-        else {
-            printf("\nSuccessfully updated game server at: %s\n", this->masterServerAddress.c_str());
-        }
-        curl_easy_cleanup(curl);
-      }
-      curl_global_cleanup();
-    }
-    else
+        curl_global_cleanup();
+    } else
         return;
 }
 
 void NetServer::broadcastPacket(ENetPacket *packet, enet_uint8 channel) {
-    enet_host_broadcast(this->server, channel, packet);
-
+    if (clientCount() == 0) {
+        log_message(0, "ERROR: No Clients COnnected, Could not Broadcast Message!");
+    }
+    else {
+        enet_host_broadcast(this->server, channel, packet);
+        enet_host_flush(this->server);
+    }
 }
 
 void NetServer::sendPacket(ENetPeer *peer, ENetPacket *packet, enet_uint8 channel) {

@@ -25,7 +25,9 @@ int main (){
     NetClient net_client;
     if(net_client.connectClient("127.0.0.1", 8888)){
         SDL_Delay(1500);
-        net_client.sendStringMessage("follow up message");
+        net_client.sendStringMessage("ping_all");
+        net_client.pollServer();
+
     }
 
   std::shared_ptr<bloke> b1(new bloke(1,2));
