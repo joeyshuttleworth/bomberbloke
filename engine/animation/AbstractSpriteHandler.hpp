@@ -3,17 +3,16 @@
 #include <SDL2/SDL.h>
 
 extern unsigned int _tick;
-
+class Camera;
 class AbstractSpriteHandler{
 public:
 
   AbstractSpriteHandler(){
     return;
   }
+  virtual void draw(Camera*) = 0;
 
-  virtual void draw() = 0;
-
-  AbstractSpriteHandler(double x_pos, double y_pos, double x_dim, double y_dim, int speed = 300, int timeout = 600, int delay = 0){
+  AbstractSpriteHandler(double x_pos, double y_pos, double x_dim, double y_dim, int speed = 300, int timeout = 0, int delay = 0){
    mPosition[0] = x_pos;
    mPosition[1] = y_pos;
    mDimmension[0] = x_dim;
@@ -23,7 +22,6 @@ public:
    mTimeout = timeout;
    mRemove = false;
    mDelay = delay;
-   /*  This sprite is probably too big */
    return;
   }
 
@@ -41,11 +39,17 @@ public:
   bool ToRemove(){
     if(mRemove)
       return true;
-    if(_tick - mStartTick > mTimeout){
+    if(_tick - mStartTick > mTimeout && mTimeout != 0){
       return true;
     }
     else
       return false;
+  }
+
+  virtual void update(double coords[]){
+    mPosition[0] = coords[0];
+    mPosition[1] = coords[1];
+    return;
   }
 
 protected:

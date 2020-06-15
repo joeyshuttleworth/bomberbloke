@@ -8,8 +8,6 @@
 class Explosion : public AbstractSpriteHandler{
 public:
 
-  using AbstractSpriteHandler::AbstractSpriteHandler;
-
   Explosion(){
     return;
   }
@@ -22,7 +20,7 @@ public:
 
   /*  In draw() we program a simple flash between red and white. */
 
-  void draw();
+  void draw(Camera*);
 
 protected:
 };
