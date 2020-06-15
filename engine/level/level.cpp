@@ -1,39 +1,27 @@
 #include "engine.hpp"
+#include "Camera.hpp"
 
-level :: level(){
-  mDimmension[0] = 10;
-  mDimmension[1] = 10;
-  /*The SDL_TEXTUREACCESSTARGET flag allows us to modify this sprite*/
-  mpSprite = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET,1024, 1024);
-  SDL_SetRenderTarget(_renderer, mpSprite);
-  SDL_SetRenderDrawColor(_renderer, 0, 0xa0, 0xFF, 0xFF);
-  SDL_RenderClear(_renderer);
-  SDL_RenderFillRect(_renderer, NULL);
-  SDL_RenderPresent(_renderer);
-  SDL_SetRenderTarget(_renderer, NULL);
-  return;
+level :: level(double x, double y){
+  mDimmension[0] = x;
+  mDimmension[1] = y;
+  // /*The SDL_TEXTUREACCESSTARGET flag allows us to modify this sprite*/
+  // // mpSprite = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET,1024, 1024);
+  // SDL_SetRenderTarget(_renderer, mpSprite);
+  // SDL_SetRenderDrawColor(_renderer, 0, 0xa0, 0xFF, 0xFF);
+  // SDL_RenderClear(_renderer);
+  // SDL_RenderFillRect(_renderer, NULL);
+  // SDL_RenderPresent(_renderer);
+  // SDL_SetRenderTarget(_renderer, NULL);
+  
+    return;
 }
 
 level :: ~level(){
   return;
 }
 
-level :: level(const level &lvl){
-  mpSprite = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 1024, 1024);
-  memcpy(mpSprite, lvl.mpSprite, sizeof(SDL_Surface));
-}
-
 void level :: ReloadSprites(){
-  if(mpSprite)
-    SDL_DestroyTexture(mpSprite);
-  mpSprite = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET,1024, 1024);
-  SDL_SetRenderTarget(_renderer, mpSprite);
-  SDL_SetRenderDrawColor(_renderer, 0, 0xa0, 0xFF, 0xFF);
-  SDL_RenderClear(_renderer);
-  SDL_RenderFillRect(_renderer, NULL);
-  SDL_RenderPresent(_renderer);
-
-  for(auto i = mActors.begin(); i != mActors.end(); i++){
+    for(auto i = mActors.begin(); i != mActors.end(); i++){
     (*i)->ReloadSprite();
   }
 
@@ -56,27 +44,36 @@ void level::cleanUp(){
 }
 
 
-void level :: draw(){
-  // SDL_Rect rect;
-  // int rgb[3];
-
-  SDL_SetRenderTarget(_renderer, NULL);
-
-  if(!mpSprite){
-    mpSprite = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 1024, 1024);
+void level :: draw(Camera *cam){
+  if(!cam){
+    log_message(ERROR, "Attempted to draw with null camera object!");
+    return;
   }
 
-  SDL_RenderCopy(_renderer, mpSprite, NULL, NULL);
+  SDL_SetRenderTarget(_renderer, cam->getFrameBuffer());
 
-    //Next draw each actor
+  SDL_SetRenderDrawColor(_renderer, 0x00, 0x10, 0xff, 0xff);
+  SDL_RenderFillRect(_renderer, nullptr);
+
+  //Next draw each actor
   for(auto i = mActors.begin(); i!=mActors.end(); i++){
-    (*i)->draw();
+    (*i)->draw(cam);
   }
+
   /*  Draw all particles.*/
   for(auto i = mParticleList.begin(); i!= mParticleList.end(); i++){
     /* Remove the previous node if its remove flag is set */
-    (*i)->draw();
+    (*i)->draw(cam);
   }
 
  return;
+}
+
+/* TODO: move all update and movement code into this method  */
+void level :: update(){
+  for(auto i = mActors.begin(); i != mActors.end(); i++){
+    // (*i)->update();
+    (*i)->updateSprite();
+  }
+  return;
 }
