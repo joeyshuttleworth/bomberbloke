@@ -4,6 +4,8 @@
 #include <SDL2/SDL.h>
 #include <memory>
 
+#include "ColliderFrame.hpp"
+
 extern SDL_Renderer *_renderer;
 
 class AbstractPlayer;
@@ -56,6 +58,8 @@ public:
   double mPosition[2];
   double mDimmension[2];
   double mVelocity[2];
+  
+  ColliderFrame mColliderFrame;
 
 
   virtual void ReloadSprite(){

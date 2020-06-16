@@ -206,31 +206,43 @@ SDL_Joystick *handle_input_controller() {
 
 bool handle_collision(std::shared_ptr<actor> a, std::shared_ptr<actor> b) {
     bool collision = true;
-    double a_tmp_midpoint[2] = {a->get_midpoint(0), a->get_midpoint(1)}; 
-    double b_midpoint[2] = {b->get_midpoint(0), b->get_midpoint(1)};
-    double distance[2];
-    if (!a->is_moving())
-        return false;
-    for (int i = 0; i < 2; i++) {
-        a_tmp_midpoint[i] = a_tmp_midpoint[i] + a->mVelocity[i];
-        if ((distance[i] = std::abs(a_tmp_midpoint[i] - b_midpoint[i])) >
-            double(0.5 * (a->mDimmension[i] + b->mDimmension[i]))) {
+    
+    std::vector<double> aPosition = {a->mPosition[0], a->mPosition[1]};
+    std::vector<double> bPosition = {b->mPosition[0], b->mPosition[1]};
+    
+    // Test axes normal to actor a
+    // TODO: Move test axis generation into ColliderFrame
+    int aNVertices =  a->mColliderFrame.mFrameVertices.size();
+    for (int i = 0; i < aNVertices - 1; i++) {
+        // Normal axis is given (-y, x) where (x, y) = v2 - v1
+        std::vector<double> axis = {
+            a->mColliderFrame.mFrameVertices[i][1] - a->mColliderFrame.mFrameVertices[i + 1][1],
+            a->mColliderFrame.mFrameVertices[i + 1][0] - a->mColliderFrame.mFrameVertices[i][0]
+        };
+        
+        std::pair<double, double> aProjVal = a->mColliderFrame.projectOntoAxis(axis, aPosition);
+        std::pair<double, double> bProjVal = b->mColliderFrame.projectOntoAxis(axis, bPosition);
+        
+        if (aProjVal.second < bProjVal.first || aProjVal.first > bProjVal.second)
             collision = false;
-            break;
-        }
     }
-    if (collision) {
-        int x_iter = 1;
-        int i = 0;
-        if (distance[1] > distance[0])
-            i = 1;
-        if (a->mVelocity[i] < 0)
-            x_iter = -1;
-        a_tmp_midpoint[i] = a_tmp_midpoint[i] - x_iter * (1e-8 + (a->mDimmension[i] + b->mDimmension[i]) * 0.5 -
-                                                std::abs(a_tmp_midpoint[i] - b_midpoint[i]));
-        a->mVelocity[i] = 0;
-        a->move(a_tmp_midpoint[0] - a->mDimmension[0] / 2, a_tmp_midpoint[1] - a->mDimmension[1] / 2);
+    
+    // Test axes normal to actor b
+    int bNVertices =  b->mColliderFrame.mFrameVertices.size();
+    for (int i = 0; i < aNVertices - 1; i++) {
+        // Normal axis is given (-y, x) where (x, y) = v2 - v1
+        std::vector<double> axis = {
+            b->mColliderFrame.mFrameVertices[i][1] - a->mColliderFrame.mFrameVertices[i + 1][1],
+            b->mColliderFrame.mFrameVertices[i + 1][0] - a->mColliderFrame.mFrameVertices[i][0]
+        };
+    
+        std::pair<double, double> aProjVal = a->mColliderFrame.projectOntoAxis(axis, aPosition);
+        std::pair<double, double> bProjVal = b->mColliderFrame.projectOntoAxis(axis, bPosition);
+    
+        if (aProjVal.second < bProjVal.first || aProjVal.first > bProjVal.second)
+            collision = false;
     }
+    
     return collision;
 }
 
