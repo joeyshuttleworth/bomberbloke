@@ -70,7 +70,7 @@ void bloke :: handle_command(std::string command){
   }
 
   if(command == "+bomb"){// && _server){
-    place_bomb();
+   place_bomb();
   }
 
   /*Command(s) that take parameters go here*/
@@ -105,17 +105,6 @@ void bloke :: place_bomb(){
     oArchive(*new_bomb);
     mBombs++;
   }
-  return;
-}
-
-void bloke :: init(std::shared_ptr<AbstractPlayer> p = nullptr){
-  mCollides = true;
-  memset(&mPosition, 0, sizeof(double)*2);
-  memset(&mVelocity, 0, sizeof(double)*2);
-  mPosition[0] = 5;
-  mPosition[1] = 3;
-  if(p!=nullptr)
-    mPlayerId = p->getId();
   return;
 }
 
