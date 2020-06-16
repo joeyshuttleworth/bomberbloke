@@ -229,7 +229,7 @@ bool handle_collision(std::shared_ptr<actor> a, std::shared_ptr<actor> b) {
     
     // Test axes normal to actor b
     int bNVertices =  b->mColliderFrame.mFrameVertices.size();
-    for (int i = 0; i < aNVertices - 1; i++) {
+    for (int i = 0; i < bNVertices - 1; i++) {
         // Normal axis is given (-y, x) where (x, y) = v2 - v1
         std::vector<double> axis = {
             b->mColliderFrame.mFrameVertices[i][1] - a->mColliderFrame.mFrameVertices[i + 1][1],
