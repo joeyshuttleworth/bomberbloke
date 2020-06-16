@@ -10,7 +10,7 @@ extern SDL_Renderer *_renderer;
 
 class AbstractPlayer;
 
-class actor{
+class actor: public ColliderFrame {
   friend class MoveEvent;
 protected:
   SDL_Texture *mpSprite = NULL;
@@ -54,11 +54,8 @@ public:
 
 
   /*Position is the bottom left hand side of the actor */
-  double mPosition[2];
   double mDimmension[2];
   double mVelocity[2] = {0,0};
-
-  ColliderFrame mColliderFrame;
 
 
   virtual void ReloadSprite(){

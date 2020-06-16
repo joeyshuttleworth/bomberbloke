@@ -10,13 +10,13 @@ double _vectorProduct(dvector vec1, dvector vec2) {
      */
 
     if (vec1.size() != vec2.size()) {
-      #ifdef __GNUG__
-      std::stringstream msg;
-      msg << "Vectors different sizes in " << std::string(__func__) << std::endl;
-      #else
-      msg << "Vectors different sizes in " << std::string(__PRETTY_FUNCTION__) << std::endl;
-      #endif
-      throw std::invalid_argument(msg.str());
+        #ifdef __GNUG__
+        std::stringstream msg;
+        msg << "Vectors different sizes in " << std::string(__func__) << std::endl;
+        #else
+        msg << "Vectors different sizes in " << std::string(__PRETTY_FUNCTION__) << std::endl;
+        #endif
+        throw std::invalid_argument(msg.str());
     }
 
     double dot = 0;
@@ -42,11 +42,11 @@ double _vectorNorm(dvector vec) {
 
 ColliderFrame::ColliderFrame() {}
 
-ColliderFrame::ColliderFrame(matrix vertices) {
+ColliderFrame::ColliderFrame(std::vector<dvector> vertices) {
     mFrameVertices = vertices;
 }
 
-std::pair<double, double> ColliderFrame::projectOntoAxis(dvector axis, dvector position) {
+std::array<double, 2> ColliderFrame::projectOntoAxis(dvector axis) {
     /**
      * Projects collider frame onto axis, returns interval as a pair of doubles
      */
@@ -61,15 +61,65 @@ std::pair<double, double> ColliderFrame::projectOntoAxis(dvector axis, dvector p
             maxValue = projectionValue;
     }
 
+    // TODO: Change mPosition to dvector
+    dvector position = {{mPosition[0], mPosition[1]}};
     double positionProjection = _vectorProduct(position, axis);
 
     // Normalise values to calcualte projection for normalised axis
     double axisNorm = _vectorNorm(axis);
 
-    std::pair<double, double> retVal(
+    std::array<double, 2> retVal = {{
         (minValue + positionProjection) / axisNorm,
         (maxValue + positionProjection) / axisNorm
-    );
+    }};
+
+    return retVal;
+}
+
+std::array<double, 2> ColliderFrame::testNormalAxes(std::shared_ptr<ColliderFrame> collider) {
+    double minTransMagnitude = -1;
+    std::array<double, 2> minTransDirection= {{0.0, 0.0}};
+
+    int nVertices =  mFrameVertices.size();
+    for (int i = 0; i < nVertices; i++) {
+        // Normal axis is given (-y, x) where (x, y) = v2 - v1
+        std::array<double, 2> axis = {{
+            mFrameVertices[i][1] - mFrameVertices[i+1 % nVertices][1],
+            mFrameVertices[i+1 % nVertices][0] - mFrameVertices[i][0]
+        }};
+
+        std::array<double, 2> selfProjVal = projectOntoAxis(axis);
+        std::array<double, 2> colliderProjVal = collider->projectOntoAxis(axis);
+
+        // std::cout << " " << std::endl;
+        // std::cout << selfProjVal[0] << " " << selfProjVal[1] << std::endl;
+        // std::cout << colliderProjVal[0] << " " << colliderProjVal[1] << std::endl;
+
+        if (selfProjVal[1] > colliderProjVal[0] && selfProjVal[0] < colliderProjVal[1]) {
+            // std::cout << "in 1" << std::endl;
+            if (selfProjVal[1] - colliderProjVal[0] < minTransMagnitude || minTransMagnitude == -1) {
+                minTransMagnitude = selfProjVal[1] - colliderProjVal[0];
+                minTransDirection = axis;
+            }
+        } else if (colliderProjVal[1] > selfProjVal[0] && colliderProjVal[0] < selfProjVal[1]) {
+            // std::cout << "in 2" << std::endl;
+            if (colliderProjVal[1] - selfProjVal[0] < minTransMagnitude || minTransMagnitude == -1) {
+                minTransMagnitude = colliderProjVal[1] - selfProjVal[0];
+                minTransDirection = {{-axis[0], -axis[1]}};
+            }
+        } else {
+            // Separating axis obtained
+            return {{0.0, 0.0}};
+        }
+    }
+
+    double directionNorm = _vectorNorm(minTransDirection);
+    // Flip x-direction such that it points in the direction that self must
+    // move to correct the collision
+    std::array<double, 2> retVal = {{
+        minTransDirection[0] * minTransMagnitude / directionNorm,
+        minTransDirection[1] * minTransMagnitude / directionNorm
+    }};
 
     return retVal;
 }
