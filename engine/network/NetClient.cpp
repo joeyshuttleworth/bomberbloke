@@ -58,7 +58,7 @@ void NetClient::pollServer(){
         // event occured
         if (res > 0) {
         if (event.type == ENET_EVENT_TYPE_RECEIVE) {
-            std::cout << "noice;";
+          log_message(DEBUG, "client received packet");
     }
 }
 }}
