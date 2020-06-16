@@ -86,6 +86,13 @@ actor :: actor(double x, double y){
   mPosition[1] = y;
   mVelocity[0] = 0;
   mVelocity[1] = 0;
+  
+  mColliderFrame = ColliderFrame({
+    {0.0, 0.0},
+    {0.0, DEFAULT_ACTOR_SIZE},
+    {DEFAULT_ACTOR_SIZE, DEFAULT_ACTOR_SIZE},
+    {DEFAULT_ACTOR_SIZE, 0.0}
+  });
 
   return;
 }
@@ -116,6 +123,14 @@ actor::actor(){
   mDimmension[0] = DEFAULT_ACTOR_SIZE;
   mDimmension[1] = DEFAULT_ACTOR_SIZE;
   mRemove = false;
+
+  mColliderFrame = ColliderFrame({
+    {0.0, 0.0},
+    {0.0, DEFAULT_ACTOR_SIZE},
+    {DEFAULT_ACTOR_SIZE, DEFAULT_ACTOR_SIZE},
+    {DEFAULT_ACTOR_SIZE, 0.0}
+  });
+
   return;
 }
 
