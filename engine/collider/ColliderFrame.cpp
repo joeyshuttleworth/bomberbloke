@@ -6,14 +6,14 @@ double _vectorProduct(dvector vec1, dvector vec2) {
     /**
      * Computes dot product of two double vectors
      */
-     
+
     // TODO: Handle erroneous case where dim v1 =/= dim v2
     // if (vec1.size() != vec2.size()) {
     //     return;
     // }
 
     double dot = 0;
-    for (int i = 0; i < vec1.size(); i++) {
+    for (unsigned int i = 0; i < vec1.size(); i++) {
         dot += vec1[i] * vec2[i];
     }
 
@@ -25,11 +25,11 @@ double _vectorNorm(dvector vec) {
      * Computes Euclidean norm of double vector
      */
     double normVal = 0;
-    for (int i = 0; i < vec.size(); i++) {
+    for (unsigned int i = 0; i < vec.size(); i++) {
         normVal += vec[i] * vec[i];
     }
     normVal = std::sqrt(normVal);
-    
+
     return normVal;
 }
 
@@ -53,12 +53,12 @@ std::pair<double, double> ColliderFrame::projectOntoAxis(dvector axis, dvector p
         if (projectionValue > maxValue)
             maxValue = projectionValue;
     }
-    
+
     double positionProjection = _vectorProduct(position, axis);
-    
+
     // Normalise values to calcualte projection for normalised axis
     double axisNorm = _vectorNorm(axis);
-    
+
     std::pair<double, double> retVal(
         (minValue + positionProjection) / axisNorm,
         (maxValue + positionProjection) / axisNorm
