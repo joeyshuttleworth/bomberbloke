@@ -16,7 +16,7 @@ _local_player_list.push_back(LocalPlayer(username));
 
 std::shared_ptr<bloke> b1(new bloke(5,5));
 _level.mActors.push_back(b1);
-_local_player_list.back().init(b1);
+_local_player_list.back().setCharacter(b1);
 
 _halt = true;
 client_loop();
