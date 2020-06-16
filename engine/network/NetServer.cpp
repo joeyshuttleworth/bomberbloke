@@ -4,6 +4,7 @@
 
 #include "engine.hpp"
 #include "NetServer.hpp"
+#include "engine.hpp"
 #include <enet/enet.h>
 #include <curl/curl.h>
 #include <string>
@@ -23,7 +24,7 @@ NetServer::~NetServer() {
 void NetServer::poll() {
     std::cout << "connected";
 
-    while (true) {
+    while (!_halt) {
         // wait half a second second before processing all requests
         while (enet_host_service(this->server, &event, 0) > 0) {
             switch (event.type) {
