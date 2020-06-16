@@ -1,20 +1,23 @@
-#ifndef COLLIDER_HPP
-#define COLLIDER_HPP
+#ifndef COLLIDER_FRAME_HPP
+#define COLLIDER_FRAME_HPP
 
 #include <utility>
+#include <array>
 #include <vector>
 
-using matrix = std::vector<std::vector<double>>;
-using dvector = std::vector<double>;
+using dvector = std::array<double, 2>;
 
 class ColliderFrame {
 public:
-    matrix mFrameVertices;
-    
-    std::pair<double, double> projectOntoAxis(dvector axis, dvector centre);
+    // TODO: Change mPosition to dvector
+    double mPosition[2];
+    std::vector<dvector> mFrameVertices;
+
+    std::array<double, 2> projectOntoAxis(dvector axis);
+    std::array<double, 2> testNormalAxes(std::shared_ptr<ColliderFrame> collider);
 
     ColliderFrame();
-    ColliderFrame(matrix vertices);
+    ColliderFrame(std::vector<dvector> vertices);
 };
 
 #endif
