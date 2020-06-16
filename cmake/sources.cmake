@@ -8,3 +8,4 @@ common/bomb.cpp
 common/Explosion.cpp
 engine/network/NetClient.cpp
 engine/network/NetServer.cpp
+engine/collider/ColliderFrame.cpp
