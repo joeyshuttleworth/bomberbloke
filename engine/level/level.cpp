@@ -56,6 +56,50 @@ void level::cleanUp(){
 }
 
 
+void level::handleMovement(){
+  /*Iterate over all moving actors*/
+    for (auto i = _level.mActors.begin(); i != _level.mActors.end(); i++) {
+        bool collision = false;
+        std::array<double,4> seperation_vectors;
+        /*Update actors*/
+
+        (*i)->update();
+
+        if (!(*i)->is_moving())
+            continue;
+        if ((*i)->mCollides == false)
+            (*i)->move((*i)->mPosition[0] + (*i)->mVelocity[0], (*i)->mPosition[1] + (*i)->mVelocity[1]);
+
+        else {
+            /*Check for collisions*/
+            for (auto j = _level.mActors.begin(); j != _level.mActors.end(); j++) {
+                if (i == j)
+                    continue;
+                if ((*j)->mCollides == true){
+                  seperation_vectors = detectCollision(*i, *j);
+                  unsigned int non_zeros = 0;
+                  for(unsigned int i = 0; i < 4; i++){
+                    if(seperation_vectors[i]!=0)
+                      non_zeros++;
+                  }
+                  if(non_zeros>0){
+                    collision = true;
+                    break;
+                  }
+                }
+                if (collision)
+                  break;
+            }
+        }
+        if (!collision)
+          (*i)->move((*i)->mPosition[0] + (*i)->mVelocity[0], (*i)->mPosition[1] + (*i)->mVelocity[1]);
+        else{
+          /* TODO apply seperation vectors to the actors */
+        }
+    }
+    return;
+}
+
 void level :: draw(){
   // SDL_Rect rect;
   // int rgb[3];
@@ -79,4 +123,51 @@ void level :: draw(){
   }
 
  return;
+}
+
+
+ std::array<double,4> level::detectCollision(std::shared_ptr<actor> a, std::shared_ptr<actor> b){
+    bool collision = true;
+    std::array<double, 4> seperation_vector = {0,0,0,0};
+    std::vector<double> aPosition = {a->mPosition[0], a->mPosition[1]};
+    std::vector<double> bPosition = {b->mPosition[0], b->mPosition[1]};
+
+    // Test axes normal to actor a
+    // TODO: Move test axis generation into ColliderFrame
+    int aNVertices =  a->mColliderFrame.mFrameVertices.size();
+    for (int i = 0; i < aNVertices - 1; i++) {
+        // Normal axis is given (-y, x) where (x, y) = v2 - v1
+        std::vector<double> axis = {
+            a->mColliderFrame.mFrameVertices[i][1] - a->mColliderFrame.mFrameVertices[i + 1][1],
+            a->mColliderFrame.mFrameVertices[i + 1][0] - a->mColliderFrame.mFrameVertices[i][0]
+        };
+
+        std::pair<double, double> aProjVal = a->mColliderFrame.projectOntoAxis(axis, aPosition);
+        std::pair<double, double> bProjVal = b->mColliderFrame.projectOntoAxis(axis, bPosition);
+
+        if (aProjVal.second < bProjVal.first || aProjVal.first > bProjVal.second)
+            collision = false;
+    }
+
+    // Test axes normal to actor b
+    int bNVertices =  b->mColliderFrame.mFrameVertices.size();
+    for (int i = 0; i < bNVertices - 1; i++) {
+        // Normal axis is given (-y, x) where (x, y) = v2 - v1
+        std::vector<double> axis = {
+            b->mColliderFrame.mFrameVertices[i][1] - a->mColliderFrame.mFrameVertices[i + 1][1],
+            b->mColliderFrame.mFrameVertices[i + 1][0] - a->mColliderFrame.mFrameVertices[i][0]
+        };
+
+        std::pair<double, double> aProjVal = a->mColliderFrame.projectOntoAxis(axis, aPosition);
+        std::pair<double, double> bProjVal = b->mColliderFrame.projectOntoAxis(axis, bPosition);
+
+        if (aProjVal.second < bProjVal.first || aProjVal.first > bProjVal.second){
+            collision = false;
+        }
+    }
+    /*  TODO: compute seperation vectors */
+    if(collision){
+      seperation_vector[0]=1;
+    }
+    return seperation_vector;
 }

@@ -211,10 +211,10 @@ SDL_Joystick *handle_input_controller() {
 
 bool handle_collision(std::shared_ptr<actor> a, std::shared_ptr<actor> b) {
     bool collision = true;
-    
+
     std::vector<double> aPosition = {a->mPosition[0], a->mPosition[1]};
     std::vector<double> bPosition = {b->mPosition[0], b->mPosition[1]};
-    
+
     // Test axes normal to actor a
     // TODO: Move test axis generation into ColliderFrame
     int aNVertices =  a->mColliderFrame.mFrameVertices.size();
@@ -224,14 +224,14 @@ bool handle_collision(std::shared_ptr<actor> a, std::shared_ptr<actor> b) {
             a->mColliderFrame.mFrameVertices[i][1] - a->mColliderFrame.mFrameVertices[i + 1][1],
             a->mColliderFrame.mFrameVertices[i + 1][0] - a->mColliderFrame.mFrameVertices[i][0]
         };
-        
+
         std::pair<double, double> aProjVal = a->mColliderFrame.projectOntoAxis(axis, aPosition);
         std::pair<double, double> bProjVal = b->mColliderFrame.projectOntoAxis(axis, bPosition);
-        
+
         if (aProjVal.second < bProjVal.first || aProjVal.first > bProjVal.second)
             collision = false;
     }
-    
+
     // Test axes normal to actor b
     int bNVertices =  b->mColliderFrame.mFrameVertices.size();
     for (int i = 0; i < bNVertices - 1; i++) {
@@ -240,51 +240,14 @@ bool handle_collision(std::shared_ptr<actor> a, std::shared_ptr<actor> b) {
             b->mColliderFrame.mFrameVertices[i][1] - a->mColliderFrame.mFrameVertices[i + 1][1],
             b->mColliderFrame.mFrameVertices[i + 1][0] - a->mColliderFrame.mFrameVertices[i][0]
         };
-    
+
         std::pair<double, double> aProjVal = a->mColliderFrame.projectOntoAxis(axis, aPosition);
         std::pair<double, double> bProjVal = b->mColliderFrame.projectOntoAxis(axis, bPosition);
-    
+
         if (aProjVal.second < bProjVal.first || aProjVal.first > bProjVal.second)
             collision = false;
     }
-    
     return collision;
-}
-
-void handle_movement() {
-    /*Iterate over all moving actors*/
-    for (auto i = _level.mActors.begin(); i != _level.mActors.end(); i++) {
-        bool collision = false;
-
-        /*Update actors*/
-
-        (*i)->update();
-
-        if (!(*i)->is_moving())
-            continue;
-        if ((*i)->mCollides == false)
-            (*i)->move((*i)->mPosition[0] + (*i)->mVelocity[0], (*i)->mPosition[1] + (*i)->mVelocity[1]);
-
-        else {
-
-            /*Check for collisions*/
-
-            for (auto j = _level.mActors.begin(); j != _level.mActors.end(); j++) {
-                if (i == j)
-                    continue;
-                if ((*j)->mCollides == true)
-                    if (handle_collision(*i, *j)) {
-                        collision = true;
-                        break;
-                    }
-                if (collision)
-                    break;
-            }
-            if (!collision)
-                (*i)->move((*i)->mPosition[0] + (*i)->mVelocity[0], (*i)->mPosition[1] + (*i)->mVelocity[1]);
-        }
-    }
-    return;
 }
 
 void draw_hud() {

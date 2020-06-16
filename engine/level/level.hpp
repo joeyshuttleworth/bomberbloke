@@ -66,8 +66,27 @@ public:
   *
   *   TODO: Make this protected
   */
-  
+
   void cleanUp();
+
+  /**
+   * Iterates over all actors, and moves them to their positions for the next
+   * tick whilst checking for, and handling collisions between actors
+   */
+  void handleMovement();
+
+  /**
+   * Uses the simple axis theorem to detect whether a collision has occurred between
+   * two actors in the level and returns a vector telling handleMovement how to
+   * separate them.
+   *
+   * @param a, pointer to an actor
+   * @param b, pointer to an actor
+   * @return A 4d vector, the first two elements are a vector describing how a
+   *         should be moved, the latter two describe the seperation vector for
+   *         b.
+   */
+  std::array<double, 4> detectCollision(std::shared_ptr<actor> a, std::shared_ptr<actor> b);
 
   /*We only need to send mDimmension and the mActorList*/
   template <class Archive>

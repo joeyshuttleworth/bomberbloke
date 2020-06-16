@@ -33,7 +33,7 @@ void client_loop(){
        SDL_Delay(delay);
      }
      handle_input();
-     handle_movement();
+     _level.handleMovement();
      draw_screen();
      gameUpdate();
      _tick++;
