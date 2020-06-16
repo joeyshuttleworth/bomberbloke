@@ -1,16 +1,23 @@
 #include <cmath>
-
+#include <stdexcept>
+#include <iostream>
 #include "ColliderFrame.hpp"
+#include <sstream>
 
 double _vectorProduct(dvector vec1, dvector vec2) {
     /**
      * Computes dot product of two double vectors
      */
 
-    // TODO: Handle erroneous case where dim v1 =/= dim v2
-    // if (vec1.size() != vec2.size()) {
-    //     return;
-    // }
+    if (vec1.size() != vec2.size()) {
+      #ifdef __GNUG__
+      std::stringstream msg;
+      msg << "Vectors different sizes in " << std::string(__func__) << std::endl;
+      #else
+      msg << "Vectors different sizes in " << std::string(__PRETTY_FUNCTION__) << std::endl;
+      #endif
+      throw std::invalid_argument(msg.str());
+    }
 
     double dot = 0;
     for (unsigned int i = 0; i < vec1.size(); i++) {
@@ -46,7 +53,7 @@ std::pair<double, double> ColliderFrame::projectOntoAxis(dvector axis, dvector p
     double minValue = _vectorProduct(mFrameVertices[0], axis);
     double maxValue = minValue;
    // Project onto axis and find min and max values
-    for (int i = 1; i < mFrameVertices.size(); i++) {
+    for (unsigned int i = 1; i < mFrameVertices.size(); i++) {
         double projectionValue = _vectorProduct(mFrameVertices[i], axis);
         if (projectionValue < minValue)
             minValue = projectionValue;

@@ -32,7 +32,7 @@ void server_loop(){
         (*prev)->update();
       }
       _level.mActors.remove_if([](std::shared_ptr<actor>a){return a->mRemove;});
-      handle_movement();
+      _level.handleMovement();
     }
     draw_screen();
       _tick++;

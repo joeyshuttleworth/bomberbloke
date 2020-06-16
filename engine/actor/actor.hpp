@@ -56,8 +56,8 @@ public:
   /*Position is the bottom left hand side of the actor */
   double mPosition[2];
   double mDimmension[2];
-  double mVelocity[2];
-  
+  double mVelocity[2] = {0,0};
+
   ColliderFrame mColliderFrame;
 
 
