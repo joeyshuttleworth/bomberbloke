@@ -66,8 +66,8 @@ std::array<double, 2> AbstractCollider::testNormalAxes(std::shared_ptr<AbstractC
     for (int i = 0; i < nVertices; i++) {
         // Normal axis is given (-y, x) where (x, y) = v2 - v1
         std::array<double, 2> axis = {{
-            mFrameVertices[i][1] - mFrameVertices[i+1 % nVertices][1],
-            mFrameVertices[i+1 % nVertices][0] - mFrameVertices[i][0]
+            mFrameVertices[i][1] - mFrameVertices[(i + 1) % nVertices][1],
+            mFrameVertices[(i + 1) % nVertices][0] - mFrameVertices[i][0]
         }};
 
         std::array<double, 2> selfProjVal = projectOntoAxis(axis);
