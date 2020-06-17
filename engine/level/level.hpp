@@ -1,6 +1,5 @@
 #ifndef LEVEL_HPP
 #define LEVEL_HPP
-
 #include <list>
 #include <string>
 #include <SDL2/SDL.h>
@@ -12,7 +11,7 @@
 
 extern double _zoom;
 
-class actor;
+class actor; class Camera;
 
 /* Actor which stores information about the level including the actors present and methods for updating and drawing the level */
 class level{
@@ -26,9 +25,6 @@ public:
   /* Spawnpoints is a collection of coordinates where players can be spawned */ 
   std::vector<int> mSpawnPoints;
 
-  /* Sprite holds the SDL_Texture which will be applied to the level background
-     when draw is called */
-  SDL_Texture *mpSprite = NULL;
 /* dim_x and dim_y are the size of our level in the x and y axis respectively */
   double mDimmension[2];
 
@@ -41,7 +37,7 @@ public:
   std::list<std::shared_ptr<actor>> mActors;
 
   /*Draw our level on the window. Then draw every actor in mActors*/
-  void draw();
+  void draw(Camera *cam);
   void ReloadSprites();
 
   /*
@@ -51,9 +47,15 @@ public:
 
   std::list<std::shared_ptr<AbstractSpriteHandler>> mParticleList;
 
+  /*  Return the midpoint of the level. This is used by the Camera class. */
 
-  level(double x, double y);
-  level();
+  std::array<double,2> getMidpoint(){
+    std::array<double,2> ret = {mDimmension[0] / 2, mDimmension[1]/2};
+    return ret;
+  }
+
+  level(double x=10, double y=10);
+
   level(const level &lvl);
   ~level();
   std::shared_ptr<actor> GetActor(int id);
@@ -64,10 +66,16 @@ public:
   *   remove all AbstractSpriteHandlers in mParticleList with
   *   mRemove set to true.
   *
-  *   TODO: Make this protected
+  *   TODO: Make mParticleList protected
   */
-  
+
   void cleanUp();
+
+  /*
+   *   Update each actor in the level. This could be used to implement
+   *   game specific logic in the future
+   */
+  virtual void update();
 
   /*We only need to send mDimmension and the mActorList*/
   template <class Archive>

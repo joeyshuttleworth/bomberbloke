@@ -50,7 +50,7 @@ void engine_new_game(std::string tokens){
   log_message(INFO, (char*)"New game ready to start...\n");
   _state = PAUSED;
   new_game(tokens);
-  _level = level();
+  // _pLevel = level();
   return;
 }
 

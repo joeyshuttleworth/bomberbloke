@@ -5,25 +5,13 @@
 #include <string>
 #include <iostream>
 
-void actor :: draw(){
-  /*dstrect is a structure detailing the rectangle we will draw our sprite to */
-  SDL_Rect dstrect;
-  SDL_SetRenderTarget(_renderer, NULL);
-  dstrect.w=ceil(mDimmension[0] * _zoom);
-  dstrect.h=ceil(mDimmension[1] * _zoom);
-  dstrect.x=round(mPosition[0] * _zoom);
-  dstrect.y=round((_level.mDimmension[1]-mPosition[1]-mDimmension[1]) * _zoom);
-  SDL_RenderFillRect(_renderer, &dstrect);
-  return;
-}
-
 int actor :: move(double x, double y){
   double tmp_pos[2];
   bool in_level = true;
 
   /* Are we out of the left side of the level? */
-  if(x > _level.mDimmension[0] - mDimmension[0]){
-    tmp_pos[0] = _level.mDimmension[0] - mDimmension[0];
+  if(x > _pLevel->mDimmension[0] - mDimmension[0]){
+    tmp_pos[0] = _pLevel->mDimmension[0] - mDimmension[0];
     mVelocity[0] = 0;
     in_level = false;
   }
@@ -38,8 +26,8 @@ int actor :: move(double x, double y){
   }
 
   /*Are we too high?*/
-  if(y > _level.mDimmension[1] - mDimmension[1]){
-    tmp_pos[1] = _level.mDimmension[1]-mDimmension[1];
+  if(y > _pLevel->mDimmension[1] - mDimmension[1]){
+    tmp_pos[1] = _pLevel->mDimmension[1]-mDimmension[1];
     mVelocity[1] = 0;
     in_level = false;
   }
@@ -79,13 +67,6 @@ bool actor :: is_moving(){
 }
 
 actor :: actor(double x, double y, bool collides){
-  mpSprite = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 128, 128);
-  SDL_SetRenderTarget(_renderer, mpSprite);
-  SDL_RenderClear(_renderer);
-  SDL_SetRenderDrawColor(_renderer, 0xF0, 0x12, 0x00, 0xFF);
-  SDL_RenderFillRect(_renderer, nullptr);
-  SDL_RenderPresent(_renderer);
-  SDL_SetRenderTarget(_renderer, nullptr);
   mRemove = false;
 
   mDimmension[0] = DEFAULT_ACTOR_SIZE;

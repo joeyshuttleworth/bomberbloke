@@ -58,7 +58,6 @@ extern double _screen_offset[2];
 extern bool _draw;
 extern bool _server;
 extern bool _halt;
-extern double _zoom;
 extern unsigned int _state;
 extern std::list<std::shared_ptr<AbstractPlayer>> _player_list;
 extern std::string _nickname;
@@ -100,13 +99,15 @@ class level;
  */
 class  ServerInfo;
 extern ServerInfo _server_info;
-extern level _level;
+extern std::shared_ptr<level> _pLevel;
 
 extern unsigned int _tick;
 extern std::vector<CommandBinding> _default_bindings;
 extern std::list<LocalPlayer> _local_player_list;
 const std::array<std::string, 2> _system_commands  = {{"bind", "set"}};
 
+class Camera;
+extern std::shared_ptr<Camera> _pCamera;
 
 /*  A function defined by the game / test called each tick */
 void gameUpdate();
@@ -119,5 +120,5 @@ void gameUpdate();
 #include "level.hpp"
 #include "actor.hpp"
 #include "config.hpp"
-
+#include "Camera.hpp"
 #endif
