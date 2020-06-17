@@ -7,6 +7,8 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include "AbstractEvent.hpp"
+#include <cereal/archives/json.hpp>
 
 NetClient::NetClient(){
     if (enet_initialize() != 0) {
@@ -57,15 +59,24 @@ bool NetClient::connectClient(std::string serverAddress, enet_uint16 port) {
 }
 
 void NetClient::pollServer(){
-    while(true){
-        int32_t res = enet_host_service(this->host, &event, 0);
-        // event occured
-        if (res > 0) {
-        if (event.type == ENET_EVENT_TYPE_RECEIVE) {
-          log_message(DEBUG, "client received packet");
-    }
+  while(enet_host_service(this->host, &event, 0)>0){
+   if (event.type == ENET_EVENT_TYPE_RECEIVE) {
+     // event occured
+     std::stringstream data_in;
+     data_in << event.packet->data;
+     std::unique_ptr<AbstractEvent> receive_event;
+     // cereal::JSONInputArchive inArchive(data_in);
+
+     log_message(DEBUG, "received message: " + data_in.str());
+
+     // inArchive(receive_event);
+
+     /* Make the pointer shared so we can handle it elsewhere */
+     // std::shared_ptr<AbstractEvent> sp_to_handle = std::move(receive_event);
+   }
+  }
+  return;
 }
-}}
 
 
 

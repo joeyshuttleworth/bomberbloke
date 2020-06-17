@@ -25,7 +25,10 @@ enum EventType{
 
 class AbstractEvent{
 public:
- virtual int getType() const = 0;
+  virtual int getType() const = 0;
+
+  virtual void print(){};
+
   template <class Archive>
   void serialize(Archive &ar){
     ar(cereal::make_nvp("EventType", getType()));

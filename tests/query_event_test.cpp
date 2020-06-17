@@ -45,17 +45,21 @@ int main() {
     SDL_Delay(1000);
     std::thread server_thread(&NetServer::pollLoop, &net_server);
 
-    if (net_client.connectClient("newhm.am", 8888)) {
+    if (net_client.connectClient("127.0.0.1", 8888)) {
       net_client.sendStringMessage(data_blob.str());
       SDL_Delay(900);
     }
+
     else {
       rc = -1;
     }
     _halt = true;
     SDL_Delay(900);
-
     server_thread.join();
+
+    /* Now it's safe to read from the client */
+    net_client.pollServer();
+
     return rc;
 }
 
