@@ -89,10 +89,10 @@ actor :: actor(double x, double y, bool collides){
   mVelocity[1] = 0;
 
   mFrameVertices = {
-    {{0.0, 0.0}},
-    {{0.0, DEFAULT_ACTOR_SIZE}},
+    {{0., 0.}},
+    {{DEFAULT_ACTOR_SIZE, 0.}},
     {{DEFAULT_ACTOR_SIZE, DEFAULT_ACTOR_SIZE}},
-    {{DEFAULT_ACTOR_SIZE, 0.0}}
+    {{0., DEFAULT_ACTOR_SIZE}}
   };
 
   mCollides = collides;

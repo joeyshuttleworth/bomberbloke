@@ -15,6 +15,8 @@ class AbstractCollider {
 public:
     enum colliderType {PHYSICS, STATIC};
     dvector mPosition;
+    
+    // Use counter clockwise vertices of convex shape
     std::vector<dvector> mFrameVertices;
 
     std::array<double, 2> projectOntoAxis(dvector axis);
