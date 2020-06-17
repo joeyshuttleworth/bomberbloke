@@ -50,11 +50,11 @@ protected:
     instead.
   */
 
-  template<class Archive>
-  void serialize(Archive &archive){
-    archive(cereal::base_class<actor>(this));
-    return;
-  }
+  // template<class Archive>
+  // void serialize(Archive &archive){
+  //   archive(cereal::base_class<actor>(this));
+  //   return;
+  // }
 };
 
 /*This is requried by cereal for classes that use polymorphism*/
