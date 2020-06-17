@@ -11,9 +11,7 @@ void server_loop(){
   t2.tv_nsec = 0;
   t2.tv_sec  = 0;
 
-  // Initialise network
   NetServer net_server;
-
   if(!net_server.init_enet())
     return;
 
