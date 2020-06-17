@@ -23,10 +23,13 @@ private:
   std::string mTitle;
   std::string mDescription;
   int mMaxPlayers;
+
 public:
+  int getType() const{
+    return 4;
+  }
 
   ServerInfoEvent(ServerInfo info, std::list<std::shared_ptr<AbstractPlayer>> players){
-    mType = SERVER_INFO;
     mTitle = info.mTitle;
     mDescription = info.mDescription;
     mMaxPlayers = info.mMaxPlayers;

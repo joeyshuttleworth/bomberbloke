@@ -21,8 +21,11 @@ private:
   double mVelocity[2];
 public:
 
+  int getType() const{
+    return 2;
+  }
+
   MoveEvent(actor* Actor){
-    mType = MOVE; 
     mActorId  = Actor->mId;
     mPosition[0] = Actor->mPosition[0];
     mPosition[1] = Actor->mPosition[1];

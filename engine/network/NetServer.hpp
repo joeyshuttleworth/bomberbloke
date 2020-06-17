@@ -29,14 +29,20 @@ public:
 
     void sendPacket(ENetPeer *peer, ENetPacket *packet, enet_uint8 channel = 0);
 
+
+    //! Poll and Handle all ENetEvents in the queue, by default will wait one second for an event before processing
     void poll();
+
+    //! Keeps polling until the _halt flag is set to true. This is used to have the server running in a separate thread.
+    void pollLoop();
+
     /* Update the master server about us. If disconnect is true, we will disconnect from the master server
        otherwise, we will send our info to the master server.
      */
 
-  void removeFromMasterServer();
+    void removeFromMasterServer();
 
-  bool isConnected();
+    bool isConnected();
 
 private:
     ENetHost *server = nullptr;

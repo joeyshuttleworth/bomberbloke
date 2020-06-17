@@ -21,7 +21,7 @@ int main() {
 
     /* Wait for a few moments */
     SDL_Delay(1000);
-    std::thread server_thread(&NetServer::poll, &net_server);
+    std::thread server_thread(&NetServer::pollLoop, &net_server);
 
     /* Connect to the server. If uncessful this will exit(EXIT_FAILURE)
     *  so there's no need for additional checking at this stage.
@@ -30,7 +30,6 @@ int main() {
       net_client.sendStringMessage("Hello, World!");
       SDL_Delay(900);
       net_client.sendStringMessage("Hello again!");
-     //stop thread nicely, call destructor
     }
     else {
       rc = -1;

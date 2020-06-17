@@ -4,11 +4,13 @@
 
 #include "engine.hpp"
 #include "NetServer.hpp"
+#include "QueryEvent.hpp"
 #include "engine.hpp"
 #include <enet/enet.h>
 #include <curl/curl.h>
 #include <string>
 #include <sstream>
+#include "cereal/archives/json.hpp"
 
 NetServer::NetServer() {
     init_enet();
@@ -20,85 +22,97 @@ NetServer::~NetServer() {
     enet_deinitialize();
 }
 
-//! Poll and Handle events from ENet, by default will wait one second for an event before processing
+void NetServer::pollLoop(){
+  while(!_halt){
+    poll();
+  }
+  return;
+}
+
 void NetServer::poll() {
-    std::cout << "connected";
+  // wait half a second second before processing all requests
+  while (enet_host_service(this->server, &event, 0) > 0) {
+    switch (event.type) {
+    case ENET_EVENT_TYPE_RECEIVE: {
 
-    while (!_halt) {
-        // wait half a second second before processing all requests
-        while (enet_host_service(this->server, &event, 0) > 0) {
-            switch (event.type) {
-                case ENET_EVENT_TYPE_RECEIVE: {
+      //                    const std::string command((char *) event.packet->data, event.packet->dataLength);
 
-//                    const std::string command((char *) event.packet->data, event.packet->dataLength);
+      if (std::strcmp(reinterpret_cast<const char *>(event.packet->data), "ping") == 0) {
+        log_message(0,"Recieved ping command from peer");
 
-                    if (std::strcmp(reinterpret_cast<const char *>(event.packet->data), "ping") == 0) {
-                        log_message(0,"Recieved ping command from peer");
+        ENetPacket *pong_packet = enet_packet_create("pong",
+                                                     strlen("pong") + 1,
+                                                     ENET_PACKET_FLAG_RELIABLE);
+        sendPacket(event.peer, pong_packet, 0);
+        log_message(0,"Sent Packet to Peer");
+        enet_host_flush(this->server);
+      }
+      if (std::strcmp(reinterpret_cast<const char *>(event.packet->data), "ping_all") == 0) {
+        log_message(0,"Recieved ping all command");
+        SDL_Delay(500);
+        ENetPacket *pong_packet = enet_packet_create("pong_all!",
+                                                     strlen("pong_all!") + 1,
+                                                     ENET_PACKET_FLAG_RELIABLE);
+        broadcastPacket(pong_packet, 0);
+        log_message(0,"Sent Packet to ALL");
+        enet_host_flush(this->server);
+        SDL_Delay(500);
 
-                        ENetPacket *pong_packet = enet_packet_create("pong",
-                                                                     strlen("pong") + 1,
-                                                                     ENET_PACKET_FLAG_RELIABLE);
-                        sendPacket(event.peer, pong_packet, 0);
-                        log_message(0,"Sent Packet to Peer");
-                        enet_host_flush(this->server);
-                    }
-                    if (std::strcmp(reinterpret_cast<const char *>(event.packet->data), "ping_all") == 0) {
-                        log_message(0,"Recieved ping all command");
-                        SDL_Delay(500);
-                        ENetPacket *pong_packet = enet_packet_create("pong_all!",
-                                                                     strlen("pong_all!") + 1,
-                                                                     ENET_PACKET_FLAG_RELIABLE);
-                        broadcastPacket(pong_packet, 0);
-                        log_message(0,"Sent Packet to ALL");
-                        enet_host_flush(this->server);
-                        SDL_Delay(500);
+        broadcastPacket(pong_packet, 0);
+        log_message(0,"Sent Packet to ALL");
+        enet_host_flush(this->server);
+        SDL_Delay(500);
+        broadcastPacket(pong_packet, 0);
+        log_message(0,"Sent Packet to ALL");
+        enet_host_flush(this->server);
+      }
+      log_message(0, "Recieved packet");
 
-                        broadcastPacket(pong_packet, 0);
-                        log_message(0,"Sent Packet to ALL");
-                        enet_host_flush(this->server);
-                        SDL_Delay(500);
-                        broadcastPacket(pong_packet, 0);
-                        log_message(0,"Sent Packet to ALL");
-                        enet_host_flush(this->server);
-                    }
-                    log_message(0, "Recieved packet");
+      std::stringstream message;
+      message << "A packet of length " << event.packet->dataLength << " was received from '";
+      message << event.peer->data << "' on channel: " << event.channelID;
+      log_message(0, message.str());
 
-                    std::stringstream message;
-                    message << "A packet of length " << event.packet->dataLength << " was received from '";
-                    message << event.peer->data << "' on channel: " << event.channelID;
-                    log_message(0, message.str());
+      std::stringstream packet_message;
+      packet_message << "Packet message: '" << event.packet->data << "'";
+      log_message(0, packet_message.str());
 
-                    std::stringstream packet_message;
-                    packet_message << "Packet message: '" << event.packet->data << "'";
-                    log_message(0, packet_message.str());
+      // handle packet hereenet_uint32
 
-                    // handle packet hereenet_uint32
+      std::stringstream data_in;
+      data_in << event.packet->data;
 
-                    /* Clean up the packet now that we're done using it. */
-                    enet_packet_destroy(event.packet);
+      log_message(DEBUG, "data received " + data_in.str());
+      std::stringstream input(data_in.str());
+      std::unique_ptr<AbstractEvent> receive_event;
+      cereal::JSONInputArchive inArchive(input);
+      inArchive(receive_event);
 
-                    break;
-                }
-                case ENET_EVENT_TYPE_CONNECT: {
-                    log_message(0, "User Connected");
-                    std::stringstream message;
-                    //message << "A packet of length " << event.packet->dataLength << " containing ";
-                    //              message << event.packet->data << " was received from " << event.peer->data;
-                    message << " on channel " << event.channelID << ".\n";
-                    std::cout << message.str();
-                    //log_message(INFO, message.str());
-                    // TODO: Add user to user_list
-                    break;
-                }
+      /* Clean up the packet now that we're done using it. */
+      enet_packet_destroy(event.packet);
 
-                case ENET_EVENT_TYPE_DISCONNECT:
-                    // Reset the peer's client information.
-                    event.peer->data = NULL;
-                default:
-                    break;
-            }
-        }
+
+      break;
     }
+    case ENET_EVENT_TYPE_CONNECT: {
+      log_message(0, "User Connected");
+      std::stringstream message;
+      //message << "A packet of length " << event.packet->dataLength << " containing ";
+      //              message << event.packet->data << " was received from " << event.peer->data;
+      message << " on channel " << event.channelID << ".\n";
+      std::cout << message.str();
+      //log_message(INFO, message.str());
+      // TODO: Add user to user_list
+      break;
+    }
+
+    case ENET_EVENT_TYPE_DISCONNECT:
+      // Reset the peer's client information.
+      event.peer->data = NULL;
+    default:
+      break;
+    }
+  }
 }
 
 //! Initialise ENet, and create server instance.
