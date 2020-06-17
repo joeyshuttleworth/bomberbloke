@@ -14,7 +14,6 @@ void bomb::init(bloke *bloke){
   SDL_RenderFillRect(_renderer, NULL);
   SDL_SetRenderTarget(_renderer, NULL);
   mCollides = false;
-  memset(mVelocity, 0, 2*sizeof(double));
   mTimer = _default_bomb_timer;
   if(bloke){
     mPlacedById = bloke->mId;
