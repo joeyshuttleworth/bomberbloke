@@ -8,7 +8,7 @@
 void bloke :: accelerate(){
   /*Count how many directions we are accelerating in*/
   double acceleration_magnitude =  pow(mAcceleration[1]*mAcceleration[1] + mAcceleration[0]*mAcceleration[0], 0.5);
-  
+
 
   const double velocity_increase[2] = {mMaxSpeed*ACCELERATION_RATIO*mAcceleration[0]/acceleration_magnitude, mMaxSpeed*ACCELERATION_RATIO*mAcceleration[1]/acceleration_magnitude};
 

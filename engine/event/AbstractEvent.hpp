@@ -7,30 +7,28 @@
 
 #define ABSTRACTEVENT_HPP
 
-enum EventType{
-  JOIN,
-  CLIENT_MESSAGE,
-  SERVER_MESSAGE,
-  QUERY,
-  SERVER_INFO,
-  MOVE,
-  CREATE,
-  REMOVE,
-  SYNC,
-  NEW_GAME,
-  START,
-  STOP,
-  COMMAND
-};
-
 class AbstractEvent{
 public:
-  int mType = 0;
+  enum EventType{
+    JOIN,
+    CLIENT_MESSAGE,
+    SERVER_MESSAGE,
+    QUERY,
+    SERVER_INFO,
+    MOVE,
+    CREATE,
+    REMOVE,
+    SYNC,
+    NEW_GAME,
+    START,
+    STOP,
+    COMMAND
+  };
+  virtual int getType() const = 0;
   template <class Archive>
   void serialize(Archive &ar){
-    ar(cereal::make_nvp("EventType", mType));
+    ar(cereal::make_nvp("EventType", getType()));
   }
 };
-
 
 #endif

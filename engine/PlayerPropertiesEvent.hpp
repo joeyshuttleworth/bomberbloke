@@ -14,9 +14,13 @@ private:
   std::shared_ptr<GamePlayerProperties> mProperties;
 public:
 
+  int getType() const{
+    return PROPERTIES;
+  }
+
   QueryEvent(GamePlayerProperties &properties){
     std::shared_ptr<GamePlayerProperties> pProperties = new GamePlayerProperties;
-    *pProperties = properties; 
+    *pProperties = properties;
     mProperties.reset(new GamePlayerProperties(&properties));
   };
 

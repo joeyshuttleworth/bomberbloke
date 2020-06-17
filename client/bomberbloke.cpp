@@ -33,7 +33,7 @@ int main (){
   std::shared_ptr<bloke> b1(new bloke(1,2));
   _level.mActors.push_back(b1);
   _local_player_list.back().init(b1);
-  // oArchive(b1,  _level);
+  oArchive(b1);
 
   client_loop();
   SDL_Quit();

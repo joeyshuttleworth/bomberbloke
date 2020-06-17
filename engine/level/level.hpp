@@ -23,7 +23,7 @@ protected:
   std::string mDescription;
 
 public:
-  /* Spawnpoints is a collection of coordinates where players can be spawned */ 
+  /* Spawnpoints is a collection of coordinates where players can be spawned */
   std::vector<int> mSpawnPoints;
 
   /* Sprite holds the SDL_Texture which will be applied to the level background

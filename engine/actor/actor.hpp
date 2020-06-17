@@ -85,10 +85,9 @@ public:
     be handled by the properties stored in a child of this class. To see why,
     consider a game where the player's character model can only be one of two sizes,
     it seems silly to send a double[2] in this case.*/
-  template<class Archive> 
+  template<class Archive>
   void serialize(Archive &archive){
     archive(mId, mPlayerId, mPosition, mVelocity);
-    
   }
 
 };

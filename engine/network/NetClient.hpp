@@ -15,7 +15,7 @@ public:
     NetClient();
 
     ~NetClient();
-    bool connectClient(std::string serverAddress, enet_uint16 port);
+    bool connectClient(std::string serverAddress = "127.0.0.1", enet_uint16 = 8888);
     void sendStringMessage(std::string message);
     void disconnectClient();
     bool isConnected();
@@ -27,8 +27,8 @@ private:
     ENetPeer *peer;
     ENetHost *host = nullptr;
 
-    std::string serverAddress = "127.0.0.1";
-    enet_uint16 port = 8888;
+    std::string mServerAddress;
+    enet_uint16 mPort;
 
 
 };

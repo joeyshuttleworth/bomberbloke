@@ -3,12 +3,12 @@
 //
 
 #include "NetClient.hpp"
+#include "engine.hpp"
 #include <string>
 #include <iostream>
-#include "engine.hpp"
+#include <sstream>
 
-
-NetClient::NetClient() {
+NetClient::NetClient(){
     if (enet_initialize() != 0) {
         printf("ERROR: An error occurred while initializing ENet");
         return;
@@ -25,11 +25,11 @@ NetClient::~NetClient() {
 }
 
 bool NetClient::connectClient(std::string serverAddress, enet_uint16 port) {
-    this->serverAddress = serverAddress;
-    this->port = port;
+    mServerAddress = serverAddress;
+    mPort = port;
     log_message(INFO, "attempting to connect");
-    enet_address_set_host(&address, this->serverAddress.c_str());
-    address.port = this->port;
+    enet_address_set_host(&address, mServerAddress.c_str());
+    address.port = mPort;
 
     //Initiate the connection, with only one channel
     this->peer = enet_host_connect(this->host, &address, 1, 0);
@@ -40,14 +40,18 @@ bool NetClient::connectClient(std::string serverAddress, enet_uint16 port) {
     // Wait up to 5 seconds for the connection attempt to succeed. */
     if (enet_host_service(this->host, &event, 5000) > 0 &&
         event.type == ENET_EVENT_TYPE_CONNECT) {
-        printf("Connection to %s%u succeeded.\n", this->serverAddress.c_str(), this->port);
+        std::stringstream msg;
+        msg << "Connection to " << serverAddress << ":" <<  port << " succeeded";
+        log_message(INFO, msg.str());
         // Send follow up message
-        sendStringMessage("game_info");
+        // sendStringMessage("game_info");
         return true;
 
     } else {
         enet_peer_reset(this->peer);
-        printf("Connection to %s:%u failed.\n", this->serverAddress.c_str(), this->port);
+        std::stringstream msg;
+        msg << "Connection to " << serverAddress << ":" <<  port << " failed";
+        log_message(INFO, msg.str());
         return false;
     }
 }

@@ -14,16 +14,20 @@ private:
   std::string mNickname;
 public:
 
-  QueryEvent(std::string nickname){
-    mType = QUERY;
+  int getType() const{
+    return 1;
+  }
+
+  QueryEvent(std::string nickname = "player"){
     mNickname = nickname;
   };
 
   template<class Archive>
   void serialize(Archive &archive){
-    archive(cereal::base_class<AbstractEvent>(this), mNickname);
+    archive(cereal::base_class<AbstractEvent>(this), cereal::make_nvp("nickname", mNickname));
   }
-
 };
+
+CEREAL_REGISTER_TYPE(QueryEvent)
 
 #endif
