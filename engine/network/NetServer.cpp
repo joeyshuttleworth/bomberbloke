@@ -42,10 +42,12 @@ void NetServer::handleEvent(std::shared_ptr<AbstractEvent> pEvent, ENetPeer *fro
     std::unique_ptr<AbstractEvent> info_event(new ServerInfoEvent(mServerInfo, _player_list, pquery_event->getNickname()));
     std::stringstream blob;
     cereal::JSONOutputArchive oArchive(blob);
-    log_message(DEBUG, "Created info event");
+    log_message(DEBUG, "Created info event - \n" + blob.str());
     oArchive(info_event);
+    std::cout << "Create: " << blob.str() << "\n";
     ENetPacket *packet = enet_packet_create(blob.str().c_str(), blob.str().length(), ENET_PACKET_FLAG_RELIABLE);
-    sendPacket(from, packet, 0);
+    enet_peer_send(from, 0, packet);
+    enet_host_flush(server);
     enet_packet_destroy(packet);
   }
 
@@ -106,9 +108,8 @@ void NetServer::poll() {
       data_in << event.packet->data;
 
       log_message(DEBUG, "data received " + data_in.str());
-      std::stringstream input(data_in.str());
       std::unique_ptr<AbstractEvent> receive_event;
-      cereal::JSONInputArchive inArchive(input);
+      cereal::JSONInputArchive inArchive(data_in);
       inArchive(receive_event);
 
       /* Make the pointer shared so we can handle it elsewhere */
@@ -216,6 +217,7 @@ void NetServer::broadcastPacket(ENetPacket *packet, enet_uint8 channel) {
 
 void NetServer::sendPacket(ENetPeer *peer, ENetPacket *packet, enet_uint8 channel) {
     enet_peer_send(peer, channel, packet);
+    enet_host_flush(server);
 }
 
 
