@@ -157,7 +157,6 @@ void handle_input() {
                         _system_commands.end()) {
                         handle_system_command(split_to_tokens(command_to_send)); // process system command
                     } else {
-                      std::cout << command_to_send << "\n";
                       i->getCharacter()->handle_command(command_to_send); // handle normal command
                     }
                 }
@@ -474,7 +473,7 @@ std::list <std::string> split_to_tokens(std::string str) {
 }
 
 void console_loop() {
-    std::cout << "Bomberbloke console\n";
+    std::cout << "Bomberbloke console...\n";
     while (!_halt) {
         switch (_state) {
             default: {
