@@ -6,7 +6,7 @@
 #include "NetClient.hpp"
 #include "NetServer.hpp"
 #include <thread>
-
+#include <assert.h>
 
 int main() {
     // Don't display any graphics for this test, or even create a window
@@ -18,6 +18,7 @@ int main() {
     NetClient net_client;
     NetServer net_server;
 
+    assert(net_server.init_enet());
 
     /* Wait for a few moments */
     SDL_Delay(1000);
@@ -27,9 +28,7 @@ int main() {
     *  so there's no need for additional checking at this stage.
     */
     if (net_client.connectClient("127.0.0.1", 8888)) {
-      net_client.sendStringMessage("Hello, World!");
-      SDL_Delay(900);
-      net_client.sendStringMessage("Hello again!");
+      rc = 0;
     }
     else {
       rc = -1;
