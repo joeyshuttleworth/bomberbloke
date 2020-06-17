@@ -11,14 +11,11 @@ void server_loop(){
   t2.tv_nsec = 0;
   t2.tv_sec  = 0;
 
-  // Initialise network
   NetServer net_server;
-  if(!net_server.init_enet)
+  if(!net_server.init_enet())
     return;
-
+  // Initialise network
   while(!_halt){
-      log_message(0, "Sttart");
-      net_server.poll();
     t1 = t2;
     do{
       SDL_Delay(0);
