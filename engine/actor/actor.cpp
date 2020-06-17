@@ -60,7 +60,7 @@ int actor :: move(double x, double y){
   /*Create a MoveEvent and send/save it*/
 
   MoveEvent e(this);
-  cereal::JSONOutputArchive oArchive(std::cout);
+  // cereal::JSONOutputArchive oArchive(std::cout);
   //oArchive(e);
 
 
