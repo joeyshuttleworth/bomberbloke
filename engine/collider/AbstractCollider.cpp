@@ -1,60 +1,43 @@
-#include <cmath>
+#include <math.h>
 #include <stdexcept>
-#include <iostream>
-#include "ColliderFrame.hpp"
 #include <sstream>
 
-double _vectorProduct(dvector vec1, dvector vec2) {
+#include "AbstractCollider.hpp"
+
+double vectorProduct(dvector vec1, dvector vec2) {
     /**
      * Computes dot product of two double vectors
      */
-
-    if (vec1.size() != vec2.size()) {
-        #ifdef __GNUG__
-        std::stringstream msg;
-        msg << "Vectors different sizes in " << std::string(__func__) << std::endl;
-        #else
-        msg << "Vectors different sizes in " << std::string(__PRETTY_FUNCTION__) << std::endl;
-        #endif
-        throw std::invalid_argument(msg.str());
-    }
-
-    double dot = 0;
-    for (unsigned int i = 0; i < vec1.size(); i++) {
-        dot += vec1[i] * vec2[i];
-    }
+    double dot = vec1[0] * vec2[0] + vec1[1] * vec2[1];
 
     return dot;
 }
 
-double _vectorNorm(dvector vec) {
+double vectorNorm(dvector vec) {
     /**
      * Computes Euclidean norm of double vector
      */
-    double normVal = 0;
-    for (unsigned int i = 0; i < vec.size(); i++) {
-        normVal += vec[i] * vec[i];
-    }
-    normVal = std::sqrt(normVal);
+    double normVal = vec[0] * vec[0] + vec[1] * vec[1];
+    normVal = sqrt(normVal);
 
     return normVal;
 }
 
-ColliderFrame::ColliderFrame() {}
+AbstractCollider::AbstractCollider() {}
 
-ColliderFrame::ColliderFrame(std::vector<dvector> vertices) {
+AbstractCollider::AbstractCollider(std::vector<dvector> vertices) {
     mFrameVertices = vertices;
 }
 
-std::array<double, 2> ColliderFrame::projectOntoAxis(dvector axis) {
+std::array<double, 2> AbstractCollider::projectOntoAxis(dvector axis) {
     /**
      * Projects collider frame onto axis, returns interval as a pair of doubles
      */
-    double minValue = _vectorProduct(mFrameVertices[0], axis);
+    double minValue = vectorProduct(mFrameVertices[0], axis);
     double maxValue = minValue;
    // Project onto axis and find min and max values
     for (unsigned int i = 1; i < mFrameVertices.size(); i++) {
-        double projectionValue = _vectorProduct(mFrameVertices[i], axis);
+        double projectionValue = vectorProduct(mFrameVertices[i], axis);
         if (projectionValue < minValue)
             minValue = projectionValue;
         if (projectionValue > maxValue)
@@ -62,11 +45,10 @@ std::array<double, 2> ColliderFrame::projectOntoAxis(dvector axis) {
     }
 
     // TODO: Change mPosition to dvector
-    dvector position = {{mPosition[0], mPosition[1]}};
-    double positionProjection = _vectorProduct(position, axis);
+    double positionProjection = vectorProduct(mPosition, axis);
 
     // Normalise values to calcualte projection for normalised axis
-    double axisNorm = _vectorNorm(axis);
+    double axisNorm = vectorNorm(axis);
 
     std::array<double, 2> retVal = {{
         (minValue + positionProjection) / axisNorm,
@@ -76,7 +58,7 @@ std::array<double, 2> ColliderFrame::projectOntoAxis(dvector axis) {
     return retVal;
 }
 
-std::array<double, 2> ColliderFrame::testNormalAxes(std::shared_ptr<ColliderFrame> collider) {
+std::array<double, 2> AbstractCollider::testNormalAxes(std::shared_ptr<AbstractCollider> collider) {
     double minTransMagnitude = -1;
     std::array<double, 2> minTransDirection= {{0.0, 0.0}};
 
@@ -91,18 +73,12 @@ std::array<double, 2> ColliderFrame::testNormalAxes(std::shared_ptr<ColliderFram
         std::array<double, 2> selfProjVal = projectOntoAxis(axis);
         std::array<double, 2> colliderProjVal = collider->projectOntoAxis(axis);
 
-        // std::cout << " " << std::endl;
-        // std::cout << selfProjVal[0] << " " << selfProjVal[1] << std::endl;
-        // std::cout << colliderProjVal[0] << " " << colliderProjVal[1] << std::endl;
-
         if (selfProjVal[1] > colliderProjVal[0] && selfProjVal[0] < colliderProjVal[1]) {
-            // std::cout << "in 1" << std::endl;
             if (selfProjVal[1] - colliderProjVal[0] < minTransMagnitude || minTransMagnitude == -1) {
                 minTransMagnitude = selfProjVal[1] - colliderProjVal[0];
                 minTransDirection = axis;
             }
         } else if (colliderProjVal[1] > selfProjVal[0] && colliderProjVal[0] < selfProjVal[1]) {
-            // std::cout << "in 2" << std::endl;
             if (colliderProjVal[1] - selfProjVal[0] < minTransMagnitude || minTransMagnitude == -1) {
                 minTransMagnitude = colliderProjVal[1] - selfProjVal[0];
                 minTransDirection = {{-axis[0], -axis[1]}};
@@ -113,7 +89,7 @@ std::array<double, 2> ColliderFrame::testNormalAxes(std::shared_ptr<ColliderFram
         }
     }
 
-    double directionNorm = _vectorNorm(minTransDirection);
+    double directionNorm = vectorNorm(minTransDirection);
     // Flip x-direction such that it points in the direction that self must
     // move to correct the collision
     std::array<double, 2> retVal = {{
