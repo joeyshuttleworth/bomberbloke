@@ -15,7 +15,11 @@ private:
 public:
 
   int getType() const{
-    return 1;
+    return EVENT_QUERY;
+  }
+
+  std::string getNickname(){
+    return mNickname;
   }
 
   QueryEvent(std::string nickname = "player"){
