@@ -14,6 +14,8 @@ void server_loop(){
   // Initialise network
   NetServer net_server;
 
+  if(!net_server.init_enet())
+    return;
 
   while(!_halt){
     t1 = t2;
