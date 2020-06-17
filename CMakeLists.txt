@@ -54,7 +54,7 @@ add_test(RUN_AND_CLOSE run_and_close COMMAND)
 #query_event_test
 add_executable(query_event_test "tests/query_event_test.cpp")
 target_link_libraries(query_event_test CLIENT ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES})
-add_test(QUERY_TEST query_server_connect COMMAND)
+add_test(QUERY_TEST query_event_test COMMAND)
 
 #local_server_connect test
 add_executable(local_server_connect "tests/local_server_connect.cpp")

@@ -2,12 +2,14 @@
 // Created by dave on 08.06.20.
 //
 
-#ifndef BOMBERBLOKE_SERVER_H
-#define BOMBERBLOKE_SERVER_H
+#ifndef NETSERVER_HPP
+#define NETSERVER_HPP
 #include <string>
 #include <enet/enet.h>
-#include "ServerInfoEvent.hpp"
 #include <string>
+#include "ServerInfo.hpp"
+
+class AbstractEvent;
 
 class NetServer {
 public:
@@ -44,6 +46,7 @@ public:
 
     bool isConnected();
 
+    bool init_enet();
 private:
     ENetHost *server = nullptr;
     ENetAddress address;
@@ -51,9 +54,16 @@ private:
     ENetPacket *packet;
     std::string mMasterServerAddress;
 
+    ServerInfo mServerInfo;
+
+    /** handleEvent
+     *  Called when the server receives some kind of event.
+     *  @param pointer to an event that has been received
+     */
+  void handleEvent(std::shared_ptr<AbstractEvent>, ENetPeer*);
+
     bool stop();
 
-    bool init_enet();
     void updateGameMasterServer(bool disconnect);
     enet_uint16 PORT = 8888;
     std::string masterServerAddress = "http://ptsv2.com/t/faryp-1591787919/post";
