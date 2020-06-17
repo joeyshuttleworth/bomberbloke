@@ -4,13 +4,13 @@
 #include <SDL2/SDL.h>
 #include <memory>
 
-#include "ColliderFrame.hpp"
+#include "PhysicsCollider.hpp"
 
 extern SDL_Renderer *_renderer;
 
 class AbstractPlayer;
 
-class actor: public ColliderFrame {
+class actor: public PhysicsCollider {
   friend class MoveEvent;
 protected:
   SDL_Texture *mpSprite = NULL;
@@ -37,7 +37,7 @@ public:
   }
 
   bool mRemove = false;
-  actor(double x = 0, double y = 0, bool = false);
+  actor(double x = 0, double y = 0, bool collides = true);
 
   /*Returns an enum defined by the game identifying what type of actor this is
     e.g block, bloke.*/
@@ -52,10 +52,8 @@ public:
   /*Do we collide with other actors*/
   bool mCollides;
 
-
   /*Position is the bottom left hand side of the actor */
   double mDimmension[2];
-  double mVelocity[2] = {0,0};
 
 
   virtual void ReloadSprite(){
