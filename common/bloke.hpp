@@ -4,6 +4,7 @@
 #include <cereal/types/base_class.hpp>
 #include "actor.hpp"
 #include "GamePlayerProperties.hpp"
+#include "PlaceHolderSprite.hpp"
 
 class bloke : public actor{
   friend bomb;
@@ -28,7 +29,15 @@ protected:
   double mAcceleration[2] = {0,0};
 
  public:
-  using actor::actor;
+
+  bloke(double x=1, double y=1, bool collides = true){
+    mCollides = collides;
+    mPosition[0]=x;
+    mPosition[1]=y;
+    std::shared_ptr<PlaceHolderSprite> sprite(new  PlaceHolderSprite(mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]));
+    mpSpriteHandler = std::dynamic_pointer_cast<AbstractSpriteHandler>(sprite);
+    return;
+  };
 
   int getType() const{
     return BLOKE;
