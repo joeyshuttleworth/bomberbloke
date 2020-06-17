@@ -5,6 +5,7 @@
 #include "engine.hpp"
 #include "NetServer.hpp"
 #include "QueryEvent.hpp"
+#include "ServerInfoEvent.hpp"
 #include "engine.hpp"
 #include <enet/enet.h>
 #include <curl/curl.h>
@@ -13,7 +14,7 @@
 #include "cereal/archives/json.hpp"
 
 NetServer::NetServer() {
-    init_enet();
+    // init_enet();
 }
 
 NetServer::~NetServer() {
@@ -29,16 +30,38 @@ void NetServer::pollLoop(){
   return;
 }
 
+void NetServer::handleEvent(std::shared_ptr<AbstractEvent> pEvent, ENetPeer *from){
+  if(!pEvent.get()){
+    log_message(ERROR, "tried to handle a null event");
+    return;
+  }
+  switch(pEvent->getType()){
+  case EVENT_QUERY:{
+    /*  Get the server info and see if */
+    std::shared_ptr<QueryEvent> pquery_event = std::dynamic_pointer_cast<QueryEvent>(pEvent);
+    std::unique_ptr<AbstractEvent> info_event(new ServerInfoEvent(mServerInfo, _player_list, pquery_event->getNickname()));
+    std::stringstream blob;
+    cereal::JSONOutputArchive oArchive(blob);
+    log_message(DEBUG, "Created info event");
+    oArchive(info_event);
+    ENetPacket *packet = enet_packet_create(blob.str().c_str(), blob.str().length(), ENET_PACKET_FLAG_RELIABLE);
+    sendPacket(from, packet, 0);
+    enet_packet_destroy(packet);
+  }
+
+  default:
+    break;
+  }
+  return;
+}
+
 void NetServer::poll() {
   // wait half a second second before processing all requests
   while (enet_host_service(this->server, &event, 0) > 0) {
     switch (event.type) {
     case ENET_EVENT_TYPE_RECEIVE: {
-
-      //                    const std::string command((char *) event.packet->data, event.packet->dataLength);
-
       if (std::strcmp(reinterpret_cast<const char *>(event.packet->data), "ping") == 0) {
-        log_message(0,"Recieved ping command from peer");
+        log_message(DEBUG,"Recieved ping command from peer");
 
         ENetPacket *pong_packet = enet_packet_create("pong",
                                                      strlen("pong") + 1,
@@ -88,6 +111,10 @@ void NetServer::poll() {
       cereal::JSONInputArchive inArchive(input);
       inArchive(receive_event);
 
+      /* Make the pointer shared so we can handle it elsewhere */
+      std::shared_ptr<AbstractEvent> sp_to_handle = std::move(receive_event);
+      handleEvent(sp_to_handle, event.peer);
+
       /* Clean up the packet now that we're done using it. */
       enet_packet_destroy(event.packet);
 
@@ -130,9 +157,11 @@ bool NetServer::init_enet() {
     this->server = enet_host_create(&this->address, 100, 2, 0, 0);
 
     if (this->server == NULL) {
-        printf("FATAL: Could not init server at port %i, is it already in use?\n", PORT);
-        return 0;
-    } else { return 1; };
+      log_message(ERROR, "Could not start server. Is the port already in use?");
+      return 0;
+    }
+    else
+      return 1;
 }
 
 bool NetServer::stop() {

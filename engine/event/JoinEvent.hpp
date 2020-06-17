@@ -19,6 +19,10 @@ private:
  AbstractPlayer mPlayer;
 public:
 
+  int getType() const{
+    return EVENT_JOIN;
+  }
+
   MoveEvent(player*AbstractPlayer){
     mPlayer = *Player;
     return;

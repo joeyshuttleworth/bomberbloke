@@ -17,7 +17,7 @@ private:
 public:
 
   int getType() const{
-    return COMMAND;
+    return EVENT_COMMAND;
   }
 
   CommandEvent(std::string command){
