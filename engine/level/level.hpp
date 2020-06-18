@@ -73,7 +73,8 @@ public:
    * Iterates over all actors, and moves them to their positions for the next
    * tick whilst checking for, and handling collisions between actors
    */
-  void handleMovement();
+  void movementUpdate();
+  void physicsUpdate();
 
   /**
    * Uses the simple axis theorem to detect whether a collision has occurred between
