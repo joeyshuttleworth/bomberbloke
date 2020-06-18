@@ -56,55 +56,75 @@ void level::cleanUp(){
 }
 
 
-void level::handleMovement(){
-  /*Iterate over all moving actors*/
+void level::movementUpdate(){
+    /*Iterate over all moving actors*/
     for (auto i = _level.mActors.begin(); i != _level.mActors.end(); i++) {
-        bool collision = false;
-        std::array<double,4> seperation_vectors;
         /*Update actors*/
-
         (*i)->update();
 
-        if ((*i)->is_moving()) {
+        if ((*i)->is_moving())
             (*i)->move((*i)->mPosition[0] + (*i)->mVelocity[0], (*i)->mPosition[1] + (*i)->mVelocity[1]);
-            if ((*i)->mCollides == true) {
-                /*Check for collisions*/
-                for (auto j = _level.mActors.begin(); j != _level.mActors.end(); j++) {
-                    if (i == j)
-                        continue;
-                    if ((*j)->mCollides == true) {
-                        dvector iAxesMvt = (*i)->testNormalAxes(*j);
-                        if (iAxesMvt[0] == 0 && iAxesMvt[1] == 0) {
-                            continue;
-                        }
-                        dvector jAxesMvt = (*i)->testNormalAxes(*j);
-                        if (jAxesMvt[0] == 0 && jAxesMvt[1] == 0) {
-                            continue;
-                        }
-                        
-                        double iMvtSqrNorm = iAxesMvt[0] * iAxesMvt[0] + iAxesMvt[1] * iAxesMvt[1];
-                        double jMvtSqrNorm = jAxesMvt[0] * jAxesMvt[0] + jAxesMvt[1] * jAxesMvt[1];
-                        dvector iRvt;
-                        dvector jRvt;
-                        if (iMvtSqrNorm > jMvtSqrNorm) {
-                            jRvt = jAxesMvt;
-                            iRvt = {{-jRvt[0], -jRvt[1]}};
-                        } else {
-                            iRvt = iAxesMvt;
-                            jRvt = {{-iRvt[0], -iRvt[1]}};
-                        }
-                        std::cout << "collision" << std::endl;
-                        std::cout << iRvt[0] << " " << iRvt[1] << std::endl;
-                        
-                        
-                        (*i)->resolveCollision(*j, iRvt);
-                        // (*j)->resolveCollision(*i, jRvt);
-                    }
-                }
+    }
+    
+    return;
+}
+
+void level::physicsUpdate() {
+    /* Detect collisions */
+    
+    // TODO: Will be moving to region based collision checking eventually
+    int iIndex = -1;
+    int jIndex = -1;
+    for (auto i = _level.mActors.begin(); i != _level.mActors.end(); i++) {
+        iIndex++;
+        if ((*i)->mCollides == false)
+            continue;
+        for (auto j = _level.mActors.begin(); j != _level.mActors.end(); j++) {
+            jIndex++;
+            // Iterate until distinct pair obtained
+            if (jIndex <= iIndex || (*i) == (*j)) {
+                continue;
             }
+            
+            if ((*j)->mCollides == false)
+                continue;
+            
+            // Obtain separating axis
+            dvector iAxesMtv = (*i)->testNormalAxes(*j);
+            if (iAxesMtv[0] == 0 && iAxesMtv[1] == 0)
+                continue;
+            dvector jAxesMtv = (*i)->testNormalAxes(*j);
+            if (jAxesMtv[0] == 0 && jAxesMtv[1] == 0)
+                continue;
+            
+            // No separating axis found - find minimum translation vector (MTV)
+            // MTV pointing away from i and j respectively
+            dvector iMtv;
+            dvector jMtv;
+            
+            // Determine which of the two candidate MTVs are minimum
+            double iMtvSqrNorm = iAxesMtv[0] * iAxesMtv[0] +
+                iAxesMtv[1] * iAxesMtv[1];
+            double jMtvSqrNorm = jAxesMtv[0] * jAxesMtv[0] +
+                jAxesMtv[1] * jAxesMtv[1];
+            if (iMtvSqrNorm > jMtvSqrNorm) {
+                jMtv = jAxesMtv;
+                iMtv = {{-jMtv[0], -jMtv[1]}};
+            } else {
+                iMtv = iAxesMtv;
+                jMtv = {{-iMtv[0], -iMtv[1]}};
+            }
+            
+            // Register collision for both i and j
+            (*i)->registerCollision(*j, iMtv);
+            (*j)->registerCollision(*i, jMtv);
         }
     }
-    return;
+    
+    // Apply collision updates
+    for (auto i = _level.mActors.begin(); i != _level.mActors.end(); i++) {
+        (*i)->resolveCollision();
+    }
 }
 
 void level :: draw(){

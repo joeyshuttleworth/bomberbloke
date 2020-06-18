@@ -4,13 +4,13 @@
 #include <SDL2/SDL.h>
 #include <memory>
 
-#include "PhysicsCollider.hpp"
+#include "KinematicCollider.hpp"
 
 extern SDL_Renderer *_renderer;
 
 class AbstractPlayer;
 
-class actor: public PhysicsCollider {
+class actor: public KinematicCollider {
   friend class MoveEvent;
 protected:
   SDL_Texture *mpSprite = NULL;
