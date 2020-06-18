@@ -33,8 +33,7 @@ void client_loop(){
        SDL_Delay(delay);
      }
      handle_input();
-     _level.movementUpdate();
-     _level.physicsUpdate();
+     _pLevel->update();
      draw_screen();
      gameUpdate();
      _tick++;
@@ -51,7 +50,7 @@ void engine_new_game(std::string tokens){
   log_message(INFO, (char*)"New game ready to start...\n");
   _state = PAUSED;
   new_game(tokens);
-  level _level;
+  _pLevel = std::shared_ptr<level>(new level());
   return;
 }
 

@@ -3,17 +3,21 @@
 
 #include <SDL2/SDL.h>
 #include <memory>
+#include <array>
+#include "Camera.hpp"
 
 #include "KinematicCollider.hpp"
 
 extern SDL_Renderer *_renderer;
 
-class AbstractPlayer;
+class AbstractPlayer; class AbstractSpriteHandler;
 
 class actor: public KinematicCollider {
   friend class MoveEvent;
 protected:
-  SDL_Texture *mpSprite = NULL;
+  // SDL_Texture *mpSprite = NULL;
+
+  std::shared_ptr<AbstractSpriteHandler> mpSpriteHandler;
 
   /* GetPlayer uses mPlayerId to return a pointer to the controlling player (if it exists)
      A value of 0 indicates that the actor is not controlled by any player.
@@ -26,16 +30,23 @@ protected:
   */
   int    mPlayerId = 0;
 
-  /*The id of this actor. Used by  _level.mActors*/
-  Uint32 mId;
+  /*The id of this actor. Used by  level::mActors*/
+  unsigned int mId;
 
 public:
-  /*Flag to indicate removal when next updated*/
+
+  /* TODO replace this */
+  dvector mDimmension;
+
+  void draw(Camera *cam){
+    mpSpriteHandler->draw(cam);
+  }
 
   int GetId(){
     return mId;
   }
 
+  /*Flag to indicate removal when next updated*/
   bool mRemove = false;
   actor(double x = 0, double y = 0, bool collides = true);
 
@@ -52,20 +63,9 @@ public:
   /*Do we collide with other actors*/
   bool mCollides;
 
-  /*Position is the bottom left hand side of the actor */
-  double mDimmension[2];
-
-
-  virtual void ReloadSprite(){
-    if(mpSprite)
-      SDL_DestroyTexture(mpSprite);
-    mpSprite = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET,1024, 1024);
-    SDL_SetRenderTarget(_renderer, mpSprite);
-    SDL_SetRenderDrawColor(_renderer, 0xFF, 0xA1, 0x0A, 0xFF);
-    SDL_RenderClear(_renderer);
-    SDL_RenderFillRect(_renderer, NULL);
-    SDL_RenderPresent(_renderer);
-    SDL_SetRenderTarget(_renderer, NULL);
+  void ReloadSprite(){
+    if(mpSpriteHandler)
+      mpSpriteHandler->ReloadSprite();
     return;
   }
 
@@ -76,6 +76,10 @@ public:
   double get_midpoint(int);
   virtual void update() = 0;
 
+  void updateSprite(){
+    mpSpriteHandler->update(mPosition);
+  }
+
   virtual void handle_command(std::string) = 0;
 
   /*Serialise this class using cereal.
@@ -83,12 +87,13 @@ public:
     be handled by the properties stored in a child of this class. To see why,
     consider a game where the player's character model can only be one of two sizes,
     it seems silly to send a double[2] in this case.*/
-  // template<class Archive> 
-  // void serialize(Archive &archive){
-  //   archive(mId, mPlayerId, mPosition, mVelocity);
-  // 
-  // }
+
+  template<class Archive>
+  void serialize(Archive &archive){
+    archive(mId, mPlayerId, mPosition[0], mVelocity[0]);
+  }
 
 };
 
+CEREAL_REGISTER_TYPE(actor)
 #endif

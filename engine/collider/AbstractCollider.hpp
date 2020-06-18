@@ -27,7 +27,7 @@ public:
      */
     dvector mPosition;
     dvector mVelocity = {{0., 0.}};
-    
+
     /**
      * The vertices that form the shape of the collider.
      * Must be convex. List vertices counter-clockwise.
@@ -36,19 +36,19 @@ public:
     std::vector<dvector> mFrameVertices;
 
     /**
-     * Helper function for SAT computations. Projects collision frame onto axis. 
-     * Returns interval of projection as minimum and maximum value (in that 
+     * Helper function for SAT computations. Projects collision frame onto axis.
+     * Returns interval of projection as minimum and maximum value (in that
      * order).
      */
     std::array<double, 2> projectOntoAxis(dvector axis);
-    
+
     /**
      * Tests for a separating axis on all axes normal to the frame.
      * If found to be non-separating, returns the smallest translation vector
      * that resolves the collision and is in the direction of one of the axes
      * described above.
      * By standard, vectors are given that point away from the collider for
-     * which the method is called. 
+     * which the method is called.
      */
     std::array<double, 2> testNormalAxes(
         std::shared_ptr<AbstractCollider> collider
@@ -62,13 +62,13 @@ public:
         std::shared_ptr<AbstractCollider> collider, 
         dvector mtv
     ) = 0;
-    
+
     /**
      * Applies changes resulting from registered collisions. Called after
      * registerCollision is called for all collisions.
      */
     virtual void resolveCollision() = 0;
-    
+
     /**
      * Function for obtaining collider type for derived classes.
      */

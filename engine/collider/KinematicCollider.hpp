@@ -11,7 +11,7 @@ private:
      */
     dvector mDeltaVelocity = {{0., 0.}};
     dvector mDeltaPosition = {{0., 0.}};
-    
+
 public:
     /**
      * Registers a collision between itself and some other collider.
@@ -19,14 +19,14 @@ public:
      * Does not make any changes to position and velocity.
      */
     void registerCollision(std::shared_ptr<AbstractCollider> collider, dvector mtv);
-    
+
     /**
      * Applies changes resulting from registered collisions. Called after
      * registerCollision is called for all collisions.
      */
     void resolveCollision();
-    
-    /**
+
+  /**
      * Function for obtaining collider type.
      */
     int getType() const {
