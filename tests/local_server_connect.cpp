@@ -32,10 +32,11 @@ int main() {
         server_thread.detach();
         //stop thread nicely, call destructor
     } else {
+        net_client.disconnectClient();
         server_thread.detach();
         exit(EXIT_FAILURE);
     }
-    
+    net_client.disconnectClient();
     return 0;
 }
 
