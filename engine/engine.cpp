@@ -5,6 +5,7 @@
 #include "AbstractSpriteHandler.hpp"
 #include <cereal/archives/json.hpp>
 #include <fstream>
+#include "level.hpp"
 
 /*  Globals */
 int _log_message_level = 0;
@@ -96,7 +97,7 @@ void init_engine() {
     if (_draw) {
       create_window();
     }
-   _level = level();
+    level _level;
 
     // init controller
     _controller = handle_input_controller();

@@ -5,6 +5,7 @@
 #include <utility>
 #include <array>
 #include <vector>
+#include <memory>
 
 using dvector = std::array<double, 2>;
 
