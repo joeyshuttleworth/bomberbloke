@@ -8,7 +8,6 @@
 void bloke :: accelerate(){
   /*Count how many directions we are accelerating in*/
   double acceleration_magnitude =  pow(mAcceleration[1]*mAcceleration[1] + mAcceleration[0]*mAcceleration[0], 0.5);
-  
 
   const double velocity_increase[2] = {mMaxSpeed*ACCELERATION_RATIO*mAcceleration[0]/acceleration_magnitude, mMaxSpeed*ACCELERATION_RATIO*mAcceleration[1]/acceleration_magnitude};
 
@@ -37,7 +36,6 @@ void bloke :: accelerate(){
 
 void bloke :: handle_command(std::string command){
 
-  std::cout << command << "\n";
   /*True if the key is pressed down- false if it is up*/
   bool key_down = (command[0]=='+');
   if(command == "kill"){
@@ -97,9 +95,9 @@ void bloke :: update(){
 
 void bloke :: place_bomb(){
   if(mBombs<mMaxBombs){
-    std::shared_ptr<bomb> new_bomb(new bomb(round(mPosition[0])+0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), round(mPosition[1]) + 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE)));
+    std::shared_ptr<bomb> new_bomb(new bomb(round(mPosition[0])+0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), round(mPosition[1]) + 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), false));
     new_bomb->init(this);
-    _level.mActors.push_back(new_bomb);
+    _pLevel->mActors.push_back(new_bomb);
     /*Output the serilisation of the bomb to std::cout*/
     // cereal::JSONOutputArchive oArchive(std::cout);
     // oArchive(*new_bomb);

@@ -7,7 +7,8 @@
 #include <fstream>
 #include "level.hpp"
 
-/*  Globals */
+/*  TODO: reduce number of globals */
+std::shared_ptr<Camera> _pCamera;
 int _log_message_level = 0;
 bool _bind_next_key = false;
 std::string _next_bind_command;
@@ -24,7 +25,7 @@ bool _controller_connected = false;
 int DEADZONE = 9000;
 std::string dX = "0.1";
 Uint8 *_kb_state = NULL;
-level _level;
+std::shared_ptr<level> _pLevel;
 unsigned int _tick = 0;
 std::string _nickname = "big_beef";
 ServerInfo _server_info;
@@ -34,12 +35,6 @@ std::vector<CommandBinding> _default_bindings;
 
 
 void exit_engine(int signum) {
-    //Destroy window
-    // // if (_window) {
-    // //   //     SDL_DestroyWindow(_window);
-    //     _window = NULL;
-    // }
-    //Quit SDL subsystems
     SDL_Delay(500);
     SDL_Quit();
     _halt = true;
@@ -54,7 +49,9 @@ void create_window(){
     window_name = "Bomberbloke Server";
   _window = SDL_CreateWindow(window_name.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                              _window_size[0], _window_size[1], SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
-  _zoom = (double)(_window_size[0]) / (_level.mDimmension[0]);
+  if(_pCamera)
+    _pCamera->SetZoom();
+  // _zoom = (double)(_window_size[0]) / (_pLevel->mDimmension[0]);
   if(_renderer){
     SDL_DestroyRenderer(_renderer);
   }
@@ -66,7 +63,7 @@ void create_window(){
 
 /*  Reload all of our sprites */
 void ReloadSprites(){
-  _level.ReloadSprites();
+  _pLevel->ReloadSprites();
   for(auto i = _particle_list.begin(); i != _particle_list.end(); i++){
     (*i)->ReloadSprite();
   }
@@ -87,9 +84,8 @@ void resize_window(int x, int y){
 }
 
 void init_engine() {
-
-    signal(SIGINT, exit_engine);
-    SDL_Init(SDL_INIT_EVERYTHING);
+  signal(SIGINT, exit_engine);
+  SDL_Init(SDL_INIT_EVERYTHING);
 
     /*  Set blendmode */
     SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
@@ -97,9 +93,11 @@ void init_engine() {
     if (_draw) {
       create_window();
     }
-    level _level;
 
-    // init controller
+    _pLevel = std::shared_ptr<level>(new level(10, 10));
+    _pCamera = std::shared_ptr<Camera>(new Camera(_pLevel));
+
+    /* Initialise the controller if it exists */
     _controller = handle_input_controller();
     _controller_connected = _controller != nullptr ? true : false;
 
@@ -139,7 +137,7 @@ void handle_input() {
           if(event.window.event == SDL_WINDOWEVENT_RESIZED){
             _window_size[0] = event.window.data1;
             _window_size[1] = event.window.data2;
-            _zoom = (double)(_window_size[0]) / (_level.mDimmension[0]);
+            _pCamera->SetZoom();
           }
         }
     }
@@ -158,7 +156,6 @@ void handle_input() {
                         _system_commands.end()) {
                         handle_system_command(split_to_tokens(command_to_send)); // process system command
                     } else {
-                      std::cout << command_to_send << "\n";
                       std::shared_ptr<actor> character = i->getCharacter();
                       if(i->getCharacter())
                         i->getCharacter()->handle_command(command_to_send); // handle normal command
@@ -209,48 +206,6 @@ SDL_Joystick *handle_input_controller() {
     } else { return NULL; } // no joystick found
 }
 
-
-// bool handle_collision(std::shared_ptr<actor> a, std::shared_ptr<actor> b) {
-//     bool collision = true;
-//
-//     std::vector<double> aPosition = {a->mPosition[0], a->mPosition[1]};
-//     std::vector<double> bPosition = {b->mPosition[0], b->mPosition[1]};
-//
-//     // Test axes normal to actor a
-//     // TODO: Move test axis generation into ColliderFrame
-//     int aNVertices =  a->mColliderFrame.mFrameVertices.size();
-//     for (int i = 0; i < aNVertices - 1; i++) {
-//         // Normal axis is given (-y, x) where (x, y) = v2 - v1
-//         std::vector<double> axis = {
-//             a->mColliderFrame.mFrameVertices[i][1] - a->mColliderFrame.mFrameVertices[i + 1][1],
-//             a->mColliderFrame.mFrameVertices[i + 1][0] - a->mColliderFrame.mFrameVertices[i][0]
-//         };
-//
-//         std::pair<double, double> aProjVal = a->mColliderFrame.projectOntoAxis(axis, aPosition);
-//         std::pair<double, double> bProjVal = b->mColliderFrame.projectOntoAxis(axis, bPosition);
-//
-//         if (aProjVal.second < bProjVal.first || aProjVal.first > bProjVal.second)
-//             collision = false;
-//     }
-//
-//     // Test axes normal to actor b
-//     int bNVertices =  b->mColliderFrame.mFrameVertices.size();
-//     for (int i = 0; i < bNVertices - 1; i++) {
-//         // Normal axis is given (-y, x) where (x, y) = v2 - v1
-//         std::vector<double> axis = {
-//             b->mColliderFrame.mFrameVertices[i][1] - a->mColliderFrame.mFrameVertices[i + 1][1],
-//             b->mColliderFrame.mFrameVertices[i + 1][0] - a->mColliderFrame.mFrameVertices[i][0]
-//         };
-//
-//         std::pair<double, double> aProjVal = a->mColliderFrame.projectOntoAxis(axis, aPosition);
-//         std::pair<double, double> bProjVal = b->mColliderFrame.projectOntoAxis(axis, bPosition);
-//
-//         if (aProjVal.second < bProjVal.first || aProjVal.first > bProjVal.second)
-//             collision = false;
-//     }
-//     return collision;
-// }
-
 void draw_hud() {
     return;
 }
@@ -260,11 +215,8 @@ void draw_screen() {
     return;
   SDL_SetRenderDrawColor(_renderer, 0x10, 0xFF, 0x00, 0xFF);
   SDL_RenderClear(_renderer);
-
-  _level.draw();
-
-  _level.cleanUp();
-
+  _pCamera->draw();
+  _pLevel->cleanUp();
   SDL_RenderPresent(_renderer);
   return;
 }

@@ -24,7 +24,7 @@ AbstractCollider::AbstractCollider(std::vector<dvector> vertices) {
 std::array<double, 2> AbstractCollider::projectOntoAxis(dvector axis) {
     double minValue = 0.;
     double maxValue = 0.;
-    
+
     if (mFrameVertices.size() > 0) {
         minValue = vectorProduct(mFrameVertices[0], axis);
         maxValue = minValue;
