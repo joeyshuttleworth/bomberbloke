@@ -1,0 +1,3 @@
+[submodule "bottle-master-server"]
+	path = bottle-master-server
+	url = https://github.com/davenewham/bottle-master-server
