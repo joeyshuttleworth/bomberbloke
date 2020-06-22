@@ -16,11 +16,11 @@ class bomb : public actor {
 
   /*Cereal serialisation*/
 
-  template<class Archive>
-  void serialize(Archive &archive){
-    archive(cereal::base_class<actor>(this), mPower, mTimer, mSatellite, mBigBomb);
-    return;
-  }
+  // template<class Archive>
+  // void serialize(Archive &archive){
+  //   archive(cereal::base_class<actor>(this), mPower, mTimer, mSatellite, mBigBomb);
+  //   return;
+  // }
 
   void init(bloke*);
   void explode();

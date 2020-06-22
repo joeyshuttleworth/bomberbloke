@@ -29,7 +29,7 @@ void bloke :: accelerate(){
   command << "accel " << mAcceleration[0] << " " << mAcceleration[1];
   CommandEvent event(command.str());
   // Output in JSON for debugging
-  cereal::JSONOutputArchive oArchive(std::cout);
+  // cereal::JSONOutputArchive oArchive(std::cout);
   //oArchive(event);
   return;
 }
@@ -99,8 +99,8 @@ void bloke :: place_bomb(){
     new_bomb->init(this);
     _pLevel->mActors.push_back(new_bomb);
     /*Output the serilisation of the bomb to std::cout*/
-    cereal::JSONOutputArchive oArchive(std::cout);
-    oArchive(*new_bomb);
+    // cereal::JSONOutputArchive oArchive(std::cout);
+    // oArchive(*new_bomb);
     mBombs++;
   }
   return;

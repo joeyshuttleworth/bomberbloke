@@ -25,7 +25,7 @@ void client_loop(){
        SDL_Delay(delay);
      }
      handle_input();
-     handle_movement();
+     _pLevel->update();
      draw_screen();
      gameUpdate();
      _tick++;
@@ -42,7 +42,7 @@ void engine_new_game(std::string tokens){
   log_message(INFO, (char*)"New game ready to start...\n");
   _state = PAUSED;
   new_game(tokens);
-  // _pLevel = level();
+  _pLevel = std::shared_ptr<level>(new level());
   return;
 }
 

@@ -8,6 +8,7 @@
 #include <cereal/archives/json.hpp>
 #include <fstream>
 #include <exception>
+#include "level.hpp"
 
 /*  TODO: reduce number of globals */
 std::shared_ptr<Camera> _pCamera;
@@ -207,74 +208,6 @@ SDL_Joystick *handle_input_controller() {
         std::cout << "Controlled connected\n ";
         return SDL_JoystickOpen(0); // return joystick identifier
     } else { return NULL; } // no joystick found
-}
-
-
-bool handle_collision(std::shared_ptr<actor> a, std::shared_ptr<actor> b) {
-    bool collision = true;
-    double a_tmp_midpoint[2] = {a->get_midpoint(0), a->get_midpoint(1)}; 
-    double b_midpoint[2] = {b->get_midpoint(0), b->get_midpoint(1)};
-    double distance[2];
-    if (!a->is_moving())
-        return false;
-    for (int i = 0; i < 2; i++) {
-        a_tmp_midpoint[i] = a_tmp_midpoint[i] + a->mVelocity[i];
-        if ((distance[i] = std::abs(a_tmp_midpoint[i] - b_midpoint[i])) >
-            double(0.5 * (a->mDimmension[i] + b->mDimmension[i]))) {
-            collision = false;
-            break;
-        }
-    }
-    if (collision) {
-        int x_iter = 1;
-        int i = 0;
-        if (distance[1] > distance[0])
-            i = 1;
-        if (a->mVelocity[i] < 0)
-            x_iter = -1;
-        a_tmp_midpoint[i] = a_tmp_midpoint[i] - x_iter * (1e-8 + (a->mDimmension[i] + b->mDimmension[i]) * 0.5 -
-                                                std::abs(a_tmp_midpoint[i] - b_midpoint[i]));
-        a->mVelocity[i] = 0;
-        a->move(a_tmp_midpoint[0] - a->mDimmension[0] / 2, a_tmp_midpoint[1] - a->mDimmension[1] / 2);
-    }
-    return collision;
-}
-
-void handle_movement() {
-    /*Iterate over all moving actors*/
-    for (auto i = _pLevel->mActors.begin(); i != _pLevel->mActors.end(); i++) {
-        bool collision = false;
-
-        /*  TODO: move this elsewhere */
-        (*i)->updateSprite();
-        /*Update actors*/
-        (*i)->update();
-
-        if (!(*i)->is_moving())
-            continue;
-        if ((*i)->mCollides == false)
-            (*i)->move((*i)->mPosition[0] + (*i)->mVelocity[0], (*i)->mPosition[1] + (*i)->mVelocity[1]);
-
-        else {
-
-            /*Check for collisions*/
-
-            for (auto j = _pLevel->mActors.begin(); j != _pLevel->mActors.end(); j++) {
-                if (i == j)
-                    continue;
-                if ((*j)->mCollides == true)
-                    if (handle_collision(*i, *j)) {
-                        collision = true;
-                        break;
-                    }
-                if (collision)
-                    break;
-            }
-            if (!collision)
-                (*i)->move((*i)->mPosition[0] + (*i)->mVelocity[0], (*i)->mPosition[1] + (*i)->mVelocity[1]);
-        }
-    }
-    return;
 }
 
 void draw_hud() {

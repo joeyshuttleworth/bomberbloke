@@ -1,6 +1,7 @@
 #ifndef ABSTRACTSPRITEHANDLER_HPP
 #define ABSTRACTSPRITEHANDLER_HPP
 #include <SDL2/SDL.h>
+#include <array>
 
 extern unsigned int _tick;
 class Camera;
@@ -46,7 +47,7 @@ public:
       return false;
   }
 
-  virtual void update(double coords[]){
+  virtual void update(std::array<double,2> coords){
     mPosition[0] = coords[0];
     mPosition[1] = coords[1];
     return;

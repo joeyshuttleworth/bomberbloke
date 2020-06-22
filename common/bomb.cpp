@@ -11,7 +11,6 @@ void bomb::init(bloke *bloke){
   std::shared_ptr<PlaceHolderSprite> sprite(new  PlaceHolderSprite(mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]));
   mpSpriteHandler = std::dynamic_pointer_cast<AbstractSpriteHandler>(sprite);
   mCollides = false;
-  memset(mVelocity, 0, 2*sizeof(double));
   mTimer = _default_bomb_timer;
   if(bloke){
     mPlacedById = bloke->mId;

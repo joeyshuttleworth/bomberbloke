@@ -8,5 +8,7 @@ common/bomb.cpp
 common/Explosion.cpp
 engine/network/NetClient.cpp
 engine/network/NetServer.cpp
+engine/collider/AbstractCollider.cpp
+engine/collider/KinematicCollider.cpp
 engine/animation/PlaceHolderSprite.cpp
 engine/camera/Camera.cpp

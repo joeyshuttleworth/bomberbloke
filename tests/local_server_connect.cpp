@@ -29,6 +29,7 @@ int main() {
     */
     if (net_client.connectClient("127.0.0.1", 8888)) {
       rc = 0;
+      net_client.disconnectClient();
     }
     else {
       rc = -1;
