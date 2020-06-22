@@ -7,7 +7,7 @@
 class bomb : public actor {
  protected:
   Uint8 mTimer;
-  Uint8 mPower;
+  Uint8 mPower = 2;
   int  mPlacedById = 0;
   bool mPenetration;
   bool mBigBomb;

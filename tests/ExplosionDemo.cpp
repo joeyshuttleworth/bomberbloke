@@ -21,9 +21,12 @@ int main (){
   SDL_Init(SDL_INIT_EVERYTHING);
   init_engine();
 
+  _pLevel->mActors.push_back(std::shared_ptr<bloke>(new bloke(5,5,true)));
+  cereal::JSONOutputArchive oArchive(std::cout);
+
   for(unsigned int i = 0; i < 10; i++)
     for(unsigned int j = 0; j < 10; j++){
-      _level.mParticleList.push_back(std::shared_ptr<Explosion>(new Explosion(i, j, 1, 1, 60 + i + 2*j, 600 - 2*i - j)));
+      _pLevel->mParticleList.push_back(std::shared_ptr<Explosion>(new Explosion(i, j, 1, 1, 60 + i + 2*j, 600 - 2*i - j)));
   }
 
   client_loop();

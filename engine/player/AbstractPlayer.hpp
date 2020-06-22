@@ -8,7 +8,6 @@
   clients.
  */
 
-
 #ifndef ABSTRACTPLAYER_HPP
 #define ABSTRACTPLAYER_HPP
 #include<string>
@@ -19,16 +18,20 @@ class actor;
 class AbstractPlayer{
 public:
   AbstractPlayer(std::string);
-  AbstractPlayer();
-  ~AbstractPlayer();
+  AbstractPlayer(){};
+  ~AbstractPlayer(){};
+
   std::string mNickname;
+
   int getId(){
     return mId;
   }
-  void init(std::shared_ptr<actor>);
+
+  void setCharacter(std::shared_ptr<actor>);
   std::shared_ptr<actor> getCharacter(){
     return mpCharacter;
   }
+
 protected:
   int mType;
   std::shared_ptr<actor> mpCharacter;
@@ -40,12 +43,6 @@ protected:
     return mPingElapsedTime;
   }
 
-  /*Cereal serialisation*/
-  // template<class Archive>
-  // void serialize(Archive &archive){
-  //   archive(mNickname);
-  //   return;
-  // }
 };
 
 #endif
