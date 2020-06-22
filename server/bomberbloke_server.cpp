@@ -25,7 +25,7 @@ int main (){
 }
 
 void new_game(std::string arguments){
-  _level.mSpawnPoints = _spawn_points;
+  _pLevel->mSpawnPoints = _spawn_points;
   log_message(INFO, "Stating new game with arguments: " + arguments + ".");
   /*for(auto i = _client_list.begin(); i != _client_list.end(); i++){
      bloke b = bloke();

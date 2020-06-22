@@ -3,14 +3,18 @@
 
 #include <SDL2/SDL.h>
 #include <memory>
+#include "Camera.hpp"
 
 extern SDL_Renderer *_renderer;
 
-class AbstractPlayer;
+class AbstractPlayer; class AbstractSpriteHandler;
+
 class actor{
   friend class MoveEvent;
 protected:
-  SDL_Texture *mpSprite = NULL;
+  // SDL_Texture *mpSprite = NULL;
+
+  std::shared_ptr<AbstractSpriteHandler> mpSpriteHandler;
 
   /* GetPlayer uses mPlayerId to return a pointer to the controlling player (if it exists)
      A value of 0 indicates that the actor is not controlled by any player.
@@ -23,20 +27,22 @@ protected:
   */
   int    mPlayerId = 0;
 
-  /*The id of this actor. Used by  _level.mActors*/
+  /*The id of this actor. Used by  pLevel.mActors*/
   Uint32 mId;
 
 public:
-  /*Flag to indicate removal when next updated*/
+
+  void draw(Camera *cam){
+    mpSpriteHandler->draw(cam);
+  }
 
   int GetId(){
     return mId;
   }
 
+  /*Flag to indicate removal when next updated*/
   bool mRemove = false;
-  actor(double, double);
-  actor();
-
+  actor(double x = 0, double y = 0, bool = false);
 
   /*Returns an enum defined by the game identifying what type of actor this is
     e.g block, bloke.*/
@@ -47,37 +53,30 @@ public:
     This is found by searching _player_list
     if we haven't already*/
   std::shared_ptr<AbstractPlayer> getPlayer();
-  
+
   /*Do we collide with other actors*/
   bool mCollides;
 
-  
-  /*Position is the bottom left hand side of the actor */  
-  double mPosition[2];
-  double mDimmension[2];
-  double mVelocity[2];
-
-
-  virtual void ReloadSprite(){
-    if(mpSprite)
-      SDL_DestroyTexture(mpSprite);
-    mpSprite = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET,1024, 1024);
-    SDL_SetRenderTarget(_renderer, mpSprite);
-    SDL_SetRenderDrawColor(_renderer, 0xFF, 0xA1, 0x0A, 0xFF);
-    SDL_RenderClear(_renderer);
-    SDL_RenderFillRect(_renderer, NULL);
-    SDL_RenderPresent(_renderer);
-    SDL_SetRenderTarget(_renderer, NULL);
+  void ReloadSprite(){
+    if(mpSpriteHandler)
+      mpSpriteHandler->ReloadSprite();
     return;
   }
 
-  void draw();
+
+  /*Position is the bottom left hand side of the actor */
+  double mPosition[2];
+  double mDimmension[2];
+  double mVelocity[2];
   int move(double x, double y);
   bool is_moving();
   int init(double, double);
   double get_midpoint(int);
   virtual void update() = 0;
 
+  void updateSprite(){
+    mpSpriteHandler->update(mPosition);
+  }
   virtual void handle_command(std::string) = 0;
 
   /*Serialise this class using cereal.
