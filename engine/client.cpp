@@ -10,7 +10,7 @@
 
 unsigned int _last_receive;
 bool _draw = true;
-bool _server = true;
+bool _server = false;
 std::string _serverIP = "127.0.0.1";
 enet_uint16 _port = 8888;
 
@@ -18,15 +18,7 @@ void client_loop(){
   unsigned int current=0, last;
   int delay;
   _state = PLAYING;
-  // NetClient net;
-  // net.connectClient(_serverIP, _port);
   while(!_halt){
-    // if (_server){
-    //   if(net.isConnected()){
-    //     net.connectClient(_serverIP, _port);
-    //   }
-    //   // do thing
-    // }
      last = current;
      delay=(1000/TICK_RATE) - current + last;
      if(delay>0){

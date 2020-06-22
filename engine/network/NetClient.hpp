@@ -2,10 +2,9 @@
 // Created by dave on 08.06.20.
 //
 
-#ifndef BOMBERBLOKE_CLIENT_H
-#define BOMBERBLOKE_CLIENT_H
+#ifndef NETCLIENT_HPP
+#define NETCLIENT_HPP
 
-#endif //BOMBERBLOKE_CLIENT_H
 
 #include <enet/enet.h>
 #include <string>
@@ -22,13 +21,20 @@ public:
     void pollServer();
 
 private:
-    ENetAddress address;
-    ENetEvent event;
-    ENetPeer *peer;
-    ENetHost *host = nullptr;
+  /* And ENet representation of the address of the server */
+    ENetAddress mENetServerAddress;
+    ENetPeer *mENetServer;
+  /** The ENet host used by this client   */
+    ENetHost *mENetHost = nullptr;
 
     std::string mServerAddress;
     enet_uint16 mPort;
-
-
 };
+
+
+
+class NetClient;
+extern NetClient _net_client;
+
+
+#endif

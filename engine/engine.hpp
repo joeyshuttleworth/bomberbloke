@@ -105,6 +105,7 @@ extern level _level;
 extern unsigned int _tick;
 extern std::vector<CommandBinding> _default_bindings;
 extern std::list<LocalPlayer> _local_player_list;
+
 const std::array<std::string, 2> _system_commands  = {{"bind", "set"}};
 
 
