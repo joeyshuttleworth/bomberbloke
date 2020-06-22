@@ -9,6 +9,9 @@ int actor :: move(double x, double y){
   double tmp_pos[2];
   bool in_level = true;
 
+  /*  TODO: Change level bound checking to just use the vertices so that
+      it works for non-rectangular actors also  */
+
   /* Are we out of the left side of the level? */
   if(x > _pLevel->mDimmension[0] - mDimmension[0]){
     tmp_pos[0] = _pLevel->mDimmension[0] - mDimmension[0];
@@ -48,7 +51,7 @@ int actor :: move(double x, double y){
   /*Create a MoveEvent and send/save it*/
 
   MoveEvent e(this);
-  cereal::JSONOutputArchive oArchive(std::cout);
+  // cereal::JSONOutputArchive oArchive(std::cout);
   //oArchive(e);
 
 
@@ -67,8 +70,8 @@ bool actor :: is_moving(){
 }
 
 actor :: actor(double x, double y, bool collides){
-  mRemove = false;
 
+  /* TODO set mDimmension based of axis projections for non-square actors */
   mDimmension[0] = DEFAULT_ACTOR_SIZE;
   mDimmension[1] = DEFAULT_ACTOR_SIZE;
 
@@ -76,7 +79,17 @@ actor :: actor(double x, double y, bool collides){
   mPosition[1] = y;
   mVelocity[0] = 0;
   mVelocity[1] = 0;
-  mCollides = collides;
+
+  mFrameVertices = {
+    {{0., 0.}},
+    {{DEFAULT_ACTOR_SIZE, 0.}},
+    {{DEFAULT_ACTOR_SIZE, DEFAULT_ACTOR_SIZE}},
+    {{0., DEFAULT_ACTOR_SIZE}}
+  };
+
+  std::cout << "actor: collides? " << collides << "\n";
+
+  mCollides = true;
 
   return;
 }
@@ -110,3 +123,5 @@ std::shared_ptr<AbstractPlayer> actor::getPlayer(){
     return *iterator;
   }
 }
+
+

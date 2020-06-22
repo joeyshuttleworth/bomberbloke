@@ -27,13 +27,7 @@ void server_loop(){
       _ping_time = _tick;
     }
     if(_state == PLAYING){
-      for(auto i=_pLevel->mActors.begin(); i!=_pLevel->mActors.end(); i++){
-        auto prev=i;
-        i++;
-        (*prev)->update();
-      }
-      _pLevel->mActors.remove_if([](std::shared_ptr<actor>a){return a->mRemove;});
-      handle_movement();
+      _pLevel->update();
     }
     draw_screen();
       _tick++;
