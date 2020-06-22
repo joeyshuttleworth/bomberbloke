@@ -36,7 +36,7 @@ void bomb::update(){
     moved away*/
   if(mPlacedById != 0){
     if(mCollides == false){
-      std::shared_ptr<actor> placed_by = _pLevel->GetActor(mPlacedById);
+      std::shared_ptr<actor> placed_by = _pScene->GetActor(mPlacedById);
       /*TODO this is wrong. Use a corner or midpoint here*/
         if(std::abs(mPosition[0]-placed_by->mPosition[0]) > 0.5*(mDimmension[0]+placed_by->mDimmension[0])){
         mCollides=true;
@@ -54,11 +54,11 @@ void bomb::update(){
 }
 
 void bomb::explode(){
-  auto actor = _pLevel->mActors.begin();
+  auto actor = _pScene->mActors.begin();
 
   if(_server){
     /*Iterate over all actors and kill the ones if they are in the right (wrong) zone.*/
-    while(actor!=_pLevel->mActors.end()){
+    while(actor!=_pScene->mActors.end()){
       auto prev = *actor;
       actor++;
       /* Do not kill this bomb*/
@@ -77,12 +77,12 @@ void bomb::explode(){
       }
     }
   }
-  _pLevel->mParticleList.push_back(std::shared_ptr<Explosion>(new Explosion(mPosition[0] - 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), mPosition[1] - 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), 1 ,1)));
+  _pScene->mParticleList.push_back(std::shared_ptr<Explosion>(new Explosion(mPosition[0] - 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), mPosition[1] - 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), 1 ,1)));
 
   mRemove = true;
 
   /*Cast to a bloke pointer.*/
-  std::shared_ptr<bloke> placed_by = std::dynamic_pointer_cast<bloke>(_pLevel->GetActor(mPlacedById));
+  std::shared_ptr<bloke> placed_by = std::dynamic_pointer_cast<bloke>(_pScene->GetActor(mPlacedById));
   if(placed_by)
     placed_by->mBombs--;
 

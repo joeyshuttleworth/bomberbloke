@@ -1,26 +1,17 @@
 #include "engine.hpp"
 #include "Camera.hpp"
 
-level :: level(double x, double y){
+scene :: scene(double x, double y){
   mDimmension[0] = x;
   mDimmension[1] = y;
-  // /*The SDL_TEXTUREACCESSTARGET flag allows us to modify this sprite*/
-  // // mpSprite = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET,1024, 1024);
-  // SDL_SetRenderTarget(_renderer, mpSprite);
-  // SDL_SetRenderDrawColor(_renderer, 0, 0xa0, 0xFF, 0xFF);
-  // SDL_RenderClear(_renderer);
-  // SDL_RenderFillRect(_renderer, NULL);
-  // SDL_RenderPresent(_renderer);
-  // SDL_SetRenderTarget(_renderer, NULL);
-  
-    return;
-}
-
-level :: ~level(){
   return;
 }
 
-void level :: ReloadSprites(){
+scene :: ~scene(){
+  return;
+}
+
+void scene :: ReloadSprites(){
     for(auto i = mActors.begin(); i != mActors.end(); i++){
     (*i)->ReloadSprite();
   }
@@ -28,14 +19,14 @@ void level :: ReloadSprites(){
   SDL_SetRenderTarget(_renderer, NULL);
   return;
 }
-std::shared_ptr<actor> level :: GetActor(int id){
+std::shared_ptr<actor> scene :: GetActor(int id){
   /*search over actors*/
   auto iterator = std::find_if(mActors.begin(), mActors.end(), [&](std::shared_ptr<actor> a) -> bool {return a->GetId() == id;});
   // return the first one (should be unique anyway)
   return *iterator;
 }
 
-void level::cleanUp(){
+void scene::cleanUp(){
   /* Remove particles with mRemove set! */
   mParticleList.remove_if([](std::shared_ptr<AbstractSpriteHandler> s){return s->ToRemove();});
   /* Now clean up actors */
@@ -44,7 +35,7 @@ void level::cleanUp(){
 }
 
 
-void level::movementUpdate(){
+void scene::movementUpdate(){
     /*Iterate over all moving actors*/
     for (auto i = mActors.begin(); i != mActors.end(); i++) {
         /*Update actors*/
@@ -56,7 +47,7 @@ void level::movementUpdate(){
     return;
 }
 
-void level::physicsUpdate() {
+void scene::physicsUpdate() {
     /* Detect collisions */
 
     // TODO: Will be moving to region based collision checking eventually
@@ -114,7 +105,7 @@ void level::physicsUpdate() {
     }
 }
 
-void level :: draw(Camera *cam){
+void scene :: draw(Camera *cam){
   if(!cam){
     log_message(ERROR, "Attempted to draw with null camera object!");
     return;
@@ -135,12 +126,13 @@ void level :: draw(Camera *cam){
     /* Remove the previous node if its remove flag is set */
     (*i)->draw(cam);
   }
+  // mpSpriteHandler->draw();
 
- return;
+  return;
 }
 
 /* TODO: move all update and movement code into this method  */
-void level :: update(){
+void scene :: update(){
   mActors.remove_if([](std::shared_ptr<actor>a){return a->mRemove;});
   movementUpdate();
   physicsUpdate();

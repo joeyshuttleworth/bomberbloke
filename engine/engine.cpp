@@ -8,11 +8,11 @@
 #include <cereal/archives/json.hpp>
 #include <fstream>
 #include <exception>
-#include "level.hpp"
+#include "scene.hpp"
 
 /*  TODO: reduce number of globals */
 std::shared_ptr<Camera> _pCamera;
-int _log_message_level = 0;
+int _log_message_scene = 0;
 bool _bind_next_key = false;
 std::string _next_bind_command;
 int _window_size[] = {DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT};
@@ -28,7 +28,7 @@ bool _controller_connected = false;
 int DEADZONE = 9000;
 std::string dX = "0.1";
 Uint8 *_kb_state = NULL;
-std::shared_ptr<level> _pLevel;
+std::shared_ptr<scene> _pScene;
 unsigned int _tick = 0;
 std::string _nickname = "big_beef";
 ServerInfo _server_info;
@@ -55,7 +55,7 @@ void create_window(){
                              _window_size[0], _window_size[1], SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
   if(_pCamera)
     _pCamera->SetZoom();
-  // _zoom = (double)(_window_size[0]) / (_pLevel->mDimmension[0]);
+  // _zoom = (double)(_window_size[0]) / (_pScene->mDimmension[0]);
   if(_renderer){
     SDL_DestroyRenderer(_renderer);
   }
@@ -67,7 +67,7 @@ void create_window(){
 
 /*  Reload all of our sprites */
 void ReloadSprites(){
-  _pLevel->ReloadSprites();
+  _pScene->ReloadSprites();
   for(auto i = _particle_list.begin(); i != _particle_list.end(); i++){
     (*i)->ReloadSprite();
   }
@@ -98,8 +98,8 @@ void init_engine() {
       create_window();
     }
 
-    _pLevel = std::shared_ptr<level>(new level(10, 10));
-    _pCamera = std::shared_ptr<Camera>(new Camera(_pLevel));
+    _pScene = std::shared_ptr<scene>(new scene(10, 10));
+    _pCamera = std::shared_ptr<Camera>(new Camera(_pScene));
 
     /* Initialise the controller if it exists */
     _controller = handle_input_controller();
@@ -220,7 +220,7 @@ void draw_screen() {
   SDL_SetRenderDrawColor(_renderer, 0x10, 0xFF, 0x00, 0xFF);
   SDL_RenderClear(_renderer);
   _pCamera->draw();
-  _pLevel->cleanUp();
+  _pScene->cleanUp();
   SDL_RenderPresent(_renderer);
   return;
 }
@@ -229,19 +229,19 @@ void logic_loop() {
     return;
 }
 
-void log_message(int level, std::string str) {
-  if(level > ALL)
-    level = ALL;
+void log_message(int scene, std::string str) {
+  if(scene > ALL)
+    scene = ALL;
 
   /* Output to our log file */
   _console_log_file << str << "\n";
 
-  if(level < _log_message_level){
+  if(scene < _log_message_scene){
     /*Ignore the message*/
     return;
   }
   else{
-    std::cout << LOG_LEVEL_STRINGS[level] << ": " << str << std::endl;
+    std::cout << LOG_LEVEL_STRINGS[scene] << ": " << str << std::endl;
     return;
   }
 }
@@ -307,7 +307,7 @@ bool handle_system_command(std::list<std::string> tokens) {
         return false;
       }
       else{
-        address = iter->substr(0, delim_pos-1);
+        address = iter->substr(0, delim_pos);
         /*  TODO replace try-catch with something less lazy to check if
             we're going to have an error
         */
@@ -323,7 +323,10 @@ bool handle_system_command(std::list<std::string> tokens) {
          NetClient::connectClient returns true of false. Return
          this value
        */
-      return _net_client.connectClient(address, port);
+      if(!_net_client.joinBlokeServer(address, port, _nickname)){
+        log_message(INFO, "failed to connect to server");
+        return false;
+      }
     }
     else{
       /* TODO allow port number as a separate argument? */
@@ -349,7 +352,7 @@ bool handle_system_command(std::list<std::string> tokens) {
       std::string input_string = *iterator;
       for(unsigned int i = 0; i <= CRITICAL; i++){
         if(input_string == LOG_LEVEL_STRINGS[i]){
-          _log_message_level = i;
+          _log_message_scene = i;
           log_message(ALL, "Log level set to " + LOG_LEVEL_STRINGS[i]);
         }
       }
@@ -361,14 +364,6 @@ bool handle_system_command(std::list<std::string> tokens) {
   else if(command == "quit"){
     exit_engine(0);
   }
-
-  // if(command == "connect"){
-  //   if (tokens.size() == 2){
-  //     parseServerIP(std::string(tokens.back()));
-  //   } else{
-  //     setAddress();
-  //   }
-  // }
 
   else if(command ==  "generate_config"){
     if(tokens.size() == 1){

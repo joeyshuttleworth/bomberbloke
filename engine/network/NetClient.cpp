@@ -4,11 +4,15 @@
 
 #include "NetClient.hpp"
 #include "engine.hpp"
+#include "ServerInfoEvent.hpp"
 #include <string>
 #include <iostream>
 #include <sstream>
 #include "AbstractEvent.hpp"
+#include "QueryEvent.hpp"
 #include <cereal/archives/json.hpp>
+#include <memory>
+
 
 NetClient::NetClient(){
     if (enet_initialize() != 0) {
@@ -59,22 +63,61 @@ bool NetClient::connectClient(std::string serverAddress, enet_uint16 port) {
     }
 }
 
+bool NetClient::joinBlokeServer(std::string address, int port, std::string nickname){
+  ENetEvent event;
+  if(connectClient(address, port) == false){
+    return false;
+  }
+
+  /* Query the server to see if we're able to join */
+  std::unique_ptr<AbstractEvent> q_event(new QueryEvent(nickname));
+  sendEvent(q_event);
+
+  while(enet_host_service(mENetHost, &event, 5000) > 0){
+    // event occured
+    std::unique_ptr<AbstractEvent> receive_event;
+    std::stringstream data_in;
+    data_in << event.packet->data;
+    {cereal::JSONInputArchive inArchive(data_in);
+    // cereal::JSONInputArchive inArchive(data_in);
+    log_message(DEBUG, "received message: " + data_in.str());
+    inArchive(receive_event);
+    }
+    if(receive_event->getType() != EVENT_INFO){
+    /* Make the pointer shared so we can handle it elsewhere */
+    std::shared_ptr<AbstractEvent> sp_to_handle = std::move(receive_event);
+    }
+    else{
+      /*The event is a ServerInfoEvent*/
+      std::shared_ptr<AbstractEvent> tmp_event(std::move(receive_event));
+      std::shared_ptr<ServerInfoEvent> q_event = std::dynamic_pointer_cast<ServerInfoEvent>(tmp_event);
+      q_event->output();
+      return true;
+    }
+  }
+  return false;
+}
+
 void NetClient::pollServer(){
   ENetEvent event;
   while(enet_host_service(mENetHost, &event, 0)>0){
    if (event.type == ENET_EVENT_TYPE_RECEIVE) {
      // event occured
      std::stringstream data_in;
+     log_message(DEBUG, "received message: " + data_in.str());
      data_in << event.packet->data;
      std::unique_ptr<AbstractEvent> receive_event;
-     // cereal::JSONInputArchive inArchive(data_in);
-
-     log_message(DEBUG, "received message: " + data_in.str());
-
-     // inArchive(receive_event);
+     try{
+       cereal::JSONInputArchive inArchive(data_in);
+       inArchive(receive_event);
+     }
+     catch(std::exception &ex){
+       log_message(ERROR, "Tried parsing " + data_in.str());
+       std::cout << ex.what() << "\n";
+     }
 
      /* Make the pointer shared so we can handle it elsewhere */
-     // std::shared_ptr<AbstractEvent> sp_to_handle = std::move(receive_event);
+     std::shared_ptr<AbstractEvent> sp_to_handle = std::move(receive_event);
    }
   }
   return;
@@ -108,7 +151,19 @@ void NetClient::sendStringMessage(std::string message) {
     ENetPacket *packet = enet_packet_create(message.c_str(), strlen(message.c_str())+1, ENET_PACKET_FLAG_RELIABLE);
     enet_peer_send(mENetServer, 0, packet);
     enet_host_flush(mENetHost);
-    std::cout << "Sent Message\n";
+    log_message(DEBUG,  "Sent Message" + message);
+}
+
+void NetClient::sendEvent(std::unique_ptr<AbstractEvent> &event){
+  std::stringstream blob;
+  {
+    cereal::JSONOutputArchive oArchive(blob);
+    oArchive(event);
+  }
+  sendStringMessage(blob.str());
+
+  log_message(DEBUG, "Sending" + blob.str());
+  return;
 }
 
 

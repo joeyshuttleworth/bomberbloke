@@ -15,6 +15,7 @@ void bloke :: accelerate(){
     if(mAcceleration[i] != 0){
       mVelocity[i] = mVelocity[i] + velocity_increase[i];
     }
+
     else{
       double decceleration = (mVelocity[i]>0)?-mMaxSpeed*0.5: mMaxSpeed*0.5;
       if(std::abs(decceleration) > std::abs(mVelocity[i]))
@@ -97,7 +98,7 @@ void bloke :: place_bomb(){
   if(mBombs<mMaxBombs){
     std::shared_ptr<bomb> new_bomb(new bomb(round(mPosition[0])+0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), round(mPosition[1]) + 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), false));
     new_bomb->init(this);
-    _pLevel->mActors.push_back(new_bomb);
+    _pScene->mActors.push_back(new_bomb);
     /*Output the serilisation of the bomb to std::cout*/
     // cereal::JSONOutputArchive oArchive(std::cout);
     // oArchive(*new_bomb);

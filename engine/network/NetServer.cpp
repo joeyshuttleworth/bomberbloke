@@ -41,11 +41,14 @@ void NetServer::handleEvent(std::shared_ptr<AbstractEvent> pEvent, ENetPeer *fro
     std::shared_ptr<QueryEvent> pquery_event = std::dynamic_pointer_cast<QueryEvent>(pEvent);
     std::unique_ptr<AbstractEvent> info_event(new ServerInfoEvent(mServerInfo, _player_list, pquery_event->getNickname()));
     std::stringstream blob;
-    cereal::JSONOutputArchive oArchive(blob);
+    /* Using cereal archives requires these braces */
+    {
+      cereal::JSONOutputArchive oArchive(blob);
+      oArchive(info_event);
+    }
     log_message(DEBUG, "Created info event - \n" + blob.str());
-    oArchive(info_event);
     std::cout << "Create: " << blob.str() << "\n";
-    ENetPacket *packet = enet_packet_create(blob.str().c_str(), blob.str().length(), ENET_PACKET_FLAG_RELIABLE);
+    ENetPacket *packet = enet_packet_create(blob.str().c_str(), blob.str().length() + 1, ENET_PACKET_FLAG_RELIABLE);
     enet_peer_send(from, 0, packet);
     enet_host_flush(mENetServer);
     enet_packet_destroy(packet);
@@ -109,12 +112,15 @@ void NetServer::poll() {
       data_in << event.packet->data;
 
       log_message(DEBUG, "data received " + data_in.str());
-      std::unique_ptr<AbstractEvent> receive_event;
-      cereal::JSONInputArchive inArchive(data_in);
-      inArchive(receive_event);
 
-      /* Make the pointer shared so we can handle it elsewhere */
+      std::unique_ptr<AbstractEvent> receive_event;
+      {
+        cereal::JSONInputArchive inArchive(data_in);
+        inArchive(receive_event);
+      }
+
       std::shared_ptr<AbstractEvent> sp_to_handle = std::move(receive_event);
+      /* Make the pointer shared so we can handle it elsewhere */
       handleEvent(sp_to_handle, event.peer);
 
       /* Clean up the packet now that we're done using it. */
@@ -208,7 +214,7 @@ void NetServer::updateGameMasterServer(bool disconnect) {
 
 void NetServer::broadcastPacket(ENetPacket *packet, enet_uint8 channel) {
     if (clientCount() == 0) {
-        log_message(0, "ERROR: No Clients COnnected, Could not Broadcast Message!");
+        log_message(0, "ERROR: No Clients Connected, Could not Broadcast Message!");
     }
     else {
         enet_host_broadcast(mENetServer, channel, packet);

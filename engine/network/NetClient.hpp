@@ -8,6 +8,8 @@
 
 #include <enet/enet.h>
 #include <string>
+#include <memory>
+#include "AbstractEvent.hpp"
 
 class NetClient {
 public:
@@ -19,6 +21,8 @@ public:
     void disconnectClient();
     bool isConnected();
     void pollServer();
+    bool joinBlokeServer(std::string address, int, std::string);
+    void sendEvent(std::unique_ptr<AbstractEvent>&);
 
 private:
   /* And ENet representation of the address of the server */

@@ -21,9 +21,9 @@ int main (){
   _local_player_list.push_back(LocalPlayer(std::string("big_beef")));
 
   std::shared_ptr<bloke> b1(new bloke(1, 2, true));
-  _pLevel->mActors.push_back(b1);
+  _pScene->mActors.push_back(b1);
   _local_player_list.back().setCharacter(b1);
-  _pLevel->mActors.push_back(std::shared_ptr<bloke>(new bloke(1,1, true)));
+  _pScene->mActors.push_back(std::shared_ptr<bloke>(new bloke(1,1, true)));
 
   client_loop();
   SDL_Quit();

@@ -27,12 +27,10 @@ class AbstractEvent{
 public:
   virtual int getType() const = 0;
 
-  virtual void print(){};
-
+  virtual void output(){};
+  /* This is required for cereal */
   template <class Archive>
-  void serialize(Archive &ar){
-    ar(cereal::make_nvp("EventType", getType()));
-  }
+  void serialize(Archive&){}
 };
 
 #endif
