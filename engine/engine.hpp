@@ -25,7 +25,7 @@
 #define TICK_RATE 64
 
 class actor;
-class level;
+class scene;
 class LocalPlayer;
 class NetworkPlayer;
 class AbstractPlayer;
@@ -70,7 +70,7 @@ typedef struct{
   std::string command;
 } CommandBinding;
 
-enum LOG_LEVEL{
+enum LOG_SCENE{
   DEBUG = 0,
   INFO,
   WARNING,
@@ -79,27 +79,26 @@ enum LOG_LEVEL{
   ALL
 };
 
-const std::string LOG_LEVEL_STRINGS[] = {
-  "Debug",
-    "Info",
-    "Warning",
-    "ERROR",
-    "ALL"
-};
+const std::string LOG_LEVEL_STRINGS[] =
+  {"Debug",
+   "Info",
+   "Warning",
+   "ERROR",
+   "ALL"};
 
 enum player_types{
   LOCAL,
   NETWORK
 };
 
-class level;
+class scene;
 
 /*Define global variables.
   TODO: consider changing these so that they're all contained in one class
  */
 class  ServerInfo;
 extern ServerInfo _server_info;
-extern std::shared_ptr<level> _pLevel;
+extern std::shared_ptr<scene> _pScene;
 
 extern unsigned int _tick;
 extern std::vector<CommandBinding> _default_bindings;
@@ -118,7 +117,7 @@ void gameUpdate();
 #include "state.h"
 #include "NetworkPlayer.hpp"
 #include "LocalPlayer.hpp"
-#include "level.hpp"
+#include "scene.hpp"
 #include "actor.hpp"
 #include "config.hpp"
 #include "Camera.hpp"

@@ -1,5 +1,5 @@
-#ifndef LEVEL_HPP
-#define LEVEL_HPP
+#ifndef SCENE_HPP
+#define SCENE_HPP
 #include <list>
 #include <string>
 #include <SDL2/SDL.h>
@@ -13,30 +13,30 @@ extern double _zoom;
 
 class actor; class Camera;
 
-/* Actor which stores information about the level including the actors present and methods for updating and drawing the level */
-class level{
+/* Actor which stores information about the scene including the actors present and methods for updating and drawing the scene */
+class scene{
 
 protected:
-  /*name and description are information about this level*/
+  /*name and description are information about this scene*/
   std::string mName;
   std::string mDescription;
-
+  std::shared_ptr<AbstractSpriteHandler> mpSpriteHandler;
 public:
   /* Spawnpoints is a collection of coordinates where players can be spawned */
   std::vector<int> mSpawnPoints;
 
-/* dim_x and dim_y are the size of our level in the x and y axis respectively */
+/* dim_x and dim_y are the size of our scene in the x and y axis respectively */
   double mDimmension[2];
 
   /*
-   * mActors holds each object in our level.
+   * mActors holds each object in our scene.
    * Cereal will only work if we use smart pointers
    * here but we should probably be using them anyway *?
    *
    */
   std::list<std::shared_ptr<actor>> mActors;
 
-  /*Draw our level on the window. Then draw every actor in mActors*/
+  /*Draw our scene on the window. Then draw every actor in mActors*/
   void draw(Camera *cam);
   void ReloadSprites();
 
@@ -47,20 +47,20 @@ public:
 
   std::list<std::shared_ptr<AbstractSpriteHandler>> mParticleList;
 
-  /*  Return the midpoint of the level. This is used by the Camera class. */
+  /*  Return the midpoint of the scene. This is used by the Camera class. */
 
   std::array<double,2> getMidpoint(){
     std::array<double,2> ret = {mDimmension[0] / 2, mDimmension[1]/2};
     return ret;
   }
 
-  level(double x=10, double y=10);
+  scene(double x=10, double y=10);
 
-  level(const level &lvl);
-  ~level();
+  scene(const scene &lvl);
+  ~scene();
   std::shared_ptr<actor> GetActor(int id);
 
-  /*  Clean up sprites and actors from the level
+  /*  Clean up sprites and actors from the scene
   *
   *   Remove all actors in mActors with mRemove set to true,
   *   remove all AbstractSpriteHandlers in mParticleList with
@@ -80,7 +80,7 @@ public:
 
   /**
    * Uses the simple axis theorem to detect whether a collision has occurred between
-   * two actors in the level and returns a vector telling handleMovement how to
+   * two actors in the scene and returns a vector telling handleMovement how to
    * separate them.
    *
    * @param a, pointer to an actor
@@ -91,11 +91,15 @@ public:
    */
   std::array<double, 4> detectCollision(std::shared_ptr<actor> a, std::shared_ptr<actor> b);
   /*
-   *   Update each actor in the level. This could be used to implement
+   *   Update each actor in the scene. This could be used to implement
    *   game specific logic in the future
    */
 
   virtual void update();
+
+  virtual bool isFinished(){
+    return false;
+  }
 
   /*We only need to send mDimmension and the mActorList*/
   template <class Archive>

@@ -27,7 +27,7 @@ void server_loop(){
       _ping_time = _tick;
     }
     if(_state == PLAYING){
-      _pLevel->update();
+      _pScene->update();
     }
     draw_screen();
       _tick++;

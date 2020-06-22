@@ -28,7 +28,7 @@ include_directories(${CURL_INCLUDE_DIRS})
 #Include directories
 include_directories(${PROJECT_SOURCE_DIR}/engine/event)
 include_directories(${PROJECT_SOURCE_DIR}/engine/file)
-include_directories(${PROJECT_SOURCE_DIR}/engine/level)
+include_directories(${PROJECT_SOURCE_DIR}/engine/scene)
 include_directories(${PROJECT_SOURCE_DIR}/engine/network)
 include_directories(${PROJECT_SOURCE_DIR}/engine/player)
 include_directories(${PROJECT_SOURCE_DIR}/engine/actor)

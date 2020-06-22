@@ -7,38 +7,38 @@
 
 int actor :: move(double x, double y){
   double tmp_pos[2];
-  bool in_level = true;
+  bool in_scene = true;
 
-  /*  TODO: Change level bound checking to just use the vertices so that
+  /*  TODO: Change scene bound checking to just use the vertices so that
       it works for non-rectangular actors also  */
 
-  /* Are we out of the left side of the level? */
-  if(x > _pLevel->mDimmension[0] - mDimmension[0]){
-    tmp_pos[0] = _pLevel->mDimmension[0] - mDimmension[0];
+  /* Are we out of the left side of the scene? */
+  if(x > _pScene->mDimmension[0] - mDimmension[0]){
+    tmp_pos[0] = _pScene->mDimmension[0] - mDimmension[0];
     mVelocity[0] = 0;
-    in_level = false;
+    in_scene = false;
   }
   /* Are we too far right?*/
   else if (x <= 0){
     tmp_pos[0]=0;
     mVelocity[0] = 0;
-    in_level = false;
+    in_scene = false;
   }
   else{
     tmp_pos[0] = x;
   }
 
   /*Are we too high?*/
-  if(y > _pLevel->mDimmension[1] - mDimmension[1]){
-    tmp_pos[1] = _pLevel->mDimmension[1]-mDimmension[1];
+  if(y > _pScene->mDimmension[1] - mDimmension[1]){
+    tmp_pos[1] = _pScene->mDimmension[1]-mDimmension[1];
     mVelocity[1] = 0;
-    in_level = false;
+    in_scene = false;
   }
   /*Are we too low?*/
   else if (y < 0){
     tmp_pos[1] = 0;
     mVelocity[1] = 0;
-    in_level = false;
+    in_scene = false;
   }
   else{
     tmp_pos[1] = y;
@@ -55,7 +55,7 @@ int actor :: move(double x, double y){
   //oArchive(e);
 
 
-  if(in_level){
+  if(in_scene){
     return -1;
   }
   else
@@ -87,23 +87,14 @@ actor :: actor(double x, double y, bool collides){
     {{0., DEFAULT_ACTOR_SIZE}}
   };
 
-  std::cout << "actor: collides? " << collides << "\n";
-
-  mCollides = true;
+  mCollides = collides;
 
   return;
 }
 
-double actor :: get_midpoint(int index){
-  if(index == 0){
-   return mPosition[0] + mDimmension[0]/2;
-  }
-  else if(index==1){
-    return mPosition[1] + mDimmension[1]/2;
-  }
-  log_message(ERROR, "error actor::get_midpoint was given a dodgy index!\n");
-   return 0;
- }
+dvector actor :: getMidpoint(){
+  return {mPosition[0] + mDimmension[0]/2, mPosition[1] + mDimmension[1]/2};
+}
 
 void actor :: update(){
   return;

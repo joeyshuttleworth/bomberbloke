@@ -25,15 +25,15 @@ int main (){
 }
 
 void new_game(std::string arguments){
-  _pLevel->mSpawnPoints = _spawn_points;
+  _pScene->mSpawnPoints = _spawn_points;
   log_message(INFO, "Stating new game with arguments: " + arguments + ".");
   /*for(auto i = _client_list.begin(); i != _client_list.end(); i++){
      bloke b = bloke();
-    if(c < (double)(_level.spawn_points.size())/2){
-      b.position[0] = _level.spawn_points[c*2];
-      b.position[1] = _level.spawn_points[c*2+1];
-      _level.mActors.push_back(b);
-      i->character = &_level.mActors.back();
+    if(c < (double)(_scene.spawn_points.size())/2){
+      b.position[0] = _scene.spawn_points[c*2];
+      b.position[1] = _scene.spawn_points[c*2+1];
+      _scene.mActors.push_back(b);
+      i->character = &_scene.mActors.back();
       SDL_SetRenderTarget(_renderer, i->character->sprite);
       SDL_SetRenderDrawColor(_renderer, 0x00, 0x00, 0xFF, 0xFF);
       SDL_RenderFillRect(_renderer, NULL);

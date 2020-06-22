@@ -30,7 +30,7 @@ protected:
   */
   int    mPlayerId = 0;
 
-  /*The id of this actor. Used by  level::mActors*/
+  /*The id of this actor. Used by  scene::mActors*/
   unsigned int mId;
 
 public:
@@ -73,7 +73,7 @@ public:
   int move(double x, double y);
   bool is_moving();
   int init(double, double);
-  double get_midpoint(int);
+  dvector getMidpoint();
   virtual void update() = 0;
 
   void updateSprite(){

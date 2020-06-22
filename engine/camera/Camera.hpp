@@ -3,7 +3,7 @@
 
 #include <SDL2/SDL.h>
 #include <memory>
-#include "level.hpp"
+#include "scene.hpp"
 #include "engine.hpp"
 
 extern bool _halt;
@@ -15,8 +15,8 @@ public:
 
   Camera(){};
 
-  Camera(std::shared_ptr<level> lvl){
-    mpLevel = lvl;
+  Camera(std::shared_ptr<scene> lvl){
+    mpScene = lvl;
     SetZoom();
 
     mScreenRectangle.x=0;
@@ -54,13 +54,13 @@ public:
     double min = mWidth;
     if(mHeight>min)
       min = mHeight;
-    mZoom = ((double)min / mpLevel->mDimmension[0]);
-    log_message(DEBUG, "Zoom level is " + std::to_string(mZoom));
+    mZoom = ((double)min / mpScene->mDimmension[0]);
+    log_message(DEBUG, "Zoom scene is " + std::to_string(mZoom));
     return;
   }
 
-  std::shared_ptr<level> GetLevel(){
-    return mpLevel;
+  std::shared_ptr<scene> GetScene(){
+    return mpScene;
   }
 
   void draw(){
@@ -68,7 +68,7 @@ public:
     mScreenRectangle.x = mRumbleOffset[0];
     mScreenRectangle.y = mRumbleOffset[1];
     SDL_SetRenderTarget(_renderer, mpFrameBuffer);
-    mpLevel->draw(this);
+    mpScene->draw(this);
     SDL_SetRenderTarget(_renderer, nullptr);
     SDL_RenderCopy(_renderer, mpFrameBuffer, nullptr, &mScreenRectangle);
     return;
@@ -93,7 +93,7 @@ public:
 
   void rumble(double amplitude = 0.02, double timeout = 30);
 protected:
-  std::shared_ptr<level> mpLevel;
+  std::shared_ptr<scene> mpScene;
   double mZoom;
   int mWidth;
   int mHeight;
