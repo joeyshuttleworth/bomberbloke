@@ -48,10 +48,8 @@ public:
 
     bool init_enet();
 private:
-    ENetHost *server = nullptr;
-    ENetAddress address;
-    ENetEvent event;
-    ENetPacket *packet;
+    ENetHost *mENetServer = nullptr;
+    ENetAddress mENetAddress;
     std::string mMasterServerAddress;
 
     ServerInfo mServerInfo;
@@ -62,11 +60,11 @@ private:
      */
   void handleEvent(std::shared_ptr<AbstractEvent>, ENetPeer*);
 
-    bool stop();
+  bool stop();
 
-    void updateGameMasterServer(bool disconnect);
-    enet_uint16 PORT = 8888;
-    std::string masterServerAddress = "http://ptsv2.com/t/faryp-1591787919/post";
+  void updateGameMasterServer(bool disconnect);
+  enet_uint16 mPort = 8888;
+  std::string masterServerAddress = "http://ptsv2.com/t/faryp-1591787919/post";
 
 };
 #endif

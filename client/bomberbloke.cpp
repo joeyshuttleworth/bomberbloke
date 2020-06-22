@@ -1,5 +1,4 @@
 #include "bomberbloke.h"
-#include "cereal/archives/json.hpp"
 #include <SDL2/SDL.h>
 #include "bloke.hpp"
 #include "bomb.hpp"
@@ -20,20 +19,10 @@ int main (){
   SDL_Init(SDL_INIT_EVERYTHING);
   init_engine();
   _local_player_list.push_back(LocalPlayer(std::string("big_beef")));
-  cereal::JSONOutputArchive oArchive(std::cout);
 
-    NetClient net_client;
-    if(net_client.connectClient("127.0.0.1", 8888)){
-        SDL_Delay(1500);
-        net_client.sendStringMessage("ping_all");
-        net_client.pollServer();
-
-    }
-
-  std::shared_ptr<bloke> b1(new bloke(1,2));
+   std::shared_ptr<bloke> b1(new bloke(1,2));
   _level.mActors.push_back(b1);
   _local_player_list.back().init(b1);
-  oArchive(b1);
 
   client_loop();
   SDL_Quit();

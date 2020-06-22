@@ -3,8 +3,11 @@
 #include "MoveEvent.hpp"
 #include "ServerInfo.hpp"
 #include "AbstractSpriteHandler.hpp"
+#include "NetClient.hpp"
+#include "NetServer.hpp"
 #include <cereal/archives/json.hpp>
 #include <fstream>
+#include <exception>
 
 /*  Globals */
 int _log_message_level = 0;
@@ -30,6 +33,7 @@ ServerInfo _server_info;
 std::ofstream _console_log_file;
 std::list<std::shared_ptr<AbstractSpriteHandler>> _particle_list;
 std::vector<CommandBinding> _default_bindings;
+NetClient _net_client;
 
 
 void exit_engine(int signum) {
@@ -346,6 +350,52 @@ void load_config(std::string fname) {
 
 bool handle_system_command(std::list<std::string> tokens) {
   std::string command = tokens.front();
+
+  if(!_server && command == "open"){
+    if(tokens.size() == 2){
+      auto iter = tokens.begin();
+      iter++;        //Select the first token
+      int port;
+
+      /*  Attempt to parse the first argument as address:port.
+          If no ':' is present, the port number defaults to 8888.
+       */
+      long unsigned int delim_pos = iter->find(':');
+      std::string address;
+      if(delim_pos == std::string::npos){
+        port = 8888;
+        address = *iter;
+      }
+      else if(iter->substr(delim_pos+1).find(':')!=std::string::npos){
+        std::stringstream msg;
+        msg << "Couldn't parse address, " << *iter;
+        log_message(ERROR, msg.str());
+        return false;
+      }
+      else{
+        address = iter->substr(0, delim_pos-1);
+        /*  TODO replace try-catch with something less lazy to check if
+            we're going to have an error
+        */
+        try{
+          port = std::stoi(iter->substr(delim_pos+1).c_str());
+        }
+        catch(std::exception &e){
+          log_message(ERROR, "Failed to parse port number");
+          return false;
+        }
+      }
+      /* We now have an address and port number to connect with
+         NetClient::connectClient returns true of false. Return
+         this value
+       */
+      return _net_client.connectClient(address, port);
+    }
+    else{
+      /* TODO allow port number as a separate argument? */
+      log_message(ERROR, "Incorrect number of elements for connect");
+    }
+  }
 
   if(command == "info"){
     QueryEvent e("big_beef");

@@ -47,7 +47,7 @@ void NetServer::handleEvent(std::shared_ptr<AbstractEvent> pEvent, ENetPeer *fro
     std::cout << "Create: " << blob.str() << "\n";
     ENetPacket *packet = enet_packet_create(blob.str().c_str(), blob.str().length(), ENET_PACKET_FLAG_RELIABLE);
     enet_peer_send(from, 0, packet);
-    enet_host_flush(server);
+    enet_host_flush(mENetServer);
     enet_packet_destroy(packet);
   }
 
@@ -59,7 +59,8 @@ void NetServer::handleEvent(std::shared_ptr<AbstractEvent> pEvent, ENetPeer *fro
 
 void NetServer::poll() {
   // wait half a second second before processing all requests
-  while (enet_host_service(this->server, &event, 0) > 0) {
+  ENetEvent event;
+  while (enet_host_service(mENetServer, &event, 0) > 0) {
     switch (event.type) {
     case ENET_EVENT_TYPE_RECEIVE: {
       if (std::strcmp(reinterpret_cast<const char *>(event.packet->data), "ping") == 0) {
@@ -70,7 +71,7 @@ void NetServer::poll() {
                                                      ENET_PACKET_FLAG_RELIABLE);
         sendPacket(event.peer, pong_packet, 0);
         log_message(0,"Sent Packet to Peer");
-        enet_host_flush(this->server);
+        enet_host_flush(mENetServer);
       }
       if (std::strcmp(reinterpret_cast<const char *>(event.packet->data), "ping_all") == 0) {
         log_message(0,"Recieved ping all command");
@@ -80,16 +81,16 @@ void NetServer::poll() {
                                                      ENET_PACKET_FLAG_RELIABLE);
         broadcastPacket(pong_packet, 0);
         log_message(0,"Sent Packet to ALL");
-        enet_host_flush(this->server);
+        enet_host_flush(mENetServer);
         SDL_Delay(500);
 
         broadcastPacket(pong_packet, 0);
         log_message(0,"Sent Packet to ALL");
-        enet_host_flush(this->server);
+        enet_host_flush(mENetServer);
         SDL_Delay(500);
         broadcastPacket(pong_packet, 0);
         log_message(0,"Sent Packet to ALL");
-        enet_host_flush(this->server);
+        enet_host_flush(mENetServer);
       }
       log_message(0, "Recieved packet");
 
@@ -150,14 +151,14 @@ bool NetServer::init_enet() {
         printf("FATAL: Could not init enet\n");
         return 0;
     }
-    this->address.host = ENET_HOST_ANY; //0
-    this->address.port = this->PORT;
+    mENetAddress.host = ENET_HOST_ANY; //0
+    mENetAddress.port = mPort;
 
     //Config for defaults can be defined later
     //const ENetAddress *address, size_t peerCount, size_t channelLimit, enet_uint32 incomingBandwidth, enet_uint32 outgoingBandwidth)
-    this->server = enet_host_create(&this->address, 100, 2, 0, 0);
+    mENetServer = enet_host_create(&mENetAddress, 100, 2, 0, 0);
 
-    if (this->server == NULL) {
+    if (mENetServer == NULL) {
       log_message(ERROR, "Could not start server. Is the port already in use?");
       return 0;
     }
@@ -210,14 +211,14 @@ void NetServer::broadcastPacket(ENetPacket *packet, enet_uint8 channel) {
         log_message(0, "ERROR: No Clients COnnected, Could not Broadcast Message!");
     }
     else {
-        enet_host_broadcast(this->server, channel, packet);
-        enet_host_flush(this->server);
+        enet_host_broadcast(mENetServer, channel, packet);
+        enet_host_flush(mENetServer);
     }
 }
 
 void NetServer::sendPacket(ENetPeer *peer, ENetPacket *packet, enet_uint8 channel) {
     enet_peer_send(peer, channel, packet);
-    enet_host_flush(server);
+    enet_host_flush(mENetServer);
 }
 
 
@@ -228,19 +229,19 @@ void NetServer::disconnectPeer(ENetPeer *peer) {
 
 bool NetServer::status() {
     // True if server is still active
-    return this->server != nullptr;
+    return mENetServer != nullptr;
 }
 
 uint32_t NetServer::clientCount() const {
-    return this->server->connectedPeers;
+    return mENetServer->connectedPeers;
 }
 
 enet_uint32 NetServer::packetsSent() const {
-    return this->server->totalSentPackets;
+    return mENetServer->totalSentPackets;
 }
 
 enet_uint32 NetServer::packetsRecieved() const {
-    return this->server->totalReceivedPackets;
+    return mENetServer->totalReceivedPackets;
 }
 
 
