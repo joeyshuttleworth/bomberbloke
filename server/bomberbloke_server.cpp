@@ -3,6 +3,10 @@
 #include "ServerInfo.hpp"
 #include "ServerInfoEvent.hpp"
 #include <SDL2/SDL.h>
+#include <random>
+#include <array>
+#include <memory>
+#include "woodenCrate.hpp"
 
 int    _default_bomb_time = DEFAULT_BOMB_TIMER;
 double _bloke_size[2]     = {DEFAULT_BLOKE_SIZE, DEFAULT_BLOKE_SIZE};
@@ -10,39 +14,65 @@ std::vector<int> _spawn_points = {5,5};
 int colours[50][3];
 
 int main (){
-  std::shared_ptr<LocalPlayer> local_p(new LocalPlayer("big_beef"));
 
   log_message(INFO, "Bomberbloke server starting...");
 
   init_engine();
-   _local_player_list.push_back(LocalPlayer("nickname"));
-   _player_list.push_back(std::shared_ptr<AbstractPlayer>(local_p));
-  cereal::JSONOutputArchive oArchive(std::cout);
-  //Pretend we're loading - makes output look nice.
-  SDL_Delay(1);
   server_loop();
+  SDL_Quit();
+  SDL_Delay(1000);
   return 0;
 }
 
-void new_game(std::string arguments){
-  _pScene->mSpawnPoints = _spawn_points;
-  log_message(INFO, "Stating new game with arguments: " + arguments + ".");
-  /*for(auto i = _client_list.begin(); i != _client_list.end(); i++){
-     bloke b = bloke();
-    if(c < (double)(_scene.spawn_points.size())/2){
-      b.position[0] = _scene.spawn_points[c*2];
-      b.position[1] = _scene.spawn_points[c*2+1];
-      _scene.mActors.push_back(b);
-      i->character = &_scene.mActors.back();
-      SDL_SetRenderTarget(_renderer, i->character->sprite);
-      SDL_SetRenderDrawColor(_renderer, 0x00, 0x00, 0xFF, 0xFF);
-      SDL_RenderFillRect(_renderer, NULL);
-      SDL_SetRenderTarget(_renderer, NULL);
+void new_game(std::string){
+
+  std::random_device rd;
+  std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
+  std::uniform_int_distribution<> distrib(0, 9);
+
+  int blocks[10][10];
+
+  memset(blocks, 0, sizeof(int)*10*10);
+
+  for(unsigned int i = 0; i < 5; i++){
+    bool set = false;
+    for(int j = 0; j<10000; j++){
+      int xpos = distrib(gen);
+      int ypos = distrib(gen);
+      if(blocks[xpos][ypos] != SPAWN_POINT){
+        blocks[xpos][ypos] = SPAWN_POINT;
+        /* make space around the spawn point */
+          if(xpos + 1 < 10){
+            blocks[xpos+1][ypos] = RESERVED;
+          }
+          if(xpos - 1 >= 0){
+            blocks[xpos-1][ypos] = RESERVED;
+          }
+          if(ypos + 1 < 10){
+            blocks[xpos][ypos+1] = RESERVED;
+          }
+          if(ypos - 1 >= 0){
+            blocks[xpos][ypos-1] = RESERVED;
+          }
+          set = true;
+          break;
+      }
     }
-    else{
-      log_message(ERROR, (char*)"Not enough spawn points for all players\n");
-      break;
-    } 
-  }*/
+    if(!set){
+      log_message(ERROR, "failed to generate spawn points");
+    }
+  }
+
+  /* Fill in the other blocks - could be wooden crates or other types*/
+
+  for(int i = 0; i < 10; i++){
+    for(int j = 0; j < 10; j++){
+      if(blocks[i][j] == EMPTY){
+        blocks[i][j] = ACTOR_WOODEN_CRATE;
+        _pScene->mActors.push_back(std::shared_ptr<woodenCrate>(new woodenCrate(i, j)));
+      }
+    }
+  }
+
   return;
 }

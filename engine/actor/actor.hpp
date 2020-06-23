@@ -63,9 +63,9 @@ public:
   /*Do we collide with other actors*/
   bool mCollides;
 
-  void ReloadSprite(){
+  void refreshSprite(){
     if(mpSpriteHandler)
-      mpSpriteHandler->ReloadSprite();
+      mpSpriteHandler->refreshSprite();
     return;
   }
 
@@ -74,13 +74,13 @@ public:
   bool is_moving();
   int init(double, double);
   dvector getMidpoint();
-  virtual void update() = 0;
+  virtual void update(){};
 
   void updateSprite(){
     mpSpriteHandler->update(mPosition);
   }
 
-  virtual void handle_command(std::string) = 0;
+  virtual void handle_command(std::string){};
 
   /*Serialise this class using cereal.
     NB: We don't send the size of the actor (dimmension) as this should

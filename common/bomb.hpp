@@ -34,7 +34,7 @@ class bomb : public actor {
   };
 
   int getType() const{
-    return BOMB;
+    return ACTOR_BOMB;
   };
 
   using actor::actor;

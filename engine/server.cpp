@@ -3,7 +3,7 @@
 #include "network/NetServer.hpp"
 
 bool _server = true;
-bool _draw   = false;
+bool _draw   = true;
 unsigned int _ping_time = 0;
 
 void server_loop(){
@@ -32,6 +32,6 @@ void server_loop(){
     draw_screen();
       _tick++;
   }
-
+  return;
 }
 

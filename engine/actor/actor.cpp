@@ -96,10 +96,6 @@ dvector actor :: getMidpoint(){
   return {mPosition[0] + mDimmension[0]/2, mPosition[1] + mDimmension[1]/2};
 }
 
-void actor :: update(){
-  return;
-}
-
 std::shared_ptr<AbstractPlayer> actor::getPlayer(){
   if(mPlayerId==0)
     return nullptr;

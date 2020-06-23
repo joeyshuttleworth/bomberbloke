@@ -1,6 +1,8 @@
 #include "engine.hpp"
 #include "Camera.hpp"
 
+extern std::list<std::shared_ptr<AbstractSpriteHandler>> _particle_list;
+
 scene :: scene(double x, double y){
   mDimmension[0] = x;
   mDimmension[1] = y;
@@ -11,14 +13,19 @@ scene :: ~scene(){
   return;
 }
 
-void scene :: ReloadSprites(){
-    for(auto i = mActors.begin(); i != mActors.end(); i++){
-    (*i)->ReloadSprite();
+void scene :: refreshSprites(){
+  for(auto i = mActors.begin(); i != mActors.end(); i++){
+    (*i)->refreshSprite();
+  }
+
+  for(auto i = _particle_list.begin(); i != _particle_list.end(); i++){
+    (*i)->refreshSprite();
   }
 
   SDL_SetRenderTarget(_renderer, NULL);
   return;
 }
+
 std::shared_ptr<actor> scene :: GetActor(int id){
   /*search over actors*/
   auto iterator = std::find_if(mActors.begin(), mActors.end(), [&](std::shared_ptr<actor> a) -> bool {return a->GetId() == id;});
@@ -106,15 +113,26 @@ void scene::physicsUpdate() {
 }
 
 void scene :: draw(Camera *cam){
-  if(!cam){
-    log_message(ERROR, "Attempted to draw with null camera object!");
-    return;
-  }
+  // mpSpriteHandler->draw();
+  int zoom = cam->GetZoom();
 
   SDL_SetRenderTarget(_renderer, cam->getFrameBuffer());
 
   SDL_SetRenderDrawColor(_renderer, 0x00, 0x10, 0xff, 0xff);
   SDL_RenderFillRect(_renderer, nullptr);
+
+  SDL_SetRenderDrawColor(_renderer, 0x10, 0x10, 0x10, 0xa0);
+
+  /* Draw a grid */
+  for(int i = 0; i<=10; i++){
+    SDL_RenderDrawLine(_renderer, i * zoom, 0, i * zoom, mDimmension[1]*zoom);
+    SDL_RenderDrawLine(_renderer, 0, i*zoom, mDimmension[0]*zoom, i*zoom);
+  }
+
+  if(!cam){
+    log_message(ERROR, "Attempted to draw with null camera object!");
+    return;
+  }
 
   //Next draw each actor
   for(auto i = mActors.begin(); i!=mActors.end(); i++){
@@ -123,10 +141,8 @@ void scene :: draw(Camera *cam){
 
   /*  Draw all particles.*/
   for(auto i = mParticleList.begin(); i!= mParticleList.end(); i++){
-    /* Remove the previous node if its remove flag is set */
     (*i)->draw(cam);
   }
-  // mpSpriteHandler->draw();
 
   return;
 }

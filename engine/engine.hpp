@@ -113,6 +113,14 @@ extern std::shared_ptr<Camera> _pCamera;
 void gameUpdate();
 
 
+/* Define the path seperator based on the operating system*/
+const std::string PATHSEPARATOR =
+#ifdef _WIN32
+  "\\";
+#else
+"/";
+#endif
+
 #include "AbstractSpriteHandler.hpp"
 #include "state.h"
 #include "NetworkPlayer.hpp"
