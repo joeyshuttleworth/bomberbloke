@@ -21,15 +21,23 @@ enum powerups{
 };
 
 enum actor_types{
-  WOOD_BLOCK,
-  METAL_BLOCK,
-  EXPLOSIVE_BLOCK,
-  DEATH_BLOCK,
-  BLOKE,
-  BOMB
+  ACTOR_WOODEN_CRATE,
+  ACTOR_METAL_CRATE,
+  ACTOR_EXPLOSIVE_CRATE,
+  ACTOR_DEATH_BLOCK,
+  ACTOR_BLOKE,
+  ACTOR_BOMB
 };
 
 enum flags{
   FLAG_NONE = 0,
   FLAG_DEAD,
 };
+
+enum block_types{
+  EMPTY,
+  RESERVED,
+  SPAWN_POINT,
+  WOOD
+};
+

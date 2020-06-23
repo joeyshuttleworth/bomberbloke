@@ -23,7 +23,7 @@ protected:
   std::shared_ptr<AbstractSpriteHandler> mpSpriteHandler;
 public:
   /* Spawnpoints is a collection of coordinates where players can be spawned */
-  std::vector<int> mSpawnPoints;
+  std::vector<int*> mSpawnPoints;
 
 /* dim_x and dim_y are the size of our scene in the x and y axis respectively */
   double mDimmension[2];
@@ -38,7 +38,7 @@ public:
 
   /*Draw our scene on the window. Then draw every actor in mActors*/
   void draw(Camera *cam);
-  void ReloadSprites();
+  void refreshSprites();
 
   /*
    * mParticleList lists our particles e.g explosions.
@@ -107,4 +107,5 @@ public:
     archive(mDimmension, mActors);
   }
 };
+
 #endif

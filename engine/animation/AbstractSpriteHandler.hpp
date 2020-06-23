@@ -26,7 +26,7 @@ public:
    return;
   }
 
-  virtual void ReloadSprite(){};
+  virtual void refreshSprite(){};
 
   /**
    * Should we remove this object from _particle_list?

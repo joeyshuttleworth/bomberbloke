@@ -40,7 +40,7 @@ protected:
   };
 
   int getType() const{
-    return BLOKE;
+    return ACTOR_BLOKE;
   };
 
   GamePlayerProperties GetProperties(){

@@ -1,4 +1,5 @@
 #include "engine.hpp"
+#include <dirent.h>
 #include "QueryEvent.hpp"
 #include "MoveEvent.hpp"
 #include "ServerInfo.hpp"
@@ -9,6 +10,8 @@
 #include <fstream>
 #include <exception>
 #include "scene.hpp"
+#include <utility>
+#include <SDL2/SDL_image.h>
 
 /*  TODO: reduce number of globals */
 std::shared_ptr<Camera> _pCamera;
@@ -37,6 +40,8 @@ std::list<std::shared_ptr<AbstractSpriteHandler>> _particle_list;
 std::vector<CommandBinding> _default_bindings;
 NetClient _net_client;
 
+std::list<std::pair<std::string, SDL_Texture*>> _sprite_list;
+static void load_assets();
 
 void exit_engine(int signum) {
     SDL_Delay(500);
@@ -47,6 +52,7 @@ void exit_engine(int signum) {
     std::cout << "Received signal " << strsignal(signum) << ".\nExiting...\n";
     return;
 }
+
 void create_window(){
   std::string window_name = "Bomberbloke Client";
   if (_server)
@@ -63,14 +69,21 @@ void create_window(){
   SDL_SetRenderDrawColor(_renderer, 0xff, 0x00, 0x00, 0xff);
   SDL_RenderClear(_renderer);
   SDL_RenderPresent(_renderer);
+
+  for(auto i = _sprite_list.begin(); i != _sprite_list.end(); i++){
+    SDL_DestroyTexture(i->second);
+  }
+
+  return;
 }
 
-/*  Reload all of our sprites */
-void ReloadSprites(){
-  _pScene->ReloadSprites();
-  for(auto i = _particle_list.begin(); i != _particle_list.end(); i++){
-    (*i)->ReloadSprite();
-  }
+/**  Refresh all of our sprites
+ *
+ *  This may be called when the window is resized.
+ */
+
+void refresh_sprites(){
+  _pScene->refreshSprites();
   return;
 }
 
@@ -83,7 +96,7 @@ void resize_window(int x, int y){
     SDL_DestroyWindow(_window);
     create_window();
   }
-  ReloadSprites();
+  refresh_sprites();
   return;
 }
 
@@ -113,6 +126,8 @@ void init_engine() {
     /*  Open a log file  */
     _console_log_file.open("/tmp/bloke.log");
 
+
+    load_assets();
     return;
 }
 
@@ -284,6 +299,10 @@ void load_config(std::string fname) {
 
 bool handle_system_command(std::list<std::string> tokens) {
   std::string command = tokens.front();
+
+  if(_server && command == "new"){
+    new_game("");
+  }
 
   if(!_server && command == "open"){
     if(tokens.size() == 2){
@@ -470,4 +489,40 @@ void console_loop() {
         }
     }
     return;
+}
+
+/** This is used when the engine is started to pre load all assets into one
+    place.
+
+    TODO: handle files other than images.
+*/
+static void load_assets(){
+  if (auto dir = opendir(("assets" + PATHSEPARATOR).c_str())){
+    while (auto f = readdir(dir)) {
+      if (!f->d_name || f->d_name[0] == '.')
+        continue; // Skip hidden files
+      else{
+        std::string whole_filename = std::string(f->d_name);
+        auto dot_pos = whole_filename.find('.');
+        if(dot_pos == std::string::npos)
+          continue; // no file extension
+        std::string file_name = whole_filename.substr(0, dot_pos);
+        std::string file_extension = whole_filename.substr(dot_pos);
+        if(file_extension == ".png"){
+          SDL_Texture *sprite = IMG_LoadTexture(_renderer, ("assets" + PATHSEPARATOR +  whole_filename).c_str());
+          _sprite_list.push_back({whole_filename, sprite});
+        }
+      }
+    }
+    closedir(dir);
+  }
+}
+
+/* Lookup the name in our list of assets and return a pointer to its texture if it exists */
+SDL_Texture *get_sprite(std::string asset_name){
+  auto iter = std::find_if(_sprite_list.begin(), _sprite_list.end(), [&](std::pair<std::string, SDL_Texture*> entry) -> bool{return entry.first==asset_name;});
+  if(iter == _sprite_list.end())
+    return nullptr;
+  else
+    return iter->second;
 }

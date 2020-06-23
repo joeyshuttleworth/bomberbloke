@@ -98,6 +98,17 @@ find_library(SDL2_LIBRARY_TEMP
   PATH_SUFFIXES lib ${VC_LIB_PATH_SUFFIX}
 )
 
+#find the image library too
+
+find_library(SDL2_IMAGE
+  NAMES SDL2_image
+  HINTS
+  ENV SDL2DIR
+  ${SDL2_DIR}
+  PATH_SUFFIXES lib ${VC_LIB_PATH_SUFFIX}
+  )
+
+
 # Hide this cache variable from the user, it's an internal implementation
 # detail. The documented library variable for the user is SDL2_LIBRARY
 # which is derived from SDL2_LIBRARY_TEMP further below.
@@ -190,7 +201,7 @@ if(SDL2_INCLUDE_DIR AND EXISTS "${SDL2_INCLUDE_DIR}/SDL2_version.h")
   unset(SDL2_VERSION_PATCH)
 endif()
 
-set(SDL2_LIBRARIES ${SDL2_LIBRARY} ${SDL2MAIN_LIBRARY})
+set(SDL2_LIBRARIES ${SDL2_LIBRARY} ${SDL2MAIN_LIBRARY} ${SDL2_IMAGE})
 set(SDL2_INCLUDE_DIRS ${SDL2_INCLUDE_DIR})
 
 include(FindPackageHandleStandardArgs)
