@@ -36,8 +36,6 @@ enum state{
            DISCONNECTED
 };
 
-extern unsigned int _state;
-
 class actor;
 class scene;
 class LocalPlayer;
@@ -126,6 +124,11 @@ extern std::shared_ptr<Camera> _pCamera;
 /*  A function defined by the game / test called each tick */
 void gameUpdate();
 
+class NetClient;
+class NetServer;
+
+extern NetClient _net_client;
+extern NetServer _net_server;
 
 /* Define the path seperator based on the operating system*/
 const std::string PATHSEPARATOR =

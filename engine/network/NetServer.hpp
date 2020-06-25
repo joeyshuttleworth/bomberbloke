@@ -12,6 +12,11 @@
 class AbstractEvent;
 class JoinEvent;
 
+typedef struct unjoinedPeer{
+  ENetPeer* peer;
+  unsigned int timeout = 600;
+} unjoinedPeer;
+
 class NetServer {
 public:
     uint32_t clientCount() const;
@@ -51,6 +56,9 @@ public:
 
     void handleJoinEvent(std::shared_ptr<JoinEvent> event, ENetPeer *from);
 
+    bool stop();
+
+    void update();
 private:
     ENetHost *mENetServer = nullptr;
     ENetAddress mENetAddress;
@@ -67,7 +75,7 @@ private:
      */
   void handleEvent(std::shared_ptr<AbstractEvent>, ENetPeer*);
 
-  bool stop();
+  std::list<unjoinedPeer> mUnjoinedPeers;
 
   void updateGameMasterServer(bool disconnect);
   enet_uint16 mPort = 8888;
