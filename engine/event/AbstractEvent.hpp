@@ -7,30 +7,34 @@
 
 #define ABSTRACTEVENT_HPP
 
+
 enum EventType{
-  JOIN,
-  CLIENT_MESSAGE,
-  SERVER_MESSAGE,
-  QUERY,
-  SERVER_INFO,
-  MOVE,
-  CREATE,
-  REMOVE,
-  SYNC,
-  NEW_GAME,
-  START,
-  STOP,
-  COMMAND
+  EVENT_JOIN,
+  EVENT_MESSAGE,
+  EVENT_QUERY,
+  EVENT_INFO,
+  EVENT_MOVE,
+  EVENT_CREATE,
+  EVENT_DESTROY,
+  EVENT_SYNC,
+  EVENT_NEWGAME,
+  EVENT_COMMAND,
+  EVENT_ERROR,
+  EVENT_ACCEPT
 };
+
+
 
 class AbstractEvent{
 public:
-  int mType = 0;
-  template <class Archive>
-  void serialize(Archive &ar){
-    ar(cereal::make_nvp("EventType", mType));
-  };
-};
+  virtual int getType() const = 0;
 
+  /** For printing displaying printing debug messages mainly */
+  virtual std::string output(){return "";};
+
+  /* This is required for cereal */
+  template <class Archive>
+  void serialize(Archive&){}
+};
 
 #endif

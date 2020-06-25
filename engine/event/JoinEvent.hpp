@@ -14,23 +14,32 @@
 #include "AbstractEvent.hpp"
 #include <cereal/types/vector.hpp>
 
-class MoveEvent : AbstractEvent{
+class JoinEvent : public AbstractEvent{
 private:
- AbstractPlayer mPlayer;
-public:
+  int mMagicNumber;
 
-  MoveEvent(player*AbstractPlayer){
-    mPlayer = *Player;
+public:
+  std::string mNickname;
+  int getType() const{
+    return EVENT_JOIN;
+  }
+
+  JoinEvent(std::string nickname, int magic_number){
+    mMagicNumber = magic_number;
+    mNickname = nickname;
     return;
   };
+
+  JoinEvent(){};
 
   template<class Archive>
   /*Used by cereal to serialize the event for it to be sent/received*/
   void serialize(Archive &archive){
-    archive(cereal::make_nvp("Nickname", mPlayer.nickname))
+    archive(cereal::base_class<AbstractEvent>(this), cereal::make_nvp("Nickname", mNickname), cereal::make_nvp("magic number", mMagicNumber));
   }
 
 };
 
+CEREAL_REGISTER_TYPE(JoinEvent)
+
 #endif
- 

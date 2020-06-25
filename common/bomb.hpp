@@ -7,7 +7,7 @@
 class bomb : public actor {
  protected:
   Uint8 mTimer;
-  Uint8 mPower;
+  Uint8 mPower = 2;
   int  mPlacedById = 0;
   bool mPenetration;
   bool mBigBomb;
@@ -16,11 +16,11 @@ class bomb : public actor {
 
   /*Cereal serialisation*/
 
-  template<class Archive>
-  void serialize(Archive &archive){
-    archive(cereal::base_class<actor>(this), mPower, mTimer, mSatellite, mBigBomb);
-    return;
-  }
+  // template<class Archive>
+  // void serialize(Archive &archive){
+  //   archive(cereal::base_class<actor>(this), mPower, mTimer, mSatellite, mBigBomb);
+  //   return;
+  // }
 
   void init(bloke*);
   void explode();
@@ -34,12 +34,12 @@ class bomb : public actor {
   };
 
   int getType() const{
-    return BOMB;
+    return ACTOR_BOMB;
   };
 
   using actor::actor;
 };
 
 /*This is required for classes using polymorphism*/
-CEREAL_REGISTER_TYPE(bomb);
+CEREAL_REGISTER_TYPE(bomb)
 #endif
