@@ -18,7 +18,9 @@ enum EventType{
   EVENT_DESTROY,
   EVENT_SYNC,
   EVENT_NEWGAME,
-  EVENT_COMMAND
+  EVENT_COMMAND,
+  EVENT_ERROR,
+  EVENT_ACCEPT
 };
 
 
@@ -27,7 +29,9 @@ class AbstractEvent{
 public:
   virtual int getType() const = 0;
 
-  virtual void output(){};
+  /** For printing displaying printing debug messages mainly */
+  virtual std::string output(){return "";};
+
   /* This is required for cereal */
   template <class Archive>
   void serialize(Archive&){}

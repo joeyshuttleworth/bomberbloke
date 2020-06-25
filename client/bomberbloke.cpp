@@ -26,7 +26,6 @@ int main (){
   _pScene->mActors.push_back(std::shared_ptr<bloke>(new bloke(1,1, true)));
 
   client_loop();
-  SDL_Quit();
 
   return 0;
 }

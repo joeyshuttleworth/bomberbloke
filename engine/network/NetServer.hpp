@@ -10,6 +10,7 @@
 #include "ServerInfo.hpp"
 
 class AbstractEvent;
+class JoinEvent;
 
 class NetServer {
 public:
@@ -47,10 +48,16 @@ public:
     bool isConnected();
 
     bool init_enet();
+
+    void handleJoinEvent(std::shared_ptr<JoinEvent> event, ENetPeer *from);
+
 private:
     ENetHost *mENetServer = nullptr;
     ENetAddress mENetAddress;
     std::string mMasterServerAddress;
+    void sendStringMessage(std::string, ENetPeer*);
+    void sendEvent(std::unique_ptr<AbstractEvent>&, ENetPeer *peer);
+    void handleJoinEvent();
 
     ServerInfo mServerInfo;
 
