@@ -43,6 +43,29 @@ NetClient _net_client;
 std::list<std::pair<std::string, SDL_Texture*>> _sprite_list;
 static void load_assets();
 
+void refresh_sprites();
+void create_window();
+
+static void set_draw(bool on){
+
+  if(on == _draw)
+    return;
+
+  else if(on == true){
+    _draw = true;
+    create_window();
+    refresh_sprites();
+  }
+
+  else{
+    _draw = false;
+    SDL_DestroyWindow(_window);
+    SDL_DestroyRenderer(_renderer);
+  }
+
+  return;
+}
+
 void exit_engine(int signum) {
     SDL_Delay(500);
     SDL_Quit();
@@ -50,6 +73,7 @@ void exit_engine(int signum) {
     std::cout  << "\nNow exiting the BLOKE engine. Hope you had fun. Wherever you are, we at the BLOKE project hope we have made your day just a little bit brighter. See you next time around! :)\n";
     signal(SIGINT, NULL);
     std::cout << "Received signal " << strsignal(signum) << ".\nExiting...\n";
+    SDL_Quit();
     return;
 }
 
@@ -284,21 +308,27 @@ void load_config(std::string fname) {
     }
 }
 
-// void parseServerIP(std::string ip){
-//   //potentially has : for port. we need to split this strng
-//   size_t found = ip.find_first_of(":");
-  
-//   if (found != std::string::npos){
-//     setAddress(ip.substr(0,found),std::stoi((ip.substr(found))));
-//   }
-//   else{
-//     // assume default port
-//     setAddress(ip);
-//   }
-// }
-
 bool handle_system_command(std::list<std::string> tokens) {
   std::string command = tokens.front();
+
+  if(command == "draw"){
+    if(tokens.size() == 2){
+      if(tokens.back() == "on"){
+        set_draw(true);
+      }
+      else if(tokens.back() == "off"){
+        set_draw(false);
+      }
+      else{
+        log_message(ERROR, "Couldn't parse command - " + command + tokens.back() + " the options for 'draw' are 'on' and 'off'");
+        return false;
+      }
+    }
+    else{
+      log_message(ERROR, "draw command requires one argument");
+      return false;
+    }
+  }
 
   if(_server && command == "new"){
     new_game("");

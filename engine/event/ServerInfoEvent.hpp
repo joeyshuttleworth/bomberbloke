@@ -14,8 +14,7 @@
 #include <algorithm>
 
 class ServerInfoEvent : public AbstractEvent{
-private:
-  std::string mCommand;
+public:std::string mCommand;
   //Check whether a nickname attached the query is valid and not taken by any other clients.
   bool mUserNameFree = false;
   int mNumberOfPlayers;
@@ -25,12 +24,11 @@ private:
   std::string mDescription;
   int mMaxPlayers;
 
-public:
   int getType() const{
     return EVENT_INFO;
   }
 
-  void output(){
+  std::string output(){
     std::stringstream info_s;
     info_s << mTitle << "\n";
     info_s << mDescription << "\n";
@@ -41,8 +39,7 @@ public:
     else{
       info_s << "Oh no! The user name has already been taken or is disallowed.\n";
     }
-    log_message(INFO, info_s.str());
-    return;
+    return info_s.str();
   }
 
   ServerInfoEvent(ServerInfo &info, std::list<std::shared_ptr<AbstractPlayer>> players, std::string nickname = ""){

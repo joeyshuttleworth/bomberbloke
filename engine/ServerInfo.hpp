@@ -24,7 +24,6 @@ public:
   };
   std::string mTitle = "Bomberbloke server";
   std::string mDescription = "A server for the game multiplayer game, bomberbloke - enjoy!!";
-  int mMaxPlayers = 2;
 
   std::string getInfo(){
     std::stringstream info_s;
@@ -34,6 +33,7 @@ public:
     info_s << "password no";
     return info_s.str();
   }
+  unsigned int mMaxPlayers; 
 };
 
 #endif

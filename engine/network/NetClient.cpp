@@ -5,6 +5,8 @@
 #include "NetClient.hpp"
 #include "engine.hpp"
 #include "ServerInfoEvent.hpp"
+#include "JoinEvent.hpp"
+#include "acceptEvent.hpp"
 #include <string>
 #include <iostream>
 #include <sstream>
@@ -90,9 +92,50 @@ bool NetClient::joinBlokeServer(std::string address, int port, std::string nickn
     else{
       /*The event is a ServerInfoEvent*/
       std::shared_ptr<AbstractEvent> tmp_event(std::move(receive_event));
-      std::shared_ptr<ServerInfoEvent> q_event = std::dynamic_pointer_cast<ServerInfoEvent>(tmp_event);
-      q_event->output();
-      return true;
+      std::shared_ptr<ServerInfoEvent> info_event = std::dynamic_pointer_cast<ServerInfoEvent>(tmp_event);
+      info_event->output();
+
+      /* Check we're allowed our nickname */
+      if(!info_event->mUserNameFree){
+        log_message(INFO, "User name not allowed!");
+        return false;
+      }
+
+      /* Check that there's room for us */
+
+      if(info_event->mMaxPlayers <= info_event->mNumberOfPlayers){
+        log_message(INFO, "Server is full!");
+        return false;
+      }
+
+      std::unique_ptr<AbstractEvent> join_event(new JoinEvent(nickname, info_event->mMagicNumber));
+
+      sendEvent(join_event);
+
+      /*  now poll the server again (10 seconds)*/
+      while(enet_host_service(mENetHost, &event, 10000) > 0){
+        std::unique_ptr<AbstractEvent> receive_event;
+        std::stringstream data_in;
+        data_in << event.packet->data;
+
+        {
+          cereal::JSONInputArchive inArchive(data_in);
+          log_message(DEBUG, "received message: " + data_in.str());
+          inArchive(receive_event);
+        }
+
+        if(receive_event->getType() == EVENT_ERROR){
+          /* Handle rejection */
+          log_message(INFO, "failed to join server reason \"" + receive_event->output() + "\"");
+          return false;
+        }
+
+        else if(receive_event->getType() == EVENT_ACCEPT){
+          /* Handle join  */
+          log_message(INFO, "Successfully joined server. Message: " + receive_event->output());
+          return true;
+        }
+      }
     }
   }
   return false;

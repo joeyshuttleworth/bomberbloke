@@ -24,6 +24,20 @@
 #define MIN_VELOCITY 1e-8
 #define TICK_RATE 64
 
+
+/* ENUM to track what the client/server is doing */
+
+enum state{
+           PAUSED,
+           STOPPED,
+           EXIT,
+           JOINING,
+           PLAYING,
+           DISCONNECTED
+};
+
+extern unsigned int _state;
+
 class actor;
 class scene;
 class LocalPlayer;
@@ -122,7 +136,6 @@ const std::string PATHSEPARATOR =
 #endif
 
 #include "AbstractSpriteHandler.hpp"
-#include "state.h"
 #include "NetworkPlayer.hpp"
 #include "LocalPlayer.hpp"
 #include "scene.hpp"

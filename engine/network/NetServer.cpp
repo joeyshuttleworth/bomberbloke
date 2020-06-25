@@ -6,6 +6,8 @@
 #include "NetServer.hpp"
 #include "QueryEvent.hpp"
 #include "ServerInfoEvent.hpp"
+#include "JoinEvent.hpp"
+#include "acceptEvent.hpp"
 #include "engine.hpp"
 #include <enet/enet.h>
 #include <curl/curl.h>
@@ -30,6 +32,34 @@ void NetServer::pollLoop(){
   return;
 }
 
+void NetServer::handleJoinEvent(std::shared_ptr<JoinEvent> event, ENetPeer *from){
+
+  std::string nickname = event->mNickname;
+
+  /*  First check that there's space on the server */
+  if(_server_info.mMaxPlayers <= _player_list.size()){
+    return;
+  }
+
+  /* Second check that no player has the same nickname */
+  auto iter = find_if(_player_list.begin(), _player_list.end(), [&](std::shared_ptr<AbstractPlayer> p){return nickname == p->mNickname;});
+
+  if(iter != _player_list.end()){
+    return;
+  }
+
+  /* Send an acceptEvent */
+  {
+    std::unique_ptr<AbstractEvent> accept_event(new acceptEvent());
+    sendEvent(accept_event, from);
+  }
+
+  /* Add the player to _player_list */
+  _player_list.push_back(std::shared_ptr<NetworkPlayer>(new NetworkPlayer(nickname, from)));
+
+  return;
+}
+
 void NetServer::handleEvent(std::shared_ptr<AbstractEvent> pEvent, ENetPeer *from){
   if(!pEvent.get()){
     log_message(ERROR, "tried to handle a null event");
@@ -40,18 +70,13 @@ void NetServer::handleEvent(std::shared_ptr<AbstractEvent> pEvent, ENetPeer *fro
     /*  Get the server info and see if */
     std::shared_ptr<QueryEvent> pquery_event = std::dynamic_pointer_cast<QueryEvent>(pEvent);
     std::unique_ptr<AbstractEvent> info_event(new ServerInfoEvent(mServerInfo, _player_list, pquery_event->getNickname()));
-    std::stringstream blob;
-    /* Using cereal archives requires these braces */
-    {
-      cereal::JSONOutputArchive oArchive(blob);
-      oArchive(info_event);
-    }
-    log_message(DEBUG, "Created info event - \n" + blob.str());
-    std::cout << "Create: " << blob.str() << "\n";
-    ENetPacket *packet = enet_packet_create(blob.str().c_str(), blob.str().length() + 1, ENET_PACKET_FLAG_RELIABLE);
-    enet_peer_send(from, 0, packet);
-    enet_host_flush(mENetServer);
-    enet_packet_destroy(packet);
+    sendEvent(info_event, from);
+    break;
+  }
+  case EVENT_JOIN:{
+      std::shared_ptr<JoinEvent> pjoin_event = std::dynamic_pointer_cast<JoinEvent>(pEvent);
+      handleJoinEvent(pjoin_event, from);
+      break;
   }
 
   default:
@@ -106,7 +131,7 @@ void NetServer::poll() {
       packet_message << "Packet message: '" << event.packet->data << "'";
       log_message(0, packet_message.str());
 
-      // handle packet hereenet_uint32
+      // handle packet here enet_uint32
 
       std::stringstream data_in;
       data_in << event.packet->data;
@@ -119,13 +144,13 @@ void NetServer::poll() {
         inArchive(receive_event);
       }
 
-      std::shared_ptr<AbstractEvent> sp_to_handle = std::move(receive_event);
+      std::shared_ptr<AbstractEvent> sp_to_handle(std::move(receive_event));
+
       /* Make the pointer shared so we can handle it elsewhere */
       handleEvent(sp_to_handle, event.peer);
 
       /* Clean up the packet now that we're done using it. */
       enet_packet_destroy(event.packet);
-
 
       break;
     }
@@ -210,6 +235,30 @@ void NetServer::updateGameMasterServer(bool disconnect) {
         curl_global_cleanup();
     } else
         return;
+}
+
+void NetServer::sendStringMessage(std::string message, ENetPeer *to){
+  ENetPacket *packet = enet_packet_create(message.c_str(), strlen(message.c_str())+1, ENET_PACKET_FLAG_RELIABLE);
+  enet_peer_send(to, 0, packet);
+
+  enet_host_flush(mENetServer);
+
+  log_message(DEBUG,  "Sent Message" + message + "to " + std::to_string(to->address.host) + ":" + std::to_string(to->address.port));
+
+  return;
+}
+
+void NetServer::sendEvent(std::unique_ptr<AbstractEvent> &event, ENetPeer *to){
+  std::stringstream blob;
+  {
+    cereal::JSONOutputArchive oArchive(blob);
+    oArchive(event);
+  }
+
+  sendStringMessage(blob.str(), to);
+
+  log_message(DEBUG, "Sending" + blob.str());
+  return;
 }
 
 void NetServer::broadcastPacket(ENetPacket *packet, enet_uint8 channel) {
