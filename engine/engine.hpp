@@ -1,6 +1,7 @@
 #ifndef ENGINE_HPP
 #define ENGINE_HPP
 
+#include <map>
 #include <cmath>
 #include <SDL2/SDL.h>
 #include <iostream>
@@ -23,10 +24,25 @@
 #define MIN_VELOCITY 1e-8
 #define TICK_RATE 64
 
+
+/* ENUM to track what the client/server is doing */
+
+enum state{
+           PAUSED,
+           STOPPED,
+           EXIT,
+           JOINING,
+           PLAYING,
+           DISCONNECTED
+};
+
+extern unsigned int _state;
+
 class actor;
-class level;
+class scene;
 class LocalPlayer;
 class NetworkPlayer;
+class AbstractPlayer;
 
 void exit_engine(int);
 void new_game(std::string);
@@ -36,13 +52,19 @@ void client_loop();
 void server_loop();
 void log_message(int, std::string);
 bool handle_system_command(std::list<std::string>);
-void handle_input(level*);
+void handle_input();
 void handle_movement();
 void init_engine();
 void console_loop();
 void draw_screen();
 SDL_Joystick* handle_input_controller();
+
+/* Removes white space and turns a string into a list of words.
+   This is used for parsing commands.
+*/
 std::list<std::string> split_to_tokens(std::string);
+
+
 extern SDL_Window  *_window;
 extern SDL_Surface *_surface;
 extern SDL_Renderer *_renderer;
@@ -50,9 +72,7 @@ extern double _screen_offset[2];
 extern bool _draw;
 extern bool _server;
 extern bool _halt;
-extern double _zoom;
 extern unsigned int _state;
-class AbstractPlayer;
 extern std::list<std::shared_ptr<AbstractPlayer>> _player_list;
 extern std::string _nickname;
 extern SDL_Joystick* _controller;
@@ -64,37 +84,62 @@ typedef struct{
   std::string command;
 } CommandBinding;
 
-enum LOG_LEVELS{
-  DEBUG,
+enum LOG_SCENE{
+  DEBUG = 0,
   INFO,
   WARNING,
   ERROR,
-  CRITICAL
+  CRITICAL,
+  ALL
 };
+
+const std::string LOG_LEVEL_STRINGS[] =
+  {"Debug",
+   "Info",
+   "Warning",
+   "ERROR",
+   "ALL"};
 
 enum player_types{
   LOCAL,
   NETWORK
 };
 
-class level;
+class scene;
 
 /*Define global variables.
   TODO: consider changing these so that they're all contained in one class
  */
-class ServerInfo;
+class  ServerInfo;
 extern ServerInfo _server_info;
-extern level _level;
-extern unsigned int _tick;
-extern const std::vector<CommandBinding> _default_bindings;
-extern std::list<LocalPlayer> _local_player_list;
-const std::array<std::string, 2> _system_commands  = {"bind", "set"};
+extern std::shared_ptr<scene> _pScene;
 
-#include "state.h"
+extern unsigned int _tick;
+extern std::vector<CommandBinding> _default_bindings;
+extern std::list<LocalPlayer> _local_player_list;
+
+const std::array<std::string, 2> _system_commands  = {{"bind", "set"}};
+
+class Camera;
+extern std::shared_ptr<Camera> _pCamera;
+
+/*  A function defined by the game / test called each tick */
+void gameUpdate();
+
+
+/* Define the path seperator based on the operating system*/
+const std::string PATHSEPARATOR =
+#ifdef _WIN32
+  "\\";
+#else
+"/";
+#endif
+
+#include "AbstractSpriteHandler.hpp"
 #include "NetworkPlayer.hpp"
 #include "LocalPlayer.hpp"
-#include "level.hpp"
+#include "scene.hpp"
 #include "actor.hpp"
 #include "config.hpp"
-
+#include "Camera.hpp"
 #endif

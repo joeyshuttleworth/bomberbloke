@@ -1,10 +1,21 @@
-#include "engine.h"
+#include "engine.hpp"
+#include <dirent.h>
 #include "QueryEvent.hpp"
 #include "MoveEvent.hpp"
 #include "ServerInfo.hpp"
+#include "AbstractSpriteHandler.hpp"
+#include "NetClient.hpp"
+#include "NetServer.hpp"
 #include <cereal/archives/json.hpp>
 #include <fstream>
+#include <exception>
+#include "scene.hpp"
+#include <utility>
+#include <SDL2/SDL_image.h>
 
+/*  TODO: reduce number of globals */
+std::shared_ptr<Camera> _pCamera;
+int _log_message_scene = 0;
 bool _bind_next_key = false;
 std::string _next_bind_command;
 int _window_size[] = {DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT};
@@ -20,32 +31,61 @@ bool _controller_connected = false;
 int DEADZONE = 9000;
 std::string dX = "0.1";
 Uint8 *_kb_state = NULL;
-level _level;
+std::shared_ptr<scene> _pScene;
 unsigned int _tick = 0;
 std::string _nickname = "big_beef";
 ServerInfo _server_info;
+std::ofstream _console_log_file;
+std::list<std::shared_ptr<AbstractSpriteHandler>> _particle_list;
+std::vector<CommandBinding> _default_bindings;
+NetClient _net_client;
+
+std::list<std::pair<std::string, SDL_Texture*>> _sprite_list;
+static void load_assets();
+
+void refresh_sprites();
+void create_window();
+
+static void set_draw(bool on){
+
+  if(on == _draw)
+    return;
+
+  else if(on == true){
+    _draw = true;
+    create_window();
+    refresh_sprites();
+  }
+
+  else{
+    _draw = false;
+    SDL_DestroyWindow(_window);
+    SDL_DestroyRenderer(_renderer);
+  }
+
+  return;
+}
 
 void exit_engine(int signum) {
-    //Destroy window
-    // // if (_window) {
-    // //   //     SDL_DestroyWindow(_window);
-    //     _window = NULL;
-    // }
-    //Quit SDL subsystems
     SDL_Delay(500);
     SDL_Quit();
     _halt = true;
     std::cout  << "\nNow exiting the BLOKE engine. Hope you had fun. Wherever you are, we at the BLOKE project hope we have made your day just a little bit brighter. See you next time around! :)\n";
     signal(SIGINT, NULL);
+    std::cout << "Received signal " << strsignal(signum) << ".\nExiting...\n";
+    SDL_Quit();
     return;
 }
+
 void create_window(){
   std::string window_name = "Bomberbloke Client";
   if (_server)
     window_name = "Bomberbloke Server";
   _window = SDL_CreateWindow(window_name.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                              _window_size[0], _window_size[1], SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
-  _zoom = (double)(_window_size[0]) / (_level.mDimmension[0]);
+  if(_pCamera)
+    _pCamera->SetZoom();
+  // _zoom = (double)(_window_size[0]) / (_pScene->mDimmension[0]);
   if(_renderer){
     SDL_DestroyRenderer(_renderer);
   }
@@ -53,7 +93,24 @@ void create_window(){
   SDL_SetRenderDrawColor(_renderer, 0xff, 0x00, 0x00, 0xff);
   SDL_RenderClear(_renderer);
   SDL_RenderPresent(_renderer);
+
+  for(auto i = _sprite_list.begin(); i != _sprite_list.end(); i++){
+    SDL_DestroyTexture(i->second);
+  }
+
+  return;
 }
+
+/**  Refresh all of our sprites
+ *
+ *  This may be called when the window is resized.
+ */
+
+void refresh_sprites(){
+  _pScene->refreshSprites();
+  return;
+}
+
 
 void resize_window(int x, int y){
   _window_size[0] = x;
@@ -63,47 +120,42 @@ void resize_window(int x, int y){
     SDL_DestroyWindow(_window);
     create_window();
   }
-  _level.ReloadSprites();
+  refresh_sprites();
   return;
 }
 
-static int resizeWatcher(void *data, SDL_Event *event){
-  if(!event)
-    return 0;
-
-  if(event->type == SDL_WINDOWEVENT && event->window.event == SDL_WINDOWEVENT_RESIZED)
-    resize_window(event->window.data1, event->window.data2);
-  return 0;
-}
-
 void init_engine() {
-    int size[2];
-    char *receive_port = (char *) "8888";
+  signal(SIGINT, exit_engine);
+  SDL_Init(SDL_INIT_EVERYTHING);
 
-    _server_info;
-    signal(SIGINT, exit_engine);
-    SDL_Init(SDL_INIT_EVERYTHING);
+    /*  Set blendmode */
+    SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
 
     if (_draw) {
       create_window();
     }
-   _level = level();
 
-    // init controller
+    _pScene = std::shared_ptr<scene>(new scene(10, 10));
+    _pCamera = std::shared_ptr<Camera>(new Camera(_pScene));
+
+    /* Initialise the controller if it exists */
     _controller = handle_input_controller();
-    _controller_connected = _controller != NULL ? true : false;
+    _controller_connected = _controller != nullptr ? true : false;
 
     _kb_state = (Uint8 *) malloc(sizeof(Uint8) * SDL_SCANCODE_APP2); //max scancode
     memset((void *) _kb_state, 0, sizeof(Uint8) * SDL_SCANCODE_APP2);
     std::thread console(console_loop);
     console.detach();
     _state = DISCONNECTED;
+    /*  Open a log file  */
+    _console_log_file.open("/tmp/bloke.log");
 
-    SDL_AddEventWatch(resizeWatcher, _window);
+
+    load_assets();
     return;
 }
 
-void handle_input(level *level) {
+void handle_input() {
     SDL_Event event;
     //  bool key_up = true;
     Uint8 *kb_state = NULL;
@@ -124,6 +176,12 @@ void handle_input(level *level) {
           log_message(INFO, "Successfully bound " + new_binding.command + " to " + std::to_string(new_binding.scancode));
           break;
         }
+        case SDL_WINDOWEVENT:
+          if(event.window.event == SDL_WINDOWEVENT_RESIZED){
+            _window_size[0] = event.window.data1;
+            _window_size[1] = event.window.data2;
+            _pCamera->SetZoom();
+          }
         }
     }
 
@@ -141,8 +199,12 @@ void handle_input(level *level) {
                         _system_commands.end()) {
                         handle_system_command(split_to_tokens(command_to_send)); // process system command
                     } else {
-                      std::cout << command_to_send << "\n";
-                      i->getCharacter()->handle_command(command_to_send); // handle normal command
+                      std::shared_ptr<actor> character = i->getCharacter();
+                      if(i->getCharacter())
+                        i->getCharacter()->handle_command(command_to_send); // handle normal command
+                      else{
+                        log_message(INFO, "No character connected to character");
+                      }
                     }
                 }
             }
@@ -169,9 +231,7 @@ void handle_input(level *level) {
 
                 }
             }
-
         }
-
 
     }
 
@@ -183,78 +243,10 @@ void handle_input(level *level) {
 
 SDL_Joystick *handle_input_controller() {
     SDL_Init(SDL_INIT_JOYSTICK);
-
     if (SDL_NumJoysticks() > 0) {
         std::cout << "Controlled connected\n ";
         return SDL_JoystickOpen(0); // return joystick identifier
     } else { return NULL; } // no joystick found
-}
-
-
-bool handle_collision(std::shared_ptr<actor> a, std::shared_ptr<actor> b) {
-    bool collision = true;
-    double a_tmp_midpoint[2] = {a->get_midpoint(0), a->get_midpoint(1)}; 
-    double b_midpoint[2] = {b->get_midpoint(0), b->get_midpoint(1)};
-    double distance[2];
-    if (!a->is_moving())
-        return false;
-    for (int i = 0; i < 2; i++) {
-        a_tmp_midpoint[i] = a_tmp_midpoint[i] + a->mVelocity[i];
-        if ((distance[i] = std::abs(a_tmp_midpoint[i] - b_midpoint[i])) >
-            double(0.5 * (a->mDimmension[i] + b->mDimmension[i]))) {
-            collision = false;
-            break;
-        }
-    }
-    if (collision) {
-        int x_iter = 1;
-        int i = 0;
-        if (distance[1] > distance[0])
-            i = 1;
-        if (a->mVelocity[i] < 0)
-            x_iter = -1;
-        a_tmp_midpoint[i] = a_tmp_midpoint[i] - x_iter * (1e-8 + (a->mDimmension[i] + b->mDimmension[i]) * 0.5 -
-                                                std::abs(a_tmp_midpoint[i] - b_midpoint[i]));
-        a->mVelocity[i] = 0;
-        a->move(a_tmp_midpoint[0] - a->mDimmension[0] / 2, a_tmp_midpoint[1] - a->mDimmension[1] / 2);
-    }
-    return collision;
-}
-
-void handle_movement() {
-    /*Iterate over all moving actors*/
-    for (auto i = _level.mActors.begin(); i != _level.mActors.end(); i++) {
-        bool collision = false;
-
-        /*Update actors*/
-
-        (*i)->update();
-
-        if (!(*i)->is_moving())
-            continue;
-        if ((*i)->mCollides == false)
-            (*i)->move((*i)->mPosition[0] + (*i)->mVelocity[0], (*i)->mPosition[1] + (*i)->mVelocity[1]);
-
-        else {
-
-            /*Check for collisions*/
-
-            for (auto j = _level.mActors.begin(); j != _level.mActors.end(); j++) {
-                if (i == j)
-                    continue;
-                if ((*j)->mCollides == true)
-                    if (handle_collision(*i, *j)) {
-                        collision = true;
-                        break;
-                    }
-                if (collision)
-                    break;
-            }
-            if (!collision)
-                (*i)->move((*i)->mPosition[0] + (*i)->mVelocity[0], (*i)->mPosition[1] + (*i)->mVelocity[1]);
-        }
-    }
-    return;
 }
 
 void draw_hud() {
@@ -266,7 +258,8 @@ void draw_screen() {
     return;
   SDL_SetRenderDrawColor(_renderer, 0x10, 0xFF, 0x00, 0xFF);
   SDL_RenderClear(_renderer);
-  _level.draw();
+  _pCamera->draw();
+  _pScene->cleanUp();
   SDL_RenderPresent(_renderer);
   return;
 }
@@ -275,9 +268,21 @@ void logic_loop() {
     return;
 }
 
-void log_message(int level, std::string str) {
-    std::cout << level << str << std::endl;
+void log_message(int scene, std::string str) {
+  if(scene > ALL)
+    scene = ALL;
+
+  /* Output to our log file */
+  _console_log_file << str << "\n";
+
+  if(scene < _log_message_scene){
+    /*Ignore the message*/
     return;
+  }
+  else{
+    std::cout << LOG_LEVEL_STRINGS[scene] << ": " << str << std::endl;
+    return;
+  }
 }
 
 void load_config(std::string fname) {
@@ -306,13 +311,110 @@ void load_config(std::string fname) {
 bool handle_system_command(std::list<std::string> tokens) {
   std::string command = tokens.front();
 
+  if(command == "draw"){
+    if(tokens.size() == 2){
+      if(tokens.back() == "on"){
+        set_draw(true);
+      }
+      else if(tokens.back() == "off"){
+        set_draw(false);
+      }
+      else{
+        log_message(ERROR, "Couldn't parse command - " + command + tokens.back() + " the options for 'draw' are 'on' and 'off'");
+        return false;
+      }
+    }
+    else{
+      log_message(ERROR, "draw command requires one argument");
+      return false;
+    }
+  }
+
+  if(_server && command == "new"){
+    new_game("");
+  }
+
+  if(!_server && command == "open"){
+    if(tokens.size() == 2){
+      auto iter = tokens.begin();
+      iter++;        //Select the first token
+      int port;
+
+      /*  Attempt to parse the first argument as address:port.
+          If no ':' is present, the port number defaults to 8888.
+       */
+      long unsigned int delim_pos = iter->find(':');
+      std::string address;
+      if(delim_pos == std::string::npos){
+        port = 8888;
+        address = *iter;
+      }
+      else if(iter->substr(delim_pos+1).find(':')!=std::string::npos){
+        std::stringstream msg;
+        msg << "Couldn't parse address, " << *iter;
+        log_message(ERROR, msg.str());
+        return false;
+      }
+      else{
+        address = iter->substr(0, delim_pos);
+        /*  TODO replace try-catch with something less lazy to check if
+            we're going to have an error
+        */
+        try{
+          port = std::stoi(iter->substr(delim_pos+1).c_str());
+        }
+        catch(std::exception &e){
+          log_message(ERROR, "Failed to parse port number");
+          return false;
+        }
+      }
+      /* We now have an address and port number to connect with
+         NetClient::connectClient returns true of false. Return
+         this value
+       */
+      if(!_net_client.joinBlokeServer(address, port, _nickname)){
+        log_message(INFO, "failed to connect to server");
+        return false;
+      }
+    }
+    else{
+      /* TODO allow port number as a separate argument? */
+      log_message(ERROR, "Incorrect number of elements for connect");
+    }
+  }
+
   if(command == "info"){
     QueryEvent e("big_beef");
     cereal::JSONOutputArchive oArchive(std::cout);
     oArchive(e);
   }
 
-  if(command ==  "generate_config"){
+  if(command == "log_level"){
+    if(tokens.size()!=2){
+      log_message(ERROR, "Command: log_level requires exactly one argument.");
+      return false;
+    }
+    else{
+      //Critical is our highest warning level
+      auto iterator = tokens.begin();
+      iterator++;
+      std::string input_string = *iterator;
+      for(unsigned int i = 0; i <= CRITICAL; i++){
+        if(input_string == LOG_LEVEL_STRINGS[i]){
+          _log_message_scene = i;
+          log_message(ALL, "Log level set to " + LOG_LEVEL_STRINGS[i]);
+        }
+      }
+
+    }
+  }
+
+
+  else if(command == "quit"){
+    exit_engine(0);
+  }
+
+  else if(command ==  "generate_config"){
     if(tokens.size() == 1){
       GenerateConfig("generated_config.conf");
     }
@@ -325,7 +427,7 @@ bool handle_system_command(std::list<std::string> tokens) {
     }
   }
 
-  if(command == "resize"){
+  else if(command == "resize"){
     if(tokens.size() == 3){
       auto i = tokens.begin();
       i++;
@@ -342,7 +444,7 @@ bool handle_system_command(std::list<std::string> tokens) {
     }
   }
 
-  if(command == "bind"){
+  else if(command == "bind"){
     if(tokens.size() == 3){
       auto i = tokens.begin();
       i++;
@@ -363,7 +465,6 @@ bool handle_system_command(std::list<std::string> tokens) {
     }
 
   }
-
   return true;
 }
 
@@ -400,7 +501,7 @@ std::list <std::string> split_to_tokens(std::string str) {
 }
 
 void console_loop() {
-    std::cout << "Bomberbloke console\n";
+    std::cout << "Bomberbloke console...\n";
     while (!_halt) {
         switch (_state) {
             default: {
@@ -418,4 +519,40 @@ void console_loop() {
         }
     }
     return;
+}
+
+/** This is used when the engine is started to pre load all assets into one
+    place.
+
+    TODO: handle files other than images.
+*/
+static void load_assets(){
+  if (auto dir = opendir(("assets" + PATHSEPARATOR).c_str())){
+    while (auto f = readdir(dir)) {
+      if (!f->d_name || f->d_name[0] == '.')
+        continue; // Skip hidden files
+      else{
+        std::string whole_filename = std::string(f->d_name);
+        auto dot_pos = whole_filename.find('.');
+        if(dot_pos == std::string::npos)
+          continue; // no file extension
+        std::string file_name = whole_filename.substr(0, dot_pos);
+        std::string file_extension = whole_filename.substr(dot_pos);
+        if(file_extension == ".png"){
+          SDL_Texture *sprite = IMG_LoadTexture(_renderer, ("assets" + PATHSEPARATOR +  whole_filename).c_str());
+          _sprite_list.push_back({whole_filename, sprite});
+        }
+      }
+    }
+    closedir(dir);
+  }
+}
+
+/* Lookup the name in our list of assets and return a pointer to its texture if it exists */
+SDL_Texture *get_sprite(std::string asset_name){
+  auto iter = std::find_if(_sprite_list.begin(), _sprite_list.end(), [&](std::pair<std::string, SDL_Texture*> entry) -> bool{return entry.first==asset_name;});
+  if(iter == _sprite_list.end())
+    return nullptr;
+  else
+    return iter->second;
 }

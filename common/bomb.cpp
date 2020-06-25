@@ -1,19 +1,16 @@
 #include "bomberbloke.h"
 #include "bloke.hpp"
 #include "bomb.hpp"
+#include "Explosion.hpp"
 
 unsigned int _default_bomb_timer = DEFAULT_BOMB_TIMER;
 
 void bomb::init(bloke *bloke){
-  mDimmension[0]=0.5;
-  mDimmension[1]=0.5;
-  mpSprite = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 128, 128);
-  SDL_SetRenderTarget(_renderer, mpSprite);
-  SDL_SetRenderDrawColor(_renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-  SDL_RenderFillRect(_renderer, NULL);
-  SDL_SetRenderTarget(_renderer, NULL);
+  mDimmension[0]=BOMB_SIZE;
+  mDimmension[1]=BOMB_SIZE;
+  std::shared_ptr<PlaceHolderSprite> sprite(new  PlaceHolderSprite(mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]));
+  mpSpriteHandler = std::dynamic_pointer_cast<AbstractSpriteHandler>(sprite);
   mCollides = false;
-  memset(mVelocity, 0, 2*sizeof(double));
   mTimer = _default_bomb_timer;
   if(bloke){
     mPlacedById = bloke->mId;
@@ -35,12 +32,13 @@ void bomb::handle_command(std::string command){
 }
 
 void bomb::update(){
-  /*Bomb collision is only turned on when the actor which placed it has 
+  /*Bomb collision is only turned on when the actor which placed it has
     moved away*/
   if(mPlacedById != 0){
     if(mCollides == false){
-      std::shared_ptr<actor> placed_by = _level.GetActor(mPlacedById);
-      if(std::abs(mPosition[0]-placed_by->mPosition[0]) > 0.5*(mDimmension[0]+placed_by->mDimmension[0])){
+      std::shared_ptr<actor> placed_by = _pScene->GetActor(mPlacedById);
+      /*TODO this is wrong. Use a corner or midpoint here*/
+        if(std::abs(mPosition[0]-placed_by->mPosition[0]) > 0.5*(mDimmension[0]+placed_by->mDimmension[0])){
         mCollides=true;
       }
       else if(std::abs(mPosition[1]-placed_by->mPosition[1]) > 0.5*(mDimmension[1]+placed_by->mDimmension[1])){
@@ -56,11 +54,11 @@ void bomb::update(){
 }
 
 void bomb::explode(){
-  auto actor = _level.mActors.begin();
+  auto actor = _pScene->mActors.begin();
 
   if(_server){
     /*Iterate over all actors and kill the ones if they are in the right (wrong) zone.*/
-    while(actor!=_level.mActors.end()){
+    while(actor!=_pScene->mActors.end()){
       auto prev = *actor;
       actor++;
       /* Do not kill this bomb*/
@@ -79,11 +77,17 @@ void bomb::explode(){
       }
     }
   }
+  _pScene->mParticleList.push_back(std::shared_ptr<Explosion>(new Explosion(mPosition[0] - 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), mPosition[1] - 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), 1 ,1)));
+
   mRemove = true;
 
   /*Cast to a bloke pointer.*/
-  std::shared_ptr<bloke> placed_by = std::dynamic_pointer_cast<bloke>(_level.GetActor(mPlacedById));
+  std::shared_ptr<bloke> placed_by = std::dynamic_pointer_cast<bloke>(_pScene->GetActor(mPlacedById));
   if(placed_by)
     placed_by->mBombs--;
+
+  /*  Rumble effect */
+  _pCamera->rumble();
+
   return;
 }

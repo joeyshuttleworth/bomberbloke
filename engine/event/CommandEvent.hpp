@@ -16,9 +16,12 @@ private:
   std::string mCommand;
 public:
 
+  int getType() const{
+    return EVENT_COMMAND;
+  }
+
   CommandEvent(std::string command){
     mCommand = command;
-    mType = COMMAND;
     return;
   };
   template<class Archive>
