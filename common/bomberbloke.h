@@ -1,3 +1,6 @@
+#ifndef BOMBERBLOKE_HPP
+#define BOMBERBLOKE_HPP
+
 #include "engine.hpp"
 
 #define DEFAULT_BLOKE_SIZE 1
@@ -41,3 +44,4 @@ enum block_types{
   WOOD
 };
 
+#endif

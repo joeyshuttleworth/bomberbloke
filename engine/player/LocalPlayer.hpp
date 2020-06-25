@@ -23,6 +23,11 @@ class LocalPlayer : public AbstractPlayer{
     return 0;
   }
 
+  void setId(int id){
+    mId = id;
+    return;
+  }
+
   using AbstractPlayer::AbstractPlayer;
 
 };
