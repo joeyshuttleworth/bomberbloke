@@ -31,7 +31,6 @@ NetClient::NetClient(){
 
 NetClient::~NetClient() {
     // Clean up ENet
-    disconnectClient();
     enet_host_destroy(mENetHost);
     enet_deinitialize();
 }
@@ -47,8 +46,8 @@ bool NetClient::connectClient(std::string serverAddress, enet_uint16 port) {
     mENetServerAddress.port = mPort;
 
     //Initiate the connection, with only one channel
-    if(mENetServer)
-      disconnectClient();
+    // if(mENetServer)
+      // disconnectClient();
     mENetServer = enet_host_connect(mENetHost, &mENetServerAddress, 1, 0);
     if (mENetServer == NULL) {
         fprintf(stderr, "No available peers for initiating an ENet connection.\n");
@@ -170,7 +169,8 @@ void NetClient::pollServer(){
      std::shared_ptr<AbstractEvent> sp_to_handle = std::move(receive_event);
      switch(sp_to_handle->getType()){
      case EVENT_SYNC:{
-       std::shared_ptr<syncEvent> s_event = std::dynamic_pointer_cast<syncEvent>(sp_to_handle);
+       std::shared_ptr<AbstractEvent> tmp_event(std::move(receive_event));
+       std::shared_ptr<syncEvent> s_event = std::dynamic_pointer_cast<syncEvent>(tmp_event);
        mPlayers = s_event->getPlayers();
        auto iter = std::find_if(mPlayers.begin(), mPlayers.end(), [](serverPlayer sp) -> bool{return sp.isLocal();});
        if(iter != mPlayers.end()){
