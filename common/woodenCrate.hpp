@@ -23,5 +23,4 @@ public:
 };
 
 CEREAL_REGISTER_TYPE(woodenCrate)
-
 #endif

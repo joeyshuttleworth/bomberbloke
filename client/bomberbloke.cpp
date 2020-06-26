@@ -4,6 +4,9 @@
 #include "bomb.hpp"
 #include <network/NetClient.hpp>
 
+/* Register our actors with cereal */
+CEREAL_REGISTER_DYNAMIC_INIT(actors)
+
 int main (){
 
    _default_bindings =

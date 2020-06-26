@@ -40,9 +40,4 @@ private:
     enet_uint16 mPort;
 };
 
-
-
-class NetClient;
-
-
 #endif

@@ -63,12 +63,14 @@ static void set_draw(bool on){
     _draw = false;
     SDL_DestroyWindow(_window);
     SDL_DestroyRenderer(_renderer);
+    _renderer = nullptr;
   }
 
   return;
 }
 
 void exit_engine(int signum) {
+    set_draw(false);
     SDL_Delay(500);
     SDL_Quit();
     _halt = true;

@@ -8,6 +8,9 @@
 #include <memory>
 #include "woodenCrate.hpp"
 
+/* Register our actors with cereal */
+CEREAL_REGISTER_DYNAMIC_INIT(actors)
+
 int    _default_bomb_time = DEFAULT_BOMB_TIMER;
 double _bloke_size[2]     = {DEFAULT_BLOKE_SIZE, DEFAULT_BLOKE_SIZE};
 std::vector<int> _spawn_points = {5,5};

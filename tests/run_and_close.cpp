@@ -4,6 +4,9 @@
 #include "bloke.hpp"
 #include "bomb.hpp"
 
+/* Register our actors with cereal */
+CEREAL_REGISTER_DYNAMIC_INIT(actors)
+
 int main (){
 _draw=false;
 
