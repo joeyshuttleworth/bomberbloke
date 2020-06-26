@@ -30,10 +30,18 @@ public:
   }
   bool synced = false;
 
+  ENetPeer *getPeer(){
+    return mpPeer;
+  }
+
+
+  // void serialize(Archive &archive){
+  //   archive(cereal::base_class<AbstractPlayer>(this));
+  // }
 };
 
 /*Polymorphic types have to be registered for cereal*/
-CEREAL_REGISTER_TYPE(NetworkPlayer)
+// CEREAL_REGISTER_TYPE(NetworkPlayer)
 
 
 #endif

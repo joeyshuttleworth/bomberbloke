@@ -15,7 +15,6 @@ void bloke :: accelerate(){
     if(mAcceleration[i] != 0){
       mVelocity[i] = mVelocity[i] + velocity_increase[i];
     }
-
     else{
       double decceleration = (mVelocity[i]>0)?-mMaxSpeed*0.5: mMaxSpeed*0.5;
       if(std::abs(decceleration) > std::abs(mVelocity[i]))

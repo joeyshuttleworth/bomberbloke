@@ -1,6 +1,7 @@
 #ifndef BOMB_HPP
 #define BOMB_HPP
 
+#include "bloke.hpp"
 #include <cereal/types/base_class.hpp>
 #include <cereal/types/polymorphic.hpp>
 

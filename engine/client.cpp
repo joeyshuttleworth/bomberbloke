@@ -28,6 +28,7 @@ void client_loop(){
      _pScene->update();
      draw_screen();
      gameUpdate();
+     _net_client.pollServer();
      _tick++;
   }
 }
