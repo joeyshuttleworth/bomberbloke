@@ -44,4 +44,10 @@ enum block_types{
   WOOD
 };
 
+
+/* Cereal magic: include all actor types here so cereal knows about them */
+#include "bomb.hpp"
+#include "bloke.hpp"
+#include "woodenCrate.hpp"
+
 #endif

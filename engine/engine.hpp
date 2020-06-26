@@ -16,7 +16,7 @@
 #include <signal.h>
 #include <SDL_joystick.h>
 #include <thread>
-
+#include <cereal/archives/json.hpp>
 #define DEFAULT_ZOOM  50
 #define DEFAULT_ACTOR_SIZE 1
 #define DEFAULT_WINDOW_WIDTH  700

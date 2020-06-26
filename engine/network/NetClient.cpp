@@ -10,13 +10,11 @@
 #include  "syncEvent.hpp"
 #include "errorEvent.hpp"
 #include "actor.hpp"
-#include "woodenCrate.hpp"
 #include <string>
 #include <iostream>
 #include <sstream>
 #include "AbstractEvent.hpp"
 #include "QueryEvent.hpp"
-#include <cereal/archives/json.hpp>
 #include <memory>
 
 
@@ -169,8 +167,7 @@ void NetClient::pollServer(){
      std::shared_ptr<AbstractEvent> sp_to_handle = std::move(receive_event);
      switch(sp_to_handle->getType()){
      case EVENT_SYNC:{
-       std::shared_ptr<AbstractEvent> tmp_event(std::move(receive_event));
-       std::shared_ptr<syncEvent> s_event = std::dynamic_pointer_cast<syncEvent>(tmp_event);
+       std::shared_ptr<syncEvent> s_event = std::dynamic_pointer_cast<syncEvent>(sp_to_handle);
        mPlayers = s_event->getPlayers();
        auto iter = std::find_if(mPlayers.begin(), mPlayers.end(), [](serverPlayer sp) -> bool{return sp.isLocal();});
        if(iter != mPlayers.end()){
