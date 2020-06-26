@@ -38,7 +38,9 @@ ServerInfo _server_info;
 std::ofstream _console_log_file;
 std::list<std::shared_ptr<AbstractSpriteHandler>> _particle_list;
 std::vector<CommandBinding> _default_bindings;
+
 NetClient _net_client;
+NetServer _net_server;
 
 std::list<std::pair<std::string, SDL_Texture*>> _sprite_list;
 static void load_assets();
@@ -61,12 +63,14 @@ static void set_draw(bool on){
     _draw = false;
     SDL_DestroyWindow(_window);
     SDL_DestroyRenderer(_renderer);
+    _renderer = nullptr;
   }
 
   return;
 }
 
 void exit_engine(int signum) {
+    set_draw(false);
     SDL_Delay(500);
     SDL_Quit();
     _halt = true;
@@ -200,8 +204,8 @@ void handle_input() {
                         handle_system_command(split_to_tokens(command_to_send)); // process system command
                     } else {
                       std::shared_ptr<actor> character = i->getCharacter();
-                      if(i->getCharacter())
-                        i->getCharacter()->handle_command(command_to_send); // handle normal command
+                      if(character)
+                        character->handle_command(command_to_send); // handle normal command
                       else{
                         log_message(INFO, "No character connected to character");
                       }
@@ -209,7 +213,7 @@ void handle_input() {
                 }
             }
         } else {
-            if (event.jaxis.which == 0) {
+          if (i->getCharacter() &&  event.jaxis.which == 0) {
                 if (event.jaxis.axis == 0) { //x axis
                     if (event.jaxis.value < -DEADZONE) {
                       i->getCharacter()->handle_command("left"+dX);
@@ -254,8 +258,10 @@ void draw_hud() {
 }
 
 void draw_screen() {
-  if(_halt)
+
+  if(_halt || !_renderer || !_window || !_draw)
     return;
+
   SDL_SetRenderDrawColor(_renderer, 0x10, 0xFF, 0x00, 0xFF);
   SDL_RenderClear(_renderer);
   _pCamera->draw();
@@ -310,6 +316,15 @@ void load_config(std::string fname) {
 
 bool handle_system_command(std::list<std::string> tokens) {
   std::string command = tokens.front();
+
+  if(command == "disconnect"){
+    if(_server){
+      
+    }
+    else{
+
+    }
+  }
 
   if(command == "draw"){
     if(tokens.size() == 2){

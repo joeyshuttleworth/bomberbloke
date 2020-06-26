@@ -8,6 +8,8 @@
 #include "ServerInfoEvent.hpp"
 #include "JoinEvent.hpp"
 #include "acceptEvent.hpp"
+#include "errorEvent.hpp"
+#include "syncEvent.hpp"
 #include "engine.hpp"
 #include <enet/enet.h>
 #include <curl/curl.h>
@@ -48,6 +50,20 @@ void NetServer::handleJoinEvent(std::shared_ptr<JoinEvent> event, ENetPeer *from
     return;
   }
 
+  /* Finally check that there is no connected player with the same ENetAddress */
+  for(auto i = _player_list.begin(); i != _player_list.end(); i++){
+    ENetPeer*tmp_peer = (*i)->getPeer();
+
+    if(!tmp_peer)
+      continue;
+
+    if(tmp_peer == from){
+      log_message(INFO, "a player at from " + std::to_string(from->address.host) + ":" + std::to_string(from->address.port) + "is already connected");
+      std::unique_ptr<AbstractEvent> e_event(new errorEvent("Player from host already connected"));
+      sendEvent(e_event, from);
+    }
+  }
+
   /* Send an acceptEvent */
   {
     std::unique_ptr<AbstractEvent> accept_event(new acceptEvent());
@@ -57,6 +73,13 @@ void NetServer::handleJoinEvent(std::shared_ptr<JoinEvent> event, ENetPeer *from
   /* Add the player to _player_list */
   _player_list.push_back(std::shared_ptr<NetworkPlayer>(new NetworkPlayer(nickname, from)));
 
+  /* Remove player from mUnjoinedPeers */
+  mUnjoinedPeers.remove_if([&](unjoinedPeer up) -> bool{return up.peer == from;});
+
+
+  /* Now sync send the entire gamestate to the client */
+  std::unique_ptr<AbstractEvent> s_event(new syncEvent());
+  sendEvent(s_event, from);
   return;
 }
 
@@ -161,8 +184,13 @@ void NetServer::poll() {
       //              message << event.packet->data << " was received from " << event.peer->data;
       message << " on channel " << event.channelID << ".\n";
       std::cout << message.str();
-      //log_message(INFO, message.str());
-      // TODO: Add user to user_list
+
+      unjoinedPeer u_peer;
+      u_peer.peer = event.peer;
+      u_peer.timeout = 600;
+
+      mUnjoinedPeers.push_back(u_peer);
+
       break;
     }
 
@@ -297,6 +325,22 @@ enet_uint32 NetServer::packetsSent() const {
 
 enet_uint32 NetServer::packetsRecieved() const {
     return mENetServer->totalReceivedPackets;
+}
+
+void NetServer::update(){
+  if(_tick%60 == 0){
+    for(auto i = mUnjoinedPeers.begin(); i != mUnjoinedPeers.end(); i++){
+      if(i->timeout > 60){
+        i->timeout -= 60;
+      }
+      else{
+        i->timeout = 0;
+      }
+    }
+    /* Removed all timed out peers */
+    mUnjoinedPeers.remove_if([](unjoinedPeer up) -> bool{return up.timeout==0;});
+  }
+  return;
 }
 
 

@@ -16,7 +16,7 @@
 #include <signal.h>
 #include <SDL_joystick.h>
 #include <thread>
-
+#include <cereal/archives/json.hpp>
 #define DEFAULT_ZOOM  50
 #define DEFAULT_ACTOR_SIZE 1
 #define DEFAULT_WINDOW_WIDTH  700
@@ -35,8 +35,6 @@ enum state{
            PLAYING,
            DISCONNECTED
 };
-
-extern unsigned int _state;
 
 class actor;
 class scene;
@@ -126,6 +124,11 @@ extern std::shared_ptr<Camera> _pCamera;
 /*  A function defined by the game / test called each tick */
 void gameUpdate();
 
+class NetClient;
+class NetServer;
+
+extern NetClient _net_client;
+extern NetServer _net_server;
 
 /* Define the path seperator based on the operating system*/
 const std::string PATHSEPARATOR =

@@ -11,6 +11,9 @@
 #include <memory>
 #include "AbstractEvent.hpp"
 
+
+class serverPlayer;
+
 class NetClient {
 public:
     NetClient();
@@ -24,6 +27,8 @@ public:
     bool joinBlokeServer(std::string address, int, std::string);
     void sendEvent(std::unique_ptr<AbstractEvent>&);
 
+    std::vector<serverPlayer> mPlayers;
+
 private:
   /* And ENet representation of the address of the server */
     ENetAddress mENetServerAddress;
@@ -34,11 +39,5 @@ private:
     std::string mServerAddress;
     enet_uint16 mPort;
 };
-
-
-
-class NetClient;
-extern NetClient _net_client;
-
 
 #endif

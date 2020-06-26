@@ -49,7 +49,7 @@ add_library(${LIB_TARGET_NAME} CLIENT ${SHARED_SOURCES} "engine/client.cpp" "eng
 
 # run_and_close test
 add_executable(run_and_close "tests/run_and_close.cpp" "engine/client.cpp")
-target_link_libraries(run_and_close CLIENT ${ENET_LIBRARIES} ${SDL2_LIBRARIES})
+target_link_libraries(run_and_close CLIENT ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES})
 add_test(RUN_AND_CLOSE run_and_close COMMAND)
 
 #query_event_test
@@ -64,12 +64,12 @@ add_test(LOCAL_SERVER_CONNECT local_server_connect COMMAND)
 
 # explosion demo
 add_executable(explosion_demo "tests/ExplosionDemo.cpp" "engine/client.cpp")
-target_link_libraries(explosion_demo CLIENT ${ENET_LIBRARIES} ${SDL2_LIBRARIES} )
+target_link_libraries(explosion_demo CLIENT ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES})
 
 # Client setup
 set(client_src "client/bomberbloke.cpp")
 add_executable(bomberbloke_client ${client_src} "engine/client.cpp")
-target_link_libraries(bomberbloke_client CLIENT ${ENET_LIBRARIES} ${SDL2_LIBRARIES} )
+target_link_libraries(bomberbloke_client CLIENT ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES})
 
 # Server setup
 add_library(${LIB_TARGET_NAME} SERVER ${SHARED_SOURCES} "engine/server.cpp" "engine/network/NetServer.cpp")

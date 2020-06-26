@@ -1,3 +1,6 @@
+#ifndef BOMBERBLOKE_HPP
+#define BOMBERBLOKE_HPP
+
 #include "engine.hpp"
 
 #define DEFAULT_BLOKE_SIZE 1
@@ -41,3 +44,10 @@ enum block_types{
   WOOD
 };
 
+
+/* Cereal magic: include all actor types here so cereal knows about them */
+#include "bomb.hpp"
+#include "bloke.hpp"
+#include "woodenCrate.hpp"
+
+#endif

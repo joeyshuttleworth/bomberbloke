@@ -7,12 +7,14 @@
 #include "ServerInfoEvent.hpp"
 #include "JoinEvent.hpp"
 #include "acceptEvent.hpp"
+#include  "syncEvent.hpp"
+#include "errorEvent.hpp"
+#include "actor.hpp"
 #include <string>
 #include <iostream>
 #include <sstream>
 #include "AbstractEvent.hpp"
 #include "QueryEvent.hpp"
-#include <cereal/archives/json.hpp>
 #include <memory>
 
 
@@ -27,7 +29,6 @@ NetClient::NetClient(){
 
 NetClient::~NetClient() {
     // Clean up ENet
-    disconnectClient();
     enet_host_destroy(mENetHost);
     enet_deinitialize();
 }
@@ -43,6 +44,8 @@ bool NetClient::connectClient(std::string serverAddress, enet_uint16 port) {
     mENetServerAddress.port = mPort;
 
     //Initiate the connection, with only one channel
+    // if(mENetServer)
+      // disconnectClient();
     mENetServer = enet_host_connect(mENetHost, &mENetServerAddress, 1, 0);
     if (mENetServer == NULL) {
         fprintf(stderr, "No available peers for initiating an ENet connection.\n");
@@ -123,17 +126,18 @@ bool NetClient::joinBlokeServer(std::string address, int port, std::string nickn
           log_message(DEBUG, "received message: " + data_in.str());
           inArchive(receive_event);
         }
-
-        if(receive_event->getType() == EVENT_ERROR){
-          /* Handle rejection */
-          log_message(INFO, "failed to join server reason \"" + receive_event->output() + "\"");
-          return false;
-        }
-
-        else if(receive_event->getType() == EVENT_ACCEPT){
-          /* Handle join  */
-          log_message(INFO, "Successfully joined server. Message: " + receive_event->output());
-          return true;
+        switch(receive_event->getType()){
+        case EVENT_ERROR:{
+            /* Handle rejection */
+            log_message(INFO, "failed to join server reason \"" + receive_event->output() + "\"");
+            return false;
+          }
+        case EVENT_ACCEPT:{
+            /* Handle join  */
+            log_message(INFO, "Successfully joined server. Message: " + receive_event->output());
+            return true;
+          }
+        default:break;
         }
       }
     }
@@ -161,6 +165,24 @@ void NetClient::pollServer(){
 
      /* Make the pointer shared so we can handle it elsewhere */
      std::shared_ptr<AbstractEvent> sp_to_handle = std::move(receive_event);
+     switch(sp_to_handle->getType()){
+     case EVENT_SYNC:{
+       std::shared_ptr<syncEvent> s_event = std::dynamic_pointer_cast<syncEvent>(sp_to_handle);
+       mPlayers = s_event->getPlayers();
+       auto iter = std::find_if(mPlayers.begin(), mPlayers.end(), [](serverPlayer sp) -> bool{return sp.isLocal();});
+       if(iter != mPlayers.end()){
+         if(iter->mNickname != _nickname){
+           log_message(ERROR, "sync player list had wrong nickname for the local player");
+           break;
+         }
+         _local_player_list.back().setId(iter->getId());
+       }
+       log_message(DEBUG, "synced with server");
+       break;
+        }
+     default:
+       break;
+     }
    }
   }
   return;

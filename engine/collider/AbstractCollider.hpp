@@ -1,5 +1,5 @@
-#ifndef ABSTARCT_COLLIDER_HPP
-#define ABSTARCT_COLLIDER_HPP
+#ifndef ABSTRACTCOLLIDER_HPP
+#define ABSTRACTCOLLIDER_HPP
 
 #include <iostream>
 #include <utility>

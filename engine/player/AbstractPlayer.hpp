@@ -12,6 +12,9 @@
 #define ABSTRACTPLAYER_HPP
 #include<string>
 #include<memory>
+#include <enet/enet.h>
+#include <cereal/types/base_class.hpp>
+#include <cereal/archives/json.hpp>
 
 class actor;
 
@@ -32,17 +35,20 @@ public:
     return mpCharacter;
   }
 
-protected:
-  int mType;
-  std::shared_ptr<actor> mpCharacter;
-  virtual void ping() = 0;
-  double mPingElapsedTime = 0;
-  unsigned int mLastPingSent = 0;
-  int mId;
-  double getPing(){
-    return mPingElapsedTime;
+  virtual ENetPeer* getPeer(){return nullptr;}
+
+  /*Used by cereal to serialize the event for it to be sent/received*/
+  template<class Archive>
+  void serialize(Archive &archive){
+    archive(cereal::make_nvp("nickname", mNickname));
   }
 
+  virtual int getPing(){return 0;}
+
+protected:
+  std::shared_ptr<actor> mpCharacter;
+  virtual void ping(){}
+  int mId;
 };
 
 #endif

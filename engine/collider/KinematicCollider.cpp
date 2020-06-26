@@ -16,9 +16,13 @@ void KinematicCollider::registerCollision(std::shared_ptr<AbstractCollider> coll
     double totalMtvSpeed = mtvVelocity + colliderMtvVelocity;
     if (totalMtvSpeed > 0) {
         speedProportion = mtvVelocity / totalMtvSpeed;
-    } else {
-        // Neither are moving - split translation equally
+    } else if(mVelocity[0] != 0 || mVelocity[1] != 0){
+        // Neither are moving and this is completely
+        // stationary - split translation equally
         speedProportion = 0.5;
+    }
+    else{
+      speedProportion = 0;
     }
 
     // Compute change in position

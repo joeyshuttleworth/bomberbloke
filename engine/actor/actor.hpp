@@ -15,7 +15,6 @@ class AbstractPlayer; class AbstractSpriteHandler;
 class actor: public KinematicCollider {
   friend class MoveEvent;
 protected:
-  // SDL_Texture *mpSprite = NULL;
 
   std::shared_ptr<AbstractSpriteHandler> mpSpriteHandler;
 
