@@ -1,9 +1,9 @@
 #!/bin/bash
 
-clang_c=/usr/bin/clang-10
-clang_cxx=/usr/bin/clang-cpp-10
+clang_c=/usr/bin/clang-7
+clang_cxx=/usr/bin/clang-cpp-7
 
-if [ ! -f "$CC" ]; then
+if [ ! -f "$clang_c" ]; then
 	clang_c=/usr/bin/clang
 	clang_cxx=/usr/bin/clang++
 fi
