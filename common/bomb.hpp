@@ -17,20 +17,20 @@ class bomb : public actor {
 
   /*Cereal serialisation*/
 
-  // template<class Archive>
-  // void serialize(Archive &archive){
-  //   archive(cereal::base_class<actor>(this), mPower, mTimer, mSatellite, mBigBomb);
-  //   return;
-  // }
+  template<class Archive>
+  void serialize(Archive &archive){
+    archive(cereal::base_class<actor>(this), mPower, mTimer, mSatellite, mBigBomb);
+    return;
+  }
 
   void init(bloke*);
   void explode();
   void update();
   void handle_command(std::string command);
 
-  bomb(bloke *placed_by = NULL){
+  bomb(std::shared_ptr<actor> placed_by) : actor(placed_by->mPosition[0], placed_by->mDimmension[1], BOMB_SIZE, BOMB_SIZE, false){
     if(placed_by)
-      mPlacedById = placed_by->mId;
+      mPlacedById = placed_by->GetId();
     return;
   };
 

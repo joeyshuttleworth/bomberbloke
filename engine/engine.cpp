@@ -1,5 +1,7 @@
 #include "engine.hpp"
 #include <dirent.h>
+#include "CommandEvent.hpp"
+#include "syncEvent.hpp"
 #include "QueryEvent.hpp"
 #include "MoveEvent.hpp"
 #include "ServerInfo.hpp"
@@ -204,8 +206,13 @@ void handle_input() {
                         handle_system_command(split_to_tokens(command_to_send)); // process system command
                     } else {
                       std::shared_ptr<actor> character = i->getCharacter();
-                      if(character)
+                      if(character){
                         character->handle_command(command_to_send); // handle normal command
+                        if(!_server){
+                          std::unique_ptr<AbstractEvent> c_event(new CommandEvent(command_to_send));
+                          _net_client.sendEvent(c_event);
+                        }
+                      }
                       else{
                         log_message(INFO, "No character connected to character");
                       }
@@ -286,7 +293,7 @@ void log_message(int scene, std::string str) {
     return;
   }
   else{
-    std::cout << LOG_LEVEL_STRINGS[scene] << ": " << str << std::endl;
+    std::cout << _tick << "\t " << LOG_LEVEL_STRINGS[scene] << ": " << str << std::endl;
     return;
   }
 }
@@ -317,9 +324,18 @@ void load_config(std::string fname) {
 bool handle_system_command(std::list<std::string> tokens) {
   std::string command = tokens.front();
 
+  if(command == "new" && _server){
+    for(auto i = _player_list.begin(); i != _player_list.end(); i++){
+      std::unique_ptr<AbstractEvent> s_event(new syncEvent());
+      ENetPeer* to = (*i)->getPeer();
+      if(to)
+        _net_server.sendEvent(s_event, to);
+    }
+  }
+
   if(command == "disconnect"){
-    if(_server){
-      
+    /*TODO:*/if(_server){
+
     }
     else{
 
@@ -566,8 +582,10 @@ static void load_assets(){
 /* Lookup the name in our list of assets and return a pointer to its texture if it exists */
 SDL_Texture *get_sprite(std::string asset_name){
   auto iter = std::find_if(_sprite_list.begin(), _sprite_list.end(), [&](std::pair<std::string, SDL_Texture*> entry) -> bool{return entry.first==asset_name;});
-  if(iter == _sprite_list.end())
+  if(iter == _sprite_list.end()){
+    log_message(ERROR, "Requested sprite, " + asset_name + " does not exist.");
     return nullptr;
+  }
   else
     return iter->second;
 }

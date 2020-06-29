@@ -47,7 +47,7 @@ public:
 
   /*Flag to indicate removal when next updated*/
   bool mRemove = false;
-  actor(double x = 0, double y = 0, bool collides = true);
+  actor(double x = 0, double y = 0, double xdim = DEFAULT_ACTOR_SIZE, double ydim = DEFAULT_ACTOR_SIZE, bool collides = true);
 
   /*Returns an enum defined by the game identifying what type of actor this is
     e.g block, bloke.*/
@@ -58,6 +58,12 @@ public:
     This is found by searching _player_list
     if we haven't already*/
   std::shared_ptr<AbstractPlayer> getPlayer();
+
+  unsigned int getPlayerId(){
+    return mPlayerId;
+  }
+
+  void setPlayerId(int id){mPlayerId = id;}
 
   /*Do we collide with other actors*/
   bool mCollides;

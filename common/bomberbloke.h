@@ -3,7 +3,7 @@
 
 #include "engine.hpp"
 
-#define DEFAULT_BLOKE_SIZE 1
+#define DEFAULT_BLOKE_SIZE 0.9
 #define ACCELERATION_RATIO 0.5
 #define DECCELERATION_RATIO 0.1
 #define DEFAULT_MAX_SPEED double(0.5 / TICK_RATE)

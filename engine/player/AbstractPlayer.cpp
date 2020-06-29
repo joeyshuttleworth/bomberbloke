@@ -14,5 +14,6 @@ void AbstractPlayer::setCharacter(std::shared_ptr<actor> a){
     return;
   }
   mpCharacter = a;
+  mpCharacter->setPlayerId(mId);
   return;
 }

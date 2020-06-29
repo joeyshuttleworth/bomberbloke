@@ -6,8 +6,8 @@
 */
 
 #ifndef COMMANDEVENT_HPP
-
 #define COMMANDEVENT_HPP
+
 #include "AbstractEvent.hpp"
 #include <cereal/types/vector.hpp>
 
@@ -20,10 +20,16 @@ public:
     return EVENT_COMMAND;
   }
 
+  std::string getCommand(){return mCommand;}
+
   CommandEvent(std::string command){
     mCommand = command;
     return;
   };
+
+  /* Needed for cereal */
+  CommandEvent(){}
+
   template<class Archive>
   /*Used by cereal to serialize the event for it to be sent/received*/
   void serialize(Archive &archive){
@@ -31,5 +37,7 @@ public:
   }
 
 };
+
+CEREAL_REGISTER_TYPE(CommandEvent)
 
 #endif

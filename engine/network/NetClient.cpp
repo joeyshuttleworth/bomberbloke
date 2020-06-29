@@ -2,8 +2,9 @@
 // Created by dave on 08.06.20.
 //
 
-#include "NetClient.hpp"
 #include "engine.hpp"
+#include "NetClient.hpp"
+#include "CommandEvent.hpp"
 #include "ServerInfoEvent.hpp"
 #include "JoinEvent.hpp"
 #include "acceptEvent.hpp"
@@ -146,6 +147,8 @@ bool NetClient::joinBlokeServer(std::string address, int port, std::string nickn
 }
 
 void NetClient::pollServer(){
+  if(!isConnected())
+    return;
   ENetEvent event;
   while(enet_host_service(mENetHost, &event, 0)>0){
    if (event.type == ENET_EVENT_TYPE_RECEIVE) {
@@ -175,7 +178,14 @@ void NetClient::pollServer(){
            log_message(ERROR, "sync player list had wrong nickname for the local player");
            break;
          }
+         if(_local_player_list.size()==0)
+           _local_player_list.push_back(_nickname);
          _local_player_list.back().setId(iter->getId());
+         unsigned int player_id = _local_player_list.back().getId();
+         for(auto i = _pScene->mActors.begin(); i != _pScene->mActors.end(); i++){
+           if((*i)->getPlayerId() == player_id)
+             _local_player_list.back().setCharacter(*i);
+         }
        }
        log_message(DEBUG, "synced with server");
        break;

@@ -30,12 +30,16 @@ public:
     return mId;
   }
 
+  /** Get a pointer the ENetAddress of the player.
+      this is only non-null for NetworkPlayers
+   */
+
+  virtual ENetPeer *getPeer(){return nullptr;}
+
   void setCharacter(std::shared_ptr<actor>);
   std::shared_ptr<actor> getCharacter(){
     return mpCharacter;
   }
-
-  virtual ENetPeer* getPeer(){return nullptr;}
 
   /*Used by cereal to serialize the event for it to be sent/received*/
   template<class Archive>

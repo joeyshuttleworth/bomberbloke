@@ -32,10 +32,13 @@ void new_game(std::string){
   std::random_device rd;
   std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
   std::uniform_int_distribution<> distrib(0, 9);
-
+  std::vector<std::array<int, 2>> spawn_points;
+  spawn_points.reserve(5);
   int blocks[10][10];
 
   memset(blocks, 0, sizeof(int)*10*10);
+
+  _pScene = std::shared_ptr<scene>(new scene(10, 10));
 
   for(unsigned int i = 0; i < 5; i++){
     bool set = false;
@@ -44,6 +47,7 @@ void new_game(std::string){
       int ypos = distrib(gen);
       if(blocks[xpos][ypos] != SPAWN_POINT){
         blocks[xpos][ypos] = SPAWN_POINT;
+        spawn_points.push_back({xpos, ypos});
         /* make space around the spawn point */
           if(xpos + 1 < 10){
             blocks[xpos+1][ypos] = RESERVED;
@@ -75,6 +79,16 @@ void new_game(std::string){
         _pScene->mActors.push_back(std::shared_ptr<woodenCrate>(new woodenCrate(i, j)));
       }
     }
+  }
+
+  /* populate the map with players */
+  auto iter = _player_list.begin();
+  for(unsigned int i = 0; i < 5; i++){
+    if(iter == _player_list.end())
+      break;
+    _pScene->mActors.push_back(std::shared_ptr<bloke>(new bloke(spawn_points[i][0], spawn_points[i][1], true)));
+    (*iter)->setCharacter(_pScene->mActors.back());
+    iter++;
   }
 
   return;

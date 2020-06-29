@@ -25,11 +25,13 @@ void server_loop(){
     if(_tick % (5 * TICK_RATE) == 0){
       _ping_time = _tick;
     }
-    if(_state == PLAYING){
-      _pScene->update();
-    }
+    // if(_state == PLAYING){
+    _pScene->update();
+    // }
     draw_screen();
       _tick++;
+      // if(_tick%300==0)
+      _net_server.syncPlayers();
   }
   return;
 }

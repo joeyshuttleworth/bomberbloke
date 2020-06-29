@@ -5,7 +5,6 @@
 #ifndef NETCLIENT_HPP
 #define NETCLIENT_HPP
 
-
 #include <enet/enet.h>
 #include <string>
 #include <memory>

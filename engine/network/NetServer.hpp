@@ -59,12 +59,16 @@ public:
     bool stop();
 
     void update();
+
+    void sendEvent(std::unique_ptr<AbstractEvent>&, ENetPeer *peer);
+    void broadcastEvent(std::unique_ptr<AbstractEvent>&);
+    void syncPlayers();
+
 private:
     ENetHost *mENetServer = nullptr;
     ENetAddress mENetAddress;
     std::string mMasterServerAddress;
     void sendStringMessage(std::string, ENetPeer*);
-    void sendEvent(std::unique_ptr<AbstractEvent>&, ENetPeer *peer);
     void handleJoinEvent();
 
     ServerInfo mServerInfo;

@@ -30,7 +30,7 @@ protected:
 
  public:
 
-  bloke(double x=1, double y=1, bool collides = true){
+  bloke(double x=1, double y=1, bool collides = true) : actor(x, y, DEFAULT_BLOKE_SIZE, DEFAULT_BLOKE_SIZE, true){
     mCollides = collides;
     mPosition[0]=x;
     mPosition[1]=y;
@@ -47,8 +47,8 @@ protected:
     return mProperties;
   }
 
-  void  draw();
-  void  die();
+  void draw();
+  void die();
   void handle_command(std::string command);
   void accelerate();
   void update();
