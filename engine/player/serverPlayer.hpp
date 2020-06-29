@@ -35,7 +35,7 @@ public:
 
   template<class Archive>
   void serialize(Archive &archive){
-    archive(cereal::base_class<AbstractPlayer>(this));
+    archive(cereal::make_nvp("nickname", mNickname), cereal::make_nvp("isLocal", mLocal), cereal::make_nvp("ID", mId));
   }
 };
 

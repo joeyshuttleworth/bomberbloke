@@ -25,10 +25,10 @@ void client_loop(){
        SDL_Delay(delay);
      }
      handle_input();
-     _pScene->update();
-     draw_screen();
-     gameUpdate();
      _net_client.pollServer();
+     _pScene->update();
+     gameUpdate();
+     draw_screen();
      _tick++;
   }
 }

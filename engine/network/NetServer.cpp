@@ -1,9 +1,9 @@
 //
 // Created by dave on 08.06.20.
 //
-
 #include "engine.hpp"
 #include "NetServer.hpp"
+#include "CommandEvent.hpp"
 #include "QueryEvent.hpp"
 #include "ServerInfoEvent.hpp"
 #include "JoinEvent.hpp"
@@ -88,23 +88,56 @@ void NetServer::handleEvent(std::shared_ptr<AbstractEvent> pEvent, ENetPeer *fro
     log_message(ERROR, "tried to handle a null event");
     return;
   }
+
+  std::shared_ptr<AbstractPlayer> p_player;
+
+  for(auto i = _player_list.begin(); i != _player_list.end(); i++){
+    ENetAddress *players_address = ((*i)->getPeer()) ? &((*i)->getPeer()->address) : nullptr;
+    if(!players_address)
+      continue;
+    if(players_address->host == from->address.host && players_address->port == from->address.port){
+      p_player = *i;
+      break;
+    }
+  }
+
   switch(pEvent->getType()){
   case EVENT_QUERY:{
-    /*  Get the server info and see if */
+    /*  Get the server info and see if the username may be used */
     std::shared_ptr<QueryEvent> pquery_event = std::dynamic_pointer_cast<QueryEvent>(pEvent);
     std::unique_ptr<AbstractEvent> info_event(new ServerInfoEvent(mServerInfo, _player_list, pquery_event->getNickname()));
     sendEvent(info_event, from);
     break;
   }
+
   case EVENT_JOIN:{
       std::shared_ptr<JoinEvent> pjoin_event = std::dynamic_pointer_cast<JoinEvent>(pEvent);
       handleJoinEvent(pjoin_event, from);
       break;
   }
 
+  case EVENT_COMMAND:{
+    std::shared_ptr<CommandEvent> c_event =  std::dynamic_pointer_cast<CommandEvent>(pEvent);
+    if(!p_player){
+      log_message(INFO, "Command event received from non-connected player");
+      return;
+    }
+    auto character = p_player->getCharacter();
+    if(!character){
+      log_message(INFO, "Command received from player without character");
+      return;
+    }
+    std::string command = c_event->getCommand();
+    log_message(DEBUG, "received command " + command);
+    if(command != ""){
+      character->handle_command(command);
+    }
+    break;
+  }
   default:
     break;
   }
+
   return;
 }
 
@@ -288,6 +321,25 @@ void NetServer::sendEvent(std::unique_ptr<AbstractEvent> &event, ENetPeer *to){
   log_message(DEBUG, "Sending" + blob.str());
   return;
 }
+
+void NetServer::broadcastEvent(std::unique_ptr<AbstractEvent>& event){
+  for(auto i = _player_list.begin(); i != _player_list.end(); i++){
+    if((*i)->getPeer())
+      sendEvent(event, (*i)->getPeer());
+  }
+}
+
+void NetServer::syncPlayers(){
+  for(auto i = _player_list.begin(); i != _player_list.end(); i++){
+    ENetPeer *peer = (*i)->getPeer();
+    if(peer){
+      std::unique_ptr<AbstractEvent> s_event(new syncEvent(peer));
+      sendEvent(s_event, peer);
+    }
+  }
+  return;
+}
+
 
 void NetServer::broadcastPacket(ENetPacket *packet, enet_uint8 channel) {
     if (clientCount() == 0) {

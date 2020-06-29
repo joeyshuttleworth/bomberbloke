@@ -19,6 +19,8 @@ public:
     return;
   }
 
+  ENetPeer *getPeer(){return mpPeer;}
+
   ~NetworkPlayer(){
     free(mpPeer);
     return;
@@ -28,12 +30,8 @@ public:
     //int mLastPingElapsedTime = 0;
     return;
   }
+
   bool synced = false;
-
-  ENetPeer *getPeer(){
-    return mpPeer;
-  }
-
 
   // void serialize(Archive &archive){
   //   archive(cereal::base_class<AbstractPlayer>(this));

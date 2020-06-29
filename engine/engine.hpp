@@ -127,6 +127,8 @@ void gameUpdate();
 class NetClient;
 class NetServer;
 
+#include "NetClient.hpp"
+#include "NetServer.hpp"
 extern NetClient _net_client;
 extern NetServer _net_server;
 

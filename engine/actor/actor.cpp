@@ -69,11 +69,11 @@ bool actor :: is_moving(){
     return true;
 }
 
-actor :: actor(double x, double y, bool collides){
+actor :: actor(double x, double y, double xdim, double ydim, bool collides){
 
   /* TODO set mDimmension based of axis projections for non-square actors */
-  mDimmension[0] = DEFAULT_ACTOR_SIZE;
-  mDimmension[1] = DEFAULT_ACTOR_SIZE;
+  mDimmension[0] = xdim;
+  mDimmension[1] = ydim;
 
   mPosition[0] = x;
   mPosition[1] = y;
@@ -82,9 +82,9 @@ actor :: actor(double x, double y, bool collides){
 
   mFrameVertices = {
     {{0., 0.}},
-    {{DEFAULT_ACTOR_SIZE, 0.}},
-    {{DEFAULT_ACTOR_SIZE, DEFAULT_ACTOR_SIZE}},
-    {{0., DEFAULT_ACTOR_SIZE}}
+    {{mDimmension[0], 0.}},
+    {{mDimmension[0], mDimmension[1]}},
+    {{0., mDimmension[1]}}
   };
 
   mCollides = collides;
