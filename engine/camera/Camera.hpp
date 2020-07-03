@@ -50,6 +50,8 @@ public:
     }
     else
       SDL_GetWindowSize(_window, &mWidth, &mHeight);
+    if(mpFrameBuffer)
+      SDL_DestroyTexture(mpFrameBuffer);
     mpFrameBuffer = (SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, mWidth, mHeight));
     double min = mWidth;
     if(mHeight>min)
@@ -97,7 +99,7 @@ protected:
   double mZoom;
   int mWidth;
   int mHeight;
-  SDL_Texture *mpFrameBuffer;
+  SDL_Texture *mpFrameBuffer = nullptr;
   SDL_Rect mScreenRectangle;
   std::array<double, 2> mFocusCoordinates = {0,0};
   std::shared_ptr<SDL_Renderer> mpRenderer;

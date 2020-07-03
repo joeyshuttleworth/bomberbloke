@@ -3,6 +3,7 @@
 #include "bloke.hpp"
 #include "bomb.hpp"
 #include <network/NetClient.hpp>
+#include "Explosion.hpp"
 
 /* Register our actors with cereal */
 CEREAL_REGISTER_DYNAMIC_INIT(actors)
@@ -24,9 +25,12 @@ int main (){
   _local_player_list.push_back(LocalPlayer(std::string("big_beef")));
 
   std::shared_ptr<bloke> b1(new bloke(1, 2, true));
-  _pScene->mActors.push_back(b1);
-  _local_player_list.back().setCharacter(b1);
-  _pScene->mActors.push_back(std::shared_ptr<bloke>(new bloke(1,1, true)));
+
+  for(unsigned int i = 0; i < 10; i++)
+    for(unsigned int j = 0; j < 10; j++){
+      _pScene->mParticleList.push_back(std::shared_ptr<Explosion>(new Explosion(i, j, 1, 1, 60 + i + 2*j, 600 - 2*i - j)));
+    }
+
 
   client_loop();
 
