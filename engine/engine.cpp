@@ -119,17 +119,19 @@ void refresh_sprites(){
 
 
 void resize_window(int x, int y){
+  if(!_pCamera)
+    return;
+
+  _pCamera->SetZoom();
   _window_size[0] = x;
   _window_size[1] = y;
-
-  SDL_DestroyRenderer(_renderer);
-  _renderer = SDL_GetRenderer(_window);
 
   if(_window){
     SDL_DestroyWindow(_window);
     create_window();
   }
-  refresh_sprites();
+
+    refresh_sprites();
   return;
 }
 
