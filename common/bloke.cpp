@@ -29,7 +29,7 @@ void bloke :: accelerate(){
 }
 
 void bloke :: handle_command(std::string command){
-  if(_server){
+  if(true){
     /*True if the key is pressed down- false if it is up*/
     bool key_down = (command[0]=='+');
     if(command == "kill"){

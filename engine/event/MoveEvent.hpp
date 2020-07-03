@@ -13,17 +13,24 @@
 #define MOVEEVENT_HPP
 #include "AbstractEvent.hpp"
 #include <cereal/types/vector.hpp>
+#include "actor.hpp"
+
+extern unsigned int _tick;
 
 class MoveEvent : public AbstractEvent{
 private:
   int mActorId;
   double mPosition[2];
   double mVelocity[2];
+  unsigned int mTick;
 public:
 
   int getType() const{
     return 2;
   }
+
+  /* Default constructor needed for cereal */
+  MoveEvent(){}
 
   MoveEvent(actor* Actor){
     mActorId  = Actor->mId;
@@ -31,15 +38,18 @@ public:
     mPosition[1] = Actor->mPosition[1];
     mVelocity[0]  = Actor->mVelocity[0];
     mVelocity[1]  = Actor->mVelocity[1];
+    mTick = _tick;
     return;
   };
+
   template<class Archive>
   /*Used by cereal to serialize the event for it to be sent/received*/
   void serialize(Archive &archive){
-    archive(cereal::base_class<AbstractEvent>(this), cereal::make_nvp("id", mActorId), cereal::make_nvp("position", mPosition), cereal::make_nvp("velocity", mVelocity));
+    archive(cereal::base_class<AbstractEvent>(this), cereal::make_nvp("tick", mTick), cereal::make_nvp("id", mActorId), cereal::make_nvp("position", mPosition), cereal::make_nvp("velocity", mVelocity));
   }
-
 };
+
+CEREAL_REGISTER_TYPE(MoveEvent)
 
 #endif
 

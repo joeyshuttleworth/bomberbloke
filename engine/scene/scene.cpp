@@ -48,10 +48,28 @@ void scene::movementUpdate(){
         /*Update actors*/
         (*i)->update();
 
-        if ((*i)->is_moving())
-            (*i)->move((*i)->mPosition[0] + (*i)->mVelocity[0], (*i)->mPosition[1] + (*i)->mVelocity[1]);
+        (*i)->move((*i)->mPosition[0] + (*i)->mVelocity[0], (*i)->mPosition[1] + (*i)->mVelocity[1]);
     }
     return;
+}
+
+void scene :: addActor(std::shared_ptr<actor> a){
+  for(int j = mLastActorId + 1; j - mLastActorId < 10000; j++){
+    bool set = true;
+    for(auto i = mActors.begin(); i != mActors.end(); i++){
+      if((*i)->GetId() == j){
+        set = false;
+        break;
+      }
+    }
+    if(set){
+      mLastActorId = j;
+      a->setId(j);
+      mActors.push_back(a);
+      return;
+    }
+  }
+  log_message(ERROR, "Failed to add actor - too many actors in mActors");
 }
 
 void scene::physicsUpdate() {
@@ -152,10 +170,12 @@ void scene :: update(){
   mActors.remove_if([](std::shared_ptr<actor>a){return a->mRemove;});
   movementUpdate();
   physicsUpdate();
+  updateSprites();
+  return;
+}
 
+void scene::updateSprites(){
   for(auto i = mActors.begin(); i != mActors.end(); i++){
     (*i)->updateSprite();
   }
-
-   return;
 }

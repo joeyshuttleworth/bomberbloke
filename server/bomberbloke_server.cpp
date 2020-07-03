@@ -38,7 +38,7 @@ void new_game(std::string){
 
   memset(blocks, 0, sizeof(int)*10*10);
 
-  _pScene = std::shared_ptr<scene>(new scene(10, 10));
+  std::shared_ptr<scene>p_scene(new scene(10, 10));
 
   for(unsigned int i = 0; i < 5; i++){
     bool set = false;
@@ -76,7 +76,7 @@ void new_game(std::string){
     for(int j = 0; j < 10; j++){
       if(blocks[i][j] == EMPTY){
         blocks[i][j] = ACTOR_WOODEN_CRATE;
-        _pScene->mActors.push_back(std::shared_ptr<woodenCrate>(new woodenCrate(i, j)));
+        p_scene->addActor(std::shared_ptr<woodenCrate>(new woodenCrate(i, j)));
       }
     }
   }
@@ -86,10 +86,11 @@ void new_game(std::string){
   for(unsigned int i = 0; i < 5; i++){
     if(iter == _player_list.end())
       break;
-    _pScene->mActors.push_back(std::shared_ptr<bloke>(new bloke(spawn_points[i][0], spawn_points[i][1], true)));
-    (*iter)->setCharacter(_pScene->mActors.back());
+    p_scene->addActor(std::shared_ptr<bloke>(new bloke(spawn_points[i][0], spawn_points[i][1], true)));
+    (*iter)->setCharacter(p_scene->mActors.back());
+    p_scene->mActors.back()->handle_command("+right");
     iter++;
   }
-
+  _pScene = p_scene;
   return;
 }
