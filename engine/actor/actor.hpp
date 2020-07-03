@@ -5,7 +5,7 @@
 #include <memory>
 #include <array>
 #include "Camera.hpp"
-
+#include "Interpolator.hpp"
 #include "KinematicCollider.hpp"
 
 extern SDL_Renderer *_renderer;
@@ -16,6 +16,7 @@ class actor: public KinematicCollider {
   friend class MoveEvent;
 protected:
 
+  bool mMoved=false;
   std::shared_ptr<AbstractSpriteHandler> mpSpriteHandler;
 
   /* GetPlayer uses mPlayerId to return a pointer to the controlling player (if it exists)
@@ -32,10 +33,18 @@ protected:
   /*The id of this actor. Used by  scene::mActors*/
   unsigned int mId;
 
+  Interpolator mInterpolator;
+
 public:
+
+  void setId(int id){mId = id;}
+
+  void interpolate();
 
   /* TODO replace this */
   dvector mDimmension;
+
+  void mInterpolate();
 
   void draw(Camera *cam){
     mpSpriteHandler->draw(cam);
@@ -76,7 +85,7 @@ public:
 
   void draw();
   int move(double x, double y);
-  bool is_moving();
+  bool isMoving();
   int init(double, double);
   dvector getMidpoint();
   virtual void update(){};
@@ -95,7 +104,7 @@ public:
 
   template<class Archive>
   void serialize(Archive &archive){
-    archive(mId, mPlayerId, mPosition[0], mPosition[1], mVelocity[0], mVelocity[1]);
+    archive(cereal::make_nvp("actorId", mId), mPlayerId, mPosition[0], mPosition[1], mVelocity[0], mVelocity[1]);
   }
 
 };

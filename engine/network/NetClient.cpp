@@ -190,6 +190,9 @@ void NetClient::pollServer(){
        log_message(DEBUG, "synced with server");
        break;
         }
+     case EVENT_MOVE:{
+       break;
+     }
      default:
        break;
      }

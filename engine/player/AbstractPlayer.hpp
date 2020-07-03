@@ -24,6 +24,8 @@ public:
   AbstractPlayer(){};
   ~AbstractPlayer(){};
 
+  void setId(int id);
+
   std::string mNickname;
 
   int getId(){
@@ -37,9 +39,7 @@ public:
   virtual ENetPeer *getPeer(){return nullptr;}
 
   void setCharacter(std::shared_ptr<actor>);
-  std::shared_ptr<actor> getCharacter(){
-    return mpCharacter;
-  }
+  std::shared_ptr<actor> getCharacter(){return mpCharacter;}
 
   /*Used by cereal to serialize the event for it to be sent/received*/
   template<class Archive>

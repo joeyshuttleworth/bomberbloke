@@ -30,7 +30,7 @@ void server_loop(){
     // }
     draw_screen();
       _tick++;
-      // if(_tick%300==0)
+      if(_tick%1000==0)
       _net_server.syncPlayers();
   }
   return;

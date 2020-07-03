@@ -9,6 +9,13 @@ int actor :: move(double x, double y){
   double tmp_pos[2];
   bool in_scene = true;
 
+  if(x == mPosition[0] && y == mPosition[1]){
+    mMoved = false;
+    return 0;
+  }
+
+  mMoved = true;
+
   /*  TODO: Change scene bound checking to just use the vertices so that
       it works for non-rectangular actors also  */
 
@@ -48,12 +55,11 @@ int actor :: move(double x, double y){
   mPosition[0] = tmp_pos[0];
   mPosition[1] = tmp_pos[1];
 
-  /*Create a MoveEvent and send/save it*/
-
-  MoveEvent e(this);
-  // cereal::JSONOutputArchive oArchive(std::cout);
-  //oArchive(e);
-
+  /*Create a MoveEvent and send it*/
+  if(_server){
+    std::unique_ptr<AbstractEvent> e(new MoveEvent(this));
+    _net_server.broadcastEvent(e);
+  }
 
   if(in_scene){
     return -1;
@@ -62,11 +68,8 @@ int actor :: move(double x, double y){
     return 0;
 }
 
-bool actor :: is_moving(){
-  if(mVelocity[0] == 0 && mVelocity[1] == 0)
-    return false;
-  else
-    return true;
+bool actor :: isMoving(){
+   return mMoved;
 }
 
 actor :: actor(double x, double y, double xdim, double ydim, bool collides){
@@ -87,9 +90,16 @@ actor :: actor(double x, double y, double xdim, double ydim, bool collides){
     {{0., mDimmension[1]}}
   };
 
+  mInterpolator.addState(mPosition, mVelocity, 0);
+
   mCollides = collides;
 
   return;
+}
+
+void actor :: interpolate(){
+  mPosition = mInterpolator.getPos();
+  mVelocity = mInterpolator.getVelocity();
 }
 
 dvector actor :: getMidpoint(){

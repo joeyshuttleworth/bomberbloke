@@ -21,10 +21,13 @@ protected:
   std::string mName;
   std::string mDescription;
   std::shared_ptr<AbstractSpriteHandler> mpSpriteHandler;
+
+  int mLastActorId=0;
 public:
   /* Spawnpoints is a collection of coordinates where players can be spawned */
   std::vector<int*> mSpawnPoints;
 
+  void addActor(std::shared_ptr<actor> a);
 /* dim_x and dim_y are the size of our scene in the x and y axis respectively */
   double mDimmension[2];
 
@@ -94,9 +97,8 @@ public:
    *   Update each actor in the scene. This could be used to implement
    *   game specific logic in the future
    */
-
+  void updateSprites();
   virtual void update();
-
   virtual bool isFinished(){
     return false;
   }
