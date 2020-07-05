@@ -317,8 +317,30 @@ void NetServer::sendEvent(std::unique_ptr<AbstractEvent> &event, ENetPeer *to){
   }
 
   sendStringMessage(blob.str(), to);
-
   log_message(DEBUG, "Sending" + blob.str());
+  bool reliable = false;
+  switch(event->getType()){
+  case EVENT_SYNC:
+  case EVENT_INFO:
+  case EVENT_CREATE:
+  case EVENT_DESTROY:
+  case EVENT_QUERY:
+  case EVENT_MESSAGE:
+  case EVENT_COMMAND:
+    reliable = true;
+  default:
+    break;
+  }
+
+  ENetPacket *packet;
+  std::string message = blob.str();
+  if(reliable)
+    packet = enet_packet_create(message.c_str(), strlen(message.c_str())+1, ENET_PACKET_FLAG_RELIABLE);
+  else
+    packet = enet_packet_create(message.c_str(), strlen(message.c_str())+1, 0);
+  enet_peer_send(to, 0, packet);
+  /*  TODO flush every tick */
+  enet_host_flush(mENetServer);
   return;
 }
 

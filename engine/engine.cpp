@@ -533,6 +533,7 @@ std::list <std::string> split_to_tokens(std::string str) {
       if(last_token.size()>0 && !std::isspace(last_token[0]))
         tokens.push_back(str.substr(last_index));
     }
+
     return tokens;
 }
 
@@ -545,9 +546,10 @@ void console_loop() {
                 std::list <std::string> tokens;
 
                 std::cout << ">";
-                std::getline(std::cin, line);
-                tokens = split_to_tokens(line);
-                handle_system_command(tokens);
+                if(std::getline(std::cin, line)){
+                    tokens = split_to_tokens(line);
+                    handle_system_command(tokens);
+                  }
                 break;
             }
             case JOINING:
@@ -593,4 +595,16 @@ SDL_Texture *get_sprite(std::string asset_name){
   }
   else
     return iter->second;
+}
+
+void add_player(std::shared_ptr<AbstractPlayer> a_player){
+  int id = _player_list.back()->getId();
+  for(int i = 0; i < 1000;i++){
+    if(find_if(_player_list.begin(), _player_list.end(), [&](std::shared_ptr<AbstractPlayer> a_player) -> bool {return a_player->getId() == id + i;}) == _player_list.end()){
+      a_player->setId(i + id);
+      _player_list.push_back(a_player);
+      return;
+    }
+  }
+  log_message(ERROR, "Couldn't add player! No free id");
 }

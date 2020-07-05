@@ -18,15 +18,14 @@
 extern unsigned int _tick;
 
 class MoveEvent : public AbstractEvent{
-private:
+public:
   int mActorId;
   double mPosition[2];
   double mVelocity[2];
   unsigned int mTick;
-public:
 
   int getType() const{
-    return 2;
+    return EVENT_MOVE;
   }
 
   /* Default constructor needed for cereal */

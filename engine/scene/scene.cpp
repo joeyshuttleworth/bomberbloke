@@ -165,9 +165,17 @@ void scene :: draw(Camera *cam){
   return;
 }
 
+static void interpolateActors(std::list<std::shared_ptr<actor>> &actors){
+  for(auto i = actors.begin(); i != actors.end(); i++){
+    (*i)->interpolate();
+  }
+}
+
 /* TODO: move all update and movement code into this method  */
 void scene :: update(){
   mActors.remove_if([](std::shared_ptr<actor>a){return a->mRemove;});
+  if(!_server)
+    interpolateActors(mActors);
   movementUpdate();
   physicsUpdate();
   updateSprites();

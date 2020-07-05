@@ -90,14 +90,15 @@ actor :: actor(double x, double y, double xdim, double ydim, bool collides){
     {{0., mDimmension[1]}}
   };
 
-  mInterpolator.addState(mPosition, mVelocity, 0);
-
   mCollides = collides;
 
   return;
 }
 
 void actor :: interpolate(){
+  mInterpolator.update();
+  if(!mInterpolator.hasMoved())
+    return;
   mPosition = mInterpolator.getPos();
   mVelocity = mInterpolator.getVelocity();
 }
