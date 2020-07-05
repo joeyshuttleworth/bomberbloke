@@ -88,9 +88,9 @@ void new_game(std::string){
       break;
     p_scene->addActor(std::shared_ptr<bloke>(new bloke(spawn_points[i][0], spawn_points[i][1], true)));
     (*iter)->setCharacter(p_scene->mActors.back());
-    p_scene->mActors.back()->handle_command("+right");
     iter++;
   }
   _pScene = p_scene;
+  _net_server.syncPlayers();
   return;
 }

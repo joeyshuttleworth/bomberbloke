@@ -54,6 +54,8 @@ public:
     return mId;
   }
 
+  void addState(dvector position, dvector velocity, int tick){mInterpolator.addState(position, velocity, tick);}
+
   /*Flag to indicate removal when next updated*/
   bool mRemove = false;
   actor(double x = 0, double y = 0, double xdim = DEFAULT_ACTOR_SIZE, double ydim = DEFAULT_ACTOR_SIZE, bool collides = true);

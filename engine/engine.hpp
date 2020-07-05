@@ -56,6 +56,8 @@ void init_engine();
 void console_loop();
 void draw_screen();
 SDL_Joystick* handle_input_controller();
+void add_player(std::shared_ptr<AbstractPlayer>);
+
 
 /* Removes white space and turns a string into a list of words.
    This is used for parsing commands.

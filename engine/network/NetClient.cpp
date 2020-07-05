@@ -10,6 +10,7 @@
 #include "acceptEvent.hpp"
 #include  "syncEvent.hpp"
 #include "errorEvent.hpp"
+#include "MoveEvent.hpp"
 #include "actor.hpp"
 #include <string>
 #include <iostream>
@@ -154,7 +155,6 @@ void NetClient::pollServer(){
    if (event.type == ENET_EVENT_TYPE_RECEIVE) {
      // event occured
      std::stringstream data_in;
-     log_message(DEBUG, "received message: " + data_in.str());
      data_in << event.packet->data;
      std::unique_ptr<AbstractEvent> receive_event;
      try{
@@ -191,6 +191,18 @@ void NetClient::pollServer(){
        break;
         }
      case EVENT_MOVE:{
+       std::shared_ptr<MoveEvent> m_event = std::dynamic_pointer_cast<MoveEvent>(sp_to_handle);
+       std::shared_ptr<actor> p_actor = _pScene->GetActor(m_event->mActorId);
+
+       if(!p_actor){
+         log_message(ERROR, "Error couldn't find actor with id " + std::to_string(m_event->mActorId));
+         break;
+       }
+       else{
+         dvector position = {m_event->mPosition[0], m_event->mPosition[1]};
+         dvector velocity = {m_event->mVelocity[0], m_event->mVelocity[1]};
+         p_actor->addState(position, velocity, m_event->mTick);
+       }
        break;
      }
      default:
