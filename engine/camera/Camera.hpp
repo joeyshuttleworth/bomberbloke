@@ -101,10 +101,10 @@ protected:
   int mHeight;
   SDL_Texture *mpFrameBuffer = nullptr;
   SDL_Rect mScreenRectangle;
-  std::array<double, 2> mFocusCoordinates = {0,0};
+  std::array<double, 2> mFocusCoordinates = {{ 0, 0 }};
   std::shared_ptr<SDL_Renderer> mpRenderer;
   /*  Use mOffsets for animations on the camera object */
-  std::array<double, 2> mOffsets = {0,0};
+  std::array<double, 2> mOffsets = {{ 0, 0 }};
 
   /* Variables for rumble animation */
   double mRumbleOffset[2];
