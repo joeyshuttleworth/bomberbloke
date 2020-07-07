@@ -7,7 +7,7 @@ A multiplayer bomberman clone made in C++.
 For Ubuntu 20.04 you will need the dependencies Cereal, SDL2, ENet and curl.
 
 ```
-sudo apt-get install libsdl2-dev libenet-dev libcereal-dev libcurl4-openssl-dev cmake make build-essential
+sudo apt-get install libsdl2-dev libsdl2-image-dev libenet-dev libcereal-dev libcurl4-openssl-dev cmake make build-essential
 ```
 
 Create a build folder and build as follows
