@@ -104,9 +104,8 @@ void scene::physicsUpdate() {
         for (auto j = mActors.begin(); j != mActors.end(); j++) {
             jIndex++;
             // Iterate until distinct pair obtained
-            if (jIndex <= iIndex || (*i) == (*j)) {
+            if (jIndex <= iIndex || (*i) == (*j))
                 continue;
-            }
 
             if ((*j)->mCollides == false)
                 continue;
