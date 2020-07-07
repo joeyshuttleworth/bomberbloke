@@ -1,3 +1,6 @@
 [submodule "bottle-master-server"]
 	path = bottle-master-server
 	url = https://github.com/davenewham/bottle-master-server
+[submodule "cereal"]
+	path = cereal
+	url = https://github.com/USCiLab/cereal
