@@ -53,7 +53,7 @@ public:
   /*  Return the midpoint of the scene. This is used by the Camera class. */
 
   std::array<double,2> getMidpoint(){
-    std::array<double,2> ret = {mDimmension[0] / 2, mDimmension[1]/2};
+    std::array<double,2> ret = {{ mDimmension[0] / 2, mDimmension[1]/2 }};
     return ret;
   }
 
