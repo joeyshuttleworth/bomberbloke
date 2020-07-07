@@ -3,6 +3,8 @@
 //
 
 #include "engine.hpp"
+#include "CreateEvent.hpp"
+#include "RemoveEvent.hpp"
 #include "NetClient.hpp"
 #include "CommandEvent.hpp"
 #include "ServerInfoEvent.hpp"
@@ -46,8 +48,9 @@ bool NetClient::connectClient(std::string serverAddress, enet_uint16 port) {
     mENetServerAddress.port = mPort;
 
     //Initiate the connection, with only one channel
-    // if(mENetServer)
-      // disconnectClient();
+    if(mENetHost)
+      enet_host_destroy(mENetHost);
+    mENetHost = enet_host_create(nullptr, 1, 1, 0, 0);
     mENetServer = enet_host_connect(mENetHost, &mENetServerAddress, 1, 0);
     if (mENetServer == NULL) {
         fprintf(stderr, "No available peers for initiating an ENet connection.\n");
@@ -204,6 +207,20 @@ void NetClient::pollServer(){
          p_actor->addState(position, velocity, m_event->mTick);
        }
        break;
+     }
+
+     case EVENT_CREATE:{
+       std::shared_ptr<CreateEvent> c_event = std::dynamic_pointer_cast<CreateEvent>(sp_to_handle);
+       _pScene->addActorWithId(c_event->getActor());
+       break;
+     }
+     case EVENT_REMOVE:{
+       std::shared_ptr<RemoveEvent> r_event = std::dynamic_pointer_cast<RemoveEvent>(sp_to_handle);
+       std::shared_ptr<actor> a = _pScene->GetActor(r_event->getId());
+       if(!a)
+         log_message(ERROR, "Couldn't find requested actor to remove");
+       else
+         a->toRemove();
      }
      default:
        break;

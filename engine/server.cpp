@@ -25,9 +25,8 @@ void server_loop(){
     if(_tick % (5 * TICK_RATE) == 0){
       _ping_time = _tick;
     }
-    // if(_state == PLAYING){
     _pScene->update();
-    // }
+    handle_input();
     draw_screen();
       _tick++;
       if(_tick%1000==0)

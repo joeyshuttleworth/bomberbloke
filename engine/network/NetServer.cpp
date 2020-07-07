@@ -323,7 +323,7 @@ void NetServer::sendEvent(std::unique_ptr<AbstractEvent> &event, ENetPeer *to){
   case EVENT_SYNC:
   case EVENT_INFO:
   case EVENT_CREATE:
-  case EVENT_DESTROY:
+  case EVENT_REMOVE:
   case EVENT_QUERY:
   case EVENT_MESSAGE:
   case EVENT_COMMAND:

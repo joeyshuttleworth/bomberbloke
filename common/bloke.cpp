@@ -33,7 +33,7 @@ void bloke :: handle_command(std::string command){
     /*True if the key is pressed down- false if it is up*/
     bool key_down = (command[0]=='+');
     if(command == "kill"){
-      mRemove=true;
+      remove();
       return;
     }
 
@@ -91,10 +91,7 @@ void bloke :: place_bomb(){
   if(mBombs<mMaxBombs){
     std::shared_ptr<bomb> new_bomb(new bomb(round(mPosition[0])+0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), round(mPosition[1]) + 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), false));
     new_bomb->init(this);
-    _pScene->mActors.push_back(new_bomb);
-    /*Output the serilisation of the bomb to std::cout*/
-    // cereal::JSONOutputArchive oArchive(std::cout);
-    // oArchive(*new_bomb);
+    _pScene->addActor(new_bomb);
     mBombs++;
   }
   return;

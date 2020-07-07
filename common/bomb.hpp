@@ -1,9 +1,12 @@
 #ifndef BOMB_HPP
 #define BOMB_HPP
 
+#include "actor.hpp"
 #include "bloke.hpp"
 #include <cereal/types/base_class.hpp>
 #include <cereal/types/polymorphic.hpp>
+#include "PlaceHolderSprite.hpp"
+#include "AbstractSpriteHandler.hpp"
 
 class bomb : public actor {
  protected:
@@ -16,7 +19,6 @@ class bomb : public actor {
  public:
 
   /*Cereal serialisation*/
-
   template<class Archive>
   void serialize(Archive &archive){
     archive(cereal::base_class<actor>(this), mPower, mTimer, mSatellite, mBigBomb);
@@ -28,16 +30,22 @@ class bomb : public actor {
   void update();
   void handle_command(std::string command);
 
+  bomb(){
+    mPosition = {0,0};
+    mDimmension = {BOMB_SIZE, BOMB_SIZE};
+    mpSpriteHandler = std::shared_ptr<AbstractSpriteHandler>(new PlaceHolderSprite(mPosition[0], mPosition[1], mDimmension[0], mDimmension[0]));
+  }
+
   bomb(std::shared_ptr<actor> placed_by) : actor(placed_by->mPosition[0], placed_by->mDimmension[1], BOMB_SIZE, BOMB_SIZE, false){
     if(placed_by)
-      mPlacedById = placed_by->GetId();
+      mPlacedById = placed_by->getId();
+    mpSpriteHandler = std::shared_ptr<AbstractSpriteHandler>(new PlaceHolderSprite(mPosition[0], mPosition[1], mDimmension[0], mDimmension[0]));
     return;
   };
 
   int getType() const{
     return ACTOR_BOMB;
   };
-
   using actor::actor;
 };
 
