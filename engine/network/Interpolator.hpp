@@ -58,7 +58,7 @@ public:
        of the actor mDelay ticks before _ticks
     */
     if(mBuffer.size()==0)
-      return {.0,.0};
+      return {{ .0, .0 }};
     else if(mBuffer.size()==1)
       return mBuffer.front().statePosition;
 
@@ -95,7 +95,7 @@ public:
     dvector y2 = state2->statePosition;
 
     /* Linear interpolation between the two values */
-    return {y1[0] + (mDelay - x1)*(y2[0]-y1[0])/(x2-x1), y1[1] + (mDelay - x1) * (y2[1]-y1[1])/(x2-x1)};
+    return {{ y1[0] + (mDelay - x1)*(y2[0]-y1[0])/(x2-x1), y1[1] + (mDelay - x1) * (y2[1]-y1[1])/(x2-x1) }};
   }
 
   void addState(dvector new_pos, dvector velocity, int tick){
@@ -121,7 +121,7 @@ public:
   }
 
   dvector getVelocity(){
-      return {0, 0};
+      return {{ 0, 0 }};
     /*  TODO */
   }
 };
