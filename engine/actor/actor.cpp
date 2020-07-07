@@ -111,7 +111,7 @@ void actor :: interpolate(){
 }
 
 dvector actor :: getMidpoint(){
-  return {mPosition[0] + mDimmension[0]/2, mPosition[1] + mDimmension[1]/2};
+  return {{ mPosition[0] + mDimmension[0]/2, mPosition[1] + mDimmension[1]/2 }};
 }
 
 std::shared_ptr<AbstractPlayer> actor::getPlayer(){
