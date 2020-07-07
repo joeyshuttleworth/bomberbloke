@@ -1,5 +1,6 @@
 #include "engine.hpp"
 #include "Camera.hpp"
+#include "CreateEvent.hpp"
 
 extern std::list<std::shared_ptr<AbstractSpriteHandler>> _particle_list;
 
@@ -28,7 +29,7 @@ void scene :: refreshSprites(){
 
 std::shared_ptr<actor> scene :: GetActor(int id){
   /*search over actors*/
-  auto iterator = std::find_if(mActors.begin(), mActors.end(), [&](std::shared_ptr<actor> a) -> bool {return a->GetId() == id;});
+  auto iterator = std::find_if(mActors.begin(), mActors.end(), [&](std::shared_ptr<actor> a) -> bool {return a->getId() == id;});
   // return the first one (should be unique anyway)
   return *iterator;
 }
@@ -37,7 +38,7 @@ void scene::cleanUp(){
   /* Remove particles with mRemove set! */
   mParticleList.remove_if([](std::shared_ptr<AbstractSpriteHandler> s){return s->ToRemove();});
   /* Now clean up actors */
-  mActors.remove_if([](std::shared_ptr<actor> a){return a->mRemove;});
+  mActors.remove_if([](std::shared_ptr<actor> a){return a->toRemove();});
   return;
 }
 
@@ -53,11 +54,24 @@ void scene::movementUpdate(){
     return;
 }
 
+void scene :: addActorWithId(std::shared_ptr<actor> a){
+  /* Check the id hasn't been taken*/
+    for(auto i = mActors.begin(); i != mActors.end(); i++){
+      if((*i)->getId() == a->getId()){
+        log_message(ERROR, "Tried to add actor with id " + std::to_string(a->getId()) + " but an actor with this id already exists!");
+        return;
+      }
+    }
+
+    /* Now add the actor to the back of the list */
+    mActors.push_back(a);
+}
+
 void scene :: addActor(std::shared_ptr<actor> a){
   for(int j = mLastActorId + 1; j - mLastActorId < 10000; j++){
     bool set = true;
     for(auto i = mActors.begin(); i != mActors.end(); i++){
-      if((*i)->GetId() == j){
+      if((*i)->getId() == j){
         set = false;
         break;
       }
@@ -66,6 +80,11 @@ void scene :: addActor(std::shared_ptr<actor> a){
       mLastActorId = j;
       a->setId(j);
       mActors.push_back(a);
+      if(_server){
+        /* Broadcast a EVENT_CREATE event */
+        std::unique_ptr<AbstractEvent> c_event(new CreateEvent(a));
+        _net_server.broadcastEvent(c_event);
+      }
       return;
     }
   }
@@ -173,11 +192,11 @@ static void interpolateActors(std::list<std::shared_ptr<actor>> &actors){
 
 /* TODO: move all update and movement code into this method  */
 void scene :: update(){
-  mActors.remove_if([](std::shared_ptr<actor>a){return a->mRemove;});
   if(!_server)
     interpolateActors(mActors);
   movementUpdate();
   physicsUpdate();
+  cleanUp();
   updateSprites();
   return;
 }

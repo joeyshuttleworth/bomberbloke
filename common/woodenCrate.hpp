@@ -15,6 +15,15 @@ public:
     return;
   }
 
+  void handle_command(std::list<std::string> command){
+    if(command.size() != 1)
+      return;
+    else if(command.front()=="kill"){
+      /* TODO drop powerups and draw particle effect */
+      mRemove = true;
+    }
+  }
+
   template<class Archive>
   void serialize(Archive &archive){
     archive(cereal::base_class<actor>(this));

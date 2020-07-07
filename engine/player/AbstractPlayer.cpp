@@ -21,7 +21,7 @@ void AbstractPlayer::setCharacter(std::shared_ptr<actor> a){
 void AbstractPlayer::setId(int id){
   mId = id;
   for(auto i = _pScene->mActors.begin(); i != _pScene->mActors.end(); i++){
-    if((*i)->GetId() == id){
+    if((*i)->getId() == id){
       mpCharacter = *i;
       return;
     }

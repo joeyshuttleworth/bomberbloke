@@ -27,6 +27,8 @@ public:
   /* Spawnpoints is a collection of coordinates where players can be spawned */
   std::vector<int*> mSpawnPoints;
 
+  void addActorWithId(std::shared_ptr<actor> a);
+
   void addActor(std::shared_ptr<actor> a);
 /* dim_x and dim_y are the size of our scene in the x and y axis respectively */
   double mDimmension[2];

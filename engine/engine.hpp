@@ -55,6 +55,7 @@ void handle_movement();
 void init_engine();
 void console_loop();
 void draw_screen();
+void set_draw(bool);
 SDL_Joystick* handle_input_controller();
 void add_player(std::shared_ptr<AbstractPlayer>);
 

@@ -66,6 +66,9 @@ add_test(LOCAL_SERVER_CONNECT local_server_connect COMMAND)
 add_executable(explosion_demo "tests/ExplosionDemo.cpp" "engine/client.cpp")
 target_link_libraries(explosion_demo CLIENT ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES})
 
+add_executable(collision_sandbox "tests/collision_sandbox.cpp" "engine/server.cpp")
+target_link_libraries(collision_sandbox SERVER ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES})
+
 # Client setup
 set(client_src "client/bomberbloke.cpp")
 add_executable(bomberbloke_client ${client_src} "engine/client.cpp")

@@ -50,8 +50,7 @@ static void load_assets();
 void refresh_sprites();
 void create_window();
 
-static void set_draw(bool on){
-
+void set_draw(bool on){
   if(on == _draw)
     return;
 
@@ -277,7 +276,6 @@ void draw_screen() {
   SDL_SetRenderDrawColor(_renderer, 0x10, 0xFF, 0x00, 0xFF);
   SDL_RenderClear(_renderer);
   _pCamera->draw();
-  _pScene->cleanUp();
   SDL_RenderPresent(_renderer);
   return;
 }
@@ -327,6 +325,10 @@ void load_config(std::string fname) {
 }
 
 bool handle_system_command(std::list<std::string> tokens) {
+
+  if(tokens.size()==0)
+    return true;
+
   std::string command = tokens.front();
 
   if(command == "new" && _server){
@@ -335,6 +337,15 @@ bool handle_system_command(std::list<std::string> tokens) {
       ENetPeer* to = (*i)->getPeer();
       if(to)
         _net_server.sendEvent(s_event, to);
+    }
+  }
+
+  if(command == "nickname" && !_server){
+    if(tokens.size()!=2)
+      log_message(ERROR, "nickname requires exactly one argument");
+    else{
+      _nickname = tokens.back();
+      log_message(INFO, "nickname is now " + _nickname);
     }
   }
 

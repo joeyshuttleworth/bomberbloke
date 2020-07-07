@@ -16,6 +16,9 @@ class actor: public KinematicCollider {
   friend class MoveEvent;
 protected:
 
+  /*Flag to indicate removal when next updated*/
+  bool mRemove = false;
+
   bool mMoved=false;
   std::shared_ptr<AbstractSpriteHandler> mpSpriteHandler;
 
@@ -44,20 +47,17 @@ public:
   /* TODO replace this */
   dvector mDimmension;
 
-  void mInterpolate();
-
   void draw(Camera *cam){
-    mpSpriteHandler->draw(cam);
+    if(mpSpriteHandler)
+      mpSpriteHandler->draw(cam);
   }
 
-  int GetId(){
+  int getId(){
     return mId;
   }
 
   void addState(dvector position, dvector velocity, int tick){mInterpolator.addState(position, velocity, tick);}
 
-  /*Flag to indicate removal when next updated*/
-  bool mRemove = false;
   actor(double x = 0, double y = 0, double xdim = DEFAULT_ACTOR_SIZE, double ydim = DEFAULT_ACTOR_SIZE, bool collides = true);
 
   /*Returns an enum defined by the game identifying what type of actor this is
@@ -85,6 +85,10 @@ public:
     return;
   }
 
+  bool toRemove(){return mRemove;};
+
+  void remove();
+
   void draw();
   int move(double x, double y);
   bool isMoving();
@@ -93,7 +97,8 @@ public:
   virtual void update(){};
 
   void updateSprite(){
-    mpSpriteHandler->update(mPosition);
+    if(mpSpriteHandler)
+      mpSpriteHandler->update(mPosition);
   }
 
   virtual void handle_command(std::string){};

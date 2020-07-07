@@ -1,9 +1,16 @@
 #include "engine.hpp"
 #include "MoveEvent.hpp"
+#include "RemoveEvent.hpp"
 #include <cereal/archives/json.hpp>
 #include <fstream>
 #include <string>
 #include <iostream>
+
+void actor :: remove(){
+  mRemove = true;
+  /*Create remove event*/
+  std::unique_ptr<AbstractEvent> r_event(new RemoveEvent(std::shared_ptr<actor>(this)));
+}
 
 int actor :: move(double x, double y){
   double tmp_pos[2];
