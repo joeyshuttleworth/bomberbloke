@@ -3,6 +3,10 @@
 #include "KinematicCollider.hpp"
 
 void KinematicCollider::registerCollision(std::shared_ptr<AbstractCollider> collider, dvector mtv) {
+    // If the collider isn't moving it isn't affected by the collision
+    if (mVelocity[0] == 0. && mVelocity[1] == 0.)
+        return;
+    
     // Magnitude of velocity in the positive MTV direction
     double mtvVelocity = vectorProduct(mVelocity, mtv);
     mtvVelocity = (mtvVelocity + fabs(mtvVelocity)) / 2;
@@ -16,13 +20,12 @@ void KinematicCollider::registerCollision(std::shared_ptr<AbstractCollider> coll
     double totalMtvSpeed = mtvVelocity + colliderMtvVelocity;
     if (totalMtvSpeed > 0) {
         speedProportion = mtvVelocity / totalMtvSpeed;
-    } else if(mVelocity[0] != 0 || mVelocity[1] != 0){
-        // Neither are moving and this is completely
-        // stationary - split translation equally
+    } else if (collider->mVelocity[0] == 0 || collider->mVelocity[1] == 0) {
+        speedProportion = 1.0;
+    } else {
+        // Both are moving perpendicular to MTV, split translation equally
+        // between the two
         speedProportion = 0.5;
-    }
-    else{
-      speedProportion = 0;
     }
 
     // Compute change in position
