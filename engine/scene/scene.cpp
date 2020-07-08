@@ -96,11 +96,13 @@ void scene::physicsUpdate() {
 
     // TODO: Will be moving to region based collision checking eventually
     int iIndex = -1;
-    int jIndex = -1;
+    int jIndex;
     for (auto i = mActors.begin(); i != mActors.end(); i++) {
         iIndex++;
         if ((*i)->mCollides == false)
             continue;
+        
+        jIndex = -1;
         for (auto j = mActors.begin(); j != mActors.end(); j++) {
             jIndex++;
             // Iterate until distinct pair obtained
