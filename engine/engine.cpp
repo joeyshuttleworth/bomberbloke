@@ -578,7 +578,7 @@ void console_loop() {
 static void load_assets(){
   if (auto dir = opendir(("assets" + PATHSEPARATOR).c_str())){
     while (auto f = readdir(dir)) {
-      if (!f->d_name || f->d_name[0] == '.')
+      if (f->d_name[0] == '.')
         continue; // Skip hidden files
       else{
         std::string whole_filename = std::string(f->d_name);

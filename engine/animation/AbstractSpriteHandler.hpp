@@ -8,9 +8,10 @@ class Camera;
 class AbstractSpriteHandler{
 public:
 
-  AbstractSpriteHandler(){
-    return;
-  }
+  AbstractSpriteHandler(){}
+
+  virtual ~AbstractSpriteHandler(){}
+
   virtual void draw(Camera*) = 0;
 
   AbstractSpriteHandler(double x_pos, double y_pos, double x_dim, double y_dim, int speed = 300, int timeout = 0, int delay = 0){

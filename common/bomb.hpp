@@ -30,9 +30,7 @@ class bomb : public actor {
   void update();
   void handle_command(std::string command);
 
-  bomb(){
-    mPosition = {0,0};
-    mDimmension = {BOMB_SIZE, BOMB_SIZE};
+  bomb() : actor(0, 0, BOMB_SIZE, BOMB_SIZE){
     mpSpriteHandler = std::shared_ptr<AbstractSpriteHandler>(new PlaceHolderSprite(mPosition[0], mPosition[1], mDimmension[0], mDimmension[0]));
   }
 

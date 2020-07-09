@@ -8,7 +8,6 @@
 
 class serverPlayer : public AbstractPlayer{
 private:
-  ENetPeer *mpPeer;
   bool mLocal;
 
 public:
