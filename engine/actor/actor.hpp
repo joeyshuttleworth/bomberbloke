@@ -58,6 +58,8 @@ public:
 
   void addState(dvector position, dvector velocity, int tick){mInterpolator.addState(position, velocity, tick);}
 
+  virtual ~actor(){}
+
   actor(double x = 0, double y = 0, double xdim = DEFAULT_ACTOR_SIZE, double ydim = DEFAULT_ACTOR_SIZE, bool collides = true);
 
   /*Returns an enum defined by the game identifying what type of actor this is
@@ -101,7 +103,7 @@ public:
       mpSpriteHandler->update(mPosition);
   }
 
-  virtual void handle_command(std::string){};
+  virtual void handle_command(std::string) = 0;
 
   /*Serialise this class using cereal.
     NB: We don't send the size of the actor (dimmension) as this should

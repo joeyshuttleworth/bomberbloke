@@ -24,7 +24,7 @@ void bomb::init(bloke *bloke){
 
 void bomb::handle_command(std::string command){
   if(mRemove==false){
-    if(command=="+kill"){
+    if(command == "+kill" && _server){
       explode();
     }
   }
@@ -73,19 +73,19 @@ void bomb::explode(){
           }
         }
         if(dead)
-          prev->handle_command("kill");
+          prev->handle_command("+kill");
       }
     }
+
+    /*Cast to a bloke pointer.*/
+    std::shared_ptr<bloke> placed_by = std::dynamic_pointer_cast<bloke>(_pScene->GetActor(mPlacedById));
+    if(placed_by)
+      placed_by->mBombs--;
   }
+
   _pScene->mParticleList.push_back(std::shared_ptr<Explosion>(new Explosion(mPosition[0] - 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), mPosition[1] - 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), 1 ,1)));
 
   mRemove = true;
-
-  /*Cast to a bloke pointer.*/
-  std::shared_ptr<bloke> placed_by = std::dynamic_pointer_cast<bloke>(_pScene->GetActor(mPlacedById));
-  if(placed_by)
-    placed_by->mBombs--;
-
   /*  Rumble effect */
   _pCamera->rumble();
 

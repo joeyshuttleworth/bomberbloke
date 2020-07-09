@@ -27,7 +27,7 @@ public:
     return;
   }
 
-  ~Camera(){
+  virtual ~Camera(){
     /* We will get a double free if we destroy the texture after SDL_Quit is called */
     return;
     if(mpFrameBuffer && !_halt){

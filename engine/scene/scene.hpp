@@ -62,7 +62,9 @@ public:
   scene(double x=10, double y=10);
 
   scene(const scene &lvl);
-  ~scene();
+
+  virtual ~scene(){}
+
   std::shared_ptr<actor> GetActor(int id);
 
   /*  Clean up sprites and actors from the scene

@@ -10,10 +10,6 @@ scene :: scene(double x, double y){
   return;
 }
 
-scene :: ~scene(){
-  return;
-}
-
 void scene :: refreshSprites(){
   for(auto i = mActors.begin(); i != mActors.end(); i++){
     (*i)->refreshSprite();
@@ -48,7 +44,6 @@ void scene::movementUpdate(){
     for (auto i = mActors.begin(); i != mActors.end(); i++) {
         /*Update actors*/
         (*i)->update();
-
         (*i)->move((*i)->mPosition[0] + (*i)->mVelocity[0], (*i)->mPosition[1] + (*i)->mVelocity[1]);
     }
     return;
@@ -180,7 +175,6 @@ void scene :: draw(Camera *cam){
   for(auto i = mParticleList.begin(); i!= mParticleList.end(); i++){
     (*i)->draw(cam);
   }
-
   return;
 }
 
@@ -194,6 +188,7 @@ static void interpolateActors(std::list<std::shared_ptr<actor>> &actors){
 void scene :: update(){
   if(!_server)
     interpolateActors(mActors);
+
   movementUpdate();
   physicsUpdate();
   cleanUp();

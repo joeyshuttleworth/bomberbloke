@@ -29,6 +29,8 @@ class AbstractEvent{
 public:
   virtual int getType() const = 0;
 
+  virtual ~AbstractEvent(){}
+
   /** For printing displaying printing debug messages mainly */
   virtual std::string output(){return "";};
 

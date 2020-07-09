@@ -22,7 +22,7 @@ class AbstractPlayer{
 public:
   AbstractPlayer(std::string);
   AbstractPlayer(){};
-  ~AbstractPlayer(){};
+  virtual  ~AbstractPlayer(){};
 
   void setId(int id);
 
