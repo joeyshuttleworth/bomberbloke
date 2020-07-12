@@ -26,6 +26,7 @@ find_package(curl REQUIRED)
 include_directories(${CURL_INCLUDE_DIRS})
 
 #Include directories
+include_directories(BEFORE SYSTEM ${PROJECT_SOURCE_DIR}/cereal/include)
 include_directories(${PROJECT_SOURCE_DIR}/engine/event)
 include_directories(${PROJECT_SOURCE_DIR}/engine/file)
 include_directories(${PROJECT_SOURCE_DIR}/engine/scene)

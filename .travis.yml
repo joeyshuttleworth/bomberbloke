@@ -8,7 +8,7 @@ compiler:
   - clang
   
 before_install:
-  - sudo apt-get install -qq libsdl2-dev libenet-dev libcereal-dev libcurl4-openssl-dev libsdl2-image-dev libsdl2-image-2.0-0
+  - sudo apt-get install -qq libsdl2-dev libenet-dev libcurl4-openssl-dev libsdl2-image-dev libsdl2-image-2.0-0
 
 before_script:
   - cmake .
