@@ -8,6 +8,7 @@
 #include "AbstractSpriteHandler.hpp"
 #include "NetClient.hpp"
 #include "NetServer.hpp"
+#include "SoundManager.hpp"
 #include <cereal/archives/json.hpp>
 #include <fstream>
 #include <exception>
@@ -43,6 +44,8 @@ std::vector<CommandBinding> _default_bindings;
 
 NetClient _net_client;
 NetServer _net_server;
+
+SoundManager soundManager;
 
 std::list<std::pair<std::string, SDL_Texture*>> _sprite_list;
 static void load_assets();
@@ -160,8 +163,14 @@ void init_engine() {
     /*  Open a log file  */
     _console_log_file.open("/tmp/bloke.log");
 
-
     load_assets();
+    soundManager.init();
+    
+    // Play intro music
+    soundManager.loadFromPath("assets/sounds/bomb_intro.wav");
+    std::shared_ptr<Sound> pIntroSound = soundManager.createSound("bomb_intro");
+    soundManager.playSound(*pIntroSound);
+    
     return;
 }
 
