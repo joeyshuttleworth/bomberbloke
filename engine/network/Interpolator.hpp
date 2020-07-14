@@ -35,7 +35,7 @@ private:
   int mDelay;
 
 public:
-  Interpolator(unsigned int buffer_size=20, unsigned int delay=10){
+  Interpolator(unsigned int buffer_size=10, unsigned int delay=5){
     mBufferSize = buffer_size;
     mDelay = delay;
     assert((int)mBufferSize>=mDelay);
@@ -50,7 +50,9 @@ public:
   }
 
   void update(){
-    remove_if(mBuffer.begin(), mBuffer.end(), [&](VectorState vs) -> bool{return _tick - vs.clientTick > mBufferSize;});
+    remove_if(mBuffer.begin(), mBuffer.end(), [&](VectorState vs) -> bool{
+                                                return abs(mBuffer.back().serverTick - vs.serverTick) || _tick - vs.clientTick > mBufferSize;
+                                              });
   }
 
   dvector getPos(){
@@ -81,11 +83,15 @@ public:
       }
     }
 
-    if(!state1 || !state2){
+    if(state1 && !state2){
       log_message(DEBUG, "No future state to interpolate, returning last known position");
       dvector rc = mBuffer.back().statePosition;
-      mBuffer.clear();
+      // mBuffer.clear();
       return rc;
+    }
+
+    else if(!state1 && state2){
+      return state2->statePosition;
     }
 
     int x1 = state1->serverTick;
