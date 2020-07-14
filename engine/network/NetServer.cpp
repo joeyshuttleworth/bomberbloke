@@ -339,10 +339,12 @@ void NetServer::sendEvent(std::unique_ptr<AbstractEvent> &event, ENetPeer *to){
   else
     packet = enet_packet_create(message.c_str(), strlen(message.c_str())+1, 0);
   enet_peer_send(to, 0, packet);
-  /*  TODO flush every tick */
-  enet_host_flush(mENetServer);
+  /*  TODO flush every tick instead */
+  // enet_host_flush(mENetServer);
   return;
 }
+
+void NetServer::flush(){enet_host_flush(mENetServer);}
 
 void NetServer::broadcastEvent(std::unique_ptr<AbstractEvent>& event){
   for(auto i = _player_list.begin(); i != _player_list.end(); i++){

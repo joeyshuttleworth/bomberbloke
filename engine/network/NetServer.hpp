@@ -64,6 +64,7 @@ public:
     void broadcastEvent(std::unique_ptr<AbstractEvent>&);
     void syncPlayers();
 
+    void flush();
 private:
     ENetHost *mENetServer = nullptr;
     ENetAddress mENetAddress;

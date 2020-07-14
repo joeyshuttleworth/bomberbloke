@@ -8,8 +8,11 @@
 
 void actor :: remove(){
   mRemove = true;
-  /*Create remove event*/
+  /*Send remove event*/
   std::unique_ptr<AbstractEvent> r_event(new RemoveEvent(std::shared_ptr<actor>(this)));
+  if(_server){
+    _net_server.broadcastEvent(r_event);
+  }
 }
 
 int actor :: move(double x, double y){
