@@ -24,7 +24,7 @@ void bomb::init(bloke *bloke){
   /* Create sound objects for explosion sound effects */
   for (int i = 0; i < N_EXPLOSION_SOUNDS; i++) {
       std::shared_ptr<Sound> sound = soundManager.createSound(EXPLOSION_SOUND_NAMES[i]);
-      explosionSounds[i] = sound;
+      mExplosionSounds[i] = sound;
   }
   
   return;
@@ -99,7 +99,7 @@ void bomb::explode(){
 
   /* Explosion sound effect */
   int randIndex = std::rand() % N_EXPLOSION_SOUNDS;
-  soundManager.playSound(*(explosionSounds[randIndex]));
+  soundManager.playSound(*(mExplosionSounds[randIndex]));
 
   return;
 }
