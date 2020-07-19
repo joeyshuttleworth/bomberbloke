@@ -15,18 +15,22 @@ private:
      * name (usually the stem of the filename).
      */
     std::map<std::string, Mix_Chunk*> soundFileBank;
-public:
     
+    /**
+     * Map from channel number to currently playing Sound
+     */
+    std::map<int, Sound*> channelToSound;
+public:
     /**
      * Initialisation: must be called before loading sounds
      */
-    void init();
+    void init(void (*finishedCallback)(int));
     
     /**
      * Loads sound file into soundFileBank. Returns sound name to use when
      * creating Sound objects (see createSound).
      */
-    std::string loadFromPath(std::string path);
+    void loadFromPath(std::string path, std::string id);
     
     /**
      * Create Sound object from sound name.
@@ -37,6 +41,12 @@ public:
      * Play sound object.
      */
     void playSound(Sound &sound);
+    
+    /**
+     * Callback function when channel is finished
+     * ONLY call in finishedCallback function (see init)
+     */
+    void channelFinishedCallback(int channel);
     
     SoundManager();
 };
