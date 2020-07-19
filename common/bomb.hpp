@@ -21,7 +21,7 @@ class bomb : public actor {
   bool mBigBomb;
   bool mSatellite;
 
-  std::array<std::shared_ptr<Sound>, N_EXPLOSION_SOUNDS> explosionSounds;
+  std::array<std::shared_ptr<Sound>, N_EXPLOSION_SOUNDS> mExplosionSounds;
  public:
 
   /*Cereal serialisation*/
