@@ -8,9 +8,21 @@
 class Sound {
 public:
     /**
-     * Sets number of loops to play.
+     * Sound file in Mix_Chunk format.
      */
-    void loop(int nLoops);
+    Mix_Chunk *mMixChunk;
+    
+    /**
+     * Mixer channel number 
+     */
+    int channel = -1;
+    
+    /**
+     * Number of loops to play
+     */
+    int mNLoops = 0;
+     */
+    void (*onFinishedPlaying)() = nullptr;
     
     /**
      * Initialisation
@@ -22,14 +34,9 @@ public:
     
     
     /**
-     * Sound file in Mix_Chunk format.
      */
-    Mix_Chunk *mMixChunk;
     
-    // Number of loops to play
-    int mNLoops = 0;
     
-    Sound(Mix_Chunk *soundFile);
 };
 
 #endif
