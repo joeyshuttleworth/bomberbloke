@@ -26,7 +26,33 @@ std::shared_ptr<Sound> SoundManager::createSound(std::string soundName) {
 }
 
 void SoundManager::playSound(Sound &sound) {
-    Mix_PlayChannel(-1, sound.mMixChunk, sound.mNLoops);
+    int tmpChannel = -1;
+    
+    if (sound.mFadeInMs > 0) {
+        if (sound.mLengthMs > 0)
+            tmpChannel = Mix_FadeInChannelTimed(
+                -1, sound.mMixChunk, sound.mNLoops, sound.mLengthMs, sound.mFadeInMs);
+        else
+            tmpChannel = Mix_FadeInChannel(
+                -1, sound.mMixChunk, sound.mNLoops, sound.mFadeInMs);
+    } else {
+        if (sound.mLengthMs > 0)
+            tmpChannel = Mix_PlayChannelTimed(
+                -1, sound.mMixChunk, sound.mNLoops, sound.mLengthMs);
+        else 
+            tmpChannel = Mix_PlayChannel(-1, sound.mMixChunk, sound.mNLoops);
+    }
+    
+    if (tmpChannel == -1) {
+        std::cout << Mix_GetError() << std::endl;
+        return;
+    }
+    
+    Mix_SetPosition(tmpChannel, sound.mAngle, sound.mDistance);
+    
+    sound.channel = tmpChannel;
+    channelToSound[tmpChannel] = &sound;
+}
 
 void SoundManager::channelFinishedCallback(int channel) {
     Sound *sound = channelToSound[channel];
