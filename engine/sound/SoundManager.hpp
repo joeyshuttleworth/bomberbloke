@@ -26,7 +26,7 @@ public:
      * Loads sound file into soundFileBank. Returns sound name to use when
      * creating Sound objects (see createSound).
      */
-    std::string loadFromPath(std::string path);
+    void loadFromPath(std::string path, std::string id);
     
     /**
      * Create Sound object from sound name.

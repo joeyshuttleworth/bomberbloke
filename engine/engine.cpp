@@ -8,7 +8,6 @@
 #include "AbstractSpriteHandler.hpp"
 #include "NetClient.hpp"
 #include "NetServer.hpp"
-#include "SoundManager.hpp"
 #include <cereal/archives/json.hpp>
 #include <fstream>
 #include <exception>

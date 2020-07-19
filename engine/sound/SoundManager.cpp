@@ -2,23 +2,6 @@
 
 #include <iostream>
 
-std::string getStemFromPath(std::string path) {
-    std::string stem = "";
-    bool onStem = false;
-    
-    for (std::string::reverse_iterator rit = path.rbegin(); rit != path.rend(); rit++) {
-        if (onStem == true) {
-            if (*rit == '/' || *rit == '\\')
-                break;
-            stem.insert(0, 1, *rit);
-        } else if (*rit == '.') {
-            onStem = true;
-        }
-    }
-    
-    return stem;
-}
-
 SoundManager::SoundManager() {}
 
 void SoundManager::init() {
@@ -27,18 +10,13 @@ void SoundManager::init() {
     }
 }
 
-std::string SoundManager::loadFromPath(std::string path) {
+void SoundManager::loadFromPath(std::string path, std::string id) {
     Mix_Chunk *sound = Mix_LoadWAV(path.c_str());
     if (sound == NULL)
         std::cout << Mix_GetError() << std::endl;
     
-    // Get stem form filename (e.g. assets/name.wav -> name)
-    std::string fileStem = getStemFromPath(path);
-    
     // Add file to sound file bank
-    soundFileBank.insert(std::make_pair(fileStem, sound));
-    
-    return fileStem;
+    soundFileBank.insert(std::make_pair(id, sound));
 }
 
 std::shared_ptr<Sound> SoundManager::createSound(std::string soundName) {
