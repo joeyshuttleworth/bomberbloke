@@ -13,8 +13,12 @@ public:
     void loop(int nLoops);
     
     /**
-     *
+     * Initialisation
      */
+    Sound() {}
+    Sound(Mix_Chunk *soundFile) {
+        mMixChunk = soundFile;
+    }
     
     
     /**
