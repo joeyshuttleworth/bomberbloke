@@ -136,15 +136,20 @@ void resize_window(int x, int y){
   return;
 }
 
+void channelFinishedForwarder(int channel) {
+    soundManager.channelFinishedCallback(channel);
+}
+
 void init_engine() {
-  signal(SIGINT, exit_engine);
-  SDL_Init(SDL_INIT_EVERYTHING);
+    signal(SIGINT, exit_engine);
+    SDL_Init(SDL_INIT_EVERYTHING);
+    soundManager.init(channelFinishedForwarder);
 
     /*  Set blendmode */
     SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
 
     if (_draw) {
-      create_window();
+        create_window();
     }
 
     _pScene = std::shared_ptr<scene>(new scene(10, 10));
@@ -163,7 +168,6 @@ void init_engine() {
     _console_log_file.open("/tmp/bloke.log");
 
     load_assets();
-    soundManager.init();
     
     return;
 }
