@@ -2,43 +2,22 @@
 
 #include <iostream>
 
-std::string getStemFromPath(std::string path) {
-    std::string stem = "";
-    bool onStem = false;
-    
-    for (std::string::reverse_iterator rit = path.rbegin(); rit != path.rend(); rit++) {
-        if (onStem == true) {
-            if (*rit == '/' || *rit == '\\')
-                break;
-            stem.insert(0, 1, *rit);
-        } else if (*rit == '.') {
-            onStem = true;
-        }
-    }
-    
-    return stem;
-}
-
 SoundManager::SoundManager() {}
 
-void SoundManager::init() {
-    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) == -1) {
+void SoundManager::init(void (*finishedCallback)(int)) {
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) == -1)
         printf("Mix_OpenAudio: %s\n", Mix_GetError());
-    }
+    
+    Mix_ChannelFinished(finishedCallback);
 }
 
-std::string SoundManager::loadFromPath(std::string path) {
+void SoundManager::loadFromPath(std::string path, std::string id) {
     Mix_Chunk *sound = Mix_LoadWAV(path.c_str());
     if (sound == NULL)
         std::cout << Mix_GetError() << std::endl;
     
-    // Get stem form filename (e.g. assets/name.wav -> name)
-    std::string fileStem = getStemFromPath(path);
-    
     // Add file to sound file bank
-    soundFileBank.insert(std::make_pair(fileStem, sound));
-    
-    return fileStem;
+    soundFileBank.insert(std::make_pair(id, sound));
 }
 
 std::shared_ptr<Sound> SoundManager::createSound(std::string soundName) {
@@ -47,5 +26,38 @@ std::shared_ptr<Sound> SoundManager::createSound(std::string soundName) {
 }
 
 void SoundManager::playSound(Sound &sound) {
-    Mix_PlayChannel(-1, sound.mMixChunk, sound.mNLoops);
+    int tmpChannel = -1;
+    
+    if (sound.mFadeInMs > 0) {
+        if (sound.mLengthMs > 0)
+            tmpChannel = Mix_FadeInChannelTimed(
+                -1, sound.mMixChunk, sound.mNLoops, sound.mLengthMs, sound.mFadeInMs);
+        else
+            tmpChannel = Mix_FadeInChannel(
+                -1, sound.mMixChunk, sound.mNLoops, sound.mFadeInMs);
+    } else {
+        if (sound.mLengthMs > 0)
+            tmpChannel = Mix_PlayChannelTimed(
+                -1, sound.mMixChunk, sound.mNLoops, sound.mLengthMs);
+        else 
+            tmpChannel = Mix_PlayChannel(-1, sound.mMixChunk, sound.mNLoops);
+    }
+    
+    if (tmpChannel == -1) {
+        std::cout << Mix_GetError() << std::endl;
+        return;
+    }
+    
+    Mix_SetPosition(tmpChannel, sound.mAngle, sound.mDistance);
+    
+    sound.channel = tmpChannel;
+    channelToSound[tmpChannel] = &sound;
+}
+
+void SoundManager::channelFinishedCallback(int channel) {
+    Sound *sound = channelToSound[channel];
+    channelToSound.erase(channel);
+    
+    if (sound->onFinishedPlaying != nullptr)
+        sound->onFinishedPlaying();
 }
