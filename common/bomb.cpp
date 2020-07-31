@@ -2,8 +2,8 @@
 #include "bloke.hpp"
 #include "bomb.hpp"
 #include "Explosion.hpp"
+#include "engine.hpp"
 #include "actor.hpp"
-
 unsigned int _default_bomb_timer = DEFAULT_BOMB_TIMER;
 
 void bomb::init(bloke *bloke){
@@ -20,6 +20,13 @@ void bomb::init(bloke *bloke){
   else{
     log_message(ERROR, "Bomb placed by malformed actor");
   }
+
+  /* Create sound objects for explosion sound effects */
+  for (int i = 0; i < N_EXPLOSION_SOUNDS; i++) {
+      std::shared_ptr<Sound> sound = soundManager.createSound(EXPLOSION_SOUND_NAMES[i]);
+      mExplosionSounds[i] = sound;
+  }
+
   return;
 }
 
@@ -79,5 +86,16 @@ void bomb::explode(){
     /*  Rumble effect */
     _pCamera->rumble();
   }
+
+  _pScene->mParticleList.push_back(std::shared_ptr<Explosion>(new Explosion(mPosition[0] - 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), mPosition[1] - 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), 1 ,1)));
+
+  mRemove = true;
+  /*  Rumble effect */
+  _pCamera->rumble();
+
+  /* Play explosion sound effect */
+  int randIndex = std::rand() % N_EXPLOSION_SOUNDS;
+  soundManager.playSound(*(mExplosionSounds[randIndex]));
+
   return;
 }

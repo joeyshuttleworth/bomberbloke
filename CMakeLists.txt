@@ -17,13 +17,13 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
 
 find_package(ENet REQUIRED)
-include_directories(${ENET_INCLUDE_DIRS})
+include_directories(${ENET_INCLUDE_DIR})
 
 find_package(SDL2 REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS})
 
 find_package(curl REQUIRED)
-include_directories(${CURL_INCLUDE_DIRS})
+include_directories(${CURL_INCLUDE_DIR})
 
 #Include directories
 include_directories(BEFORE SYSTEM ${PROJECT_SOURCE_DIR}/cereal/include)
@@ -41,6 +41,7 @@ include_directories(${PROJECT_SOURCE_DIR}/engine)
 include_directories(${PROJECT_SOURCE_DIR}/tests)
 include_directories(${PROJECT_SOURCE_DIR}/engine/animation)
 include_directories(${PROJECT_SOURCE_DIR}/engine/camera)
+include_directories(${PROJECT_SOURCE_DIR}/engine/sound)
 
 file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/sources.cmake SHARED_SOURCES)
 
@@ -91,4 +92,4 @@ add_custom_target(fmt
 
 
 # Warning messages are treated as errors
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror -Wpedantic -Wfatal-errors")
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror -Wpedantic -Wfatal-errors")

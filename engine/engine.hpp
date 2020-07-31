@@ -3,7 +3,7 @@
 
 #include <map>
 #include <cmath>
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <iostream>
 #include <algorithm>
 #include <list>
@@ -78,6 +78,10 @@ extern std::list<std::shared_ptr<AbstractPlayer>> _player_list;
 extern std::string _nickname;
 extern SDL_Joystick* _controller;
 extern bool _controller_connected;
+
+/* Global sound manager for storing and tracking playing sounds */
+#include "SoundManager.hpp"
+extern SoundManager soundManager;
 
 
 typedef struct{
