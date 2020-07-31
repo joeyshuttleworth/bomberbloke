@@ -22,14 +22,13 @@ public:
     return EVENT_REMOVE;
   }
 
-  /* Default constructor needed for cereal */
-  RemoveEvent(){}
-
   unsigned int getId(){return mActorId;}
 
-  RemoveEvent(std::shared_ptr<actor> a){
-    mActorId = a->getId();
+  RemoveEvent(actor *a = nullptr){
     mTick = _tick;
+    if(a){
+      mActorId = a->getId();
+    }
     return;
   };
 

@@ -27,13 +27,9 @@ int main (){
 
   set_draw(true);
 
-  std::shared_ptr<bloke> b1(new bloke(1, 2, true));
-
-
-  _pScene->addActor(b1);
-  _local_player_list.back().setCharacter(b1);
-
-  _pScene->addActor(std::shared_ptr<actor>(new bloke(3,3)));
+  _pScene->addActor(std::shared_ptr<actor>(std::make_shared<bloke>(1,2,true)));
+  _local_player_list.back().setCharacter(_pScene->mActors.back());
+  _pScene->addActor(std::shared_ptr<actor>(std::make_shared<bloke>(3,3)));
 
 
   server_loop();

@@ -34,7 +34,7 @@ void scene::cleanUp(){
   /* Remove particles with mRemove set! */
   mParticleList.remove_if([](std::shared_ptr<AbstractSpriteHandler> s){return s->ToRemove();});
   /* Now clean up actors */
-  mActors.remove_if([](std::shared_ptr<actor> a){return a->toRemove();});
+  mActors.remove_if([](std::shared_ptr<actor> a)-> bool{return a->toRemove();});
   return;
 }
 
@@ -191,8 +191,8 @@ void scene :: update(){
     interpolateActors(mActors);
 
   movementUpdate();
-  physicsUpdate();
   cleanUp();
+  physicsUpdate();
   updateSprites();
   return;
 }
