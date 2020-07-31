@@ -7,6 +7,10 @@
 #include <cereal/types/polymorphic.hpp>
 #include "PlaceHolderSprite.hpp"
 #include "AbstractSpriteHandler.hpp"
+#include "Sound.hpp"
+
+const int N_EXPLOSION_SOUNDS = 2;
+const std::string EXPLOSION_SOUND_NAMES[N_EXPLOSION_SOUNDS] = { "bomb_1", "bomb_2" };
 
 class bomb : public actor {
  protected:
@@ -16,6 +20,8 @@ class bomb : public actor {
   bool mPenetration;
   bool mBigBomb;
   bool mSatellite;
+
+  std::array<std::shared_ptr<Sound>, N_EXPLOSION_SOUNDS> mExplosionSounds;
  public:
 
   /*Cereal serialisation*/
