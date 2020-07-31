@@ -17,11 +17,12 @@ public:
 
   void handle_command(std::string command){
     std::list<std::string> tokens = split_to_tokens(command);
-    if(command.size() != 1)
+    if(tokens.size() == 0)
       return;
     else if(tokens.front() == "kill" || tokens.front() == "+kill"){
       /* TODO drop powerups and draw particle effect */
-      mRemove = true;
+      log_message(DEBUG, "crate died");
+      remove();
     }
   }
 

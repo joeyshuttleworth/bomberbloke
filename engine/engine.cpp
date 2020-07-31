@@ -333,6 +333,7 @@ bool handle_system_command(std::list<std::string> tokens) {
 
   if(command == "new" && _server){
     for(auto i = _player_list.begin(); i != _player_list.end(); i++){
+      new_game("");
       std::unique_ptr<AbstractEvent> s_event(new syncEvent());
       ENetPeer* to = (*i)->getPeer();
       if(to)
@@ -371,14 +372,11 @@ bool handle_system_command(std::list<std::string> tokens) {
         return false;
       }
     }
+
     else{
       log_message(ERROR, "draw command requires one argument");
       return false;
     }
-  }
-
-  if(_server && command == "new"){
-    new_game("");
   }
 
   if(!_server && command == "open"){

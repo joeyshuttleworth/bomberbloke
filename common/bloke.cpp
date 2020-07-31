@@ -32,7 +32,7 @@ void bloke :: handle_command(std::string command){
   if(_server){
     /*True if the key is pressed down- false if it is up*/
     bool key_down = (command[0]=='+');
-    if(command == "kill"){
+    if(command == "kill" || command == "+kill"){
       remove();
       return;
     }

@@ -2,6 +2,7 @@
 #include "bloke.hpp"
 #include "bomb.hpp"
 #include "Explosion.hpp"
+#include "actor.hpp"
 
 unsigned int _default_bomb_timer = DEFAULT_BOMB_TIMER;
 
@@ -54,40 +55,29 @@ void bomb::update(){
 }
 
 void bomb::explode(){
-  auto actor = _pScene->mActors.begin();
-
   if(_server){
     /*Iterate over all actors and kill the ones if they are in the right (wrong) zone.*/
-    while(actor!=_pScene->mActors.end()){
-      auto prev = *actor;
-      actor++;
-      /* Do not kill this bomb*/
-      if(prev.get() != this){
-        bool dead=false;
-
-        /* Check we are in the kill zone - if so set dead to true */
-        for(int i = 0; i < 2; i++){
-          if((round(mPosition[!i])==round(prev->mPosition[!i])) && (std::abs(round(mPosition[i])-round(prev->mPosition[i])) <= mPower)){
-            dead = true;
+      for(auto i = _pScene->mActors.begin(); i != _pScene->mActors.end(); i++){
+        /* Do not kill this bomb*/
+        if(i->get() == this)
+          continue;
+        int bomb_square[] = {int(mPosition[0] + mDimmension[0]/2), int(mPosition[1] + mDimmension[1]/2)};
+        int actor_square[] = {int((*i)->mPosition[0] + (*i)->mDimmension[0]/2), int((*i)->mPosition[1] + (*i)->mDimmension[0]/2)};
+       /* Check we are in the blast zone - if so set dead to true */
+        for(int j = 0; j < 2; j++){
+          if(bomb_square[j] == actor_square[j] && std::abs(bomb_square[!j] - actor_square[!j]) <= pf mPower)
+            (*i)->handle_command("+kill");
             break;
           }
-        }
-        if(dead)
-          prev->handle_command("+kill");
       }
-    }
-
     /*Cast to a bloke pointer.*/
     std::shared_ptr<bloke> placed_by = std::dynamic_pointer_cast<bloke>(_pScene->GetActor(mPlacedById));
     if(placed_by)
       placed_by->mBombs--;
+    _pScene->mParticleList.push_back(std::shared_ptr<Explosion>(new Explosion(mPosition[0] - 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), mPosition[1] - 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), 1 ,1)));
+    mRemove = true;
+    /*  Rumble effect */
+    _pCamera->rumble();
   }
-
-  _pScene->mParticleList.push_back(std::shared_ptr<Explosion>(new Explosion(mPosition[0] - 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), mPosition[1] - 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), 1 ,1)));
-
-  mRemove = true;
-  /*  Rumble effect */
-  _pCamera->rumble();
-
   return;
 }
