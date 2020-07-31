@@ -68,11 +68,12 @@ void bomb::explode(){
         /* Do not kill this bomb*/
         if(i->get() == this)
           continue;
+        /*TODO: Figure out the explosion properly*/
         int bomb_square[] = {int(mPosition[0] + mDimmension[0]/2), int(mPosition[1] + mDimmension[1]/2)};
-        int actor_square[] = {int((*i)->mPosition[0] + (*i)->mDimmension[0]/2), int((*i)->mPosition[1] + (*i)->mDimmension[0]/2)};
+        int actor_square[] = {int((*i)->mPosition[0] + (*i)->mDimmension[0]/2), int((*i)->mPosition[1] + (*i)->mDimmension[1]/2)};
        /* Check we are in the blast zone - if so set dead to true */
         for(int j = 0; j < 2; j++){
-          if(bomb_square[j] == actor_square[j] && std::abs(bomb_square[!j] - actor_square[!j]) <= pf mPower)
+          if(bomb_square[j] == actor_square[j] && std::abs(bomb_square[!j] - actor_square[!j]) <= mPower)
             (*i)->handle_command("+kill");
             break;
           }
@@ -87,15 +88,10 @@ void bomb::explode(){
     _pCamera->rumble();
   }
 
-  _pScene->mParticleList.push_back(std::shared_ptr<Explosion>(new Explosion(mPosition[0] - 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), mPosition[1] - 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), 1 ,1)));
-
-  mRemove = true;
-  /*  Rumble effect */
-  _pCamera->rumble();
-
   /* Play explosion sound effect */
   int randIndex = std::rand() % N_EXPLOSION_SOUNDS;
-  soundManager.playSound(*(mExplosionSounds[randIndex]));
+  std::shared_ptr<Sound> bomb_sound = mExplosionSounds[randIndex];
+  soundManager.playSound(bomb_sound);
 
   return;
 }
