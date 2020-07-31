@@ -31,6 +31,9 @@ int main (){
       _pScene->mParticleList.push_back(std::shared_ptr<Explosion>(new Explosion(i, j, 1, 1, 60 + i + 2*j, 600 - 2*i - j)));
     }
 
+  // Play intro music
+  std::shared_ptr<Sound> pIntroSound = soundManager.createSound("explosion_intro");
+  soundManager.playSound(*pIntroSound);
 
   client_loop();
 

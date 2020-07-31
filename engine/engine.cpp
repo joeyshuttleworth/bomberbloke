@@ -44,6 +44,8 @@ std::vector<CommandBinding> _default_bindings;
 NetClient _net_client;
 NetServer _net_server;
 
+SoundManager soundManager;
+
 std::list<std::pair<std::string, SDL_Texture*>> _sprite_list;
 static void load_assets();
 
@@ -134,15 +136,20 @@ void resize_window(int x, int y){
   return;
 }
 
+void channelFinishedForwarder(int channel) {
+    soundManager.channelFinishedCallback(channel);
+}
+
 void init_engine() {
-  signal(SIGINT, exit_engine);
-  SDL_Init(SDL_INIT_EVERYTHING);
+    signal(SIGINT, exit_engine);
+    SDL_Init(SDL_INIT_EVERYTHING);
+    soundManager.init(channelFinishedForwarder);
 
     /*  Set blendmode */
     SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
 
     if (_draw) {
-      create_window();
+        create_window();
     }
 
     _pScene = std::shared_ptr<scene>(new scene(10, 10));
@@ -160,8 +167,8 @@ void init_engine() {
     /*  Open a log file  */
     _console_log_file.open("/tmp/bloke.log");
 
-
     load_assets();
+    
     return;
 }
 
@@ -574,25 +581,30 @@ void console_loop() {
     TODO: handle files other than images.
 */
 static void load_assets(){
-  if (auto dir = opendir(("assets" + PATHSEPARATOR).c_str())){
-    while (auto f = readdir(dir)) {
-      if (f->d_name[0] == '.')
-        continue; // Skip hidden files
-      else{
-        std::string whole_filename = std::string(f->d_name);
-        auto dot_pos = whole_filename.find('.');
-        if(dot_pos == std::string::npos)
-          continue; // no file extension
-        std::string file_name = whole_filename.substr(0, dot_pos);
-        std::string file_extension = whole_filename.substr(dot_pos);
-        if(file_extension == ".png"){
-          SDL_Texture *sprite = IMG_LoadTexture(_renderer, ("assets" + PATHSEPARATOR +  whole_filename).c_str());
-          _sprite_list.push_back({whole_filename, sprite});
+    if (auto dir = opendir(("assets" + PATHSEPARATOR).c_str())){
+        while (auto f = readdir(dir)) {
+            if (f->d_name[0] == '.')
+                continue; // Skip hidden files
+            else {
+                std::string whole_filename = std::string(f->d_name);
+                auto dot_pos = whole_filename.find('.');
+                if (dot_pos == std::string::npos)
+                    continue; // no file extension
+                std::string file_name = whole_filename.substr(0, dot_pos);
+                std::string file_extension = whole_filename.substr(dot_pos);
+                
+                if (file_extension == ".png"){
+                    // Found texture
+                    SDL_Texture *sprite = IMG_LoadTexture(_renderer, ("assets" + PATHSEPARATOR +  whole_filename).c_str());
+                    _sprite_list.push_back({whole_filename, sprite});
+                } else if (file_extension == ".wav") {
+                    // Found sound file
+                    soundManager.loadFromPath("assets" + PATHSEPARATOR +  whole_filename, file_name);
+                }
+            }
         }
-      }
+        closedir(dir);
     }
-    closedir(dir);
-  }
 }
 
 /* Lookup the name in our list of assets and return a pointer to its texture if it exists */
