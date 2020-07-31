@@ -33,7 +33,7 @@ int main (){
 
   // Play intro music
   std::shared_ptr<Sound> pIntroSound = soundManager.createSound("explosion_intro");
-  soundManager.playSound(*pIntroSound);
+  soundManager.playSound(pIntroSound);
 
   client_loop();
 
