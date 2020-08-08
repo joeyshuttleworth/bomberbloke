@@ -2,6 +2,7 @@
 #define WOODENCRATE_HPP
 #include "staticSprite.hpp"
 #include "bomberbloke.h"
+#include "SpeedPickup.hpp"
 
 class woodenCrate : public actor{
 public:
@@ -21,8 +22,10 @@ public:
       return;
     else if(tokens.front() == "kill" || tokens.front() == "+kill"){
       /* TODO drop powerups and draw particle effect */
-      log_message(DEBUG, "crate died");
       remove();
+
+      _pScene->addActor(std::make_shared<SpeedPickup>(mDimmension[0], mDimmension[1]));
+
     }
   }
 
