@@ -86,6 +86,17 @@ void scene :: addActor(std::shared_ptr<actor> a){
   log_message(ERROR, "Failed to add actor - too many actors in mActors");
 }
 
+static bool collides(std::shared_ptr<AbstractCollider> a, std::shared_ptr<AbstractCollider> b){
+  dvector iAxesMtv = a->testNormalAxes(b);
+  if (iAxesMtv[0] == 0 && iAxesMtv[1] == 0)
+    return false;
+  dvector jAxesMtv = a->testNormalAxes(b);
+  if (jAxesMtv[0] == 0 && jAxesMtv[1] == 0)
+    return false;
+  else
+    return true;
+}
+
 void scene::physicsUpdate() {
     /* Detect collisions */
 
@@ -96,7 +107,7 @@ void scene::physicsUpdate() {
         iIndex++;
         if ((*i)->mCollides == false)
             continue;
-        
+
         jIndex = -1;
         for (auto j = mActors.begin(); j != mActors.end(); j++) {
             jIndex++;
@@ -114,7 +125,6 @@ void scene::physicsUpdate() {
             dvector jAxesMtv = (*i)->testNormalAxes(*j);
             if (jAxesMtv[0] == 0 && jAxesMtv[1] == 0)
                 continue;
-
             // No separating axis found - find minimum translation vector (MTV)
             // MTV pointing away from i and j respectively
             dvector iMtv;
@@ -201,4 +211,16 @@ void scene::updateSprites(){
   for(auto i = mActors.begin(); i != mActors.end(); i++){
     (*i)->updateSprite();
   }
+}
+
+std::list<std::shared_ptr<actor>> scene::ActorsCollidingWith(std::shared_ptr<AbstractCollider> p_collider){
+  std::list<std::shared_ptr<actor>> r_list;
+
+  for(auto i = mActors.begin(); i != mActors.end(); i++){
+    if(collides(p_collider, *i)){
+      r_list.push_back(*i);
+    }
+  }
+
+  return r_list;
 }

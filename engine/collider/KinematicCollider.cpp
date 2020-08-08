@@ -6,11 +6,11 @@ void KinematicCollider::registerCollision(std::shared_ptr<AbstractCollider> coll
     // If the collider isn't moving it isn't affected by the collision
     if (mVelocity[0] == 0 && mVelocity[1] == 0)
         return;
-    
+
     // Magnitude of velocity in the positive MTV direction
     double mtvVelocity = vectorProduct(mVelocity, mtv);
     mtvVelocity = (mtvVelocity + fabs(mtvVelocity)) / 2;
-    
+
    // Magnitude of velocity in the negative MTV direction from collider
     double colliderMtvVelocity = vectorProduct(collider->mVelocity, mtv);
     colliderMtvVelocity = (-colliderMtvVelocity + fabs(colliderMtvVelocity)) / 2;
