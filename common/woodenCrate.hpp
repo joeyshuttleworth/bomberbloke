@@ -24,7 +24,7 @@ public:
       /* TODO drop powerups and draw particle effect */
       remove();
 
-      _pScene->addActor(std::make_shared<SpeedPickup>(mDimmension[0], mDimmension[1]));
+      _pScene->addActor(std::make_shared<SpeedPickup>(mPosition[0], mPosition[1]));
 
     }
   }
