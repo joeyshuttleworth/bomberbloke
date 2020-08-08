@@ -34,8 +34,7 @@ protected:
     mCollides = collides;
     mPosition[0]=x;
     mPosition[1]=y;
-    std::shared_ptr<PlaceHolderSprite> sprite(new  PlaceHolderSprite(mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]));
-    mpSpriteHandler = std::dynamic_pointer_cast<AbstractSpriteHandler>(sprite);
+    mpSpriteHandler = std::make_shared<PlaceHolderSprite>(mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]);
     return;
   };
 

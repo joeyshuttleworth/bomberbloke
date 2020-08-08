@@ -64,7 +64,8 @@ void bomb::update(){
 void bomb::explode(){
   if(_server){
     /*Iterate over all actors and kill the ones if they are in the right (wrong) zone.*/
-      for(auto i = _pScene->mActors.begin(); i != _pScene->mActors.end(); i++){
+    const std::list<std::shared_ptr<actor>> actor_list = _pScene->mActors;
+      for(auto i = actor_list.begin(); i != actor_list.end(); i++){
         /* Do not kill this bomb*/
         if(i->get() == this)
           continue;
