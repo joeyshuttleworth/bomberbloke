@@ -73,19 +73,20 @@ void bomb::explode(){
         int actor_square[] = {int((*i)->mPosition[0] + (*i)->mDimmension[0]/2), int((*i)->mPosition[1] + (*i)->mDimmension[1]/2)};
        /* Check we are in the blast zone - if so set dead to true */
         for(int j = 0; j < 2; j++){
-          if(bomb_square[j] == actor_square[j] && std::abs(bomb_square[!j] - actor_square[!j]) <= mPower)
+          if(bomb_square[j] == actor_square[j] && std::abs(bomb_square[!j] - actor_square[!j]) <= mPower){
             (*i)->handle_command("+kill");
             break;
           }
+        }
       }
     /*Cast to a bloke pointer.*/
     std::shared_ptr<bloke> placed_by = std::dynamic_pointer_cast<bloke>(_pScene->GetActor(mPlacedById));
     if(placed_by)
       placed_by->mBombs--;
     _pScene->mParticleList.push_back(std::shared_ptr<Explosion>(new Explosion(mPosition[0] - 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), mPosition[1] - 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), 1 ,1)));
-    mRemove = true;
     /*  Rumble effect */
     _pCamera->rumble();
+    remove();
   }
 
   /* Play explosion sound effect */

@@ -220,7 +220,7 @@ void NetClient::pollServer(){
        if(!a)
          log_message(ERROR, "Couldn't find requested actor to remove");
        else
-         a->toRemove();
+         a->remove();
      }
      default:
        break;
