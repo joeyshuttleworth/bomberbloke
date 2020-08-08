@@ -27,7 +27,10 @@ std::shared_ptr<actor> scene :: GetActor(int id){
   /*search over actors*/
   auto iterator = std::find_if(mActors.begin(), mActors.end(), [&](std::shared_ptr<actor> a) -> bool {return a->getId() == id;});
   // return the first one (should be unique anyway)
-  return *iterator;
+  if(iterator!=mActors.end())
+    return *iterator;
+  else
+    return nullptr;
 }
 
 void scene::cleanUp(){
