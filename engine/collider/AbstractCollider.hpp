@@ -59,7 +59,7 @@ public:
      * Does not make any changes to physical states.
      */
     virtual void registerCollision(
-        std::shared_ptr<AbstractCollider> collider, 
+        std::shared_ptr<AbstractCollider> collider,
         dvector mtv
     ) = 0;
 

@@ -21,6 +21,14 @@ public:
     return;
   };
 
+  void reset(std::shared_ptr<AbstractPlayerProperties> p_properties){
+    std::shared_ptr<GamePlayerProperties> gp_properties = std::dynamic_pointer_cast<GamePlayerProperties>(p_properties);
+    if(gp_properties)
+      *this = GamePlayerProperties(*gp_properties);
+    else
+      *this = GamePlayerProperties();
+  }
+
   template<class Archive>
   void serialize(Archive &archive){
     archive(mSpeed, mMaxBombs, mBombKick, mSatellite, mBigBomb);
@@ -30,6 +38,7 @@ public:
     std::vector<std::string> rc = {std::string("TODO: player properties\n")};
     return rc;
   }
+
   int  mSpeed;
   int  mMaxBombs;
   int  mPower;
