@@ -7,7 +7,7 @@
 #include <memory>
 
 #include "AbstractSpriteHandler.hpp"
-
+#include "AbstractCollider.hpp"
 
 extern double _zoom;
 
@@ -106,6 +106,14 @@ public:
   virtual bool isFinished(){
     return false;
   }
+
+  /**
+   * @param  A shared pointer to some collider type
+   *
+   * @return A std vector of pointers to all the actors in the level which are colliding with the given collider
+   *
+   */
+  std::list<std::shared_ptr<actor>> ActorsCollidingWith(std::shared_ptr<AbstractCollider> p_collider);
 
   /*We only need to send mDimmension and the mActorList*/
   template <class Archive>
