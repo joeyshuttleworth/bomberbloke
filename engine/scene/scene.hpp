@@ -113,7 +113,7 @@ public:
    * @return A std vector of pointers to all the actors in the level which are colliding with the given collider
    *
    */
-  std::list<std::shared_ptr<actor>> ActorsCollidingWith(std::shared_ptr<AbstractCollider> p_collider);
+  std::list<std::shared_ptr<actor>> ActorsCollidingWith(AbstractCollider* p_collider);
 
   /*We only need to send mDimmension and the mActorList*/
   template <class Archive>
