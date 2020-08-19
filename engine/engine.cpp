@@ -91,7 +91,7 @@ void create_window(){
     _window = SDL_CreateWindow(window_name.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
             _window_size[0], _window_size[1], SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
     if(_pCamera)
-        _pCamera->SetZoom();
+        _pCamera->onResize();
     // _zoom = (double)(_window_size[0]) / (_pScene->mDimmension[0]);
     if(_renderer){
         SDL_DestroyRenderer(_renderer);
@@ -123,7 +123,6 @@ void resize_window(int x, int y){
     if(!_pCamera)
         return;
 
-    _pCamera->SetZoom();
     _window_size[0] = x;
     _window_size[1] = y;
 
@@ -131,7 +130,8 @@ void resize_window(int x, int y){
         SDL_DestroyWindow(_window);
         create_window();
     }
-
+    
+    _pCamera->onResize();
     refresh_sprites();
     return;
 }

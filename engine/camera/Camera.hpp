@@ -17,7 +17,7 @@ public:
 
   Camera(std::shared_ptr<scene> lvl){
     mpScene = lvl;
-    SetZoom();
+    onResize();
 
     mScreenRectangle.x=0;
     mScreenRectangle.y=0;
@@ -47,27 +47,14 @@ public:
     return mZoom;
   }
 
-  void SetZoom(){
-    if(!_window){
-      mWidth = DEFAULT_WINDOW_HEIGHT;
-      mHeight = DEFAULT_WINDOW_WIDTH;
-    }
-    else
-      SDL_GetWindowSize(_window, &mWidth, &mHeight);
-    if(mpFrameBuffer)
-      SDL_DestroyTexture(mpFrameBuffer);
-    mpFrameBuffer = (SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, mWidth, mHeight));
-    double min = mWidth;
-    if(mHeight>min)
-      min = mHeight;
-    mZoom = ((double)min / mpScene->mDimmension[0]);
-    log_message(DEBUG, "Zoom scene is " + std::to_string(mZoom));
-    return;
-  }
-
   std::shared_ptr<scene> GetScene(){
     return mpScene;
   }
+  
+  /**
+   * Called by the engine when the window is resized.
+   */
+  void onResize();
 
   void draw();
 

@@ -7,6 +7,31 @@ void Camera::rumble(double amplitude, double timeout){
     return;
 }
 
+void Camera::onResize() {
+    // Get window size
+    if (_window){
+        SDL_GetWindowSize(_window, &mWidth, &mHeight);
+    } else {
+        mWidth = DEFAULT_WINDOW_HEIGHT;
+        mHeight = DEFAULT_WINDOW_WIDTH;
+    }
+    
+    // Clear frame buffer
+    if (mpFrameBuffer)
+        SDL_DestroyTexture(mpFrameBuffer);
+    mpFrameBuffer = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888,
+        SDL_TEXTUREACCESS_TARGET, mWidth, mHeight);
+
+    // TODO: Move this somewhere else
+    // Set zoom value
+    double min = mWidth;
+    if (mHeight > min)
+        min = mHeight;
+    mZoom = ((double)min / mpScene->mDimmension[0]);
+    log_message(DEBUG, "Zoom scene is " + std::to_string(mZoom));
+    return;
+}
+
 void Camera::draw() {
     update();
     mScreenRectangle.x = mRumbleOffset[0];
