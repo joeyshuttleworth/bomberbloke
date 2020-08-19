@@ -123,6 +123,12 @@ public:
   void serialize(Archive &archive){
     archive(mDimmension, mActors);
   }
+  
+  /**
+   * Called by the engine whenever any input is detected.
+   * Used primarily to update interactive HUD elements.
+   */
+  void onInput(SDL_Event *event);
 };
 
 #endif

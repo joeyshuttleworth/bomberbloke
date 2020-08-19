@@ -177,6 +177,8 @@ void handle_input() {
     //  bool key_up = true;
     Uint8 *kb_state = NULL;
     while (SDL_PollEvent(&event)) {
+        _pScene->onInput(&event);
+        
         switch (event.type) {
             case SDL_QUIT: {
                 _halt = true;
