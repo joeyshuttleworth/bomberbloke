@@ -16,6 +16,9 @@ void Camera::onResize() {
         mHeight = DEFAULT_WINDOW_WIDTH;
     }
     
+    // Update HUD positions
+    mpScene->updateHudPositions(this);
+    
     // Clear frame buffer
     if (mpFrameBuffer)
         SDL_DestroyTexture(mpFrameBuffer);
