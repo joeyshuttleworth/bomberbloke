@@ -178,26 +178,28 @@ void handle_input() {
     Uint8 *kb_state = NULL;
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
-        case SDL_QUIT:
-          _halt = true;
-          break;
-        case SDL_KEYDOWN:{
-            if(!_bind_next_key)
+            case SDL_QUIT: {
+                _halt = true;
                 break;
-            /*We only look at keyboard events here in order to bind keys*/
-            CommandBinding new_binding;
-            new_binding.scancode = event.key.keysym.scancode;
-            new_binding.command  = _next_bind_command;
-            _local_player_list.back().mControlScheme.push_back(new_binding);
-            _bind_next_key = false;
-            log_message(INFO, "Successfully bound " + new_binding.command + " to " + std::to_string(new_binding.scancode));
-            break;
-        }
-        case SDL_WINDOWEVENT:
-            if(event.window.event == SDL_WINDOWEVENT_RESIZED){
-                _window_size[0] = event.window.data1;
-                _window_size[1] = event.window.data2;
-                _pCamera->SetZoom();
+            }
+            case SDL_KEYDOWN: {
+                if(!_bind_next_key)
+                    break;
+                /*We only look at keyboard events here in order to bind keys*/
+                CommandBinding new_binding;
+                new_binding.scancode = event.key.keysym.scancode;
+                new_binding.command  = _next_bind_command;
+                _local_player_list.back().mControlScheme.push_back(new_binding);
+                _bind_next_key = false;
+                log_message(INFO, "Successfully bound " + new_binding.command + " to " + std::to_string(new_binding.scancode));
+                break;
+            }
+            case SDL_WINDOWEVENT: {
+                if(event.window.event == SDL_WINDOWEVENT_RESIZED){
+                    _window_size[0] = event.window.data1;
+                    _window_size[1] = event.window.data2;
+                    _pCamera->onResize();
+                }
             }
         }
     }
