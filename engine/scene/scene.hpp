@@ -11,7 +11,7 @@
 
 extern double _zoom;
 
-class actor; class Camera;
+class actor; class Camera; class AbstractHudElement;
 
 /* Actor which stores information about the scene including the actors present and methods for updating and drawing the scene */
 class scene{
@@ -30,7 +30,7 @@ public:
   void addActorWithId(std::shared_ptr<actor> a);
 
   void addActor(std::shared_ptr<actor> a);
-/* dim_x and dim_y are the size of our scene in the x and y axis respectively */
+  /* dim_x and dim_y are the size of our scene in the x and y axis respectively */
   double mDimmension[2];
 
   /*
@@ -40,6 +40,17 @@ public:
    *
    */
   std::list<std::shared_ptr<actor>> mActors;
+  
+  /**
+   * HUD elements drawn on top of the scene
+   */
+  std::list<std::shared_ptr<AbstractHudElement>> mHudElements;
+  
+  /**
+   * Computes positions of HUD elements based on camera parameters.
+   * Must be called when the window is created or resized.
+   */
+  void updateHudPositions(Camera *camera);
 
   /*Draw our scene on the window. Then draw every actor in mActors*/
   void draw(Camera *cam);

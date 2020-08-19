@@ -38,6 +38,10 @@ public:
   SDL_Texture *getFrameBuffer(){
     return mpFrameBuffer;
   }
+  
+  std::array<int, 2> getScreenDimensions() {
+      return {{ mWidth, mHeight }};
+  }
 
   double GetZoom(){
     return mZoom;
