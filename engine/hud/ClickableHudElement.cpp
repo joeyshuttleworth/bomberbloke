@@ -1,7 +1,7 @@
 #include "ClickableHudElement.hpp"
 
 ClickableHudElement::ClickableHudElement(int xPos, int yPos, int xDim, int yDim,
-        void (*onClickFn)(), int xAlignFlag, int yAlignFlag)
+        void (*onClickFn)(), AlignFlag xAlignFlag, AlignFlag yAlignFlag)
         : AbstractHudElement(xPos, yPos, xDim, yDim, xAlignFlag, yAlignFlag) {
     // Base class constructor must be called
     mOnClickFn = onClickFn;

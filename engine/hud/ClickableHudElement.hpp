@@ -12,7 +12,7 @@ public:
      * left-clicked by the mouse.
      */
     ClickableHudElement(int xPos, int yPos, int xDim, int yDim,
-        void (*onClickFn)()=nullptr, int xAlignFlag=-1, int yAlignFlag=-1);
+        void (*onClickFn)()=nullptr, AlignFlag xAlignFlag=ALIGN_LEFT, AlignFlag yAlignFlag=ALIGN_BOTTOM);
         
     void onInput(SDL_Event *event);
     

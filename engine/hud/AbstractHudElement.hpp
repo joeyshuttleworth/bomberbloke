@@ -9,30 +9,41 @@ class Camera;
 extern SDL_Renderer *_renderer;
 SDL_Texture* get_sprite(std::string);
 
+enum AlignFlag {
+    ALIGN_LEFT,
+    ALIGN_CENTER,
+    ALIGN_RIGHT,
+    ALIGN_BOTTOM,
+    ALIGN_TOP
+};
+
 class AbstractHudElement {
 public:
     /**
      * If set to false, onInput will not be called by scene.
      */
     bool mIsInteractive = false;
-    
-    /**
-     * Base class constructor - this should be called by all children classes
-     * xPos and yPos given the position of the hud element in pixels - in what
-     * sense exactly depends on the align flags.
-     * xDim and yDim give the dimensions of the bounding box of the element in
-     * pixels.
-     * xAlignFlag and yAlignFlag determine the alignment of the bounding box.
-     * If xAlignFlag is set to -1 the bounding box will be positioned with
-     * its left side xPos pixels away from the left side of the window. If
-     * its set to 1 it will be positioned with its right side xPos pixels away
-     * from the right side of the window. Setting it to 0 will centre align the
-     * box in the x-axis (regardless of the position values). yAlignFlag works
-     * similarly with -1 corresponding to alignment relative to the top of the
-     * window and 1 corresponding to the bottom.
-     */
+
+     /**
+      * @brief Base class constructor for HUD
+      *
+      * If xAlignFlag is set to ALIGN_LEFT the bounding box will be positioned with
+      * its left side xPos pixels away from the left side of the window. If
+      * its set to ALIGN_RIGHT it will be positioned with its right side xPos pixels away
+      * from the right side of the window. Setting it to ALIGN_CENTER will centre align the
+      * box in the x-axis (regardless of the position values). yAlignFlag works
+      * similarly with ALIGN_TOP corresponding to alignment relative to the top of the
+      * window and ALIGN_BOTTOM corresponding to the bottom.
+      *
+      * @param xPos - the position of the hud element in pixels
+      * @param yPos - the position of the hud element in pixels
+      * @param xDim - give the dimensions of the bounding box of the element in px
+      * @param yDim - give the dimensions of the bounding box of the element in px
+      * @param xAlignFlag - AlignFlag determine the alignment of the bounding box.
+      * @param yAlignFlag  - determine the alignment of the bounding box.
+      */
     AbstractHudElement(int xPos, int yPos, int xDim, int yDim,
-            int xAlignFlag=-1, int yAlignFlag = -1) {
+                       AlignFlag xAlignFlag=ALIGN_LEFT, AlignFlag yAlignFlag = ALIGN_BOTTOM) {
         // Actual position is set in updatePosition
         mRelativePosition[0] = xPos;
         mRelativePosition[1] = yPos;
@@ -71,11 +82,11 @@ public:
         std::array<int, 2> screenDimensions = camera->getScreenDimensions();
         
         switch(mAlignFlags[0]) {
-            case 0:
+            case ALIGN_CENTER:
                 // Centred positioning
                 mPosition[0] = (screenDimensions[0] - mDimensions[0]) / 2;
                 break;
-            case 1:
+            case ALIGN_RIGHT:
                 // Right-aligned positioning
                 mPosition[0] = screenDimensions[0] - mDimensions[0] - mRelativePosition[0];
                 break;
@@ -85,11 +96,11 @@ public:
         }
         
         switch(mAlignFlags[1]) {
-            case 0:
+            case ALIGN_CENTER:
                 // Centred positioning
                 mPosition[1] = (screenDimensions[1] - mDimensions[1]) / 2;
                 break;
-            case 1:
+            case ALIGN_RIGHT:
                 // Right-aligned positioning
                 mPosition[1] = screenDimensions[1] - mDimensions[1] - mRelativePosition[1];
                 break;

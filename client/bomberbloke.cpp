@@ -53,11 +53,11 @@ int main (){
   soundManager.playSound(pIntroSound);
   
   // HUD elements for testing
-  std::shared_ptr<AbstractHudElement> hudElement1(new ClickableHudElement(5, 5, 100, 50, hudTestFn1, 0, -1));
+  std::shared_ptr<AbstractHudElement> hudElement1(new ClickableHudElement(5, 5, 100, 50, hudTestFn1, ALIGN_CENTER, ALIGN_BOTTOM));
   _pScene->mHudElements.push_back(hudElement1);
-  std::shared_ptr<AbstractHudElement> hudElement2(new ClickableHudElement(5, 5, 100, 50, hudTestFn2, -1, -1));
+  std::shared_ptr<AbstractHudElement> hudElement2(new ClickableHudElement(5, 5, 100, 50, hudTestFn2, ALIGN_LEFT, ALIGN_BOTTOM));
   _pScene->mHudElements.push_back(hudElement2);
-  std::shared_ptr<AbstractHudElement> hudElement3(new ClickableHudElement(5, 5, 100, 50, hudTestFn3, 1, -1));
+  std::shared_ptr<AbstractHudElement> hudElement3(new ClickableHudElement(5, 5, 100, 50, hudTestFn3, ALIGN_RIGHT, ALIGN_BOTTOM));
   _pScene->mHudElements.push_back(hudElement3);
 
   // TODO: get rid of this bodge that allows for the test HUD elements to draw 
