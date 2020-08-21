@@ -28,6 +28,13 @@ int main (){
 }
 
 void new_game(std::string){
+  /* First set reset everyone's powerups */
+
+  for(auto i = _player_list.begin(); i != _player_list.end(); i++){
+    if(!(*i)->mpPlayerProperties)
+      (*i)->mpPlayerProperties = std::make_shared<GamePlayerProperties>();
+    (*i)->ResetPlayerProperties();
+  }
 
   std::random_device rd;
   std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
