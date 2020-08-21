@@ -12,7 +12,13 @@ public:
             std::cout << "TTF_Init: " << TTF_GetError() << std::endl;
         }
     }
-    
+
+    ~TextManager() {
+        if (TTF_WasInit()) {
+            TTF_Quit();
+        }
+    }
+
     void loadFontFromPath(std::string path, int ptSize, std::string id) {
         TTF_Font font = TTF_OpenFont(path.c_str(), ptSize);
         
