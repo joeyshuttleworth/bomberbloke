@@ -13,3 +13,4 @@ engine/collider/KinematicCollider.cpp
 engine/animation/PlaceHolderSprite.cpp
 engine/camera/Camera.cpp
 engine/sound/SoundManager.cpp
+engine/hud/ClickableHudElement.cpp
