@@ -597,7 +597,7 @@ static void load_assets(){
                     soundManager.loadFromPath("assets" + PATHSEPARATOR +  whole_filename, file_name);
                 } else if (file_extension == ".ttf") {
                     // Found font file
-                    textManager.loadFromPath("assets" + PATHSEPARATOR +  whole_filename, file_name);
+                    textManager.loadFontFromPath("assets" + PATHSEPARATOR +  whole_filename, file_name);
                 }
             }
         }
