@@ -6,7 +6,7 @@ void Text::draw(Camera *camera) {
     // If properties have been updated re-render text.
     if (mPropertiesUpdated) {
         // Render text to texture
-        SDL_Surface *mTextSurface = TTF_RenderText_Solid(mFont, mTextString.c_str(), colour);
+        SDL_Surface *mTextSurface = TTF_RenderText_Solid(mFont, mTextString.c_str(), mColour);
         mTextTexture = SDL_CreateTextureFromSurface(_renderer, mTextSurface);
         
         // Offset text by changing start coordinates of source rectangle.
