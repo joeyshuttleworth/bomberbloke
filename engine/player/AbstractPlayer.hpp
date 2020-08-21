@@ -50,7 +50,7 @@ public:
 
   virtual int getPing(){return 0;}
 
-  void resetPlayerProperties(std::shared_ptr<AbstractPlayerProperties> p_properties = nullptr);
+  void ResetPlayerProperties(std::shared_ptr<AbstractPlayerProperties> p_properties = nullptr);
 
   std::shared_ptr<AbstractPlayerProperties> mpPlayerProperties;
 protected:
