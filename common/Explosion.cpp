@@ -41,5 +41,7 @@ void Explosion::draw(Camera *cam){
   dstrect.w = round(zoom * mDimmension[0]);
   dstrect.h = round(zoom * mDimmension[1]);
   SDL_RenderFillRect(_renderer, &dstrect);
+  
+  mBombText->draw(cam);
   return;
 }
