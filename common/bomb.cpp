@@ -15,7 +15,7 @@ void bomb::init(bloke *bloke){
   mTimer = _default_bomb_timer;
   if(bloke){
     mPlacedById = bloke->mId;
-    mPower = bloke->GetProperties().mPower;
+    mPower = bloke->GetProperties()->mPower;
   }
   else{
     log_message(ERROR, "Bomb placed by malformed actor");
@@ -62,9 +62,11 @@ void bomb::update(){
 }
 
 void bomb::explode(){
+  remove();
   if(_server){
     /*Iterate over all actors and kill the ones if they are in the right (wrong) zone.*/
-      for(auto i = _pScene->mActors.begin(); i != _pScene->mActors.end(); i++){
+    const std::list<std::shared_ptr<actor>> actor_list = _pScene->mActors;
+      for(auto i = actor_list.begin(); i != actor_list.end(); i++){
         /* Do not kill this bomb*/
         if(i->get() == this)
           continue;
@@ -86,7 +88,6 @@ void bomb::explode(){
     _pScene->mParticleList.push_back(std::shared_ptr<Explosion>(new Explosion(mPosition[0] - 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), mPosition[1] - 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), 1 ,1)));
     /*  Rumble effect */
     _pCamera->rumble();
-    remove();
   }
 
   /* Play explosion sound effect */

@@ -50,16 +50,18 @@ public:
      * By standard, vectors are given that point away from the collider for
      * which the method is called.
      */
-    std::array<double, 2> testNormalAxes(
-        std::shared_ptr<AbstractCollider> collider
-    );
+    std::array<double, 2> testNormalAxes(std::shared_ptr<AbstractCollider> collider){
+        return testNormalAxes(collider.get());
+    }
+
+    std::array<double, 2> testNormalAxes(AbstractCollider* collider);
 
     /**
      * Registers a collision between itself and some other collider.
      * Does not make any changes to physical states.
      */
     virtual void registerCollision(
-        std::shared_ptr<AbstractCollider> collider, 
+        std::shared_ptr<AbstractCollider> collider,
         dvector mtv
     ) = 0;
 

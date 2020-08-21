@@ -27,3 +27,14 @@ void AbstractPlayer::setId(int id){
     }
   }
 }
+
+
+void AbstractPlayer::ResetPlayerProperties(std::shared_ptr<AbstractPlayerProperties> p_properties){
+   if(mpPlayerProperties){
+     /*  TODO: send EVENT_PROPERTIES message to the relevant player */
+     mpPlayerProperties->reset(p_properties);
+   }
+   else
+     log_message(ERROR, "Tried to reset mpPlayerProperties when it didn't exist");
+ }
+

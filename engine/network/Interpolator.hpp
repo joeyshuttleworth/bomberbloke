@@ -84,7 +84,6 @@ public:
     }
 
     if(state1 && !state2){
-      log_message(DEBUG, "No future state to interpolate, returning last known position");
       dvector rc = mBuffer.back().statePosition;
       // mBuffer.clear();
       return rc;

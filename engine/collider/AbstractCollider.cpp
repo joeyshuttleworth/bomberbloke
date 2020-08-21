@@ -56,7 +56,7 @@ std::array<double, 2> AbstractCollider::projectOntoAxis(dvector axis) {
     return retVal;
 }
 
-std::array<double, 2> AbstractCollider::testNormalAxes(std::shared_ptr<AbstractCollider> collider) {
+std::array<double, 2> AbstractCollider::testNormalAxes(AbstractCollider* collider) {
     double minTransMagnitude = -1;
     std::array<double, 2> minTransDirection= {{0., 0.}};
 

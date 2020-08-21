@@ -168,7 +168,7 @@ void init_engine() {
     _console_log_file.open("/tmp/bloke.log");
 
     load_assets();
-    
+
     return;
 }
 
