@@ -15,6 +15,7 @@
 #include <enet/enet.h>
 #include <cereal/types/base_class.hpp>
 #include <cereal/archives/json.hpp>
+#include "AbstractPlayerProperties.hpp"
 
 class actor;
 
@@ -49,6 +50,9 @@ public:
 
   virtual int getPing(){return 0;}
 
+  void ResetPlayerProperties(std::shared_ptr<AbstractPlayerProperties> p_properties = nullptr);
+
+  std::shared_ptr<AbstractPlayerProperties> mpPlayerProperties;
 protected:
   std::shared_ptr<actor> mpCharacter;
   virtual void ping(){}

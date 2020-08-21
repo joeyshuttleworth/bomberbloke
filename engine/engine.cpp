@@ -92,7 +92,7 @@ void create_window(){
     _window = SDL_CreateWindow(window_name.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
             _window_size[0], _window_size[1], SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
     if(_pCamera)
-        _pCamera->SetZoom();
+        _pCamera->onResize();
     // _zoom = (double)(_window_size[0]) / (_pScene->mDimmension[0]);
     if(_renderer){
         SDL_DestroyRenderer(_renderer);
@@ -124,7 +124,6 @@ void resize_window(int x, int y){
     if(!_pCamera)
         return;
 
-    _pCamera->SetZoom();
     _window_size[0] = x;
     _window_size[1] = y;
 
@@ -132,7 +131,8 @@ void resize_window(int x, int y){
         SDL_DestroyWindow(_window);
         create_window();
     }
-
+    
+    _pCamera->onResize();
     refresh_sprites();
     return;
 }
@@ -169,7 +169,7 @@ void init_engine() {
     _console_log_file.open("/tmp/bloke.log");
 
     load_assets();
-    
+
     return;
 }
 
@@ -178,27 +178,31 @@ void handle_input() {
     //  bool key_up = true;
     Uint8 *kb_state = NULL;
     while (SDL_PollEvent(&event)) {
+        _pScene->onInput(&event);
+        
         switch (event.type) {
-        case SDL_QUIT:
-          _halt = true;
-          break;
-        case SDL_KEYDOWN:{
-            if(!_bind_next_key)
+            case SDL_QUIT: {
+                _halt = true;
                 break;
-            /*We only look at keyboard events here in order to bind keys*/
-            CommandBinding new_binding;
-            new_binding.scancode = event.key.keysym.scancode;
-            new_binding.command  = _next_bind_command;
-            _local_player_list.back().mControlScheme.push_back(new_binding);
-            _bind_next_key = false;
-            log_message(INFO, "Successfully bound " + new_binding.command + " to " + std::to_string(new_binding.scancode));
-            break;
-        }
-        case SDL_WINDOWEVENT:
-            if(event.window.event == SDL_WINDOWEVENT_RESIZED){
-                _window_size[0] = event.window.data1;
-                _window_size[1] = event.window.data2;
-                _pCamera->SetZoom();
+            }
+            case SDL_KEYDOWN: {
+                if(!_bind_next_key)
+                    break;
+                /*We only look at keyboard events here in order to bind keys*/
+                CommandBinding new_binding;
+                new_binding.scancode = event.key.keysym.scancode;
+                new_binding.command  = _next_bind_command;
+                _local_player_list.back().mControlScheme.push_back(new_binding);
+                _bind_next_key = false;
+                log_message(INFO, "Successfully bound " + new_binding.command + " to " + std::to_string(new_binding.scancode));
+                break;
+            }
+            case SDL_WINDOWEVENT: {
+                if(event.window.event == SDL_WINDOWEVENT_RESIZED){
+                    _window_size[0] = event.window.data1;
+                    _window_size[1] = event.window.data2;
+                    _pCamera->onResize();
+                }
             }
         }
     }
