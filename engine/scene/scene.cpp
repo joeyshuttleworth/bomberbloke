@@ -1,6 +1,7 @@
 #include "engine.hpp"
 #include "Camera.hpp"
 #include "CreateEvent.hpp"
+#include "AbstractHudElement.hpp"
 
 extern std::list<std::shared_ptr<AbstractSpriteHandler>> _particle_list;
 
@@ -148,6 +149,12 @@ void scene::physicsUpdate() {
     }
 }
 
+void scene::updateHudPositions(Camera *camera) {
+    for(auto i = mHudElements.begin(); i != mHudElements.end(); i++){
+        (*i)->updatePosition(camera);
+    }
+}
+
 void scene :: draw(Camera *cam){
   // mpSpriteHandler->draw();
   int zoom = cam->GetZoom();
@@ -179,6 +186,12 @@ void scene :: draw(Camera *cam){
   for(auto i = mParticleList.begin(); i!= mParticleList.end(); i++){
     (*i)->draw(cam);
   }
+  
+  // Draw HUD elements
+  for(auto i = mHudElements.begin(); i!= mHudElements.end(); i++){
+    (*i)->draw(cam);
+  }
+  
   return;
 }
 
@@ -204,4 +217,13 @@ void scene::updateSprites(){
   for(auto i = mActors.begin(); i != mActors.end(); i++){
     (*i)->updateSprite();
   }
+}
+
+void scene::onInput(SDL_Event *event) {
+    // Let interactive HUD elements handle the detected input
+    for (auto i = mHudElements.begin(); i != mHudElements.end(); i++) {
+        if ((*i)->mIsInteractive) {
+            (*i)->onInput(event);
+        }
+    }
 }

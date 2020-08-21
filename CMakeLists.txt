@@ -42,6 +42,7 @@ include_directories(${PROJECT_SOURCE_DIR}/tests)
 include_directories(${PROJECT_SOURCE_DIR}/engine/animation)
 include_directories(${PROJECT_SOURCE_DIR}/engine/camera)
 include_directories(${PROJECT_SOURCE_DIR}/engine/sound)
+include_directories(${PROJECT_SOURCE_DIR}/engine/hud)
 
 file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/sources.cmake SHARED_SOURCES)
 
