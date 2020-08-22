@@ -23,17 +23,6 @@ void AbstractHudElement::draw(Camera* camera) {
         updatePosition(camera);
         mPropertiesUpdated = false;
     }
-    
-    // TODO: remove this placeholder code
-    SDL_Rect dstRect;
-    dstRect.x = mPosition[0];
-    dstRect.y = mPosition[1];
-    dstRect.w = mDimensions[0];
-    dstRect.h = mDimensions[1];
-    
-    // Draw a blue box on dstRect
-    SDL_SetRenderDrawColor(_renderer, 0xa0, 0xa0, 0xa0, 0xff);
-    SDL_RenderFillRect(_renderer, &dstRect);
 }
 
 void AbstractHudElement::updatePosition(Camera* camera) {

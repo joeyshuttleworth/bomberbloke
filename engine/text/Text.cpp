@@ -42,7 +42,7 @@ void Text::updateTexture(Camera *camera) {
     }
     
     // Displacement in the y-direction
-    switch (mAlignment[0]) {
+    switch (mAlignment[1]) {
         case TEXT_ALIGN_BOTTOM:
             yDisplacement = mDimensions[1] - mTextSurface->h * mTextScale[1]
                 + mOffset[1];
