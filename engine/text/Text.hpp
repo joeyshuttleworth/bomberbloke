@@ -9,11 +9,11 @@ extern SDL_Renderer *_renderer;
 
 // Enum for text alignment (see setTextAlignment).
 enum TextAlignFlag {
-    ALIGN_LEFT,
-    ALIGN_CENTER,
-    ALIGN_RIGHT,
-    ALIGN_BOTTOM,
-    ALIGN_TOP
+    TEXT_ALIGN_LEFT,
+    TEXT_ALIGN_CENTER,
+    TEXT_ALIGN_RIGHT,
+    TEXT_ALIGN_BOTTOM,
+    TEXT_ALIGN_TOP
 };
 
 /**
@@ -56,8 +56,22 @@ public:
      * @param yPos  Y-coordinate of the screen position (pixels).
      */
     void setPosition(int xPos, int yPos) {
-        mTextBox.x = xPos;
-        mTextBox.y = yPos;
+        mPosition[0] = xPos;
+        mPosition[1] = yPos;
+        mPropertiesUpdated = true;
+    }
+    
+    /**
+     * Sets the dimensions of the text box.
+     *
+     * Sets the size (in pixels) of the text box.
+     *
+     * @param xDim    Number of pixels wide.
+     * @param yDim    Number of pixels high.
+     */
+    void setDimensions(int xDim, int yDim) {
+        mDimensions[0] = xDim;
+        mDimensions[1] = yDim;
         mPropertiesUpdated = true;
     }
     
@@ -77,16 +91,36 @@ public:
     }
     
     /**
+     * Sets the scale of the text.
+     *
+     * @param xScale    Scale parameter in the x-direction.
+     * @param yScale    Scale parameter in the y-direction. If left blank it is
+     *                  set to the same value as xScale.
+     */
+    void setTextScale(double xScale, double yScale=-1.) {
+        mTextScale[0] = xScale;
+        if (xScale >= 0) {
+            mTextScale[0] = xScale;
+            
+            if (yScale >= 0)
+                mTextScale[1] = yScale;
+            else
+                mTextScale[1] = mTextScale[0];
+        }
+        mPropertiesUpdated = true;
+    }
+    
+    /**
      * Sets the alignment of the text.
      *
      * Determines the horizontal and vertical alignment of the text.
      *
-     * @param xAlign    Horizontal alignment of the text. Accepts ALIGN_LEFT,
-     *                  ALIGN_RIGHT and ALIGN_CENTER (default).
-     * @param yAlign    Horizontal alignment of the text. Accepts ALIGN_TOP,
-     *                  ALIGN_BOTTOM and ALIGN_CENTER (default).
+     * @param xAlign    Horizontal alignment of the text. Accepts TEXT_ALIGN_LEFT,
+     *                  TEXT_ALIGN_RIGHT and TEXT_ALIGN_CENTER (default).
+     * @param yAlign    Horizontal alignment of the text. Accepts TEXT_ALIGN_TOP,
+     *                  TEXT_ALIGN_BOTTOM and TEXT_ALIGN_CENTER (default).
      */
-    void setTextAlignment(TextAlignFlag xAlign, TextAlignFlag yAlign=ALIGN_TOP) {
+    void setTextAlignment(TextAlignFlag xAlign, TextAlignFlag yAlign=TEXT_ALIGN_TOP) {
         mAlignment[0] = xAlign;
         mAlignment[1] = yAlign;
     }
@@ -109,22 +143,6 @@ public:
     }
     
     /**
-     * Sets the dimensions of the text box.
-     *
-     * Sets the size (in pixels) of the text box.
-     *
-     * @param xDim    Number of pixels wide.
-     * @param yDim    Number of pixels high.
-     */
-    void setDimensions(int xDim, int yDim) {
-        mSrcRect.w = xDim;
-        mSrcRect.h = yDim;
-        mTextBox.w = xDim;
-        mTextBox.h = yDim;
-        mPropertiesUpdated = true;
-    }
-    
-    /**
      * Draws the text to the renderer.
      *
      * @param camera    Current scene camera.
@@ -137,12 +155,14 @@ protected:
     
     // String that is rendered.
     std::string mTextString;
-    // Source rectangle.
-    SDL_Rect mSrcRect;
-    // Destination rectangle - corresponds to the text box in screen coordinates.
-    SDL_Rect mTextBox;
+    // Pixel-position of the top left corner of the bounding box.
+    int mPosition[2];
+    // Pixel-dimensions of the bounding box containing the element.
+    int mDimensions[2];
     // Offset values (see setOffset).
-    int mOffset[2];
+    int mOffset[2] = { 0, 0 };
+    //
+    double mTextScale[2] = { 1., 1. };
     // Colour of rendered text.
     SDL_Color mColour;
     // Text alignment flags in x and y direction (see setTextAlignment).
@@ -151,9 +171,20 @@ protected:
     // Texture containing rendered text. Updated only when mPropertiesUpdated
     // is set to True (see draw).
     SDL_Texture *mTextTexture;
+    // Source rectangle.
+    SDL_Rect mSrcRect;
+    // Destination rectangle - corresponds to the text box in screen coordinates.
+    SDL_Rect mDstRect;
     // Boolean value which is set to true whenever a property is changed that
     // may effect the render. Set back to false when draw is called.
     bool mPropertiesUpdated;
+    
+    /**
+     * Updates the texture used in the draw function.
+     *
+     * @param camera    Current scene camera.
+     */
+    void updateTexture(Camera *camera);
 };
 
 #endif
