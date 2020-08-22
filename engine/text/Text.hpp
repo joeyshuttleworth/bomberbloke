@@ -135,7 +135,7 @@ public:
      * @param blue  The blue component.
      * @param alpha The alpha component.
      */
-    void setTextColour(int red, int green, int blue, int alpha=255) {
+    void setTextColour(int red, int green, int blue, int alpha=0) {
         mColour.r = red % 256;
         mColour.g = green % 256;
         mColour.b = blue % 256;

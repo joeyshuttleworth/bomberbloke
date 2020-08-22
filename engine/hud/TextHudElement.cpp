@@ -12,4 +12,5 @@ void TextHudElement::updatePosition(Camera* camera) {
     
     // Update the text position using the new HUD position parameters
     mText->setDimensions(mDimensions[0], mDimensions[1]);
+    mText->setPosition(mPosition[0], mPosition[1]);
 }
