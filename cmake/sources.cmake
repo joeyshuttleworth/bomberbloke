@@ -16,3 +16,4 @@ engine/sound/SoundManager.cpp
 engine/text/TextManager.cpp
 engine/text/Text.cpp
 engine/hud/ClickableHudElement.cpp
+engine/hud/AbstractHudElement.cpp
