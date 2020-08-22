@@ -16,6 +16,12 @@ public:
         
     void onInput(SDL_Event *event);
     
+    /**
+     * Temporary overide for demo
+     * TODO: remove
+     */
+    void draw(Camera* camera) {
+    
     // TODO: support keyboard and joystick selection
 
 protected:

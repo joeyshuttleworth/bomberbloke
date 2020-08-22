@@ -89,10 +89,10 @@ public:
     }
 
     /**
-     * Draws a grey box corresponding to the bounding box.
+     * Draw function.
      *
-     * Called by scene on every frame. updatePosition must be called once at
-     * some point before it is drawn.
+     * Called by scene on every frame. Any children classes that overide
+     * this function must call it before drawing.
      * 
      * @param camera    Current Camera object.
      */
