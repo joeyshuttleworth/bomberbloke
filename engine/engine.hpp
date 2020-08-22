@@ -84,7 +84,7 @@ extern bool _controller_connected;
 extern SoundManager soundManager;
 
 #include "TextManager.hpp"
-extern SoundManager soundManager;
+extern TextManager textManager;
 
 
 typedef struct{
