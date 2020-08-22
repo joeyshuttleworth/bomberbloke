@@ -1,7 +1,6 @@
 #include "Text.hpp"
 
 #include <SDL2/SDL.h>
-#include <iostream>
 
 void Text::draw(Camera *camera) {
     // If properties have been updated re-render text.
@@ -55,12 +54,6 @@ void Text::updateTexture(Camera *camera) {
         default:
             yDisplacement = mOffset[1];
     }
-    
-    std::cout << xDisplacement << " " << yDisplacement << std::endl;
-    std::cout << mTextSurface->w << " " << mTextSurface->h << std::endl;
-    std::cout << mPosition[0] << " " << mPosition[1] << std::endl;
-    std::cout << mDimensions[0] << " " << mDimensions[1] << std::endl;
-    std::cout << mTextScale[0] << " " << mTextScale[1] << std::endl;
     
     // If displacement is negative, change the start position of the source
     // rectangle

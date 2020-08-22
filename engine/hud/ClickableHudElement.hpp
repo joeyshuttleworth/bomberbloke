@@ -20,7 +20,7 @@ public:
      * Temporary overide for demo
      * TODO: remove
      */
-    void draw(Camera* camera) {
+    void draw(Camera* camera);
     
     // TODO: support keyboard and joystick selection
 
