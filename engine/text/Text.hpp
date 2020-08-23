@@ -1,8 +1,9 @@
 #ifndef TEXT_HPP
 #define TEXT_HPP
 
-#include <SDL2/SDL_ttf.h>
 #include <string>
+#include <array>
+#include <SDL2/SDL_ttf.h>
 
 class Camera;
 extern SDL_Renderer *_renderer;
@@ -116,6 +117,7 @@ public:
             else
                 mTextScale[1] = mTextScale[0];
         }
+        
         mPropertiesUpdated = true;
     }
     
@@ -132,6 +134,8 @@ public:
     void setTextAlignment(TextAlignFlag xAlign, TextAlignFlag yAlign=TEXT_ALIGN_TOP) {
         mAlignment[0] = xAlign;
         mAlignment[1] = yAlign;
+        
+        mPropertiesUpdated = true;
     }
     
     /**
@@ -149,6 +153,8 @@ public:
         mColour.g = green % 256;
         mColour.b = blue % 256;
         mColour.a = alpha % 256;
+        
+        mPropertiesUpdated = true;
     }
     
     /**
