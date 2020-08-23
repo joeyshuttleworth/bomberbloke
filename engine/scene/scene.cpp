@@ -165,44 +165,49 @@ void scene::updateHudPositions(Camera *camera) {
     }
 }
 
-void scene :: draw(Camera *cam){
-  // mpSpriteHandler->draw();
-  int zoom = cam->GetZoom();
+void scene::draw(Camera *cam){
+  drawActors(cam);
+  drawParticles(cam);
+  drawHud(cam);
+}
 
-  SDL_SetRenderTarget(_renderer, cam->getFrameBuffer());
-
-  SDL_SetRenderDrawColor(_renderer, 0x00, 0x10, 0xff, 0xff);
-  SDL_RenderFillRect(_renderer, nullptr);
-
-  SDL_SetRenderDrawColor(_renderer, 0x10, 0x10, 0x10, 0xa0);
-
-  /* Draw a grid */
-  for(int i = 0; i<=10; i++){
-    SDL_RenderDrawLine(_renderer, i * zoom, 0, i * zoom, mDimmension[1]*zoom);
-    SDL_RenderDrawLine(_renderer, 0, i*zoom, mDimmension[0]*zoom, i*zoom);
-  }
-
+void scene::drawHud(Camera *cam){
   if(!cam){
     log_message(ERROR, "Attempted to draw with null camera object!");
     return;
   }
 
-  //Next draw each actor
-  for(auto i = mActors.begin(); i!=mActors.end(); i++){
+ // Draw HUD elements
+  SDL_SetRenderTarget(_renderer, cam->getFrameBuffer());
+  for(auto i = mHudElements.begin(); i!= mHudElements.end(); i++){
     (*i)->draw(cam);
   }
+}
 
+void scene::drawParticles(Camera *cam){
+  if(!cam){
+    log_message(ERROR, "Attempted to draw with null camera object!");
+    return;
+  }
+
+ SDL_SetRenderTarget(_renderer, cam->getFrameBuffer());
   /*  Draw all particles.*/
   for(auto i = mParticleList.begin(); i!= mParticleList.end(); i++){
     (*i)->draw(cam);
   }
-  
-  // Draw HUD elements
-  for(auto i = mHudElements.begin(); i!= mHudElements.end(); i++){
+}
+
+void scene::drawActors(Camera *cam){
+  if(!cam){
+    log_message(ERROR, "Attempted to draw with null camera object!");
+    return;
+  }
+
+ SDL_SetRenderTarget(_renderer, cam->getFrameBuffer());
+  //Next draw each actor
+  for(auto i = mActors.begin(); i!=mActors.end(); i++){
     (*i)->draw(cam);
   }
-  
-  return;
 }
 
 static void interpolateActors(std::list<std::shared_ptr<actor>> &actors){
@@ -220,6 +225,7 @@ void scene :: update(){
   cleanUp();
   physicsUpdate();
   updateSprites();
+  LogicUpdate();
   return;
 }
 

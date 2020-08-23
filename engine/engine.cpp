@@ -92,7 +92,6 @@ void create_window(){
             _window_size[0], _window_size[1], SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
     if(_pCamera)
         _pCamera->onResize();
-    // _zoom = (double)(_window_size[0]) / (_pScene->mDimmension[0]);
     if(_renderer){
         SDL_DestroyRenderer(_renderer);
     }
@@ -268,7 +267,9 @@ SDL_Joystick *handle_input_controller() {
     if (SDL_NumJoysticks() > 0) {
         std::cout << "Controlled connected\n ";
         return SDL_JoystickOpen(0); // return joystick identifier
-    } else { return NULL; } // no joystick found
+    }
+    else
+      return NULL;  // no joystick found
 }
 
 void draw_hud() {
@@ -337,8 +338,9 @@ bool handle_system_command(std::list<std::string> tokens) {
     std::string command = tokens.front();
 
     if(command == "new" && _server){
+        log_message(INFO, "starting new game");
+        new_game("");
         for(auto i = _player_list.begin(); i != _player_list.end(); i++){
-            new_game("");
             std::unique_ptr<AbstractEvent> s_event(new syncEvent());
             ENetPeer* to = (*i)->getPeer();
             if(to)

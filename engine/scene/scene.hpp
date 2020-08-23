@@ -6,6 +6,7 @@
 #include <cereal/types/list.hpp>
 #include <memory>
 
+#include "engine.hpp"
 #include "AbstractSpriteHandler.hpp"
 #include "AbstractCollider.hpp"
 
@@ -21,8 +22,9 @@ protected:
   std::string mName;
   std::string mDescription;
   std::shared_ptr<AbstractSpriteHandler> mpSpriteHandler;
-
+  int mState = PAUSED;
   int mLastActorId=0;
+
 public:
   /* Spawnpoints is a collection of coordinates where players can be spawned */
   std::vector<int*> mSpawnPoints;
@@ -53,7 +55,10 @@ public:
   void updateHudPositions(Camera *camera);
 
   /*Draw our scene on the window. Then draw every actor in mActors*/
-  void draw(Camera *cam);
+  virtual void draw(Camera *cam);
+  void drawActors(Camera *cam);
+  void drawHud(Camera *cam);
+  void drawParticles(Camera *cam);
   void refreshSprites();
 
   /*
@@ -95,6 +100,13 @@ public:
    */
   void movementUpdate();
   void physicsUpdate();
+
+  /**
+   *  A virtual function which can be overridden by child classes to implement
+   *  game specific logic.
+   */
+
+  virtual void LogicUpdate(){};
 
   /**
    * Uses the simple axis theorem to detect whether a collision has occurred between
