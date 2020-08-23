@@ -91,6 +91,15 @@ public:
     }
     
     /**
+     * Gets the offset of the text.
+     *
+     * @return  Array containing offset in x and y directions (pixels).
+     */
+    std::array<int, 2> getTextOffset() {
+        return { mOffset[0], mOffset[1] };
+    }
+    
+    /**
      * Sets the scale of the text.
      *
      * @param xScale    Scale parameter in the x-direction.
@@ -141,6 +150,16 @@ public:
         mColour.b = blue % 256;
         mColour.a = alpha % 256;
     }
+    
+    /**
+     * Gets the text colour.
+     *
+     * @return  Array containing rgba values.
+     */
+    std::array<int, 4> getTextColour() {
+        return { mColour.r, mColour.g, mColour.b, mColour.a };
+    }
+    
     
     /**
      * Draws the text to the renderer.
