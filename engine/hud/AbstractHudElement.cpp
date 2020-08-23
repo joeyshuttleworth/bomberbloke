@@ -47,7 +47,7 @@ void AbstractHudElement::updatePosition(Camera* camera) {
             // Centred positioning
             mPosition[1] = (screenDimensions[1] - mDimensions[1]) / 2;
             break;
-        case ALIGN_RIGHT:
+        case ALIGN_BOTTOM:
             // Right-aligned positioning
             mPosition[1] = screenDimensions[1] - mDimensions[1] - mRelativePosition[1];
             break;

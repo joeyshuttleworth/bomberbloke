@@ -3,6 +3,8 @@
 
 #include "engine.hpp"
 
+#include <array>
+
 class Camera;
 extern SDL_Renderer *_renderer;
 
@@ -83,7 +85,7 @@ public:
      * @param yAlign    Horizontal alignment of the box. Accepts ALIGN_TOP,
      *                  ALIGN_BOTTOM and ALIGN_CENTER (default).
      */
-    void setTextAlignment(AlignFlag xAlign, AlignFlag yAlign=ALIGN_TOP) {
+    void setAlignment(AlignFlag xAlign, AlignFlag yAlign=ALIGN_TOP) {
         mAlignFlags[0] = xAlign;
         mAlignFlags[1] = yAlign;
     }
