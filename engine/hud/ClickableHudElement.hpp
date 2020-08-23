@@ -3,7 +3,7 @@
 
 #include "AbstractHudElement.hpp"
 
-class ClickableHudElement: public AbstractHudElement {
+class ClickableHudElement: public virtual AbstractHudElement {
 public:
     /**
      * Constructor for an abstract clickable HUD element - calls the base

@@ -8,7 +8,7 @@
 
 class Camera;
 
-class TextHudElement: public AbstractHudElement {
+class TextHudElement: public virtual AbstractHudElement {
 public:
     /**
      * Constructor for TextHudElement.
