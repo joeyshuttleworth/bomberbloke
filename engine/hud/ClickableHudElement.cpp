@@ -22,6 +22,7 @@ void ClickableHudElement::onInput(SDL_Event *event) {
     // If its a mouse button up event, it cannot be clicked
     if (mIsClicked && event->type == SDL_MOUSEBUTTONUP) {
         mIsClicked = false;
+        mPropertiesUpdated = true;
         return;
     }
     
@@ -31,28 +32,16 @@ void ClickableHudElement::onInput(SDL_Event *event) {
         if (isCoordOnElement(event->button.x, event->button.y)) {
             mIsMouseOver = true;
             mIsClicked = true;
+            mPropertiesUpdated = true;
             if (mOnClickFn != nullptr)
                 mOnClickFn();
-        } else {
-            mIsMouseOver = false;
         }
     } else if (event->type == SDL_MOUSEMOTION) {
         // If it is a mouse motion event check if the cursor is on the button
-        mIsMouseOver = isCoordOnElement(event->motion.x, event->motion.y);
+        bool newIsMouseOver = isCoordOnElement(event->motion.x, event->motion.y);
+        if (newIsMouseOver != mIsMouseOver) {
+            mIsMouseOver = newIsMouseOver;
+            mPropertiesUpdated = true;
+        }
     }
-}
-
-// TODO: remove this placeholder code
-void ClickableHudElement::draw(Camera* camera) {
-    AbstractHudElement::draw(camera);
-    
-    SDL_Rect dstRect;
-    dstRect.x = mPosition[0];
-    dstRect.y = mPosition[1];
-    dstRect.w = mDimensions[0];
-    dstRect.h = mDimensions[1];
-    
-    // Draw a blue box on dstRect
-    SDL_SetRenderDrawColor(_renderer, 0xa0, 0xa0, 0xa0, 0xff);
-    SDL_RenderFillRect(_renderer, &dstRect);
 }
