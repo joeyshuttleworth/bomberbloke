@@ -90,13 +90,13 @@ int main (){
   _pScene->mHudElements.push_back(hudElementJoin);
   
   // Speed HUD demo
-  for (unsigned int i = 0; i < 4; i++) {
-      std::shared_ptr<SpriteHudElement> hudElement = std::make_shared<SpriteHudElement>("lightening.png", 9 + i * 34, 9, 32, 32);
+  for (int i = 0; i < 4; i++) {
+      std::shared_ptr<SpriteHudElement> hudElement = std::make_shared<SpriteHudElement>("lightning.png", 9 + i * 34, 9, 32, 32);
       _pScene->mHudElements.push_back(hudElement);
   }
   
   // Power HUD demo
-  for (unsigned int i = 0; i < 3; i++) {
+  for (int i = 0; i < 3; i++) {
       std::shared_ptr<SpriteHudElement> hudElement = std::make_shared<SpriteHudElement>("flames.png", 9 + i * 34, 9, 32, 32, ALIGN_RIGHT);
       _pScene->mHudElements.push_back(hudElement);
   }
