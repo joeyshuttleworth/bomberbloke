@@ -24,37 +24,27 @@ public:
     TextButton(std::shared_ptr<Text> text, int xPos, int yPos, int xDim,
         int yDim, void (*onClickFn)()=nullptr, AlignFlag xAlignFlag=ALIGN_LEFT,
         AlignFlag yAlignFlag=ALIGN_TOP);
-    
+
     /**
      * Sets the colour of text on mouse over.
      *
-     * @param red   The red component.
-     * @param green The green component.
-     * @param blue  The blue component.
-     * @param alpha The alpha component.
+     * @param colour    New colour object.
      */
-    void setMouseOverColour(int red, int green, int blue, int alpha=0) {
-        mMouseOverColour.r = red % 256;
-        mMouseOverColour.g = green % 256;
-        mMouseOverColour.b = blue % 256;
-        mMouseOverColour.a = alpha % 256;
+    void setMouseOverColour(SDL_Color colour) {
+        mMouseOverColour = colour;
+        mPropertiesUpdated = true;
     }
-    
+
     /**
      * Sets the colour of text on left-click.
      *
-     * @param red   The red component.
-     * @param green The green component.
-     * @param blue  The blue component.
-     * @param alpha The alpha component.
+     * @param colour    New colour object.
      */
-    void setOnClickColour(int red, int green, int blue, int alpha=0) {
-        mOnClickColour.r = red % 256;
-        mOnClickColour.g = green % 256;
-        mOnClickColour.b = blue % 256;
-        mOnClickColour.a = alpha % 256;
+    void setOnClickColour(SDL_Color colour) {
+        mOnClickColour = colour;
+        mPropertiesUpdated = true;
     }
-    
+
     /**
      * Sets the offset of the text on mouse-over.
      *
@@ -64,8 +54,9 @@ public:
     void setMouseOverOffset(int xOffset, int yOffset) {
         mMouseOverOffset[0] = xOffset;
         mMouseOverOffset[1] = yOffset;
+        mPropertiesUpdated = true;
     }
-    
+
     /**
      * Sets the offset of the text on left-click.
      *
@@ -75,11 +66,12 @@ public:
     void setOnClickOffset(int xOffset, int yOffset) {
         mOnClickOffset[0] = xOffset;
         mOnClickOffset[1] = yOffset;
+        mPropertiesUpdated = true;
     }
-    
+
     /**
      * Draws the text object in the position of the HUD element.
-     * 
+     *
      * @param camera    Current Camera object.
      */
     void draw(Camera *camera);
@@ -91,7 +83,7 @@ protected:
     SDL_Color mMouseOverColour;
     // Text colour when a click is detected.
     SDL_Color mOnClickColour;
-    
+
     // Text offset when neither a mouse-over or left-click is detected.
     int mDefaultOffset[2] = { 0, 0 };
     // Text offset when a mouse over is detected.

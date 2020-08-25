@@ -26,16 +26,34 @@ class Text {
 public:
     /**
      * Constructor for Text.
-     * 
+     *
      * Refer to TextManager for how to create Text objects and load fonts.
      *
-     * @param font  TTF font used to render the text
+     * @param font  TTF font used to render the text.
+     * @param text  String that is rendered.
+     * @param xPos  X-coordinate of the screen position (pixels).
+     * @param yPos  Y-coordinate of the screen position (pixels).
+     * @param xDim    Number of pixels wide.
+     * @param yDim    Number of pixels high.
+     * @param xAlign    Horizontal alignment of the text. Accepts TEXT_ALIGN_LEFT,
+     *                  TEXT_ALIGN_RIGHT and TEXT_ALIGN_CENTER (default).
+     * @param yAlign    Horizontal alignment of the text. Accepts TEXT_ALIGN_TOP,
+     *                  TEXT_ALIGN_BOTTOM and TEXT_ALIGN_CENTER (default).
      */
-    Text(TTF_Font *font) {
+    Text(TTF_Font *font, std::string text="", int posX=0, int posY=0,
+            int xDim = 0, int yDim=0, TextAlignFlag xAlign=TEXT_ALIGN_LEFT,
+            TextAlignFlag yAlign=TEXT_ALIGN_TOP) {
         mFont = font;
+        mTextString = text;
+        mPosition[0] = posX;
+        mPosition[1] = posY;
+        mDimensions[0] = xDim;
+        mDimensions[1] = yDim;
+        mAlignment[0] = xAlign;
+        mAlignment[1] = yAlign;
         mPropertiesUpdated = true;
     }
-    
+
     /**
      * Sets the string that is rendered.
      *
@@ -45,7 +63,7 @@ public:
         mTextString = text;
         mPropertiesUpdated = true;
     }
-    
+
     /**
      * Sets the screen position of the text box.
      *
@@ -61,7 +79,7 @@ public:
         mPosition[1] = yPos;
         mPropertiesUpdated = true;
     }
-    
+
     /**
      * Sets the dimensions of the text box.
      *
@@ -75,7 +93,7 @@ public:
         mDimensions[1] = yDim;
         mPropertiesUpdated = true;
     }
-    
+
     /**
      * Sets the offset of the text.
      *
@@ -90,7 +108,7 @@ public:
         mOffset[1] = yOffset;
         mPropertiesUpdated = true;
     }
-    
+
     /**
      * Gets the offset of the text.
      *
@@ -99,7 +117,7 @@ public:
     std::array<int, 2> getTextOffset() {
         return { mOffset[0], mOffset[1] };
     }
-    
+
     /**
      * Sets the scale of the text.
      *
@@ -111,16 +129,16 @@ public:
         mTextScale[0] = xScale;
         if (xScale >= 0) {
             mTextScale[0] = xScale;
-            
+
             if (yScale >= 0)
                 mTextScale[1] = yScale;
             else
                 mTextScale[1] = mTextScale[0];
         }
-        
+
         mPropertiesUpdated = true;
     }
-    
+
     /**
      * Sets the alignment of the text.
      *
@@ -134,39 +152,30 @@ public:
     void setTextAlignment(TextAlignFlag xAlign, TextAlignFlag yAlign=TEXT_ALIGN_TOP) {
         mAlignment[0] = xAlign;
         mAlignment[1] = yAlign;
-        
+
         mPropertiesUpdated = true;
     }
-    
+
     /**
      * Sets the colour of the text.
      *
-     * Sets RGBA colour values using integers in the range 0-255.
-     *
-     * @param red   The red component.
-     * @param green The green component.
-     * @param blue  The blue component.
-     * @param alpha The alpha component.
+     * @param colour    The new colour.
      */
-    void setTextColour(int red, int green, int blue, int alpha=0) {
-        mColour.r = red % 256;
-        mColour.g = green % 256;
-        mColour.b = blue % 256;
-        mColour.a = alpha % 256;
-        
+    void setTextColour(SDL_Color colour) {
+        mColour = colour;
         mPropertiesUpdated = true;
     }
-    
+
     /**
      * Gets the text colour.
      *
-     * @return  Array containing rgba values.
+     * @return  SDL_Color object.
      */
-    std::array<int, 4> getTextColour() {
-        return { mColour.r, mColour.g, mColour.b, mColour.a };
+    SDL_Color getTextColour() {
+        return mColour;
     }
-    
-    
+
+
     /**
      * Draws the text to the renderer.
      *
@@ -177,7 +186,7 @@ public:
 protected:
     // Text font given on construction (typically by the text manager).
     TTF_Font *mFont;
-    
+
     // String that is rendered.
     std::string mTextString;
     // Pixel-position of the top left corner of the bounding box.
@@ -203,7 +212,7 @@ protected:
     // Boolean value which is set to true whenever a property is changed that
     // may effect the render. Set back to false when draw is called.
     bool mPropertiesUpdated;
-    
+
     /**
      * Updates the texture used in the draw function.
      *

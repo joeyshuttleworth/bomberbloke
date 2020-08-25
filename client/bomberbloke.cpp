@@ -49,43 +49,39 @@ int main (){
   // Play intro music
   std::shared_ptr<Sound> pIntroSound = soundManager.createSound("explosion_intro");
   soundManager.playSound(pIntroSound);
-  
+
   // HUD elements for testing
-  std::shared_ptr<Text> pTextTitle = textManager.createText("Aileron-Black");
-  pTextTitle->setText("BLOKE/ENGINE");
+  std::shared_ptr<Text> pTextTitle = textManager.createText("Aileron-Black", "BLOKE/ENGINE");
   pTextTitle->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-  pTextTitle->setTextColour(255, 255, 255);
+  pTextTitle->setTextColour({255, 255, 255});
   pTextTitle->setTextScale(2.);
   std::shared_ptr<TextHudElement> hudElementTitle = std::make_shared<TextHudElement>(pTextTitle, 5, 0, 400, 50, ALIGN_CENTER, ALIGN_TOP);
   _pScene->mHudElements.push_back(hudElementTitle);
-  
-  std::shared_ptr<Text> pText1 = textManager.createText("Aileron-Black");
-  pText1->setText("DAVE1");
+
+  std::shared_ptr<Text> pText1 = textManager.createText("Aileron-Black", "DAVE1");
   pText1->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
-  pText1->setTextColour(255, 255, 255);
+  pText1->setTextColour({255, 255, 255});
   pText1->setTextScale(1.5);
   std::shared_ptr<TextButton> hudElement1 = std::make_shared<TextButton>(pText1, 9, 71, 200, 30, hudTestFn1, ALIGN_LEFT, ALIGN_BOTTOM);
-  hudElement1->setMouseOverColour(200, 200, 200);
+  hudElement1->setMouseOverColour({200, 200, 200});
   hudElement1->setOnClickOffset(1, 2);
   _pScene->mHudElements.push_back(hudElement1);
-  
-  std::shared_ptr<Text> pText2 = textManager.createText("Aileron-Black");
-  pText2->setText("DAVE2");
+
+  std::shared_ptr<Text> pText2 = textManager.createText("Aileron-Black", "DAVE2");
   pText2->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
-  pText2->setTextColour(255, 255, 255);
+  pText2->setTextColour({255, 255, 255});
   pText2->setTextScale(1.5);
   std::shared_ptr<TextButton> hudElement2 = std::make_shared<TextButton>(pText2, 9, 40, 200, 30, hudTestFn2, ALIGN_LEFT, ALIGN_BOTTOM);
-  hudElement2->setMouseOverColour(200, 200, 200);
+  hudElement2->setMouseOverColour({200, 200, 200});
   hudElement2->setOnClickOffset(1, 2);
   _pScene->mHudElements.push_back(hudElement2);
-  
-  std::shared_ptr<Text> pTextJoin = textManager.createText("Aileron-Black");
-  pTextJoin->setText("JOIN LOCAL");
+
+  std::shared_ptr<Text> pTextJoin = textManager.createText("Aileron-Black", "JOIN LOCAL");
   pTextJoin->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
-  pTextJoin->setTextColour(255, 255, 255);
+  pTextJoin->setTextColour({255, 255, 255});
   pTextJoin->setTextScale(1.5);
   std::shared_ptr<TextButton> hudElementJoin = std::make_shared<TextButton>(pTextJoin, 9, 9, 200, 30, hudTestFnJoin, ALIGN_LEFT, ALIGN_BOTTOM);
-  hudElementJoin->setMouseOverColour(200, 200, 200);
+  hudElementJoin->setMouseOverColour({200, 200, 200});
   hudElementJoin->setOnClickOffset(0, 3);
   _pScene->mHudElements.push_back(hudElementJoin);
   
@@ -113,12 +109,3 @@ void gameUpdate(){
 void new_game(std::string){
   return;
 }
-
-
-
-
-
-
-
-
-
