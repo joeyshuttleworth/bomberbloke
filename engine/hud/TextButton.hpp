@@ -28,31 +28,21 @@ public:
     /**
      * Sets the colour of text on mouse over.
      *
-     * @param red   The red component.
-     * @param green The green component.
-     * @param blue  The blue component.
-     * @param alpha The alpha component.
+     * @param colour    New colour object.
      */
-    void setMouseOverColour(int red, int green, int blue, int alpha=0) {
-        mMouseOverColour.r = red % 256;
-        mMouseOverColour.g = green % 256;
-        mMouseOverColour.b = blue % 256;
-        mMouseOverColour.a = alpha % 256;
+    void setMouseOverColour(SDL_Color colour) {
+        mMouseOverColour = colour;
+        mPropertiesUpdated = true;
     }
 
     /**
      * Sets the colour of text on left-click.
      *
-     * @param red   The red component.
-     * @param green The green component.
-     * @param blue  The blue component.
-     * @param alpha The alpha component.
+     * @param colour    New colour object.
      */
-    void setOnClickColour(int red, int green, int blue, int alpha=0) {
-        mOnClickColour.r = red % 256;
-        mOnClickColour.g = green % 256;
-        mOnClickColour.b = blue % 256;
-        mOnClickColour.a = alpha % 256;
+    void setOnClickColour(SDL_Color colour) {
+        mOnClickColour = colour;
+        mPropertiesUpdated = true;
     }
 
     /**
@@ -64,6 +54,7 @@ public:
     void setMouseOverOffset(int xOffset, int yOffset) {
         mMouseOverOffset[0] = xOffset;
         mMouseOverOffset[1] = yOffset;
+        mPropertiesUpdated = true;
     }
 
     /**
@@ -75,6 +66,7 @@ public:
     void setOnClickOffset(int xOffset, int yOffset) {
         mOnClickOffset[0] = xOffset;
         mOnClickOffset[1] = yOffset;
+        mPropertiesUpdated = true;
     }
 
     /**

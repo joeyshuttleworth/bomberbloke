@@ -141,29 +141,20 @@ public:
     /**
      * Sets the colour of the text.
      *
-     * Sets RGBA colour values using integers in the range 0-255.
-     *
-     * @param red   The red component.
-     * @param green The green component.
-     * @param blue  The blue component.
-     * @param alpha The alpha component.
+     * @param colour    The new colour.
      */
-    void setTextColour(int red, int green, int blue, int alpha=0) {
-        mColour.r = red % 256;
-        mColour.g = green % 256;
-        mColour.b = blue % 256;
-        mColour.a = alpha % 256;
-        
+    void setTextColour(SDL_Color colour) {
+        mColour = colour;
         mPropertiesUpdated = true;
     }
     
     /**
      * Gets the text colour.
      *
-     * @return  Array containing rgba values.
+     * @return  SDL_Color object.
      */
-    std::array<int, 4> getTextColour() {
-        return { mColour.r, mColour.g, mColour.b, mColour.a };
+    SDL_Color getTextColour() {
+        return mColour;
     }
     
     
