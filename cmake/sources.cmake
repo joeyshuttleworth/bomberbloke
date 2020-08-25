@@ -18,3 +18,4 @@ engine/text/Text.cpp
 engine/hud/ClickableHudElement.cpp
 engine/hud/AbstractHudElement.cpp
 engine/hud/TextHudElement.cpp
+engine/hud/TextButton.cpp

@@ -3,8 +3,6 @@
 #include <SDL2/SDL.h>
 #include <iostream>
 
-#include "Text.hpp"
-
 TextManager::TextManager() {
     // Required initialisation for SDL_TTF.
     if (TTF_Init() == -1) {
@@ -21,7 +19,7 @@ TextManager::~TextManager() {
 
 void TextManager::loadFontFromPath(std::string path, std::string id, int ptSize) {
     TTF_Font *font = TTF_OpenFont(path.c_str(), ptSize);
-    
+
     // Adds font to font bank
     if (font) {
         mFontBank.insert(std::make_pair(id, font));
@@ -30,11 +28,16 @@ void TextManager::loadFontFromPath(std::string path, std::string id, int ptSize)
     }
 }
 
-std::shared_ptr<Text> TextManager::createText(std::string fontId) {
+std::shared_ptr<Text> TextManager::createText(std::string fontId, std::string text,
+        int posX, int posY, int xDim, int yDim, TextAlignFlag xTextAlign,
+        TextAlignFlag yTextAlign) {
+    // Obtain font
+    TTF_Font *font = mFontBank[fontId];
+
     // Create a new Text object
     std::shared_ptr<Text> newText = std::make_shared<Text>(
-        mFontBank[fontId]
+        font, text, posX, posY, xDim, yDim, xTextAlign, yTextAlign
     );
-    
+
     return newText;
 }

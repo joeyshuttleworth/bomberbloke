@@ -9,7 +9,7 @@ TextHudElement::TextHudElement(std::shared_ptr<Text> text, int xPos, int yPos,
 
 void TextHudElement::updatePosition(Camera* camera) {
     AbstractHudElement::updatePosition(camera);
-    
+
     // Update the text position using the new HUD position parameters
     mText->setDimensions(mDimensions[0], mDimensions[1]);
     mText->setPosition(mPosition[0], mPosition[1]);
