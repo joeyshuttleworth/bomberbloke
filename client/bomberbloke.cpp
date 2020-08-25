@@ -50,16 +50,14 @@ int main (){
   soundManager.playSound(pIntroSound);
 
   // HUD elements for testing
-  std::shared_ptr<Text> pTextTitle = textManager.createText("Aileron-Black");
-  pTextTitle->setText("BLOKE/ENGINE");
+  std::shared_ptr<Text> pTextTitle = textManager.createText("Aileron-Black", "BLOKE/ENGINE");
   pTextTitle->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
   pTextTitle->setTextColour({255, 255, 255});
   pTextTitle->setTextScale(2.);
   std::shared_ptr<TextHudElement> hudElementTitle = std::make_shared<TextHudElement>(pTextTitle, 5, 5, 400, 50, ALIGN_CENTER);
   _pScene->mHudElements.push_back(hudElementTitle);
 
-  std::shared_ptr<Text> pText1 = textManager.createText("Aileron-Black");
-  pText1->setText("DAVE1");
+  std::shared_ptr<Text> pText1 = textManager.createText("Aileron-Black", "DAVE1");
   pText1->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
   pText1->setTextColour({255, 255, 255});
   pText1->setTextScale(1.5);
@@ -68,8 +66,7 @@ int main (){
   hudElement1->setOnClickOffset(1, 2);
   _pScene->mHudElements.push_back(hudElement1);
 
-  std::shared_ptr<Text> pText2 = textManager.createText("Aileron-Black");
-  pText2->setText("DAVE2");
+  std::shared_ptr<Text> pText2 = textManager.createText("Aileron-Black", "DAVE2");
   pText2->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
   pText2->setTextColour({255, 255, 255});
   pText2->setTextScale(1.5);
@@ -78,8 +75,7 @@ int main (){
   hudElement2->setOnClickOffset(1, 2);
   _pScene->mHudElements.push_back(hudElement2);
 
-  std::shared_ptr<Text> pTextJoin = textManager.createText("Aileron-Black");
-  pTextJoin->setText("JOIN LOCAL");
+  std::shared_ptr<Text> pTextJoin = textManager.createText("Aileron-Black", "JOIN LOCAL");
   pTextJoin->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
   pTextJoin->setTextColour({255, 255, 255});
   pTextJoin->setTextScale(1.5);
