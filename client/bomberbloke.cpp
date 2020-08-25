@@ -48,7 +48,7 @@ int main (){
   // Play intro music
   std::shared_ptr<Sound> pIntroSound = soundManager.createSound("explosion_intro");
   soundManager.playSound(pIntroSound);
-  
+
   // HUD elements for testing
   std::shared_ptr<Text> pTextTitle = textManager.createText("Aileron-Black");
   pTextTitle->setText("BLOKE/ENGINE");
@@ -57,7 +57,7 @@ int main (){
   pTextTitle->setTextScale(2.);
   std::shared_ptr<TextHudElement> hudElementTitle = std::make_shared<TextHudElement>(pTextTitle, 5, 5, 400, 50, ALIGN_CENTER);
   _pScene->mHudElements.push_back(hudElementTitle);
-  
+
   std::shared_ptr<Text> pText1 = textManager.createText("Aileron-Black");
   pText1->setText("DAVE1");
   pText1->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
@@ -67,7 +67,7 @@ int main (){
   hudElement1->setMouseOverColour(200, 200, 200);
   hudElement1->setOnClickOffset(1, 2);
   _pScene->mHudElements.push_back(hudElement1);
-  
+
   std::shared_ptr<Text> pText2 = textManager.createText("Aileron-Black");
   pText2->setText("DAVE2");
   pText2->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
@@ -77,7 +77,7 @@ int main (){
   hudElement2->setMouseOverColour(200, 200, 200);
   hudElement2->setOnClickOffset(1, 2);
   _pScene->mHudElements.push_back(hudElement2);
-  
+
   std::shared_ptr<Text> pTextJoin = textManager.createText("Aileron-Black");
   pTextJoin->setText("JOIN LOCAL");
   pTextJoin->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
@@ -87,7 +87,7 @@ int main (){
   hudElementJoin->setMouseOverColour(200, 200, 200);
   hudElementJoin->setOnClickOffset(0, 3);
   _pScene->mHudElements.push_back(hudElementJoin);
-  
+
   client_loop();
 
   return 0;
@@ -100,12 +100,3 @@ void gameUpdate(){
 void new_game(std::string){
   return;
 }
-
-
-
-
-
-
-
-
-

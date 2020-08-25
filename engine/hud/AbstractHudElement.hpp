@@ -46,7 +46,7 @@ public:
       */
     AbstractHudElement(int xPos, int yPos, int xDim, int yDim,
             AlignFlag xAlignFlag=ALIGN_LEFT, AlignFlag yAlignFlag=ALIGN_TOP);
-    
+
     /**
      * Sets the (relative) screen position of the bounding box.
      *
@@ -62,7 +62,7 @@ public:
         mPosition[1] = yPos;
         mPropertiesUpdated = true;
     }
-    
+
     /**
      * Sets the dimensions of the bounding box.
      *
@@ -76,7 +76,7 @@ public:
         mDimensions[1] = yDim;
         mPropertiesUpdated = true;
     }
-    
+
     /**
      * Sets the alignment of the bounding box. (see constructor)
      *
@@ -95,18 +95,18 @@ public:
      *
      * Called by scene on every frame. Any children classes that overide
      * this function must call it before drawing.
-     * 
+     *
      * @param camera    Current Camera object.
      */
     virtual void draw(Camera* camera);
-    
+
     /**
      * Updates the position of the HUD element.
      *
      * Converts the relative position, dimension and alignment flags into the
      * actual position of the bounding box from its top left corner. This must
      * be called at least once before draw is called.
-     * 
+     *
      * @param camera    Current Camera object.
      */
     virtual void updatePosition(Camera* camera);
@@ -115,18 +115,18 @@ public:
      * Update method to be called on every tick.
      */
     virtual void update() {};
-    
+
     /**
      * Called by scene whenever the engine detects user input.
      *
      * @param event Input event that is handled by HUD element.
      */
     virtual void onInput(SDL_Event *event) {};
-    
+
 protected:
     // Pixel-position of the top left corner of the bounding box.
     int mPosition[2];
-    
+
     // Pixel-dimensions of the bounding box containing the element.
     int mDimensions[2];
 
@@ -134,10 +134,10 @@ protected:
     // are converted to actual positional values in updatePosition based on the
     // parameters of the current camera and the alignment flags.
     int mRelativePosition[2];
-    
+
     // x and y alignment flags (see constructor).
     int mAlignFlags[2];
-    
+
     // Boolean value which is set to true whenever a property is changed that
     // may effect the render. Set back to false when draw is called.
     bool mPropertiesUpdated;

@@ -26,27 +26,27 @@ public:
     TextHudElement(std::shared_ptr<Text> text, int xPos, int yPos,
             int xDim, int yDim, AlignFlag xAlignFlag=ALIGN_LEFT,
             AlignFlag yAlignFlag=ALIGN_TOP);
-    
+
     /**
      * Updates the position of the HUD element.
      *
      * Overides the virtual function in AbstarctHudElement, see
      * AbstarctHudElement.hpp for further information.
-     * 
+     *
      * @param camera    Current Camera object.
      */
     void updatePosition(Camera* camera);
-    
+
     /**
      * Draws the text object in the position of the HUD element.
-     * 
+     *
      * @param camera    Current Camera object.
      */
     void draw(Camera *camera) {
         AbstractHudElement::draw(camera);
         mText->draw(camera);
     }
-    
+
 protected:
     // Text object used to render.
     std::shared_ptr<Text> mText;

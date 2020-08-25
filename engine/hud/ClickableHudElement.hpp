@@ -21,14 +21,14 @@ public:
     ClickableHudElement(int xPos, int yPos, int xDim, int yDim,
         void (*onClickFn)()=nullptr, AlignFlag xAlignFlag=ALIGN_LEFT,
         AlignFlag yAlignFlag=ALIGN_BOTTOM);
-    
+
     /**
      * Called by the handle input function.
-     * 
+     *
      * @param camera    Current Camera object.
      */
     void onInput(SDL_Event *event);
-    
+
     // TODO: support keyboard and joystick selection
 
 protected:
@@ -37,7 +37,7 @@ protected:
      * the mouse.
      */
     void (*mOnClickFn)();
-    
+
     /**
      * Boolean that is set to true when the element is left-clicked. It is set
      * back to false when the click is released.

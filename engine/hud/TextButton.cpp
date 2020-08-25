@@ -9,31 +9,31 @@ TextButton::TextButton(std::shared_ptr<Text> text, int xPos, int yPos, int xDim,
     TextHudElement(text, xPos, yPos, xDim, yDim, xAlignFlag, yAlignFlag) {
     // Use text colour as default colour.
     std::array<int, 4> mColourArray = text->getTextColour();
-    
+
     mDefaultColour.r = mColourArray[0];
     mDefaultColour.g = mColourArray[1];
     mDefaultColour.b = mColourArray[2];
     mDefaultColour.a = mColourArray[3];
-    
+
     mMouseOverColour.r = mColourArray[0];
     mMouseOverColour.g = mColourArray[1];
     mMouseOverColour.b = mColourArray[2];
     mMouseOverColour.a = mColourArray[3];
-    
+
     mOnClickColour.r = mColourArray[0];
     mOnClickColour.g = mColourArray[1];
     mOnClickColour.b = mColourArray[2];
     mOnClickColour.a = mColourArray[3];
-    
-    
+
+
     // Use text offset as default offset.
     std::array<int, 2> mOffsetArray = text->getTextOffset();
     mDefaultOffset[0] = mOffsetArray[0];
     mDefaultOffset[1] = mOffsetArray[1];
-    
+
     mMouseOverOffset[0] = mOffsetArray[0];
     mMouseOverOffset[1] = mOffsetArray[1];
-    
+
     mOnClickOffset[0] = mOffsetArray[0];
     mOnClickOffset[1] = mOffsetArray[1];
 }
@@ -55,7 +55,7 @@ void TextButton::draw(Camera *camera) {
             mText->setTextOffset(mDefaultOffset[0], mDefaultOffset[1]);
         }
     }
-    
+
     // Call draw function inherited fromm TextHUDElement
     TextHudElement::draw(camera);
 }

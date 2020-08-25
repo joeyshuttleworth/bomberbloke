@@ -7,13 +7,13 @@ AbstractHudElement::AbstractHudElement(int xPos, int yPos, int xDim, int yDim,
     // Actual position is set in updatePosition
     mRelativePosition[0] = xPos;
     mRelativePosition[1] = yPos;
-    
+
     mDimensions[0] = xDim;
     mDimensions[1] = yDim;
-    
+
     mAlignFlags[0] = xAlignFlag;
     mAlignFlags[1] = yAlignFlag;
-    
+
     mPropertiesUpdated = true;
 }
 
@@ -27,7 +27,7 @@ void AbstractHudElement::draw(Camera* camera) {
 
 void AbstractHudElement::updatePosition(Camera* camera) {
     std::array<int, 2> screenDimensions = camera->getScreenDimensions();
-    
+
     switch(mAlignFlags[0]) {
         case ALIGN_CENTER:
             // Centred positioning
@@ -41,7 +41,7 @@ void AbstractHudElement::updatePosition(Camera* camera) {
             // Left-aligned positioning
             mPosition[0] = mRelativePosition[0];
     }
-    
+
     switch(mAlignFlags[1]) {
         case ALIGN_CENTER:
             // Centred positioning

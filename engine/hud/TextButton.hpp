@@ -24,7 +24,7 @@ public:
     TextButton(std::shared_ptr<Text> text, int xPos, int yPos, int xDim,
         int yDim, void (*onClickFn)()=nullptr, AlignFlag xAlignFlag=ALIGN_LEFT,
         AlignFlag yAlignFlag=ALIGN_TOP);
-    
+
     /**
      * Sets the colour of text on mouse over.
      *
@@ -39,7 +39,7 @@ public:
         mMouseOverColour.b = blue % 256;
         mMouseOverColour.a = alpha % 256;
     }
-    
+
     /**
      * Sets the colour of text on left-click.
      *
@@ -54,7 +54,7 @@ public:
         mOnClickColour.b = blue % 256;
         mOnClickColour.a = alpha % 256;
     }
-    
+
     /**
      * Sets the offset of the text on mouse-over.
      *
@@ -65,7 +65,7 @@ public:
         mMouseOverOffset[0] = xOffset;
         mMouseOverOffset[1] = yOffset;
     }
-    
+
     /**
      * Sets the offset of the text on left-click.
      *
@@ -76,10 +76,10 @@ public:
         mOnClickOffset[0] = xOffset;
         mOnClickOffset[1] = yOffset;
     }
-    
+
     /**
      * Draws the text object in the position of the HUD element.
-     * 
+     *
      * @param camera    Current Camera object.
      */
     void draw(Camera *camera);
@@ -91,7 +91,7 @@ protected:
     SDL_Color mMouseOverColour;
     // Text colour when a click is detected.
     SDL_Color mOnClickColour;
-    
+
     // Text offset when neither a mouse-over or left-click is detected.
     int mDefaultOffset[2] = { 0, 0 };
     // Text offset when a mouse over is detected.

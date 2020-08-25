@@ -5,7 +5,7 @@ ClickableHudElement::ClickableHudElement(int xPos, int yPos, int xDim, int yDim,
         : AbstractHudElement(xPos, yPos, xDim, yDim, xAlignFlag, yAlignFlag) {
     // Base class constructor must be called
     mOnClickFn = onClickFn;
-    
+
     // Set to be interactive so that onInput is called by scene
     mIsInteractive = true;
 }
@@ -14,7 +14,7 @@ bool ClickableHudElement::isCoordOnElement(int x, int y) {
     if (x >= mPosition[0] && x <= mPosition[0] + mDimensions[0]) {
         if (y >= mPosition[1] && y <= mPosition[1] + mDimensions[1])
             return true;
-    }    
+    }
     return false;
 }
 
@@ -25,7 +25,7 @@ void ClickableHudElement::onInput(SDL_Event *event) {
         mPropertiesUpdated = true;
         return;
     }
-    
+
     if (event->type == SDL_MOUSEBUTTONDOWN) {
         // If it is a mouse button down event and the cursor is on the button
         // it must be clicked and the mouse must be over it
