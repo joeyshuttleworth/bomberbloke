@@ -49,6 +49,7 @@ public:
     void channelFinishedCallback(int channel);
 
     SoundManager();
+    ~SoundManager();
 };
 
 #endif

@@ -3,6 +3,11 @@
 #include <iostream>
 
 SoundManager::SoundManager() {}
+SoundManager::~SoundManager() {
+    while(Mix_Init(0)){
+        Mix_Quit();
+    }
+}
 
 void SoundManager::init(void (*finishedCallback)(int)) {
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) == -1)
