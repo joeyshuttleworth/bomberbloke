@@ -45,6 +45,7 @@ NetClient _net_client;
 NetServer _net_server;
 
 SoundManager soundManager;
+TextManager textManager;
 
 std::list<std::pair<std::string, SDL_Texture*>> _sprite_list;
 static void load_assets();
@@ -53,23 +54,23 @@ void refresh_sprites();
 void create_window();
 
 void set_draw(bool on){
-  if(on == _draw)
+    if(on == _draw)
+        return;
+
+    else if(on == true){
+        _draw = true;
+        create_window();
+        refresh_sprites();
+    }
+
+    else{
+        _draw = false;
+        SDL_DestroyWindow(_window);
+        SDL_DestroyRenderer(_renderer);
+        _renderer = nullptr;
+    }
+
     return;
-
-  else if(on == true){
-    _draw = true;
-    create_window();
-    refresh_sprites();
-  }
-
-  else{
-    _draw = false;
-    SDL_DestroyWindow(_window);
-    SDL_DestroyRenderer(_renderer);
-    _renderer = nullptr;
-  }
-
-  return;
 }
 
 void exit_engine(int signum) {
@@ -85,27 +86,27 @@ void exit_engine(int signum) {
 }
 
 void create_window(){
-  std::string window_name = "Bomberbloke Client";
-  if (_server)
-    window_name = "Bomberbloke Server";
-  _window = SDL_CreateWindow(window_name.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-                             _window_size[0], _window_size[1], SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
-  if(_pCamera)
-    _pCamera->SetZoom();
-  // _zoom = (double)(_window_size[0]) / (_pScene->mDimmension[0]);
-  if(_renderer){
-    SDL_DestroyRenderer(_renderer);
-  }
-  _renderer = SDL_CreateRenderer(_window, -1, 0);
-  SDL_SetRenderDrawColor(_renderer, 0xff, 0x00, 0x00, 0xff);
-  SDL_RenderClear(_renderer);
-  SDL_RenderPresent(_renderer);
+    std::string window_name = "Bomberbloke Client";
+    if (_server)
+        window_name = "Bomberbloke Server";
+    _window = SDL_CreateWindow(window_name.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+            _window_size[0], _window_size[1], SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+    if(_pCamera)
+        _pCamera->onResize();
+    // _zoom = (double)(_window_size[0]) / (_pScene->mDimmension[0]);
+    if(_renderer){
+        SDL_DestroyRenderer(_renderer);
+    }
+    _renderer = SDL_CreateRenderer(_window, -1, 0);
+    SDL_SetRenderDrawColor(_renderer, 0xff, 0x00, 0x00, 0xff);
+    SDL_RenderClear(_renderer);
+    SDL_RenderPresent(_renderer);
 
-  for(auto i = _sprite_list.begin(); i != _sprite_list.end(); i++){
-    SDL_DestroyTexture(i->second);
-  }
+    for(auto i = _sprite_list.begin(); i != _sprite_list.end(); i++){
+        SDL_DestroyTexture(i->second);
+    }
 
-  return;
+    return;
 }
 
 /**  Refresh all of our sprites
@@ -114,26 +115,26 @@ void create_window(){
  */
 
 void refresh_sprites(){
-  _pScene->refreshSprites();
-  return;
+    _pScene->refreshSprites();
+    return;
 }
 
 
 void resize_window(int x, int y){
-  if(!_pCamera)
-    return;
+    if(!_pCamera)
+        return;
 
-  _pCamera->SetZoom();
-  _window_size[0] = x;
-  _window_size[1] = y;
+    _window_size[0] = x;
+    _window_size[1] = y;
 
-  if(_window){
-    SDL_DestroyWindow(_window);
-    create_window();
-  }
-
+    if(_window){
+        SDL_DestroyWindow(_window);
+        create_window();
+    }
+    
+    _pCamera->onResize();
     refresh_sprites();
-  return;
+    return;
 }
 
 void channelFinishedForwarder(int channel) {
@@ -177,28 +178,32 @@ void handle_input() {
     //  bool key_up = true;
     Uint8 *kb_state = NULL;
     while (SDL_PollEvent(&event)) {
+        _pScene->onInput(&event);
+        
         switch (event.type) {
-        case SDL_QUIT:
-          _halt = true;
-          break;
-        case SDL_KEYDOWN:{
-          if(!_bind_next_key)
-            break;
-          /*We only look at keyboard events here in order to bind keys*/
-          CommandBinding new_binding;
-          new_binding.scancode = event.key.keysym.scancode;
-          new_binding.command  = _next_bind_command;
-          _local_player_list.back().mControlScheme.push_back(new_binding);
-          _bind_next_key = false;
-          log_message(INFO, "Successfully bound " + new_binding.command + " to " + std::to_string(new_binding.scancode));
-          break;
-        }
-        case SDL_WINDOWEVENT:
-          if(event.window.event == SDL_WINDOWEVENT_RESIZED){
-            _window_size[0] = event.window.data1;
-            _window_size[1] = event.window.data2;
-            _pCamera->SetZoom();
-          }
+            case SDL_QUIT: {
+                _halt = true;
+                break;
+            }
+            case SDL_KEYDOWN: {
+                if(!_bind_next_key)
+                    break;
+                /*We only look at keyboard events here in order to bind keys*/
+                CommandBinding new_binding;
+                new_binding.scancode = event.key.keysym.scancode;
+                new_binding.command  = _next_bind_command;
+                _local_player_list.back().mControlScheme.push_back(new_binding);
+                _bind_next_key = false;
+                log_message(INFO, "Successfully bound " + new_binding.command + " to " + std::to_string(new_binding.scancode));
+                break;
+            }
+            case SDL_WINDOWEVENT: {
+                if(event.window.event == SDL_WINDOWEVENT_RESIZED){
+                    _window_size[0] = event.window.data1;
+                    _window_size[1] = event.window.data2;
+                    _pCamera->onResize();
+                }
+            }
         }
     }
 
@@ -216,45 +221,41 @@ void handle_input() {
                         _system_commands.end()) {
                         handle_system_command(split_to_tokens(command_to_send)); // process system command
                     } else {
-                      std::shared_ptr<actor> character = i->getCharacter();
-                      if(character){
-                        character->handle_command(command_to_send); // handle normal command
-                        if(!_server){
-                          std::unique_ptr<AbstractEvent> c_event(new CommandEvent(command_to_send));
-                          _net_client.sendEvent(c_event);
+                        std::shared_ptr<actor> character = i->getCharacter();
+                        if(character){
+                            character->handle_command(command_to_send); // handle normal command
+                            if(!_server){
+                                std::unique_ptr<AbstractEvent> c_event(new CommandEvent(command_to_send));
+                                _net_client.sendEvent(c_event);
+                            }
                         }
-                      }
-                      else{
-                        log_message(INFO, "No character connected to character");
-                      }
+                        else{
+                            log_message(INFO, "No character connected to character");
+                        }
                     }
                 }
             }
         } else {
-          if (i->getCharacter() &&  event.jaxis.which == 0) {
+            if (i->getCharacter() &&  event.jaxis.which == 0) {
                 if (event.jaxis.axis == 0) { //x axis
                     if (event.jaxis.value < -DEADZONE) {
-                      i->getCharacter()->handle_command("left"+dX);
+                        i->getCharacter()->handle_command("left"+dX);
                     } else if (event.jaxis.value > DEADZONE) {
-                      i->getCharacter()->handle_command("+right"+dX);
-
+                        i->getCharacter()->handle_command("+right"+dX);
                     } else {
-                      i->getCharacter()->handle_command("-XAxis"+dX);
+                        i->getCharacter()->handle_command("-XAxis"+dX);
                     }
-
                 } else if (event.jaxis.axis == 1) {
                     if (event.jaxis.value < -DEADZONE) {
-                      i->getCharacter()->handle_command("+up"+dX);
+                        i->getCharacter()->handle_command("+up"+dX);
                     } else if (event.jaxis.value > DEADZONE) {
-                      i->getCharacter()->handle_command("+down"+dX);
+                        i->getCharacter()->handle_command("+down"+dX);
                     } else {
-                      i->getCharacter()->handle_command("-YAxis"+dX);
+                        i->getCharacter()->handle_command("-YAxis"+dX);
                     }
-
                 }
             }
         }
-
     }
 
     //old key state, new key state
@@ -276,15 +277,14 @@ void draw_hud() {
 }
 
 void draw_screen() {
+    if(_halt || !_renderer || !_window || !_draw)
+        return;
 
-  if(_halt || !_renderer || !_window || !_draw)
+    SDL_SetRenderDrawColor(_renderer, 0x10, 0xFF, 0x00, 0xFF);
+    SDL_RenderClear(_renderer);
+    _pCamera->draw();
+    SDL_RenderPresent(_renderer);
     return;
-
-  SDL_SetRenderDrawColor(_renderer, 0x10, 0xFF, 0x00, 0xFF);
-  SDL_RenderClear(_renderer);
-  _pCamera->draw();
-  SDL_RenderPresent(_renderer);
-  return;
 }
 
 void logic_loop() {
@@ -292,20 +292,20 @@ void logic_loop() {
 }
 
 void log_message(int scene, std::string str) {
-  if(scene > ALL)
-    scene = ALL;
+    if(scene > ALL)
+        scene = ALL;
 
-  /* Output to our log file */
-  _console_log_file << str << "\n";
+    /* Output to our log file */
+    _console_log_file << str << "\n";
 
-  if(scene < _log_message_scene){
-    /*Ignore the message*/
-    return;
-  }
-  else{
-    std::cout << _tick << "\t " << LOG_LEVEL_STRINGS[scene] << ": " << str << std::endl;
-    return;
-  }
+    if(scene < _log_message_scene){
+        /*Ignore the message*/
+        return;
+    }
+    else{
+        std::cout << _tick << "\t " << LOG_LEVEL_STRINGS[scene] << ": " << str << std::endl;
+        return;
+    }
 }
 
 void load_config(std::string fname) {
@@ -332,192 +332,191 @@ void load_config(std::string fname) {
 }
 
 bool handle_system_command(std::list<std::string> tokens) {
+    if(tokens.size()==0)
+        return true;
 
-  if(tokens.size()==0)
+    std::string command = tokens.front();
+
+    if(command == "new" && _server){
+        for(auto i = _player_list.begin(); i != _player_list.end(); i++){
+            new_game("");
+            std::unique_ptr<AbstractEvent> s_event(new syncEvent());
+            ENetPeer* to = (*i)->getPeer();
+            if(to)
+                _net_server.sendEvent(s_event, to);
+        }
+    }
+
+    if(command == "nickname" && !_server){
+        if(tokens.size()!=2)
+            log_message(ERROR, "nickname requires exactly one argument");
+        else{
+            _nickname = tokens.back();
+            log_message(INFO, "nickname is now " + _nickname);
+        }
+    }
+
+    if(command == "disconnect"){
+        /*TODO:*/if(_server){
+
+        }
+        else{
+
+        }
+    }
+
+    if(command == "draw"){
+        if(tokens.size() == 2){
+            if(tokens.back() == "on"){
+                set_draw(true);
+            }
+            else if(tokens.back() == "off"){
+                set_draw(false);
+            }
+            else{
+                log_message(ERROR, "Couldn't parse command - " + command + tokens.back() + " the options for 'draw' are 'on' and 'off'");
+                return false;
+            }
+        }
+
+        else{
+            log_message(ERROR, "draw command requires one argument");
+            return false;
+        }
+    }
+
+    if(!_server && command == "open"){
+        if(tokens.size() == 2){
+            auto iter = tokens.begin();
+            iter++;        //Select the first token
+            int port;
+
+            /*  Attempt to parse the first argument as address:port.
+                    If no ':' is present, the port number defaults to 8888.
+             */
+            long unsigned int delim_pos = iter->find(':');
+            std::string address;
+            if(delim_pos == std::string::npos){
+                port = 8888;
+                address = *iter;
+            }
+            else if(iter->substr(delim_pos+1).find(':')!=std::string::npos){
+                std::stringstream msg;
+                msg << "Couldn't parse address, " << *iter;
+                log_message(ERROR, msg.str());
+                return false;
+            }
+            else{
+                address = iter->substr(0, delim_pos);
+                /*  TODO replace try-catch with something less lazy to check if
+                        we're going to have an error
+                */
+                try{
+                    port = std::stoi(iter->substr(delim_pos+1).c_str());
+                }
+                catch(std::exception &e){
+                    log_message(ERROR, "Failed to parse port number");
+                    return false;
+                }
+            }
+            /* We now have an address and port number to connect with
+                 NetClient::connectClient returns true of false. Return
+                 this value
+             */
+            if(!_net_client.joinBlokeServer(address, port, _nickname)){
+                log_message(INFO, "failed to connect to server");
+                return false;
+            }
+        }
+        else{
+            /* TODO allow port number as a separate argument? */
+            log_message(ERROR, "Incorrect number of elements for connect");
+        }
+    }
+
+    if(command == "info"){
+        QueryEvent e("big_beef");
+        cereal::JSONOutputArchive oArchive(std::cout);
+        oArchive(e);
+    }
+
+    if(command == "log_level"){
+        if(tokens.size()!=2){
+            log_message(ERROR, "Command: log_level requires exactly one argument.");
+            return false;
+        }
+        else{
+            //Critical is our highest warning level
+            auto iterator = tokens.begin();
+            iterator++;
+            std::string input_string = *iterator;
+            for(unsigned int i = 0; i <= CRITICAL; i++){
+                if(input_string == LOG_LEVEL_STRINGS[i]){
+                    _log_message_scene = i;
+                    log_message(ALL, "Log level set to " + LOG_LEVEL_STRINGS[i]);
+                }
+            }
+
+        }
+    }
+
+
+    else if(command == "quit"){
+        exit_engine(0);
+    }
+
+    else if(command ==  "generate_config"){
+        if(tokens.size() == 1){
+            GenerateConfig("generated_config.conf");
+        }
+        else if(tokens.size() == 2){
+            std::string fname = tokens.back();
+            GenerateConfig(fname);
+        }
+        else{
+            log_message(ERROR, "To many arguments supplied to generate_config");
+        }
+    }
+
+    else if(command == "resize"){
+        if(tokens.size() == 3){
+            auto i = tokens.begin();
+            i++;
+            /*TODO: Try catch here*/
+            std::cout << *i << "\n";
+            int x = std::stoi(*i);
+            i++;
+            int y = std::stoi(*i);
+
+            resize_window(x,y);
+        }
+        else{
+            log_message(ERROR, "Incorrect number of arguments for resize");
+        }
+    }
+
+    else if(command == "bind"){
+        if(tokens.size() == 3){
+            auto i = tokens.begin();
+            i++;
+            CommandBinding new_command;
+            new_command.command = *i;
+            i++;
+            /*TODO: try catch*/
+            new_command.scancode = SDL_Scancode(std::stoi(*i));
+            _local_player_list.front().mControlScheme.push_back(new_command);
+            log_message(INFO, "Successfully bound command " +  new_command.command + " to " + std::to_string(new_command.scancode));
+        }
+        else if(tokens.size() == 2){
+            _bind_next_key = true;
+            auto i = tokens.begin();
+            i++;
+            _next_bind_command = *i;
+            log_message(INFO, "binding next keypress to command: " + _next_bind_command);
+        }
+
+    }
     return true;
-
-  std::string command = tokens.front();
-
-  if(command == "new" && _server){
-    for(auto i = _player_list.begin(); i != _player_list.end(); i++){
-      new_game("");
-      std::unique_ptr<AbstractEvent> s_event(new syncEvent());
-      ENetPeer* to = (*i)->getPeer();
-      if(to)
-        _net_server.sendEvent(s_event, to);
-    }
-  }
-
-  if(command == "nickname" && !_server){
-    if(tokens.size()!=2)
-      log_message(ERROR, "nickname requires exactly one argument");
-    else{
-      _nickname = tokens.back();
-      log_message(INFO, "nickname is now " + _nickname);
-    }
-  }
-
-  if(command == "disconnect"){
-    /*TODO:*/if(_server){
-
-    }
-    else{
-
-    }
-  }
-
-  if(command == "draw"){
-    if(tokens.size() == 2){
-      if(tokens.back() == "on"){
-        set_draw(true);
-      }
-      else if(tokens.back() == "off"){
-        set_draw(false);
-      }
-      else{
-        log_message(ERROR, "Couldn't parse command - " + command + tokens.back() + " the options for 'draw' are 'on' and 'off'");
-        return false;
-      }
-    }
-
-    else{
-      log_message(ERROR, "draw command requires one argument");
-      return false;
-    }
-  }
-
-  if(!_server && command == "open"){
-    if(tokens.size() == 2){
-      auto iter = tokens.begin();
-      iter++;        //Select the first token
-      int port;
-
-      /*  Attempt to parse the first argument as address:port.
-          If no ':' is present, the port number defaults to 8888.
-       */
-      long unsigned int delim_pos = iter->find(':');
-      std::string address;
-      if(delim_pos == std::string::npos){
-        port = 8888;
-        address = *iter;
-      }
-      else if(iter->substr(delim_pos+1).find(':')!=std::string::npos){
-        std::stringstream msg;
-        msg << "Couldn't parse address, " << *iter;
-        log_message(ERROR, msg.str());
-        return false;
-      }
-      else{
-        address = iter->substr(0, delim_pos);
-        /*  TODO replace try-catch with something less lazy to check if
-            we're going to have an error
-        */
-        try{
-          port = std::stoi(iter->substr(delim_pos+1).c_str());
-        }
-        catch(std::exception &e){
-          log_message(ERROR, "Failed to parse port number");
-          return false;
-        }
-      }
-      /* We now have an address and port number to connect with
-         NetClient::connectClient returns true of false. Return
-         this value
-       */
-      if(!_net_client.joinBlokeServer(address, port, _nickname)){
-        log_message(INFO, "failed to connect to server");
-        return false;
-      }
-    }
-    else{
-      /* TODO allow port number as a separate argument? */
-      log_message(ERROR, "Incorrect number of elements for connect");
-    }
-  }
-
-  if(command == "info"){
-    QueryEvent e("big_beef");
-    cereal::JSONOutputArchive oArchive(std::cout);
-    oArchive(e);
-  }
-
-  if(command == "log_level"){
-    if(tokens.size()!=2){
-      log_message(ERROR, "Command: log_level requires exactly one argument.");
-      return false;
-    }
-    else{
-      //Critical is our highest warning level
-      auto iterator = tokens.begin();
-      iterator++;
-      std::string input_string = *iterator;
-      for(unsigned int i = 0; i <= CRITICAL; i++){
-        if(input_string == LOG_LEVEL_STRINGS[i]){
-          _log_message_scene = i;
-          log_message(ALL, "Log level set to " + LOG_LEVEL_STRINGS[i]);
-        }
-      }
-
-    }
-  }
-
-
-  else if(command == "quit"){
-    exit_engine(0);
-  }
-
-  else if(command ==  "generate_config"){
-    if(tokens.size() == 1){
-      GenerateConfig("generated_config.conf");
-    }
-    else if(tokens.size() == 2){
-      std::string fname = tokens.back();
-      GenerateConfig(fname);
-    }
-    else{
-      log_message(ERROR, "To many arguments supplied to generate_config");
-    }
-  }
-
-  else if(command == "resize"){
-    if(tokens.size() == 3){
-      auto i = tokens.begin();
-      i++;
-      /*TODO: Try catch here*/
-      std::cout << *i << "\n";
-      int x = std::stoi(*i);
-      i++;
-      int y = std::stoi(*i);
-
-      resize_window(x,y);
-    }
-    else{
-      log_message(ERROR, "Incorrect number of arguments for resize");
-    }
-  }
-
-  else if(command == "bind"){
-    if(tokens.size() == 3){
-      auto i = tokens.begin();
-      i++;
-      CommandBinding new_command;
-      new_command.command = *i;
-      i++;
-      /*TODO: try catch*/
-      new_command.scancode = SDL_Scancode(std::stoi(*i));
-      _local_player_list.front().mControlScheme.push_back(new_command);
-      log_message(INFO, "Successfully bound command " +  new_command.command + " to " + std::to_string(new_command.scancode));
-    }
-    else if(tokens.size() == 2){
-      _bind_next_key = true;
-      auto i = tokens.begin();
-      i++;
-      _next_bind_command = *i;
-      log_message(INFO, "binding next keypress to command: " + _next_bind_command);
-    }
-
-  }
-  return true;
 }
 
 std::list <std::string> split_to_tokens(std::string str) {
@@ -545,9 +544,9 @@ std::list <std::string> split_to_tokens(std::string str) {
         }
     }
     if (last_index != str.length() - 1){
-      std::string last_token = str.substr(last_index);
-      if(last_token.size()>0 && !std::isspace(last_token[0]))
-        tokens.push_back(str.substr(last_index));
+        std::string last_token = str.substr(last_index);
+        if(last_token.size()>0 && !std::isspace(last_token[0]))
+            tokens.push_back(str.substr(last_index));
     }
 
     return tokens;
@@ -593,13 +592,16 @@ static void load_assets(){
                 std::string file_name = whole_filename.substr(0, dot_pos);
                 std::string file_extension = whole_filename.substr(dot_pos);
                 
-                if (file_extension == ".png"){
+                if (file_extension == ".png") {
                     // Found texture
                     SDL_Texture *sprite = IMG_LoadTexture(_renderer, ("assets" + PATHSEPARATOR +  whole_filename).c_str());
                     _sprite_list.push_back({whole_filename, sprite});
                 } else if (file_extension == ".wav") {
                     // Found sound file
                     soundManager.loadFromPath("assets" + PATHSEPARATOR +  whole_filename, file_name);
+                } else if (file_extension == ".ttf") {
+                    // Found font file
+                    textManager.loadFontFromPath("assets" + PATHSEPARATOR +  whole_filename, file_name);
                 }
             }
         }
@@ -609,23 +611,23 @@ static void load_assets(){
 
 /* Lookup the name in our list of assets and return a pointer to its texture if it exists */
 SDL_Texture *get_sprite(std::string asset_name){
-  auto iter = std::find_if(_sprite_list.begin(), _sprite_list.end(), [&](std::pair<std::string, SDL_Texture*> entry) -> bool{return entry.first==asset_name;});
-  if(iter == _sprite_list.end()){
-    log_message(ERROR, "Requested sprite, " + asset_name + " does not exist.");
-    return nullptr;
-  }
-  else
-    return iter->second;
+    auto iter = std::find_if(_sprite_list.begin(), _sprite_list.end(), [&](std::pair<std::string, SDL_Texture*> entry) -> bool{return entry.first==asset_name;});
+    if(iter == _sprite_list.end()){
+        log_message(ERROR, "Requested sprite, " + asset_name + " does not exist.");
+        return nullptr;
+    }
+    else
+        return iter->second;
 }
 
 void add_player(std::shared_ptr<AbstractPlayer> a_player){
-  int id = _player_list.back()->getId();
-  for(int i = 0; i < 1000;i++){
-    if(find_if(_player_list.begin(), _player_list.end(), [&](std::shared_ptr<AbstractPlayer> a_player) -> bool {return a_player->getId() == id + i;}) == _player_list.end()){
-      a_player->setId(i + id);
-      _player_list.push_back(a_player);
-      return;
+    int id = _player_list.back()->getId();
+    for(int i = 0; i < 1000;i++){
+        if(find_if(_player_list.begin(), _player_list.end(), [&](std::shared_ptr<AbstractPlayer> a_player) -> bool {return a_player->getId() == id + i;}) == _player_list.end()){
+            a_player->setId(i + id);
+            _player_list.push_back(a_player);
+            return;
+        }
     }
-  }
-  log_message(ERROR, "Couldn't add player! No free id");
+    log_message(ERROR, "Couldn't add player! No free id");
 }

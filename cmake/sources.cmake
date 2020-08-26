@@ -13,3 +13,10 @@ engine/collider/KinematicCollider.cpp
 engine/animation/PlaceHolderSprite.cpp
 engine/camera/Camera.cpp
 engine/sound/SoundManager.cpp
+engine/text/TextManager.cpp
+engine/text/Text.cpp
+engine/hud/ClickableHudElement.cpp
+engine/hud/AbstractHudElement.cpp
+engine/hud/TextHudElement.cpp
+engine/hud/TextButton.cpp
+engine/hud/SpriteHudElement.cpp

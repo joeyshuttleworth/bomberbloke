@@ -6,8 +6,13 @@
 #include "GamePlayerProperties.hpp"
 #include "PlaceHolderSprite.hpp"
 
+class SpeedPickup;
+class BombPickup;
+
 class bloke : public actor{
   friend bomb;
+  friend SpeedPickup;
+  friend BombPickup;
 protected:
   std::list<int> mPowerups;
 
@@ -20,10 +25,10 @@ protected:
   };
 
   void place_bomb();
-  double mMaxSpeed = double(DEFAULT_MAX_SPEED);
+  double mMaxSpeed = double(DEFAULT_SPEED);
   int    mBombs=0;
   Uint8  mMaxBombs = 1;
-  GamePlayerProperties mProperties;
+  std::shared_ptr<GamePlayerProperties> mProperties;
   bool   mAccelerated;
   bool   mDirectionsHeld[4] = {false, false, false, false};
   double mAcceleration[2] = {0,0};
@@ -34,8 +39,8 @@ protected:
     mCollides = collides;
     mPosition[0]=x;
     mPosition[1]=y;
-    std::shared_ptr<PlaceHolderSprite> sprite(new  PlaceHolderSprite(mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]));
-    mpSpriteHandler = std::dynamic_pointer_cast<AbstractSpriteHandler>(sprite);
+    mpSpriteHandler = std::make_shared<PlaceHolderSprite>(mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]);
+    mProperties = std::make_shared<GamePlayerProperties>();
     return;
   };
 
@@ -43,7 +48,7 @@ protected:
     return ACTOR_BLOKE;
   };
 
-  GamePlayerProperties GetProperties(){
+  std::shared_ptr<GamePlayerProperties> GetProperties(){
     return mProperties;
   }
 
