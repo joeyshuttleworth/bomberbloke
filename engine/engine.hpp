@@ -83,6 +83,9 @@ extern bool _controller_connected;
 #include "SoundManager.hpp"
 extern SoundManager soundManager;
 
+#include "TextManager.hpp"
+extern TextManager textManager;
+
 
 typedef struct{
   SDL_Scancode scancode;

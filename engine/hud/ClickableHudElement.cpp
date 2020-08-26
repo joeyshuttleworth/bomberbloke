@@ -26,18 +26,24 @@ void ClickableHudElement::onInput(SDL_Event *event) {
     }
 
     if (event->type == SDL_MOUSEBUTTONDOWN) {
+        mPropertiesUpdated = true;
+        if (mOnClickFn != nullptr && mIsMouseOver)
+            mOnClickFn();
+    } else if (event->type == SDL_MOUSEBUTTONDOWN) {
         // If it is a mouse button down event and the cursor is on the button
         // it must be clicked and the mouse must be over it
         if (isCoordOnElement(event->button.x, event->button.y)) {
             mIsMouseOver = true;
             mIsClicked = true;
-            if (mOnClickFn != nullptr)
-                mOnClickFn();
-        } else {
-            mIsMouseOver = false;
+            mPropertiesUpdated = true;
         }
     } else if (event->type == SDL_MOUSEMOTION) {
         // If it is a mouse motion event check if the cursor is on the button
-        mIsMouseOver = isCoordOnElement(event->motion.x, event->motion.y);
+        bool newIsMouseOver = isCoordOnElement(event->motion.x, event->motion.y);
+        // Check if IsMouseOver has changed
+        if (newIsMouseOver != mIsMouseOver) {
+            mIsMouseOver = newIsMouseOver;
+            mPropertiesUpdated = true;
+        }
     }
 }

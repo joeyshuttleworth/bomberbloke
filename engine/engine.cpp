@@ -44,6 +44,7 @@ NetClient _net_client;
 NetServer _net_server;
 
 SoundManager soundManager;
+TextManager textManager;
 
 std::list<std::pair<std::string, SDL_Texture*>> _sprite_list;
 static void load_assets();
@@ -578,13 +579,16 @@ static void load_assets(){
                 std::string file_name = whole_filename.substr(0, dot_pos);
                 std::string file_extension = whole_filename.substr(dot_pos);
                 
-                if (file_extension == ".png"){
+                if (file_extension == ".png") {
                     // Found texture
                     SDL_Texture *sprite = IMG_LoadTexture(_renderer, ("assets" + PATHSEPARATOR +  whole_filename).c_str());
                     _sprite_list.push_back({whole_filename, sprite});
                 } else if (file_extension == ".wav") {
                     // Found sound file
                     soundManager.loadFromPath("assets" + PATHSEPARATOR +  whole_filename, file_name);
+                } else if (file_extension == ".ttf") {
+                    // Found font file
+                    textManager.loadFontFromPath("assets" + PATHSEPARATOR +  whole_filename, file_name);
                 }
             }
         }

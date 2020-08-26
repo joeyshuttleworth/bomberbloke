@@ -4,6 +4,9 @@
 #include "bomb.hpp"
 #include <network/NetClient.hpp>
 #include "Explosion.hpp"
+#include "TextButton.hpp"
+#include "TextHudElement.hpp"
+#include "SpriteHudElement.hpp"
 
 /* Register our actors with cereal */
 CEREAL_REGISTER_DYNAMIC_INIT(actors)
@@ -35,7 +38,6 @@ int main (){
   // Play intro music
   std::shared_ptr<Sound> pIntroSound = soundManager.createSound("explosion_intro");
   soundManager.playSound(pIntroSound);
-
   client_loop();
 
   return 0;
@@ -48,12 +50,3 @@ void gameUpdate(){
 void new_game(std::string){
   return;
 }
-
-
-
-
-
-
-
-
-

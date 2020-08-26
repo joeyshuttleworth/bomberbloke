@@ -3,19 +3,32 @@
 
 #include "AbstractHudElement.hpp"
 
-class ClickableHudElement: public AbstractHudElement {
+class ClickableHudElement: public virtual AbstractHudElement {
 public:
     /**
      * Constructor for an abstract clickable HUD element - calls the base
      * constructor.
-     * onClickFn is the static function that is called when the element is
-     * left-clicked by the mouse.
+     *
+     * @param xPos          The position of the hud element in px.
+     * @param yPos          The position of the hud element in px.
+     * @param xDim          The dimensions of the bounding box of the element in px.
+     * @param yDim          The dimensions of the bounding box of the element in px.
+     * @param onClickFn     The static function that is called when the element
+     *                      is left-clicked by the mouse.
+     * @param xAlignFlag    Determines the alignment of the bounding box.
+     * @param yAlignFlag    DetermineS the alignment of the bounding box.
      */
     ClickableHudElement(int xPos, int yPos, int xDim, int yDim,
-        void (*onClickFn)()=nullptr, AlignFlag xAlignFlag=ALIGN_LEFT, AlignFlag yAlignFlag=ALIGN_BOTTOM);
-        
+        void (*onClickFn)()=nullptr, AlignFlag xAlignFlag=ALIGN_LEFT,
+        AlignFlag yAlignFlag=ALIGN_BOTTOM);
+
+    /**
+     * Called by the handle input function.
+     *
+     * @param camera    Current Camera object.
+     */
     void onInput(SDL_Event *event);
-    
+
     // TODO: support keyboard and joystick selection
 
 protected:
@@ -24,7 +37,7 @@ protected:
      * the mouse.
      */
     void (*mOnClickFn)();
-    
+
     /**
      * Boolean that is set to true when the element is left-clicked. It is set
      * back to false when the click is released.
