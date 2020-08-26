@@ -1,5 +1,6 @@
 #ifndef BOMBERBLOKESCENE_HPP
 #define BOMBERBLOKESCENE_HPP
+#include "ClickableHudElement.hpp"
 #include "engine.hpp"
 #include "scene.hpp"
 #include "bomberbloke.h"
@@ -18,8 +19,7 @@ public:
      */
     void LogicUpdate();
 
-    void draw(Camera *cam);
-
+    void draw();
     template<class Archive>
     void serialize(Archive &archive){
       archive(cereal::base_class<scene>(this));

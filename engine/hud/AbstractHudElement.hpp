@@ -60,7 +60,7 @@ public:
      * Called by scene on every frame. updatePosition must be called once at
      * some point before it is drawn.
      */
-    virtual void draw(Camera* camera) {
+  virtual void draw(std::shared_ptr<Camera> camera) {
         SDL_Rect dstRect;
         dstRect.x = mPosition[0];
         dstRect.y = mPosition[1];
@@ -78,7 +78,7 @@ public:
      * actual position of the bounding box from its top left corner. This must
      * be called at least once before draw is called.
      */
-    void updatePosition(Camera* camera) {
+    void updatePosition(std::shared_ptr<Camera> camera) {
         std::array<int, 2> screenDimensions = camera->getScreenDimensions();
         
         switch(mAlignFlags[0]) {

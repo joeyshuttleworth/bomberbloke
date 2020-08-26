@@ -6,6 +6,8 @@
 #include "scene.hpp"
 #include "engine.hpp"
 
+extern int _window_size[];
+
 extern bool _halt;
 extern SDL_Renderer *_renderer;
 extern SDL_Window   *_window;
@@ -15,15 +17,15 @@ public:
 
   Camera(){};
 
-  Camera(std::shared_ptr<scene> lvl){
-    mpScene = lvl;
+  Camera(scene *lvl){
     onResize();
 
     mScreenRectangle.x=0;
     mScreenRectangle.y=0;
-    mScreenRectangle.h=mHeight;
-    mScreenRectangle.w=mWidth;
+    mScreenRectangle.w= 700;//_window_size[0];
+    mScreenRectangle.h= 700;//_window_size[1];
 
+    mpFrameBuffer = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, mScreenRectangle.w, mScreenRectangle.h);
     return;
   }
 
@@ -38,9 +40,9 @@ public:
   SDL_Texture *getFrameBuffer(){
     return mpFrameBuffer;
   }
-  
+
   std::array<int, 2> getScreenDimensions() {
-      return {{ mWidth, mHeight }};
+      return {{ mScreenRectangle.w, mScreenRectangle.h }};
   }
 
   double GetZoom(){
@@ -48,9 +50,9 @@ public:
   }
 
   std::shared_ptr<scene> GetScene(){
-    return mpScene;
+    return _pScene;
   }
-  
+
   /**
    * Called by the engine when the window is resized.
    */
@@ -65,10 +67,8 @@ public:
 
   void rumble(double amplitude = 0.02, double timeout = 30);
 protected:
-  std::shared_ptr<scene> mpScene;
+  std::shared_ptr<scene> _pScene;
   double mZoom;
-  int mWidth;
-  int mHeight;
   SDL_Texture *mpFrameBuffer = nullptr;
   SDL_Rect mScreenRectangle;
   std::array<double, 2> mFocusCoordinates = {{ 0, 0 }};

@@ -16,7 +16,6 @@
 #include <SDL2/SDL_image.h>
 
 /*  TODO: reduce number of globals */
-std::shared_ptr<Camera> _pCamera;
 int _log_message_scene = 0;
 bool _bind_next_key = false;
 std::string _next_bind_command;
@@ -90,19 +89,18 @@ void create_window(){
         window_name = "Bomberbloke Server";
     _window = SDL_CreateWindow(window_name.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
             _window_size[0], _window_size[1], SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
-    if(_pCamera)
-        _pCamera->onResize();
     if(_renderer){
         SDL_DestroyRenderer(_renderer);
     }
     _renderer = SDL_CreateRenderer(_window, -1, 0);
+    /*  Set blendmode */
+    SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(_renderer, 0xff, 0x00, 0x00, 0xff);
     SDL_RenderClear(_renderer);
     SDL_RenderPresent(_renderer);
 
-    for(auto i = _sprite_list.begin(); i != _sprite_list.end(); i++){
-        SDL_DestroyTexture(i->second);
-    }
+    if(_pScene)
+      _pScene->onResize();
 
     return;
 }
@@ -119,8 +117,8 @@ void refresh_sprites(){
 
 
 void resize_window(int x, int y){
-    if(!_pCamera)
-        return;
+    if(!_draw)
+      return;
 
     _window_size[0] = x;
     _window_size[1] = y;
@@ -129,9 +127,10 @@ void resize_window(int x, int y){
         SDL_DestroyWindow(_window);
         create_window();
     }
-    
-    _pCamera->onResize();
-    refresh_sprites();
+    if(_pScene){
+      _pScene->onResize();
+      refresh_sprites();
+    }
     return;
 }
 
@@ -144,15 +143,11 @@ void init_engine() {
     SDL_Init(SDL_INIT_EVERYTHING);
     soundManager.init(channelFinishedForwarder);
 
-    /*  Set blendmode */
-    SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
-
     if (_draw) {
         create_window();
+        if(_pScene)
+          refresh_sprites();
     }
-
-    _pScene = std::shared_ptr<scene>(new scene(10, 10));
-    _pCamera = std::shared_ptr<Camera>(new Camera(_pScene));
 
     /* Initialise the controller if it exists */
     _controller = handle_input_controller();
@@ -177,7 +172,7 @@ void handle_input() {
     Uint8 *kb_state = NULL;
     while (SDL_PollEvent(&event)) {
         _pScene->onInput(&event);
-        
+
         switch (event.type) {
             case SDL_QUIT: {
                 _halt = true;
@@ -185,7 +180,7 @@ void handle_input() {
             }
             case SDL_KEYDOWN: {
                 if(!_bind_next_key)
-                    break;
+                  break;
                 /*We only look at keyboard events here in order to bind keys*/
                 CommandBinding new_binding;
                 new_binding.scancode = event.key.keysym.scancode;
@@ -199,7 +194,7 @@ void handle_input() {
                 if(event.window.event == SDL_WINDOWEVENT_RESIZED){
                     _window_size[0] = event.window.data1;
                     _window_size[1] = event.window.data2;
-                    _pCamera->onResize();
+                    _pScene->onResize();
                 }
             }
         }
@@ -272,17 +267,12 @@ SDL_Joystick *handle_input_controller() {
       return NULL;  // no joystick found
 }
 
-void draw_hud() {
-    return;
-}
-
 void draw_screen() {
     if(_halt || !_renderer || !_window || !_draw)
         return;
-
-    SDL_SetRenderDrawColor(_renderer, 0x10, 0xFF, 0x00, 0xFF);
+    SDL_SetRenderDrawColor(_renderer, 0x00, 0x00, 0x00, 0xFF);
     SDL_RenderClear(_renderer);
-    _pCamera->draw();
+    _pScene->draw();
     SDL_RenderPresent(_renderer);
     return;
 }
@@ -340,12 +330,7 @@ bool handle_system_command(std::list<std::string> tokens) {
     if(command == "new" && _server){
         log_message(INFO, "starting new game");
         new_game("");
-        for(auto i = _player_list.begin(); i != _player_list.end(); i++){
-            std::unique_ptr<AbstractEvent> s_event(new syncEvent());
-            ENetPeer* to = (*i)->getPeer();
-            if(to)
-                _net_server.sendEvent(s_event, to);
-        }
+        _net_server.syncPlayers();
     }
 
     if(command == "nickname" && !_server){

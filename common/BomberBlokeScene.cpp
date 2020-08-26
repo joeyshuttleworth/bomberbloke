@@ -4,23 +4,55 @@
 #include <algorithm>
 #include "engine.hpp"
 #include "scene.hpp"
+#include "bomberbloke.h"
 
-void BomberBlokeScene::draw(Camera *cam){
-  if(!cam){
+static void hudTestFn1() {
+  std::cout << "clicked centre button" << std::endl;
+}
+
+static void hudTestFn2() {
+  std::cout << "clicked left button" << std::endl;
+  handle_system_command(split_to_tokens("nickname dave1"));
+  handle_system_command(split_to_tokens("open 127.0.0.1"));
+}
+
+static void hudTestFn3() {
+  std::cout << "clicked right button" << std::endl;
+  handle_system_command(split_to_tokens("nickname dave2"));
+  handle_system_command(split_to_tokens("open 127.0.0.1"));
+}
+
+
+void BomberBlokeScene::draw(){
+  if(!mpCamera){
     return;
     log_message(ERROR, "null camera");
   }
 
-  drawActors(cam);
-  drawParticles(cam);
-  drawHud(cam);
-  int zoom = cam->GetZoom();
+  SDL_SetRenderTarget(_renderer, mpCamera->getFrameBuffer());
+  // SDL_SetRenderTarget(_renderer, nullptr);
+  SDL_SetRenderDrawColor(_renderer, 0x00, 0x10, 0xff, 0xff);
+  // SDL_RenderFillRect(_renderer, nullptr);
+  SDL_RenderClear(_renderer);
+
+  int zoom = mpCamera->GetZoom();
+
+  SDL_SetRenderDrawColor(_renderer, 0x10, 0x10, 0x10, 0xa0);
+
   /* Draw a grid */
   for(int i = 0; i<=10; i++){
     SDL_RenderDrawLine(_renderer, i * zoom, 0, i * zoom, mDimmension[1]*zoom);
     SDL_RenderDrawLine(_renderer, 0, i*zoom, mDimmension[0]*zoom, i*zoom);
   }
+
+  drawActors();
+  drawParticles();
+  drawHud();
+
+
+  mpCamera->draw();
 }
+
 
 void BomberBlokeScene::LogicUpdate(){
   // count blokes
@@ -52,7 +84,8 @@ void BomberBlokeScene::LogicUpdate(){
 
 BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_y){
   mState = PLAYING;
-  if(_server){
+
+ if(_server){
     std::random_device rd;
     std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
     std::uniform_int_distribution<> distrib(0, 9);
@@ -114,5 +147,16 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
     }
   }
   log_message(INFO, "no. actors " + std::to_string(mActors.size()));
+
+
+  // // HUD elements for testing
+  std::shared_ptr<AbstractHudElement> hudElement1(new ClickableHudElement(5, 5, 100, 50, hudTestFn1, ALIGN_CENTER, ALIGN_BOTTOM));
+  mHudElements.push_back(hudElement1);
+  std::shared_ptr<AbstractHudElement> hudElement2(new ClickableHudElement(5, 5, 100, 50, hudTestFn2, ALIGN_LEFT, ALIGN_BOTTOM));
+  mHudElements.push_back(hudElement2);
+  std::shared_ptr<AbstractHudElement> hudElement3(new ClickableHudElement(5, 5, 100, 50, hudTestFn3, ALIGN_RIGHT, ALIGN_BOTTOM));
+  mHudElements.push_back(hudElement3);
+
+
   return;
 }

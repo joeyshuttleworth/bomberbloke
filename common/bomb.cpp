@@ -87,7 +87,7 @@ void bomb::explode(){
       placed_by->mBombs--;
     _pScene->mParticleList.push_back(std::shared_ptr<Explosion>(new Explosion(mPosition[0] - 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), mPosition[1] - 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), 1 ,1)));
     /*  Rumble effect */
-    _pCamera->rumble();
+    _pScene->getCamera()->rumble();
   }
 
   /* Play explosion sound effect */

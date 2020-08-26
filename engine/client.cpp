@@ -24,11 +24,14 @@ void client_loop(){
      if(delay>0){
        SDL_Delay(delay);
      }
-     handle_input();
+     if(_pScene){
+       _pScene->update();
+       handle_input();
+     }
      _net_client.pollServer();
-     _pScene->update();
      gameUpdate();
-     draw_screen();
+     if(_draw)
+       draw_screen();
      _tick++;
   }
 }
@@ -37,14 +40,6 @@ void setAddress(std::string serverAddress = "127.0.0.1", enet_uint16 port=8888){
   _serverIP = serverAddress;
   _port = port;
   _server = true;
-}
-
-void engine_new_game(std::string tokens){
-  log_message(INFO, (char*)"New game ready to start...\n");
-  _state = PAUSED;
-  new_game(tokens);
-  _pScene = std::shared_ptr<scene>(new scene());
-  return;
 }
 
 void engine_start_game(){
