@@ -86,8 +86,9 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
   mState = PLAYING;
 
  if(_server){
+    /*  Initialisation for random number generation */
     std::random_device rd;
-    std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
+    std::mt19937 gen(rd());
     std::uniform_int_distribution<> distrib(0, 9);
     std::vector<std::array<int, 2>> spawn_points;
     spawn_points.reserve(5);
