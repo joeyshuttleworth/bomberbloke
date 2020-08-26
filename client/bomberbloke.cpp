@@ -55,7 +55,7 @@ int main (){
   pTextTitle->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
   pTextTitle->setTextColour({255, 255, 255});
   pTextTitle->setTextScale(2.);
-  std::shared_ptr<TextHudElement> hudElementTitle = std::make_shared<TextHudElement>(pTextTitle, 5, 0, 400, 50, ALIGN_CENTER, ALIGN_TOP);
+  std::shared_ptr<TextHudElement> hudElementTitle = std::make_shared<TextHudElement>(pTextTitle, 5, 5, 400, 50, ALIGN_CENTER);
   _pScene->mHudElements.push_back(hudElementTitle);
 
   std::shared_ptr<Text> pText1 = textManager.createText("Aileron-Black", "DAVE1");
