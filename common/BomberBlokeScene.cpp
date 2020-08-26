@@ -5,9 +5,17 @@
 #include "engine.hpp"
 #include "scene.hpp"
 #include "bomberbloke.h"
+#include "ClickableHudElement.hpp"
+#include "TextHudElement.hpp"
+#include "TextButton.hpp"
+#include "SpriteHudElement.hpp"
 
 static void hudTestFn1() {
   std::cout << "clicked centre button" << std::endl;
+}
+
+static void hudTestFnJoin(){
+  handle_system_command({"open", "127.0.0.1"});
 }
 
 static void hudTestFn2() {
@@ -147,17 +155,58 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
       iter++;
     }
   }
+
   log_message(INFO, "no. actors " + std::to_string(mActors.size()));
 
+  /* Create HUD elements */
 
-  // // HUD elements for testing
-  std::shared_ptr<AbstractHudElement> hudElement1(new ClickableHudElement(5, 5, 100, 50, hudTestFn1, ALIGN_CENTER, ALIGN_BOTTOM));
+  std::shared_ptr<Text> pTextTitle = textManager.createText("Aileron-Black", "BLOKE/ENGINE");
+  pTextTitle->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
+  pTextTitle->setTextColour({255, 255, 255});
+  pTextTitle->setTextScale(2.);
+
+  std::shared_ptr<TextHudElement> hudElementTitle = std::make_shared<TextHudElement>(pTextTitle, 5, 5, 400, 50, ALIGN_CENTER);
+  mHudElements.push_back(hudElementTitle);
+
+  std::shared_ptr<Text> pText1 = textManager.createText("Aileron-Black", "DAVE1");
+  pText1->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
+  pText1->setTextColour({255, 255, 255});
+  pText1->setTextScale(1.5);
+  std::shared_ptr<TextButton> hudElement1 = std::make_shared<TextButton>(pText1, 9, 71, 200, 30, hudTestFn1, ALIGN_LEFT, ALIGN_BOTTOM);
+  hudElement1->setMouseOverColour({200, 200, 200});
+  hudElement1->setOnClickOffset(1, 2);
   mHudElements.push_back(hudElement1);
-  std::shared_ptr<AbstractHudElement> hudElement2(new ClickableHudElement(5, 5, 100, 50, hudTestFn2, ALIGN_LEFT, ALIGN_BOTTOM));
+
+  std::shared_ptr<Text> pText2 = textManager.createText("Aileron-Black", "DAVE2");
+  pText2->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
+  pText2->setTextColour({255, 255, 255});
+  pText2->setTextScale(1.5);
+  std::shared_ptr<TextButton> hudElement2 = std::make_shared<TextButton>(pText2, 9, 40, 200, 30, hudTestFn2, ALIGN_LEFT, ALIGN_BOTTOM);
+  hudElement2->setMouseOverColour({200, 200, 200});
+  hudElement2->setOnClickOffset(1, 2);
   mHudElements.push_back(hudElement2);
-  std::shared_ptr<AbstractHudElement> hudElement3(new ClickableHudElement(5, 5, 100, 50, hudTestFn3, ALIGN_RIGHT, ALIGN_BOTTOM));
-  mHudElements.push_back(hudElement3);
 
+  std::shared_ptr<Text> pTextJoin = textManager.createText("Aileron-Black", "JOIN LOCAL");
+  pTextJoin->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
+  pTextJoin->setTextColour({255, 255, 255});
+  pTextJoin->setTextScale(1.5);
+  std::shared_ptr<TextButton> hudElementJoin = std::make_shared<TextButton>(pTextJoin, 9, 9, 200, 30, hudTestFnJoin, ALIGN_LEFT, ALIGN_BOTTOM);
+  hudElementJoin->setMouseOverColour({200, 200, 200});
+  hudElementJoin->setOnClickOffset(0, 3);
+  mHudElements.push_back(hudElementJoin);
 
+  // Speed HUD demo
+  for (int i = 0; i < 4; i++) {
+    std::shared_ptr<SpriteHudElement> hudElement = std::make_shared<SpriteHudElement>("lightning.png", 9 + i * 34, 9, 32, 32);
+    mHudElements.push_back(hudElement);
+  }
+
+  // Power HUD demo
+  for (int i = 0; i < 3; i++) {
+    std::shared_ptr<SpriteHudElement> hudElement = std::make_shared<SpriteHudElement>("flames.png", 9 + i * 34, 9, 32, 32, ALIGN_RIGHT);
+    mHudElements.push_back(hudElement);
+  }
+
+  onResize();
   return;
 }

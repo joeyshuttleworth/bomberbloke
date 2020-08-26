@@ -19,13 +19,16 @@ public:
 
   Camera(scene *lvl){
     mpScene = lvl;
+
+    /* Call this to get screen dimensions */
     onResize();
 
     mScreenRectangle.x=0;
     mScreenRectangle.y=0;
-    mScreenRectangle.w= 700;//_window_size[0];
-    mScreenRectangle.h= 700;//_window_size[1];
+
     mpFrameBuffer = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, mScreenRectangle.w, mScreenRectangle.h);
+
+    mpScene->updateHudPositions();
     return;
   }
 

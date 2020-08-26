@@ -32,8 +32,9 @@ int main (){
 }
 
 void new_game(std::string){
-  /* First set reset everyone's powerups */
+  const std::lock_guard<std::mutex> lock(_scene_mutex);
 
+  /* First set reset everyone's powerups */
   for(auto i = _player_list.begin(); i != _player_list.end(); i++){
     if(!(*i)->mpPlayerProperties)
       (*i)->mpPlayerProperties = std::make_shared<GamePlayerProperties>();

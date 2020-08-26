@@ -27,6 +27,7 @@ void server_loop(){
     if(_tick % (5 * TICK_RATE) == 0){
       _ping_time = _tick;
     }
+    const std::lock_guard<std::mutex> lock(_scene_mutex);
     if(!_pScene)
       _pScene = std::make_shared<scene>(10,10);
     _pScene->update();

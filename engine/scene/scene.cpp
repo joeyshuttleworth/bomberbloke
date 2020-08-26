@@ -6,9 +6,9 @@
 extern std::list<std::shared_ptr<AbstractSpriteHandler>> _particle_list;
 
 scene :: scene(double x, double y){
-  mpCamera = std::make_shared<Camera>(this);
   mDimmension[0] = x;
   mDimmension[1] = y;
+  mpCamera = std::make_shared<Camera>(this);
   return;
 }
 
@@ -185,7 +185,7 @@ void scene::drawHud(){
     return;
   }
 
- // Draw HUD elements
+  // Draw HUD elements
   // SDL_SetRenderTarget(_renderer, mpCamera->getFrameBuffer());
   for(auto i = mHudElements.begin(); i!= mHudElements.end(); i++){
     (*i)->draw(mpCamera);

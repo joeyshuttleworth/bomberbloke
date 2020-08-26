@@ -40,6 +40,8 @@ std::ofstream _console_log_file;
 std::list<std::shared_ptr<AbstractSpriteHandler>> _particle_list;
 std::vector<CommandBinding> _default_bindings;
 
+std::mutex _scene_mutex;
+
 NetClient _net_client;
 NetServer _net_server;
 
@@ -578,7 +580,7 @@ static void load_assets(){
                     continue; // no file extension
                 std::string file_name = whole_filename.substr(0, dot_pos);
                 std::string file_extension = whole_filename.substr(dot_pos);
-                
+ 
                 if (file_extension == ".png") {
                     // Found texture
                     SDL_Texture *sprite = IMG_LoadTexture(_renderer, ("assets" + PATHSEPARATOR +  whole_filename).c_str());
