@@ -101,7 +101,6 @@ public:
   void setAlignment(AlignFlag xAlign, AlignFlag yAlign=ALIGN_TOP) {
         mAlignFlags[0] = xAlign;
         mAlignFlags[1] = yAlign;
->>>>>>> d6764ebeaca023af2b7bff252a0b45f7a346e669
     }
 
     /**
