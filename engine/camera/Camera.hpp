@@ -18,13 +18,13 @@ public:
   Camera(){};
 
   Camera(scene *lvl){
+    mpScene = lvl;
     onResize();
 
     mScreenRectangle.x=0;
     mScreenRectangle.y=0;
     mScreenRectangle.w= 700;//_window_size[0];
     mScreenRectangle.h= 700;//_window_size[1];
-
     mpFrameBuffer = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, mScreenRectangle.w, mScreenRectangle.h);
     return;
   }
@@ -49,8 +49,8 @@ public:
     return mZoom;
   }
 
-  std::shared_ptr<scene> GetScene(){
-    return _pScene;
+  scene* GetScene(){
+    return mpScene;
   }
 
   /**
@@ -67,7 +67,7 @@ public:
 
   void rumble(double amplitude = 0.02, double timeout = 30);
 protected:
-  std::shared_ptr<scene> _pScene;
+  scene *mpScene;
   double mZoom;
   SDL_Texture *mpFrameBuffer = nullptr;
   SDL_Rect mScreenRectangle;

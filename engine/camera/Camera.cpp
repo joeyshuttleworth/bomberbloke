@@ -21,8 +21,8 @@ void Camera::onResize() {
     mScreenRectangle.h = height;
 
     // Update HUD positions
-    if(_pScene)
-       _pScene->updateHudPositions();
+    if(mpScene)
+       mpScene->updateHudPositions();
 
     // Clear frame buffer
     if (mpFrameBuffer)
@@ -34,8 +34,8 @@ void Camera::onResize() {
     double min = width;
     if (height > min)
         min = height;
-    if(_pScene)
-      mZoom = ((double)min / _pScene->mDimmension[0]);
+    if(mpScene)
+      mZoom = ((double)min / mpScene->mDimmension[0]);
     else
       mZoom = 70;
     log_message(DEBUG, "Zoom level is " + std::to_string(mZoom));
