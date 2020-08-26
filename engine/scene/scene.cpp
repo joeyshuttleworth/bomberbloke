@@ -188,7 +188,7 @@ void scene::drawHud(){
   // Draw HUD elements
   // SDL_SetRenderTarget(_renderer, mpCamera->getFrameBuffer());
   for(auto i = mHudElements.begin(); i!= mHudElements.end(); i++){
-    (*i)->draw(mpCamera);
+    (*i)->draw(mpCamera.get());
   }
 }
 
