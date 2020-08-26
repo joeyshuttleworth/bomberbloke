@@ -17,7 +17,7 @@ public:
   void pickup(std::shared_ptr<bloke> b){
     log_message(INFO, "Picked up extra speed");
     if(b->mMaxSpeed < DEFAULT_MAX_SPEED)
-      b->mMaxSpeed++;
+      b->mMaxSpeed + DEFAULT_SPEED;
     else
       log_message(INFO, "Max speed reached");
   }
