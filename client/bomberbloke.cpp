@@ -6,6 +6,7 @@
 #include "Explosion.hpp"
 #include "TextButton.hpp"
 #include "TextHudElement.hpp"
+#include "SpriteHudElement.hpp"
 
 /* Register our actors with cereal */
 CEREAL_REGISTER_DYNAMIC_INIT(actors)
@@ -61,7 +62,7 @@ int main (){
   pText1->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
   pText1->setTextColour({255, 255, 255});
   pText1->setTextScale(1.5);
-  std::shared_ptr<TextButton> hudElement1 = std::make_shared<TextButton>(pText1, 5, 5, 200, 30, hudTestFn1, ALIGN_LEFT, ALIGN_TOP);
+  std::shared_ptr<TextButton> hudElement1 = std::make_shared<TextButton>(pText1, 9, 71, 200, 30, hudTestFn1, ALIGN_LEFT, ALIGN_BOTTOM);
   hudElement1->setMouseOverColour({200, 200, 200});
   hudElement1->setOnClickOffset(1, 2);
   _pScene->mHudElements.push_back(hudElement1);
@@ -70,7 +71,7 @@ int main (){
   pText2->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
   pText2->setTextColour({255, 255, 255});
   pText2->setTextScale(1.5);
-  std::shared_ptr<TextButton> hudElement2 = std::make_shared<TextButton>(pText2, 5, 35, 200, 30, hudTestFn2, ALIGN_LEFT, ALIGN_TOP);
+  std::shared_ptr<TextButton> hudElement2 = std::make_shared<TextButton>(pText2, 9, 40, 200, 30, hudTestFn2, ALIGN_LEFT, ALIGN_BOTTOM);
   hudElement2->setMouseOverColour({200, 200, 200});
   hudElement2->setOnClickOffset(1, 2);
   _pScene->mHudElements.push_back(hudElement2);
@@ -79,11 +80,23 @@ int main (){
   pTextJoin->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
   pTextJoin->setTextColour({255, 255, 255});
   pTextJoin->setTextScale(1.5);
-  std::shared_ptr<TextButton> hudElementJoin = std::make_shared<TextButton>(pTextJoin, 5, 65, 200, 30, hudTestFnJoin, ALIGN_LEFT, ALIGN_TOP);
+  std::shared_ptr<TextButton> hudElementJoin = std::make_shared<TextButton>(pTextJoin, 9, 9, 200, 30, hudTestFnJoin, ALIGN_LEFT, ALIGN_BOTTOM);
   hudElementJoin->setMouseOverColour({200, 200, 200});
   hudElementJoin->setOnClickOffset(0, 3);
   _pScene->mHudElements.push_back(hudElementJoin);
-
+  
+  // Speed HUD demo
+  for (int i = 0; i < 4; i++) {
+      std::shared_ptr<SpriteHudElement> hudElement = std::make_shared<SpriteHudElement>("lightning.png", 9 + i * 34, 9, 32, 32);
+      _pScene->mHudElements.push_back(hudElement);
+  }
+  
+  // Power HUD demo
+  for (int i = 0; i < 3; i++) {
+      std::shared_ptr<SpriteHudElement> hudElement = std::make_shared<SpriteHudElement>("flames.png", 9 + i * 34, 9, 32, 32, ALIGN_RIGHT);
+      _pScene->mHudElements.push_back(hudElement);
+  }
+  
   client_loop();
 
   return 0;
