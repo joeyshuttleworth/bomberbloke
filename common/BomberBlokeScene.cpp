@@ -10,26 +10,17 @@
 #include "TextButton.hpp"
 #include "SpriteHudElement.hpp"
 
-static void hudTestFn1() {
-  std::cout << "clicked centre button" << std::endl;
+static void hudTestFnJoin() {
+  handle_system_command({"open", "localhost"});
 }
 
-static void hudTestFnJoin(){
-  handle_system_command({"open", "127.0.0.1"});
+static void hudTestFn1() {
+  handle_system_command({"nickname", "dave2"});
 }
 
 static void hudTestFn2() {
-  std::cout << "clicked left button" << std::endl;
-  handle_system_command(split_to_tokens("nickname dave1"));
-  handle_system_command(split_to_tokens("open 127.0.0.1"));
+  handle_system_command({"nickname",  "dave1"});
 }
-
-static void hudTestFn3() {
-  std::cout << "clicked right button" << std::endl;
-  handle_system_command(split_to_tokens("nickname dave2"));
-  handle_system_command(split_to_tokens("open 127.0.0.1"));
-}
-
 
 void BomberBlokeScene::draw(){
   if(!mpCamera){
@@ -207,6 +198,5 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
     mHudElements.push_back(hudElement);
   }
 
-  onResize();
   return;
 }

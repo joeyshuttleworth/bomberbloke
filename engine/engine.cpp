@@ -275,7 +275,8 @@ void draw_screen() {
         return;
     SDL_SetRenderDrawColor(_renderer, 0x00, 0x00, 0x00, 0xFF);
     SDL_RenderClear(_renderer);
-    _pScene->draw();
+    if(_pScene)
+      _pScene->draw();
     SDL_RenderPresent(_renderer);
     return;
 }

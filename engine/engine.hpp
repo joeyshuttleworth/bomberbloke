@@ -132,8 +132,6 @@ extern std::list<LocalPlayer> _local_player_list;
 
 const std::array<std::string, 2> _system_commands  = {{"bind", "set"}};
 
-class Camera;
-
 /*  A function defined by the game / test called each tick */
 void gameUpdate();
 

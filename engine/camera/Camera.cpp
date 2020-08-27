@@ -1,5 +1,6 @@
 #include "engine.hpp"
 #include "Camera.hpp"
+#include <algorithm>
 
 void Camera::rumble(double amplitude, double timeout){
     mRumbleTimeout = timeout;
@@ -29,11 +30,8 @@ void Camera::onResize() {
         SDL_DestroyTexture(mpFrameBuffer);
     mpFrameBuffer = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, width, height);
 
-    // TODO: Move this somewhere else
-    // Set zoom value
-    double min = width;
-    if (height > min)
-        min = height;
+    const double min = std::min(width, height);
+
     if(mpScene)
       mZoom = ((double)min / mpScene->mDimmension[0]);
     else

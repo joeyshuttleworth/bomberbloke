@@ -24,6 +24,7 @@ void client_loop(){
      if(delay>0){
        SDL_Delay(delay);
      }
+     /* Lock _scene_mutex to protect _pScene from other threads */
      const std::lock_guard<std::mutex> lock(_scene_mutex);
      if(_pScene){
        _pScene->update();

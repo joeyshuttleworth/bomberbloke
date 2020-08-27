@@ -32,6 +32,7 @@ int main (){
 }
 
 void new_game(std::string){
+  /* Lock _scene_mutex to protect _pScene from other threads */
   const std::lock_guard<std::mutex> lock(_scene_mutex);
 
   /* First set reset everyone's powerups */
