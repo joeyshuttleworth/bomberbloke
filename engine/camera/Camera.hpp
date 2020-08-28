@@ -27,6 +27,7 @@ public:
     mScreenRectangle.y=0;
 
     mpFrameBuffer = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, mScreenRectangle.w, mScreenRectangle.h);
+    mpNoProcessingBuffer = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, mScreenRectangle.w, mScreenRectangle.h);
 
     mpScene->updateHudPositions();
     return;
@@ -40,8 +41,17 @@ public:
     }
   };
 
-  SDL_Texture *getFrameBuffer(){
-    return mpFrameBuffer;
+  /**
+   * Returns frame buffer for drawing to camera.
+   *
+   * @param isPostProcessed Setting this to true returns a buffer that post
+   *                        processing effects are applied to.
+   */
+  SDL_Texture *getFrameBuffer(bool isPostProcessed=true){
+    if (isPostProcessed)
+      return mpFrameBuffer;
+    else
+      return mpNoProcessingBuffer;
   }
 
   std::array<int, 2> getScreenDimensions() {
@@ -73,6 +83,7 @@ protected:
   scene *mpScene;
   double mZoom;
   SDL_Texture *mpFrameBuffer = nullptr;
+  SDL_Texture *mpNoProcessingBuffer = nullptr;
   SDL_Rect mScreenRectangle;
   std::array<double, 2> mFocusCoordinates = {{ 0, 0 }};
   std::shared_ptr<SDL_Renderer> mpRenderer;

@@ -43,10 +43,15 @@ void Camera::onResize() {
 
 void Camera::draw() {
     update();
+
+    SDL_SetRenderTarget(_renderer, nullptr);
     mScreenRectangle.x = mRumbleOffset[0];
     mScreenRectangle.y = mRumbleOffset[1];
     SDL_SetRenderTarget(_renderer, nullptr);
     SDL_RenderCopy(_renderer, mpFrameBuffer, nullptr, &mScreenRectangle);
+    SDL_SetTextureBlendMode(mpNoProcessingBuffer, SDL_BLENDMODE_BLEND);
+    SDL_RenderCopy(_renderer, mpNoProcessingBuffer, nullptr, nullptr);
+
     return;
 }
 
