@@ -24,6 +24,9 @@ public:
     void logicUpdate();
 
     void draw();
+
+    void onInput(SDL_Event *event);
+
     template<class Archive>
     void serialize(Archive &archive){
       archive(cereal::base_class<scene>(this));

@@ -56,7 +56,7 @@ void BomberBlokeScene::logicUpdate(){
 
   /*   */
   if(_tick % 30){
-    
+
   }
 
   if(mState == PAUSED || mState == STOPPED)
@@ -160,6 +160,7 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
   pTextTitle->setTextScale(2.);
 
   std::shared_ptr<TextHudElement> hudElementTitle = std::make_shared<TextHudElement>(pTextTitle, 5, 5, 400, 50, ALIGN_CENTER);
+  hudElementTitle->setIsPostProcessed(false);
   mHudElements.push_back(hudElementTitle);
 
   std::shared_ptr<Text> pText1 = textManager.createText("Aileron-Black", "DAVE1");
@@ -204,4 +205,15 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
   }
 
   return;
+}
+
+void BomberBlokeScene::onInput(SDL_Event *event) {
+    scene::onInput(event);
+
+    // Blur effect demo
+    if (event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_ESCAPE) {
+        mpCamera->blur(10);
+    } else if (event->type == SDL_KEYUP && event->key.keysym.sym == SDLK_ESCAPE) {
+        mpCamera->blur(0);
+    }
 }
