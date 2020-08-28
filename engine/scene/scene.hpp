@@ -123,7 +123,7 @@ public:
    *  game specific logic.
    */
 
-  virtual void LogicUpdate(){};
+  virtual void logicUpdate(){};
 
   /**
    * Uses the simple axis theorem to detect whether a collision has occurred between

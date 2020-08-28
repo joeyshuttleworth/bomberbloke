@@ -19,7 +19,7 @@ public:
     return;
   }
 
-  void handle_command(std::string command){
+  void handleCommand(std::string command){
     std::list<std::string> tokens = split_to_tokens(command);
     if(tokens.size() == 0)
       return;

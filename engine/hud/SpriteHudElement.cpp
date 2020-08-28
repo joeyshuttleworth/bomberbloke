@@ -10,6 +10,9 @@ SpriteHudElement::SpriteHudElement(std::string asset, int xPos, int yPos,
 }
 
 void SpriteHudElement::draw(Camera *camera) {
+    if(!mVisible)
+      return;
+
     // Base class draw function
     AbstractHudElement::draw(camera);
 

@@ -130,7 +130,7 @@ void NetServer::handleEvent(std::shared_ptr<AbstractEvent> pEvent, ENetPeer *fro
     std::string command = c_event->getCommand();
     log_message(DEBUG, "received command " + command + " from player " + std::to_string(p_player->getId()) +  ".");
     if(command != ""){
-      character->handle_command(command);
+      character->handleCommand(command);
     }
     break;
   }

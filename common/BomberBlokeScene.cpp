@@ -15,11 +15,11 @@ static void hudTestFnJoin() {
 }
 
 static void hudTestFn1() {
-  handle_system_command({"nickname", "dave2"});
+  handle_system_command({"nickname", "dave1"});
 }
 
 static void hudTestFn2() {
-  handle_system_command({"nickname",  "dave1"});
+  handle_system_command({"nickname",  "dave2"});
 }
 
 void BomberBlokeScene::draw(){
@@ -29,9 +29,7 @@ void BomberBlokeScene::draw(){
   }
 
   SDL_SetRenderTarget(_renderer, mpCamera->getFrameBuffer());
-  // SDL_SetRenderTarget(_renderer, nullptr);
   SDL_SetRenderDrawColor(_renderer, 0x00, 0x10, 0xff, 0xff);
-  // SDL_RenderFillRect(_renderer, nullptr);
   SDL_RenderClear(_renderer);
 
   int zoom = mpCamera->GetZoom();
@@ -53,8 +51,13 @@ void BomberBlokeScene::draw(){
 }
 
 
-void BomberBlokeScene::LogicUpdate(){
+void BomberBlokeScene::logicUpdate(){
   // count blokes
+
+  /*   */
+  if(_tick % 30){
+    
+  }
 
   if(mState == PAUSED || mState == STOPPED)
     return;
@@ -189,12 +192,14 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
   // Speed HUD demo
   for (int i = 0; i < 4; i++) {
     std::shared_ptr<SpriteHudElement> hudElement = std::make_shared<SpriteHudElement>("lightning.png", 9 + i * 34, 9, 32, 32);
+    mSpeedIcons[i] = hudElement;
     mHudElements.push_back(hudElement);
   }
 
   // Power HUD demo
   for (int i = 0; i < 3; i++) {
     std::shared_ptr<SpriteHudElement> hudElement = std::make_shared<SpriteHudElement>("flames.png", 9 + i * 34, 9, 32, 32, ALIGN_RIGHT);
+    mPowerIcons[i] = hudElement;
     mHudElements.push_back(hudElement);
   }
 

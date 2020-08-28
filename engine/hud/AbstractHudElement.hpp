@@ -156,6 +156,9 @@ public:
      */
     virtual void onInput(SDL_Event *event) {};
 
+    // flag to indicate whether the object should be drawn to screen or not
+    bool mVisible = true;
+
 protected:
     // Pixel-position of the top left corner of the bounding box.
     int mPosition[2];

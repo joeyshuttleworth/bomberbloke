@@ -43,6 +43,8 @@ public:
      * @param camera    Current Camera object.
      */
     void draw(Camera *camera) {
+        if(!mVisible)
+          return;
         AbstractHudElement::draw(camera);
         mText->draw(camera);
     }

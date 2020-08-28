@@ -233,7 +233,7 @@ void scene :: update(){
   cleanUp();
   physicsUpdate();
   updateSprites();
-  LogicUpdate();
+  logicUpdate();
   return;
 }
 

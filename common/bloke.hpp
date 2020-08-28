@@ -54,7 +54,7 @@ protected:
 
   void draw();
   void die();
-  void handle_command(std::string command);
+  void handleCommand(std::string command);
   void accelerate();
   void update();
 

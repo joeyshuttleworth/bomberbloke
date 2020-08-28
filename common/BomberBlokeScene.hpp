@@ -6,6 +6,10 @@
 #include "bomberbloke.h"
 
 class BomberBlokeScene : public scene{
+protected:
+  std::weak_ptr<AbstractHudElement> mPowerIcons[5];
+  std::weak_ptr<AbstractHudElement> mSpeedIcons[5];
+
 public:
 
     BomberBlokeScene(int size_x = 10, int size_y = 10);
@@ -17,7 +21,7 @@ public:
      * if one player remains, this player wins the match.
      *
      */
-    void LogicUpdate();
+    void logicUpdate();
 
     void draw();
     template<class Archive>

@@ -219,7 +219,7 @@ void handle_input() {
                     } else {
                         std::shared_ptr<actor> character = i->getCharacter();
                         if(character){
-                            character->handle_command(command_to_send); // handle normal command
+                            character->handleCommand(command_to_send); // handle normal command
                             if(!_server){
                                 std::unique_ptr<AbstractEvent> c_event(new CommandEvent(command_to_send));
                                 _net_client.sendEvent(c_event);
@@ -235,19 +235,19 @@ void handle_input() {
             if (i->getCharacter() &&  event.jaxis.which == 0) {
                 if (event.jaxis.axis == 0) { //x axis
                     if (event.jaxis.value < -DEADZONE) {
-                        i->getCharacter()->handle_command("left"+dX);
+                        i->getCharacter()->handleCommand("left"+dX);
                     } else if (event.jaxis.value > DEADZONE) {
-                        i->getCharacter()->handle_command("+right"+dX);
+                        i->getCharacter()->handleCommand("+right"+dX);
                     } else {
-                        i->getCharacter()->handle_command("-XAxis"+dX);
+                        i->getCharacter()->handleCommand("-XAxis"+dX);
                     }
                 } else if (event.jaxis.axis == 1) {
                     if (event.jaxis.value < -DEADZONE) {
-                        i->getCharacter()->handle_command("+up"+dX);
+                        i->getCharacter()->handleCommand("+up"+dX);
                     } else if (event.jaxis.value > DEADZONE) {
-                        i->getCharacter()->handle_command("+down"+dX);
+                        i->getCharacter()->handleCommand("+down"+dX);
                     } else {
-                        i->getCharacter()->handle_command("-YAxis"+dX);
+                        i->getCharacter()->handleCommand("-YAxis"+dX);
                     }
                 }
             }
