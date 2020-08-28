@@ -7,6 +7,7 @@
 #include <array>
 #include <memory>
 #include "woodenCrate.hpp"
+#include "BomberBlokeScene.hpp"
 
 /* Register our actors with cereal */
 CEREAL_REGISTER_DYNAMIC_INIT(actors)
@@ -21,6 +22,9 @@ int main (){
   log_message(INFO, "Bomberbloke server starting...");
 
   init_engine();
+
+  _pScene = std::make_shared<BomberBlokeScene>(10,10);
+
   server_loop();
   SDL_Quit();
   SDL_Delay(1000);
@@ -28,76 +32,22 @@ int main (){
 }
 
 void new_game(std::string){
-  /* First set reset everyone's powerups */
+  /* Lock _scene_mutex to protect _pScene from other threads */
+  const std::lock_guard<std::mutex> lock(_scene_mutex);
 
+  /* First set reset everyone's powerups */
   for(auto i = _player_list.begin(); i != _player_list.end(); i++){
     if(!(*i)->mpPlayerProperties)
       (*i)->mpPlayerProperties = std::make_shared<GamePlayerProperties>();
     (*i)->ResetPlayerProperties();
   }
 
-  std::random_device rd;
-  std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
-  std::uniform_int_distribution<> distrib(0, 9);
-  std::vector<std::array<int, 2>> spawn_points;
-  spawn_points.reserve(5);
-  int blocks[10][10];
+  _pScene = std::make_shared<BomberBlokeScene>(10,10);
 
-  memset(blocks, 0, sizeof(int)*10*10);
-
-  std::shared_ptr<scene>p_scene(new scene(10, 10));
-
-  for(unsigned int i = 0; i < 5; i++){
-    bool set = false;
-    for(int j = 0; j<10000; j++){
-      int xpos = distrib(gen);
-      int ypos = distrib(gen);
-      if(blocks[xpos][ypos] != SPAWN_POINT){
-        blocks[xpos][ypos] = SPAWN_POINT;
-        spawn_points.push_back({xpos, ypos});
-        /* make space around the spawn point */
-          if(xpos + 1 < 10){
-            blocks[xpos+1][ypos] = RESERVED;
-          }
-          if(xpos - 1 >= 0){
-            blocks[xpos-1][ypos] = RESERVED;
-          }
-          if(ypos + 1 < 10){
-            blocks[xpos][ypos+1] = RESERVED;
-          }
-          if(ypos - 1 >= 0){
-            blocks[xpos][ypos-1] = RESERVED;
-          }
-          set = true;
-          break;
-      }
-    }
-    if(!set){
-      log_message(ERROR, "failed to generate spawn points");
-    }
+  /* Reset everyone's powerups */
+  for(auto i = _player_list.begin(); i != _player_list.end(); i++){
+    if(!(*i)->mpPlayerProperties)
+      (*i)->mpPlayerProperties = std::make_shared<GamePlayerProperties>();
+    (*i)->ResetPlayerProperties();
   }
-
-  /* Fill in the other blocks - could be wooden crates or other types*/
-
-  for(int i = 0; i < 10; i++){
-    for(int j = 0; j < 10; j++){
-      if(blocks[i][j] == EMPTY){
-        blocks[i][j] = ACTOR_WOODEN_CRATE;
-        p_scene->addActor(std::shared_ptr<woodenCrate>(new woodenCrate(i, j)));
-      }
-    }
-  }
-
-  /* populate the map with players */
-  auto iter = _player_list.begin();
-  for(unsigned int i = 0; i < 5; i++){
-    if(iter == _player_list.end())
-      break;
-    p_scene->addActor(std::shared_ptr<bloke>(new bloke(spawn_points[i][0], spawn_points[i][1], true)));
-    (*iter)->setCharacter(p_scene->mActors.back());
-    iter++;
-  }
-  _pScene = p_scene;
-  _net_server.syncPlayers();
-  return;
 }

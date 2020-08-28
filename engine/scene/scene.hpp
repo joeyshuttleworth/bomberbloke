@@ -6,6 +6,7 @@
 #include <cereal/types/list.hpp>
 #include <memory>
 
+#include "engine.hpp"
 #include "AbstractSpriteHandler.hpp"
 #include "AbstractCollider.hpp"
 
@@ -21,9 +22,27 @@ protected:
   std::string mName;
   std::string mDescription;
   std::shared_ptr<AbstractSpriteHandler> mpSpriteHandler;
-
+  int mState = PAUSED;
   int mLastActorId=0;
+
+  /*
+   * The camera object that we will use to draw the scene.
+   */
+  std::shared_ptr<Camera> mpCamera;
+
 public:
+
+  std::shared_ptr<Camera> getCamera(){
+    return mpCamera;
+  }
+
+  /**  onResize
+   *
+   *  Update the camera to reflect the new window size.
+   */
+
+  void onResize();
+
   /* Spawnpoints is a collection of coordinates where players can be spawned */
   std::vector<int*> mSpawnPoints;
 
@@ -40,20 +59,23 @@ public:
    *
    */
   std::list<std::shared_ptr<actor>> mActors;
-  
+
   /**
    * HUD elements drawn on top of the scene
    */
   std::list<std::shared_ptr<AbstractHudElement>> mHudElements;
-  
+
   /**
    * Computes positions of HUD elements based on camera parameters.
    * Must be called when the window is created or resized.
    */
-  void updateHudPositions(Camera *camera);
+  void updateHudPositions();
 
   /*Draw our scene on the window. Then draw every actor in mActors*/
-  void draw(Camera *cam);
+  virtual void draw();
+  void drawActors();
+  void drawHud();
+  void drawParticles();
   void refreshSprites();
 
   /*
@@ -97,6 +119,13 @@ public:
   void physicsUpdate();
 
   /**
+   *  A virtual function which can be overridden by child classes to implement
+   *  game specific logic.
+   */
+
+  virtual void logicUpdate(){};
+
+  /**
    * Uses the simple axis theorem to detect whether a collision has occurred between
    * two actors in the scene and returns a vector telling handleMovement how to
    * separate them.
@@ -131,7 +160,7 @@ public:
   void serialize(Archive &archive){
     archive(mDimmension, mActors);
   }
-  
+
   /**
    * Called by the engine whenever any input is detected.
    * Used primarily to update interactive HUD elements.
