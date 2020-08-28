@@ -103,7 +103,7 @@ public:
       mpSpriteHandler->update(mPosition);
   }
 
-  virtual void handle_command(std::string) = 0;
+  virtual void handleCommand(std::string) = 0;
 
   /*Serialise this class using cereal.
     NB: We don't send the size of the actor (dimmension) as this should

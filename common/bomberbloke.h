@@ -6,8 +6,8 @@
 #define DEFAULT_BLOKE_SIZE 0.9
 #define ACCELERATION_RATIO 0.5
 #define DECCELERATION_RATIO 0.1
-#define DEFAULT_SPEED double(0.5 / TICK_RATE)
-#define DEFAULT_MAX_SPEED double(0.1 / TICK_RATE)
+#define DEFAULT_SPEED double(0.1 / TICK_RATE)
+#define DEFAULT_MAX_SPEED double(0.5 / TICK_RATE)
 #define DEFAULT_BOMB_TIMER 10*TICK_RATE
 #define MAX_BOMBS 10
 #define BOMB_SIZE 0.25
@@ -46,10 +46,10 @@ enum block_types{
   WOOD
 };
 
-
 /* Cereal magic: include all actor types here so cereal knows about them */
 #include "bomb.hpp"
 #include "bloke.hpp"
 #include "woodenCrate.hpp"
+#include "BomberBlokeScene.hpp"
 
 #endif

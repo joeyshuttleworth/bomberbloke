@@ -28,12 +28,6 @@ public:
     else
       *this = GamePlayerProperties();
   }
-
-  template<class Archive>
-  void serialize(Archive &archive){
-    archive(mSpeed, mMaxBombs, mBombKick, mSatellite, mBigBomb);
-  }
-
   std::vector<std::string> GetProperties(){
     std::vector<std::string> rc = {std::string("TODO: player properties\n")};
     return rc;
@@ -45,6 +39,13 @@ public:
   bool mBombKick;
   bool mSatellite;
   bool mBigBomb;
+
+
+  template<class Archive>
+  void serialize(Archive &archive){
+    archive(mSpeed, mMaxBombs, mBombKick, mSatellite, mBigBomb);
+  }
+
 };
 
 

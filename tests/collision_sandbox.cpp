@@ -9,7 +9,6 @@
 CEREAL_REGISTER_DYNAMIC_INIT(actors)
 
 int main (){
-
   _default_bindings =
     {{SDL_SCANCODE_W, "up"},
      {SDL_SCANCODE_S, "down"},
@@ -23,7 +22,9 @@ int main (){
   _server = true;
   _local_player_list.push_back(LocalPlayer(std::string("big_beef")));
   SDL_Init(SDL_INIT_EVERYTHING);
+
   init_engine();
+  _pScene = std::make_shared<BomberBlokeScene>(10,10);
 
   set_draw(true);
 
