@@ -8,8 +8,6 @@
 #include "Interpolator.hpp"
 #include "KinematicCollider.hpp"
 
-extern SDL_Renderer *_renderer;
-
 class AbstractPlayer; class AbstractSpriteHandler;
 
 class actor: public KinematicCollider {

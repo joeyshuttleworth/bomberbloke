@@ -10,8 +10,8 @@ SpriteHudElement::SpriteHudElement(std::string asset, int xPos, int yPos,
 }
 
 void SpriteHudElement::draw(Camera *camera) {
-    if(!mVisible)
-      return;
+    if (!mIsVisible)
+        return;
 
     // Base class draw function
     AbstractHudElement::draw(camera);
@@ -22,6 +22,8 @@ void SpriteHudElement::draw(Camera *camera) {
     dstRect.y = mPosition[1];
     dstRect.w = mDimensions[0];
     dstRect.h = mDimensions[1];
+
+    SDL_SetRenderTarget(_renderer, camera->getFrameBuffer(mIsPostProcessed));
 
     // Copy sprite to destination rectangle
     SDL_RenderCopy(_renderer, mSprite, nullptr, &dstRect);

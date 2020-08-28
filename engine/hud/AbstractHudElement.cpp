@@ -18,6 +18,9 @@ AbstractHudElement::AbstractHudElement(int xPos, int yPos, int xDim, int yDim,
 }
 
 void AbstractHudElement::draw(Camera* camera) {
+    if(!mIsVisible)
+        return;
+
     // If properties have been updated re-position HUD element.
     if (mPropertiesUpdated) {
         updatePosition(camera);

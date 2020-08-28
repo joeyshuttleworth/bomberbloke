@@ -179,9 +179,11 @@ public:
     /**
      * Draws the text to the renderer.
      *
-     * @param camera    Current scene camera.
+     * @param camera            Current scene camera.
+     * @param isPostProcessed   Determines whether the text is drawn after
+                                camera post-processing.
      */
-    void draw(Camera *camera);
+    void draw(Camera *camera, bool isPostProcessed=true);
 
 protected:
     // Text font given on construction (typically by the text manager).
