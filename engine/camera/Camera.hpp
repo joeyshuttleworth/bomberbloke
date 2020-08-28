@@ -79,6 +79,24 @@ public:
   virtual void update();
 
   void rumble(double amplitude = 0.02, double timeout = 30);
+
+  /**
+   * Sets the parameters for the post-processing blur.
+   *
+   * @param size    Size of the blur, larger is more blury.
+   * @param passes  Quality of the blur, larger is higher quality.
+   */
+  void blur(double size, int passes=8);
+
+  /**
+   * Applies a blur effect to a given texture
+   *
+   * @param texture Texture that blur is applied to.
+   * @param size    Size of the blur, larger is more blury.
+   * @param passes  Quality of the blur, larger is higher quality.
+   */
+  void blurTexture(SDL_Texture *texture, double size, int passes=8);
+
 protected:
   scene *mpScene;
   double mZoom;
@@ -95,5 +113,10 @@ protected:
   unsigned int mRumbleTimeout = 0;
   /* Maximum displacement in each axis as a proportion of the window size */
   double mRumbleAmplitude;
+
+  // Determines the size of the blur, larger is blurier.
+  double mBlurSize = 0;
+  // Determines the quality of the blur, larger is better.
+  int mBlurPasses = 8;
 };
 #endif
