@@ -23,8 +23,7 @@ public:
       dstrect.w = round(zoom * mDimmension[0]);
       dstrect.h = round(zoom * mDimmension[1]);
 
-      SDL_SetRenderTarget(_renderer, cam->getFrameBuffer());
-      SDL_RenderCopy(_renderer, mpSprite, nullptr, &dstrect);
+      cam->renderCopy(mpSprite, nullptr, &dstrect);
 
       return;
     }

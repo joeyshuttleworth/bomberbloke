@@ -11,10 +11,8 @@ void Text::draw(Camera *camera, bool isPostProcessed) {
         mPropertiesUpdated = false;
     }
 
-    SDL_SetRenderTarget(_renderer, camera->getFrameBuffer(isPostProcessed));
-
-    // Copy rendered text into the text box (in the renderer)
-    SDL_RenderCopy(_renderer, mTextTexture, &mSrcRect, &mDstRect);
+    // Copy rendered text into the text box
+    camera->renderCopy(mTextTexture, &mSrcRect, &mDstRect, isPostProcessed);
 }
 
 void Text::updateTexture(Camera *camera) {
