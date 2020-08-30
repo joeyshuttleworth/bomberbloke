@@ -201,14 +201,14 @@ void Camera::renderCopy(SDL_Texture *texture, SDL_Rect *srcRect, SDL_Rect *dstRe
         SDL_RenderCopy(_renderer, texture, srcRect, dstRect);
 
         if (bloomAmount > 0) {
-            // Add tetxture to bloom buffer to create a glowing effect
+            // Add texture to bloom buffer to create a glowing effect
             SDL_BlendMode addBlendMode = SDL_ComposeCustomBlendMode(
                 SDL_BLENDFACTOR_ONE,
                 SDL_BLENDFACTOR_ZERO,
                 SDL_BLENDOPERATION_ADD,
                 SDL_BLENDFACTOR_ONE,
-                SDL_BLENDFACTOR_ONE,
-                SDL_BLENDOPERATION_MAXIMUM);
+                SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
+                SDL_BLENDOPERATION_ADD);
             SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
             SDL_SetTextureAlphaMod(texture, bloomAmount);
             SDL_RenderCopy(_renderer, texture, srcRect, dstRect);
@@ -226,18 +226,19 @@ void Camera::renderFillRect(SDL_Rect *dstRect, SDL_Color colour, bool isPostProc
     SDL_RenderFillRect(_renderer, dstRect);
 
     if (isPostProcessed) {
-        // Subtract rect from bloom buffer - this creates the effect that the
-        // rect is obscuring the glowing object behind it
-        SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_NONE);
-        SDL_SetRenderTarget(_renderer, mpBloomBuffer);
-        SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 0);
-        SDL_RenderFillRect(_renderer, dstRect);
 
         if (bloomAmount > 0) {
             // Add rect to bloom buffer to create a glowing effect
             SDL_SetRenderTarget(_renderer, mpBloomBuffer);
             SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
-            SDL_SetRenderDrawColor(_renderer, colour.r, colour.g, colour.b, bloomAmount);
+            SDL_SetRenderDrawColor(_renderer, colour.r, colour.g, colour.b, colour.a * bloomAmount / 255);
+            SDL_RenderFillRect(_renderer, dstRect);
+        } else {
+            // Subtract rect from bloom buffer - this creates the effect that
+            // the rect is obscuring the glowing object behind it
+            SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
+            SDL_SetRenderTarget(_renderer, mpBloomBuffer);
+            SDL_SetRenderDrawColor(_renderer, 0, 0, 0, colour.a);
             SDL_RenderFillRect(_renderer, dstRect);
         }
 
