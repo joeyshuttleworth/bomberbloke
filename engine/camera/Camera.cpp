@@ -60,6 +60,19 @@ void Camera::draw() {
     return;
 }
 
+void Camera::resetFrameBuffer() {
+    // Set background colour
+    SDL_SetRenderTarget(_renderer, mpFrameBuffer);
+    SDL_SetRenderDrawColor(_renderer, 0x00, 0x10, 0xff, 0xff);
+    SDL_RenderFillRect(_renderer, nullptr);
+
+    // Clear no-processing-buffer
+    SDL_SetRenderTarget(_renderer, mpNoProcessingBuffer);
+    SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 0);
+    SDL_RenderClear(_renderer);
+}
+
 void Camera::update() {
     /*  Rumble effect */
     const int width = mScreenRectangle.w;
@@ -87,22 +100,35 @@ void Camera::blurTexture(SDL_Texture *texture, double size, int passes) {
     SDL_Texture *tmpTexture = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888,
         SDL_TEXTUREACCESS_TARGET, width, height);
 
-    // Copy tmpTexture back onto texture
+    SDL_SetRenderTarget(_renderer, tmpTexture);
     SDL_SetTextureBlendMode(tmpTexture, SDL_BLENDMODE_BLEND);
-    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 255);
+    SDL_RenderClear(_renderer);
+
+    // Copy tmpTexture back onto texture
+    SDL_SetTextureBlendMode(tmpTexture, SDL_BLENDMODE_NONE);
+    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_NONE);
     SDL_SetRenderTarget(_renderer, tmpTexture);
     SDL_SetTextureAlphaMod(texture, 255);
     SDL_RenderCopy(_renderer, texture, nullptr, nullptr);
 
+    // Set appropriate blend modes
+    SDL_SetTextureBlendMode(tmpTexture, SDL_BLENDMODE_BLEND);
+    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+
     // Perform multiple passes of blurring
     SDL_Rect dstRect({0, 0, width, height});
     for (int i = 0; i < passes; i++) {
+        // Gradually reduce offset size
         int offset = (int) fmax(size - i * size / passes, 1);
+
+        // Alternate the direction of the offset to prevent the blur shifting
+        // the image
         if (i % 2 == 0) {
             offset *= -1;
         }
 
-        // Copy texture onto tmpTexture with 50% alpha and shifted right slightly
+        // Copy texture onto tmpTexture shifted horizontally with 50% alpha
         dstRect.x = offset;
         dstRect.y = 0;
         SDL_SetRenderTarget(_renderer, tmpTexture);
@@ -114,7 +140,7 @@ void Camera::blurTexture(SDL_Texture *texture, double size, int passes) {
         SDL_SetTextureAlphaMod(texture, 255);
         SDL_RenderCopy(_renderer, tmpTexture, nullptr, nullptr);
 
-        // Copy texture onto tmpTexture with 50% alpha and shifted down slightly
+        // Copy texture onto tmpTexture shifted vertically with 50% alpha
         dstRect.x = 0;
         dstRect.y = offset;
         SDL_SetRenderTarget(_renderer, tmpTexture);

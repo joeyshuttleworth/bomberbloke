@@ -54,6 +54,8 @@ public:
       return mpNoProcessingBuffer;
   }
 
+  void resetFrameBuffer();
+
   std::array<int, 2> getScreenDimensions() {
       return {{ mScreenRectangle.w, mScreenRectangle.h }};
   }
