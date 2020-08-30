@@ -23,8 +23,6 @@ void SpriteHudElement::draw(Camera *camera) {
     dstRect.w = mDimensions[0];
     dstRect.h = mDimensions[1];
 
-    SDL_SetRenderTarget(_renderer, camera->getFrameBuffer(mIsPostProcessed));
-
     // Copy sprite to destination rectangle
-    SDL_RenderCopy(_renderer, mSprite, nullptr, &dstRect);
+    camera->renderCopy(mSprite, nullptr, &dstRect, mIsPostProcessed, mGlowAmount);
 }
