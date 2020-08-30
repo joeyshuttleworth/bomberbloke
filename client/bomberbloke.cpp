@@ -43,6 +43,10 @@ int main (){
     soundManager.playSound(pIntroSound);
   }
 
+  // Demo for glow effect
+  _pScene->mParticleList.push_back(std::shared_ptr<Explosion>(new Explosion(4, 4, 1, 1, 30, 300)));
+  _pScene->mParticleList.push_back(std::shared_ptr<Explosion>(new Explosion(3.5, 3.5, 1, 1, 30, 300, 0)));
+
   client_loop();
 
   return 0;
