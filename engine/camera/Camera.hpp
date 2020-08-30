@@ -57,6 +57,11 @@ public:
 
   void resetFrameBuffer();
 
+  void renderCopy(SDL_Texture *texture, SDL_Rect *srcRect=nullptr,
+      SDL_Rect *dstRect=nullptr, bool isPostProcessed=true, int bloomAmount=0);
+
+  void renderFillRect(SDL_Rect *dstRect, SDL_Color colour, bool isPostProcessed=true, int bloomAmount=0);
+
   std::array<int, 2> getScreenDimensions() {
       return {{ mScreenRectangle.w, mScreenRectangle.h }};
   }

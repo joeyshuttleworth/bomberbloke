@@ -180,3 +180,67 @@ void Camera::blurTexture(SDL_Texture *texture, double size, int passes) {
 
     SDL_DestroyTexture(tmpTexture);
 }
+
+void Camera::renderCopy(SDL_Texture *texture, SDL_Rect *srcRect, SDL_Rect *dstRect, bool isPostProcessed, int bloomAmount) {
+    // Copy the texture onto the appropriate frame buffer
+    SDL_SetRenderTarget(_renderer, getFrameBuffer(isPostProcessed));
+    SDL_RenderCopy(_renderer, texture, srcRect, dstRect);
+
+    if (isPostProcessed) {
+        // Subtract texture from bloom buffer - this creates the effect that the
+        // texture is obscuring the glowing object behind it
+        SDL_BlendMode subtractBlendMode = SDL_ComposeCustomBlendMode(
+            SDL_BLENDFACTOR_ZERO,
+            SDL_BLENDFACTOR_ONE,
+            SDL_BLENDOPERATION_ADD,
+            SDL_BLENDFACTOR_ZERO,
+            SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
+            SDL_BLENDOPERATION_ADD);
+        SDL_SetTextureBlendMode(texture, subtractBlendMode);
+        SDL_SetRenderTarget(_renderer, mpBloomBuffer);
+        SDL_RenderCopy(_renderer, texture, srcRect, dstRect);
+
+        if (bloomAmount > 0) {
+            // Add tetxture to bloom buffer to create a glowing effect
+            SDL_BlendMode addBlendMode = SDL_ComposeCustomBlendMode(
+                SDL_BLENDFACTOR_ONE,
+                SDL_BLENDFACTOR_ZERO,
+                SDL_BLENDOPERATION_ADD,
+                SDL_BLENDFACTOR_ONE,
+                SDL_BLENDFACTOR_ONE,
+                SDL_BLENDOPERATION_MAXIMUM);
+            SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+            SDL_SetTextureAlphaMod(texture, bloomAmount);
+            SDL_RenderCopy(_renderer, texture, srcRect, dstRect);
+            SDL_SetTextureAlphaMod(texture, 255);
+        }
+
+        SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+    }
+}
+
+void Camera::renderFillRect(SDL_Rect *dstRect, SDL_Color colour, bool isPostProcessed, int bloomAmount) {
+    // Draw rect to the appropriate frame buffer
+    SDL_SetRenderTarget(_renderer, getFrameBuffer(isPostProcessed));
+    SDL_SetRenderDrawColor(_renderer, colour.r, colour.g, colour.b, colour.a);
+    SDL_RenderFillRect(_renderer, dstRect);
+
+    if (isPostProcessed) {
+        // Subtract rect from bloom buffer - this creates the effect that the
+        // rect is obscuring the glowing object behind it
+        SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_NONE);
+        SDL_SetRenderTarget(_renderer, mpBloomBuffer);
+        SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 0);
+        SDL_RenderFillRect(_renderer, dstRect);
+
+        if (bloomAmount > 0) {
+            // Add rect to bloom buffer to create a glowing effect
+            SDL_SetRenderTarget(_renderer, mpBloomBuffer);
+            SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
+            SDL_SetRenderDrawColor(_renderer, colour.r, colour.g, colour.b, bloomAmount);
+            SDL_RenderFillRect(_renderer, dstRect);
+        }
+
+        SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
+    }
+}
