@@ -2,15 +2,23 @@
 #include "Camera.hpp"
 #include <algorithm>
 
-void Camera::rumble(double amplitude, double timeout){
+void Camera::rumble(double amplitude, double timeout) {
     mRumbleTimeout = timeout;
     mRumbleAmplitude = amplitude;
     return;
 }
 
-void Camera::blur(double size, int passes){
+void Camera::blur(double size, int passes) {
     mBlurSize = size;
-    mBlurPasses = passes;
+    if (passes > 0)
+        mBlurPasses = passes;
+}
+
+void Camera::bloom(double size, int alpha, int passes) {
+    mBloomSize = size;
+    mBloomAlpha = alpha;
+    if (passes > 0)
+        mBloomPasses = passes;
 }
 
 void Camera::onResize() {
@@ -48,12 +56,23 @@ void Camera::onResize() {
 void Camera::draw() {
     update();
 
-    blurTexture(mpFrameBuffer, mBlurSize, mBlurPasses);
-
-    SDL_SetRenderTarget(_renderer, nullptr);
+    // Update the screen rectangle for applying the rumble effect
     mScreenRectangle.x = mRumbleOffset[0];
     mScreenRectangle.y = mRumbleOffset[1];
+
+    // Apply blur to mpFrameBuffer and draw to window
+    blurTexture(mpFrameBuffer, mBlurSize, mBlurPasses);
+    SDL_SetRenderTarget(_renderer, nullptr);
     SDL_RenderCopy(_renderer, mpFrameBuffer, nullptr, &mScreenRectangle);
+
+    // Apply blur to mpBloomBuffer and "add" to window to create a bloom effect
+    blurTexture(mpBloomBuffer, mBloomSize, mBloomPasses);
+    SDL_SetRenderTarget(_renderer, nullptr);
+    SDL_SetTextureBlendMode(mpBloomBuffer, SDL_BLENDMODE_ADD);
+    SDL_SetTextureAlphaMod(mpBloomBuffer, mBloomAlpha);
+    SDL_RenderCopy(_renderer, mpBloomBuffer, nullptr, &mScreenRectangle);
+
+    // Draw mpNoProcessingBuffer on window
     SDL_SetTextureBlendMode(mpNoProcessingBuffer, SDL_BLENDMODE_BLEND);
     SDL_RenderCopy(_renderer, mpNoProcessingBuffer, nullptr, nullptr);
 
@@ -65,6 +84,12 @@ void Camera::resetFrameBuffer() {
     SDL_SetRenderTarget(_renderer, mpFrameBuffer);
     SDL_SetRenderDrawColor(_renderer, 0x00, 0x10, 0xff, 0xff);
     SDL_RenderFillRect(_renderer, nullptr);
+
+    // Clear bloom buffer
+    SDL_SetRenderTarget(_renderer, mpBloomBuffer);
+    SDL_SetTextureBlendMode(mpBloomBuffer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 0);
+    SDL_RenderClear(_renderer);
 
     // Clear no-processing-buffer
     SDL_SetRenderTarget(_renderer, mpNoProcessingBuffer);
