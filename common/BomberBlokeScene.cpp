@@ -191,6 +191,7 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
   // Speed HUD demo
   for (int i = 0; i < 4; i++) {
     std::shared_ptr<SpriteHudElement> hudElement = std::make_shared<SpriteHudElement>("lightning.png", 9 + i * 34, 9, 32, 32);
+    hudElement->setGlowAmount(150);
     mSpeedIcons[i] = hudElement;
     mHudElements.push_back(hudElement);
   }
