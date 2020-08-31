@@ -2,15 +2,16 @@ FROM ubuntu:20.04
 
 WORKDIR ./bloke
 
-COPY / ./bloke
+COPY / .
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=Europe/Moscow
 RUN apt-get update && apt-get install -y \
   libsdl2-dev \
   libsdl2-image-dev \
-  libenet-dev \
+  libsdl2-ttf-dev \
   libsdl2-mixer-dev \
+  libenet-dev \
   libcurl4-openssl-dev \
   cmake \
   make \
@@ -18,7 +19,7 @@ RUN apt-get update && apt-get install -y \
 
 RUN if [ -d "build" ]; then rm -Rf build; fi
 RUN mkdir build
-WORKDIR ./bloke/build
+WORKDIR build
 RUN cmake ..
 RUN make
 
