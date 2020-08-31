@@ -1,0 +1,7 @@
+version: '3'
+services:
+  server:
+    context: ./
+    dockerfile: server.Dockerfile
+    ports:
+      - "8888:8888"
