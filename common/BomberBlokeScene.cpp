@@ -2,6 +2,7 @@
 #include <random>
 #include <memory>
 #include <algorithm>
+#include <string>
 #include "engine.hpp"
 #include "scene.hpp"
 #include "bomberbloke.h"
@@ -9,6 +10,9 @@
 #include "TextHudElement.hpp"
 #include "TextButton.hpp"
 #include "SpriteHudElement.hpp"
+
+const std::string BACKGROUND_TILE_PREFIX = "background_tile_";
+const int N_BACKGROUND_TILES = 10;
 
 static void hudTestFnJoin() {
   handle_system_command({"open", "localhost"});
@@ -32,14 +36,8 @@ void BomberBlokeScene::draw(){
 
   int zoom = mpCamera->GetZoom();
 
-  SDL_SetRenderTarget(_renderer, mpCamera->getFrameBuffer());
-  SDL_SetRenderDrawColor(_renderer, 0x10, 0x10, 0x10, 0xa0);
-
-  /* Draw a grid */
-  for(int i = 0; i<=10; i++){
-    SDL_RenderDrawLine(_renderer, i * zoom, 0, i * zoom, mDimmension[1]*zoom);
-    SDL_RenderDrawLine(_renderer, 0, i*zoom, mDimmension[0]*zoom, i*zoom);
-  }
+  // TODO: make the background change with zoom
+  mpCamera->renderCopy(mBackgroundTexture, nullptr, nullptr);
 
   drawActors();
   drawParticles();
@@ -86,10 +84,11 @@ void BomberBlokeScene::logicUpdate(){
 BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_y){
   mState = PLAYING;
 
- if(_server){
-    /*  Initialisation for random number generation */
-    std::random_device rd;
-    std::mt19937 gen(rd());
+  /*  Initialisation for random number generation */
+  std::random_device rd;
+  std::mt19937 gen(rd());
+
+  if(_server){
     std::uniform_int_distribution<> distrib(0, 9);
     std::vector<std::array<int, 2>> spawn_points;
     spawn_points.reserve(5);
@@ -151,8 +150,34 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
 
   log_message(INFO, "no. actors " + std::to_string(mActors.size()));
 
-  /* Create HUD elements */
+  // Create background texture
+  mBackgroundTexture = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, size_x * 64, size_y * 64);
+  SDL_SetRenderTarget(_renderer, mBackgroundTexture);
 
+  SDL_Texture *tileTexture;
+  SDL_Rect tileRect({0, 0, 64, 64});
+  std::uniform_int_distribution<> tileDistribution(0, N_BACKGROUND_TILES - 1);
+  std::uniform_int_distribution<> flipDistribution(0, 1);
+  for (int i = 0; i < size_x; i++) {
+      for (int j = 0; j < size_y; j++) {
+          tileRect.x = i * 64;
+          tileRect.y = j * 64;
+          // Randomly choose tile
+          int tileIndex = tileDistribution(gen);
+          tileTexture = get_sprite(BACKGROUND_TILE_PREFIX + std::to_string(tileIndex) + ".png");
+          // Randomly choose whether to flip the texture
+          if (flipDistribution(gen) == 1)
+            // Flip and rotate in such a way that the top-right corner is static
+            SDL_RenderCopyEx(_renderer, tileTexture, nullptr, &tileRect, 90,
+              nullptr, SDL_FLIP_HORIZONTAL);
+          else
+            // Don't flip the texture
+            SDL_RenderCopy(_renderer, tileTexture, nullptr, &tileRect);
+      }
+  }
+  SDL_SetRenderTarget(_renderer, mpCamera->getFrameBuffer());
+
+  // Create HUD elements
   std::shared_ptr<Text> pTextTitle = textManager.createText("Aileron-Black", "BLOKE/ENGINE");
   pTextTitle->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
   pTextTitle->setTextColour({255, 255, 255});
