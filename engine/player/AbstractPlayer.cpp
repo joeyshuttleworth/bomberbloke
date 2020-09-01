@@ -1,7 +1,7 @@
 #include "AbstractPlayer.hpp"
 #include "actor.hpp"
 #include "engine.hpp"
-
+#include "GamePlayerProperties.hpp"
 
 AbstractPlayer::AbstractPlayer(std::string _nickname){
   mNickname = _nickname;
@@ -28,13 +28,11 @@ void AbstractPlayer::setId(int id){
   }
 }
 
-
-void AbstractPlayer::ResetPlayerProperties(std::shared_ptr<AbstractPlayerProperties> p_properties){
-   if(mpPlayerProperties){
+void AbstractPlayer::resetPlayerProperties(std::shared_ptr<AbstractPlayerProperties> p_properties){
+  if(mpProperties){
      /*  TODO: send EVENT_PROPERTIES message to the relevant player */
-     mpPlayerProperties->reset(p_properties);
+     mpProperties->reset(p_properties);
    }
    else
-     log_message(ERROR, "Tried to reset mpPlayerProperties when it didn't exist");
- }
-
+     mpProperties = std::make_shared<GamePlayerProperties>();
+  }

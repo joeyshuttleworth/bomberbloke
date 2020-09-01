@@ -22,6 +22,10 @@ void ClickableHudElement::onInput(SDL_Event *event) {
     // If its a mouse button up event, it cannot be clicked
     if (mIsClicked && event->type == SDL_MOUSEBUTTONUP) {
         mIsClicked = false;
+        return;
+    }
+
+    if (event->type == SDL_MOUSEBUTTONDOWN) {
         mPropertiesUpdated = true;
         if (mOnClickFn != nullptr && mIsMouseOver)
             mOnClickFn();

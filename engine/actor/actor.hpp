@@ -4,7 +4,6 @@
 #include <SDL2/SDL.h>
 #include <memory>
 #include <array>
-#include "Camera.hpp"
 #include "Interpolator.hpp"
 #include "KinematicCollider.hpp"
 
@@ -103,7 +102,7 @@ public:
       mpSpriteHandler->update(mPosition);
   }
 
-  virtual void handle_command(std::string) = 0;
+  virtual void handleCommand(std::string){};
 
   /*Serialise this class using cereal.
     NB: We don't send the size of the actor (dimmension) as this should

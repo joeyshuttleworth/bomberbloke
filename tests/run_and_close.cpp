@@ -3,31 +3,29 @@
 #include <SDL2/SDL.h>
 #include "bloke.hpp"
 #include "bomb.hpp"
+#include "BomberBlokeScene.hpp"
 
 /* Register our actors with cereal */
 CEREAL_REGISTER_DYNAMIC_INIT(actors)
 
 int main (){
-_draw=false;
+  _draw=false;
 
-SDL_Init(SDL_INIT_EVERYTHING);
-init_engine();
+  SDL_Init(SDL_INIT_EVERYTHING);
+  init_engine();
 
- const std::string username = "big_beef";
-_local_player_list.push_back(LocalPlayer(username));
+  const std::string username = "big_beef";
+  _local_player_list.push_back(LocalPlayer(username));
 
+  _pScene = std::make_shared<BomberBlokeScene>(10,10);
 
-std::shared_ptr<bloke> b1(new bloke(5,5));
-_pScene->mActors.push_back(b1);
-_local_player_list.back().setCharacter(b1);
+  _halt = true;
+  client_loop();
 
-_halt = true;
-client_loop();
+  SDL_Delay(2000);
+  SDL_Quit();
 
-SDL_Delay(2000);
-SDL_Quit();
-
-return 0;
+  return 0;
 }
 
 void gameUpdate(){
@@ -35,5 +33,5 @@ void gameUpdate(){
 }
 
 void new_game(std::string){
-return;
+  return;
 }

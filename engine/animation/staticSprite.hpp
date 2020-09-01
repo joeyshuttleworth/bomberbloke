@@ -18,9 +18,8 @@ public:
     void draw(Camera *cam){
       SDL_Rect dstrect;
       double zoom = cam->GetZoom();
-      scene* lvl  = cam->GetScene().get();
       dstrect.x = round(zoom * mPosition[0]);
-      dstrect.y = round((lvl->mDimmension[1]-mPosition[1]-mDimmension[1]) * zoom);
+      dstrect.y = round((_pScene->mDimmension[1]-mPosition[1]-mDimmension[1]) * zoom);
       dstrect.w = round(zoom * mDimmension[0]);
       dstrect.h = round(zoom * mDimmension[1]);
       SDL_RenderCopy(_renderer, mpSprite, nullptr, &dstrect);

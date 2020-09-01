@@ -16,7 +16,6 @@
 #include <SDL2/SDL_image.h>
 
 /*  TODO: reduce number of globals */
-std::shared_ptr<Camera> _pCamera;
 int _log_message_scene = 0;
 bool _bind_next_key = false;
 std::string _next_bind_command;
@@ -40,6 +39,8 @@ ServerInfo _server_info;
 std::ofstream _console_log_file;
 std::list<std::shared_ptr<AbstractSpriteHandler>> _particle_list;
 std::vector<CommandBinding> _default_bindings;
+
+std::mutex _scene_mutex;
 
 NetClient _net_client;
 NetServer _net_server;
@@ -91,20 +92,18 @@ void create_window(){
         window_name = "Bomberbloke Server";
     _window = SDL_CreateWindow(window_name.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
             _window_size[0], _window_size[1], SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
-    if(_pCamera)
-        _pCamera->onResize();
-    // _zoom = (double)(_window_size[0]) / (_pScene->mDimmension[0]);
     if(_renderer){
         SDL_DestroyRenderer(_renderer);
     }
     _renderer = SDL_CreateRenderer(_window, -1, 0);
+    /*  Set blendmode */
+    SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(_renderer, 0xff, 0x00, 0x00, 0xff);
     SDL_RenderClear(_renderer);
     SDL_RenderPresent(_renderer);
 
-    for(auto i = _sprite_list.begin(); i != _sprite_list.end(); i++){
-        SDL_DestroyTexture(i->second);
-    }
+    if(_pScene)
+      _pScene->onResize();
 
     return;
 }
@@ -121,8 +120,8 @@ void refresh_sprites(){
 
 
 void resize_window(int x, int y){
-    if(!_pCamera)
-        return;
+    if(!_draw)
+      return;
 
     _window_size[0] = x;
     _window_size[1] = y;
@@ -131,9 +130,10 @@ void resize_window(int x, int y){
         SDL_DestroyWindow(_window);
         create_window();
     }
-    
-    _pCamera->onResize();
-    refresh_sprites();
+    if(_pScene){
+      _pScene->onResize();
+      refresh_sprites();
+    }
     return;
 }
 
@@ -146,15 +146,11 @@ void init_engine() {
     SDL_Init(SDL_INIT_EVERYTHING);
     soundManager.init(channelFinishedForwarder);
 
-    /*  Set blendmode */
-    SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
-
     if (_draw) {
         create_window();
+        if(_pScene)
+          refresh_sprites();
     }
-
-    _pScene = std::shared_ptr<scene>(new scene(10, 10));
-    _pCamera = std::shared_ptr<Camera>(new Camera(_pScene));
 
     /* Initialise the controller if it exists */
     _controller = handle_input_controller();
@@ -179,7 +175,7 @@ void handle_input() {
     Uint8 *kb_state = NULL;
     while (SDL_PollEvent(&event)) {
         _pScene->onInput(&event);
-        
+
         switch (event.type) {
             case SDL_QUIT: {
                 _halt = true;
@@ -187,7 +183,7 @@ void handle_input() {
             }
             case SDL_KEYDOWN: {
                 if(!_bind_next_key)
-                    break;
+                  break;
                 /*We only look at keyboard events here in order to bind keys*/
                 CommandBinding new_binding;
                 new_binding.scancode = event.key.keysym.scancode;
@@ -201,7 +197,7 @@ void handle_input() {
                 if(event.window.event == SDL_WINDOWEVENT_RESIZED){
                     _window_size[0] = event.window.data1;
                     _window_size[1] = event.window.data2;
-                    _pCamera->onResize();
+                    _pScene->onResize();
                 }
             }
         }
@@ -223,7 +219,7 @@ void handle_input() {
                     } else {
                         std::shared_ptr<actor> character = i->getCharacter();
                         if(character){
-                            character->handle_command(command_to_send); // handle normal command
+                            character->handleCommand(command_to_send); // handle normal command
                             if(!_server){
                                 std::unique_ptr<AbstractEvent> c_event(new CommandEvent(command_to_send));
                                 _net_client.sendEvent(c_event);
@@ -239,19 +235,19 @@ void handle_input() {
             if (i->getCharacter() &&  event.jaxis.which == 0) {
                 if (event.jaxis.axis == 0) { //x axis
                     if (event.jaxis.value < -DEADZONE) {
-                        i->getCharacter()->handle_command("left"+dX);
+                        i->getCharacter()->handleCommand("left"+dX);
                     } else if (event.jaxis.value > DEADZONE) {
-                        i->getCharacter()->handle_command("+right"+dX);
+                        i->getCharacter()->handleCommand("+right"+dX);
                     } else {
-                        i->getCharacter()->handle_command("-XAxis"+dX);
+                        i->getCharacter()->handleCommand("-XAxis"+dX);
                     }
                 } else if (event.jaxis.axis == 1) {
                     if (event.jaxis.value < -DEADZONE) {
-                        i->getCharacter()->handle_command("+up"+dX);
+                        i->getCharacter()->handleCommand("+up"+dX);
                     } else if (event.jaxis.value > DEADZONE) {
-                        i->getCharacter()->handle_command("+down"+dX);
+                        i->getCharacter()->handleCommand("+down"+dX);
                     } else {
-                        i->getCharacter()->handle_command("-YAxis"+dX);
+                        i->getCharacter()->handleCommand("-YAxis"+dX);
                     }
                 }
             }
@@ -269,20 +265,18 @@ SDL_Joystick *handle_input_controller() {
     if (SDL_NumJoysticks() > 0) {
         std::cout << "Controlled connected\n ";
         return SDL_JoystickOpen(0); // return joystick identifier
-    } else { return NULL; } // no joystick found
-}
-
-void draw_hud() {
-    return;
+    }
+    else
+      return NULL;  // no joystick found
 }
 
 void draw_screen() {
     if(_halt || !_renderer || !_window || !_draw)
         return;
-
-    SDL_SetRenderDrawColor(_renderer, 0x10, 0xFF, 0x00, 0xFF);
+    SDL_SetRenderDrawColor(_renderer, 0x00, 0x00, 0x00, 0xFF);
     SDL_RenderClear(_renderer);
-    _pCamera->draw();
+    if(_pScene)
+      _pScene->draw();
     SDL_RenderPresent(_renderer);
     return;
 }
@@ -338,13 +332,9 @@ bool handle_system_command(std::list<std::string> tokens) {
     std::string command = tokens.front();
 
     if(command == "new" && _server){
-        for(auto i = _player_list.begin(); i != _player_list.end(); i++){
-            new_game("");
-            std::unique_ptr<AbstractEvent> s_event(new syncEvent());
-            ENetPeer* to = (*i)->getPeer();
-            if(to)
-                _net_server.sendEvent(s_event, to);
-        }
+        log_message(INFO, "starting new game");
+        new_game("");
+        _net_server.syncPlayers();
     }
 
     if(command == "nickname" && !_server){
@@ -591,7 +581,7 @@ static void load_assets(){
                     continue; // no file extension
                 std::string file_name = whole_filename.substr(0, dot_pos);
                 std::string file_extension = whole_filename.substr(dot_pos);
-                
+ 
                 if (file_extension == ".png") {
                     // Found texture
                     SDL_Texture *sprite = IMG_LoadTexture(_renderer, ("assets" + PATHSEPARATOR +  whole_filename).c_str());
