@@ -1,6 +1,5 @@
 #ifndef LOCALPLAYER_HPP
 #define LOCALPLAYER_HPP
- 
 #include "AbstractPlayer.hpp"
 #include <cereal/types/polymorphic.hpp>
 
@@ -10,7 +9,7 @@ class LocalPlayer : public AbstractPlayer{
 
   ~LocalPlayer(){};
 
-  LocalPlayer(std::string nickname = "player"){
+  LocalPlayer(std::string nickname = "player") : AbstractPlayer(){
     for(unsigned int i = 0; i < _default_bindings.size(); i++)
       mControlScheme.push_back(_default_bindings[i]);
     mNickname = nickname;
@@ -29,8 +28,6 @@ class LocalPlayer : public AbstractPlayer{
     mId = id;
     return;
   }
-
-  using AbstractPlayer::AbstractPlayer;
 
 };
 

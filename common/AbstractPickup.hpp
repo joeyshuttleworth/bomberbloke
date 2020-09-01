@@ -3,8 +3,11 @@
 
 #define PICKUP_SIZE 0.2
 
+#include "engine.hpp"
+#include "PlaceHolderSprite.hpp"
+#include "bomberbloke_actors.hpp"
+#include "scene.hpp"
 #include "actor.hpp"
-#include "bloke.hpp"
 
 enum{
      PICKUP_NONE,
@@ -38,13 +41,13 @@ public:
     }
   }
 
-  void handle_command(std::string command){
+  void handleCommand(std::string command){
     if(command == "kill" || command == "+kill"){
       remove();
     }
   }
 
-  ~AbstractPickup(){};
+  virtual ~AbstractPickup(){};
 
 protected:
   virtual void pickup(std::shared_ptr<bloke>) = 0;

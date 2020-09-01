@@ -8,6 +8,7 @@ extern std::list<std::shared_ptr<AbstractSpriteHandler>> _particle_list;
 scene :: scene(double x, double y){
   mDimmension[0] = x;
   mDimmension[1] = y;
+  mpCamera = std::make_shared<Camera>(this);
   return;
 }
 
@@ -159,50 +160,62 @@ void scene::physicsUpdate() {
     }
 }
 
-void scene::updateHudPositions(Camera *camera) {
+void scene::updateHudPositions() {
     for(auto i = mHudElements.begin(); i != mHudElements.end(); i++){
-        (*i)->updatePosition(camera);
+        (*i)->updatePosition(mpCamera);
     }
 }
 
-void scene :: draw(Camera *cam){
-  // mpSpriteHandler->draw();
-  int zoom = cam->GetZoom();
-
-  SDL_SetRenderTarget(_renderer, cam->getFrameBuffer());
-
+void scene::draw(){
+  SDL_SetRenderTarget(_renderer, mpCamera->getFrameBuffer());
+  /* Set background colour */
   SDL_SetRenderDrawColor(_renderer, 0x00, 0x10, 0xff, 0xff);
   SDL_RenderFillRect(_renderer, nullptr);
 
-  SDL_SetRenderDrawColor(_renderer, 0x10, 0x10, 0x10, 0xa0);
+  drawActors();
+  drawParticles();
+  drawHud();
 
-  /* Draw a grid */
-  for(int i = 0; i<=10; i++){
-    SDL_RenderDrawLine(_renderer, i * zoom, 0, i * zoom, mDimmension[1]*zoom);
-    SDL_RenderDrawLine(_renderer, 0, i*zoom, mDimmension[0]*zoom, i*zoom);
-  }
+  mpCamera->draw();
+}
 
-  if(!cam){
+void scene::drawHud(){
+  if(!mpCamera){
     log_message(ERROR, "Attempted to draw with null camera object!");
     return;
   }
 
-  //Next draw each actor
-  for(auto i = mActors.begin(); i!=mActors.end(); i++){
-    (*i)->draw(cam);
+  // Draw HUD elements
+  // SDL_SetRenderTarget(_renderer, mpCamera->getFrameBuffer());
+  for(auto i = mHudElements.begin(); i!= mHudElements.end(); i++){
+    (*i)->draw(mpCamera.get());
+  }
+}
+
+void scene::drawParticles(){
+  if(!mpCamera){
+    log_message(ERROR, "Attempted to draw with null camera object!");
+    return;
   }
 
+ // SDL_SetRenderTarget(_renderer, mpCamera->getFrameBuffer());
   /*  Draw all particles.*/
   for(auto i = mParticleList.begin(); i!= mParticleList.end(); i++){
-    (*i)->draw(cam);
+    (*i)->draw(mpCamera.get());
   }
-  
-  // Draw HUD elements
-  for(auto i = mHudElements.begin(); i!= mHudElements.end(); i++){
-    (*i)->draw(cam);
+}
+
+void scene::drawActors(){
+  if(!mpCamera){
+    log_message(ERROR, "Attempted to draw with null camera object!");
+    return;
   }
-  
-  return;
+
+  // SDL_SetRenderTarget(_renderer, mpCamera->getFrameBuffer());
+  //Next draw each actor
+  for(auto i = mActors.begin(); i!=mActors.end(); i++){
+    (*i)->draw(mpCamera.get());
+  }
 }
 
 static void interpolateActors(std::list<std::shared_ptr<actor>> &actors){
@@ -220,6 +233,7 @@ void scene :: update(){
   cleanUp();
   physicsUpdate();
   updateSprites();
+  logicUpdate();
   return;
 }
 
@@ -250,4 +264,9 @@ void scene::onInput(SDL_Event *event) {
             (*i)->onInput(event);
         }
     }
+}
+
+void scene::onResize(){
+    if(mpCamera)
+      mpCamera->onResize();
 }
