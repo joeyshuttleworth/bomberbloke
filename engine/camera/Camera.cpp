@@ -60,17 +60,17 @@ void Camera::draw() {
     mScreenRectangle.x = mRumbleOffset[0];
     mScreenRectangle.y = mRumbleOffset[1];
 
+    // Apply blur to mpBloomBuffer and "add" to window to create a bloom effect
+    blurTexture(mpBloomBuffer, mBloomSize, mBloomPasses);
+    SDL_SetRenderTarget(_renderer, mpFrameBuffer);
+    SDL_SetTextureBlendMode(mpBloomBuffer, SDL_BLENDMODE_ADD);
+    SDL_SetTextureAlphaMod(mpBloomBuffer, mBloomAlpha);
+    SDL_RenderCopy(_renderer, mpBloomBuffer, nullptr, nullptr);
+
     // Apply blur to mpFrameBuffer and draw to window
     blurTexture(mpFrameBuffer, mBlurSize, mBlurPasses);
     SDL_SetRenderTarget(_renderer, nullptr);
     SDL_RenderCopy(_renderer, mpFrameBuffer, nullptr, &mScreenRectangle);
-
-    // Apply blur to mpBloomBuffer and "add" to window to create a bloom effect
-    blurTexture(mpBloomBuffer, mBloomSize, mBloomPasses);
-    SDL_SetRenderTarget(_renderer, nullptr);
-    SDL_SetTextureBlendMode(mpBloomBuffer, SDL_BLENDMODE_ADD);
-    SDL_SetTextureAlphaMod(mpBloomBuffer, mBloomAlpha);
-    SDL_RenderCopy(_renderer, mpBloomBuffer, nullptr, &mScreenRectangle);
 
     // Draw mpNoProcessingBuffer on window
     SDL_SetTextureBlendMode(mpNoProcessingBuffer, SDL_BLENDMODE_BLEND);
