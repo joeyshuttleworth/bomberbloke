@@ -5,8 +5,10 @@
 #include <network/NetClient.hpp>
 #include "Explosion.hpp"
 #include "TextButton.hpp"
+#include "InputField.hpp"
 #include "TextHudElement.hpp"
 #include "SpriteHudElement.hpp"
+
 
 /* Register our actors with cereal */
 CEREAL_REGISTER_DYNAMIC_INIT(actors)
@@ -84,7 +86,26 @@ int main (){
   hudElementJoin->setMouseOverColour({200, 200, 200});
   hudElementJoin->setOnClickOffset(0, 3);
   _pScene->mHudElements.push_back(hudElementJoin);
-  
+  SDL_StartTextInput();
+
+
+  std::shared_ptr<Text> pTextInput = textManager.createText("Aileron-Black", "Name");
+  pTextInput->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
+  pTextInput->setTextColour({255, 255, 255});
+  pTextInput->setTextScale(1.5);
+  std::shared_ptr<InputField> hudElementInput = std::make_shared<InputField>(pTextInput, 9, 120, 400, 30, nullptr, ALIGN_LEFT, ALIGN_BOTTOM);
+  hudElementInput->setOnClickOffset(0, 3);
+  _pScene->mHudElements.push_back(hudElementInput);
+
+  std::shared_ptr<Text> pTextInput2 = textManager.createText("Aileron-Black", "SERVER IP");
+  pTextInput2->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
+  pTextInput2->setTextColour({255, 255, 255});
+  pTextInput2->setTextScale(1.5);
+  std::shared_ptr<InputField> hudElementInput2 = std::make_shared<InputField>(pTextInput2, 9, 150, 400, 30, nullptr, ALIGN_LEFT, ALIGN_BOTTOM);
+  hudElementInput2->setOnClickOffset(0, 3);
+  _pScene->mHudElements.push_back(hudElementInput2);
+
+
   // Speed HUD demo
   for (int i = 0; i < 4; i++) {
       std::shared_ptr<SpriteHudElement> hudElement = std::make_shared<SpriteHudElement>("lightning.png", 9 + i * 34, 9, 32, 32);

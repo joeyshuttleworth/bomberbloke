@@ -20,3 +20,4 @@ engine/hud/AbstractHudElement.cpp
 engine/hud/TextHudElement.cpp
 engine/hud/TextButton.cpp
 engine/hud/SpriteHudElement.cpp
+engine/hud/InputField.cpp

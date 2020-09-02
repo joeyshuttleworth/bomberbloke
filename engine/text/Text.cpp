@@ -8,8 +8,11 @@ void Text::draw(Camera *camera) {
         updateTexture(camera);
         mPropertiesUpdated = false;
     }
-    
-    // Copy rendered text into the text box (in the renderer)
+  if (mHasBackground) {
+    SDL_SetRenderDrawColor(_renderer, mBackColour.r,mBackColour.g, mBackColour.b,mBackColour.a);
+    SDL_RenderFillRect(_renderer, &mSrcRect);
+  }
+  // Copy rendered text into the text box (in the renderer)
     SDL_RenderCopy(_renderer, mTextTexture, &mSrcRect, &mDstRect);
 }
 
