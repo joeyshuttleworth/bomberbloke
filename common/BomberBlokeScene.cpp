@@ -27,23 +27,19 @@ static void hudTestFn2() {
 }
 
 void BomberBlokeScene::draw(){
-  if(!mpCamera){
-    return;
-    log_message(ERROR, "null camera");
-  }
-
+  // Reset the frame buffer
   mpCamera->resetFrameBuffer();
 
-  int zoom = mpCamera->GetZoom();
+  // Draw background
+  SDL_Rect sceneScreenRect = mpCamera->getScreenRect(0, 0, mDimmension[0], mDimmension[1]);
+  mpCamera->renderCopy(mBackgroundTexture, nullptr, &sceneScreenRect);
 
-  // TODO: make the background change with zoom
-  mpCamera->renderCopy(mBackgroundTexture, nullptr, nullptr);
-
+  // Draw actors, particles and HUD
   drawActors();
   drawParticles();
   drawHud();
 
-
+  // Draw camera to window
   mpCamera->draw();
 }
 
