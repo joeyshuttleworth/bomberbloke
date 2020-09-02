@@ -86,7 +86,6 @@ int main (){
   hudElementJoin->setMouseOverColour({200, 200, 200});
   hudElementJoin->setOnClickOffset(0, 3);
   _pScene->mHudElements.push_back(hudElementJoin);
-  SDL_StartTextInput();
 
 
   std::shared_ptr<Text> pTextInput = textManager.createText("Aileron-Black", "Name");
