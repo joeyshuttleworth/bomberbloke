@@ -14,6 +14,8 @@ extern SDL_Window   *_window;
 
 class Camera{
 public:
+  double mZoom = 0.1;
+  std::array<double, 2> mPosition = {{ 0, 0 }};
 
   Camera(){};
 
@@ -120,14 +122,14 @@ public:
    */
   void blurTexture(SDL_Texture *texture, double size, int passes=8);
 
+  SDL_Rect getScreenRect(double x, double y, double w, double h);
+
 protected:
   scene *mpScene;
-  double mZoom;
   SDL_Texture *mpFrameBuffer = nullptr;
   SDL_Texture *mpNoProcessingBuffer = nullptr;
   SDL_Texture *mpBloomBuffer = nullptr;
   SDL_Rect mScreenRectangle;
-  std::array<double, 2> mFocusCoordinates = {{ 0, 0 }};
   std::shared_ptr<SDL_Renderer> mpRenderer;
   /*  Use mOffsets for animations on the camera object */
   std::array<double, 2> mOffsets = {{ 0, 0 }};
