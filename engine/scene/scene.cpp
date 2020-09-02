@@ -226,6 +226,9 @@ void scene :: update(){
   if(!_server)
     interpolateActors(mActors);
 
+  if (mpCamera)
+    mpCamera->update();
+
   movementUpdate();
   cleanUp();
   physicsUpdate();

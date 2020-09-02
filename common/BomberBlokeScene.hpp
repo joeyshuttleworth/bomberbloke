@@ -5,6 +5,8 @@
 #include "scene.hpp"
 #include "bomberbloke.h"
 
+class FollowCamera;
+
 class BomberBlokeScene : public scene{
 protected:
   std::weak_ptr<AbstractHudElement> mPowerIcons[5];
@@ -12,10 +14,18 @@ protected:
 
   SDL_Texture *mBackgroundTexture;
 
+  std::shared_ptr<FollowCamera> blokeCamera;
+
 public:
 
     BomberBlokeScene(int size_x = 10, int size_y = 10);
     ~BomberBlokeScene(){}
+
+
+    /**
+     * Update function
+     */
+    void update();
 
    /**
      * Every second, check how many players are alive.
