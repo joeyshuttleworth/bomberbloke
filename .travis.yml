@@ -2,10 +2,9 @@ language: cpp
 
 matrix:
   include:
-    - name: "Bomberbloke on Linux"
+    - os: linux
     dist: bionic
-    - name: "Bomberbloke on Windows"
-    os: windows
+    - os: windows
 
 compiler:
   - gcc
