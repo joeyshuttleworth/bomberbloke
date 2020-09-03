@@ -80,7 +80,7 @@ public:
      *
      * @param camera    Current Camera object.
      */
-    void draw(Camera *camera);
+    void draw(Camera *camera) override;
 
     void onInput(SDL_Event *event) override;
 

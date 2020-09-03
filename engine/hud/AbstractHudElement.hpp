@@ -142,7 +142,7 @@ protected:
     // may effect the render. Set back to false when draw is called.
     bool mPropertiesUpdated;
 
-    //Bolean value if the box has current focus
+    //Boolean value if the box has current focus
     bool mHasFocus;
 
 };

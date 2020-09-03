@@ -45,7 +45,7 @@ void InputField::onInput(SDL_Event *event) {
       mPropertiesUpdated = true;
       if (!(SDL_GetModState() & KMOD_CTRL && (event->text.text[0] == 'v' || event->text.text[0] == 'V'))) {
         textInput += event->text.text;
-        log_message(INFO, textInput.c_str());
+        log_message(DEBUG, textInput.c_str());
       }
     }
   }
@@ -63,12 +63,6 @@ void InputField::draw(Camera *camera) {
       //Enter TextBox Input
       mText->setTextColour(mOnClickColour);
       mText->setTextOffset(mOnClickOffset[0], mOnClickOffset[1]);
-    } else if (mIsMouseOver) {
-      mText->setTextColour(mMouseOverColour);
-      mText->setTextOffset(mMouseOverOffset[0], mMouseOverOffset[1]);
-    } else {
-      mText->setTextColour(mDefaultColour);
-      mText->setTextOffset(mDefaultOffset[0], mDefaultOffset[1]);
     }
   }
 
