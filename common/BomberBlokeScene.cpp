@@ -37,7 +37,7 @@ void BomberBlokeScene::draw(){
   int zoom = mpCamera->GetZoom();
 
   // TODO: make the background change with zoom
-  mpCamera->renderCopy(mBackgroundTexture, nullptr, nullptr);
+  mpCamera->displayTexture(mBackgroundTexture, nullptr, nullptr);
 
   drawActors();
   drawParticles();

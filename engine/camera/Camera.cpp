@@ -117,8 +117,7 @@ void Camera::update() {
         mRumbleOffset[0] = 0;
         mRumbleOffset[1] = 0;
     }
-    return;
-}
+    }
 
 void Camera::blurTexture(SDL_Texture *texture, double size, int passes) {
     if (size <= 0)
@@ -188,7 +187,7 @@ void Camera::blurTexture(SDL_Texture *texture, double size, int passes) {
     SDL_DestroyTexture(tmpTexture);
 }
 
-void Camera::renderCopy(SDL_Texture *texture, SDL_Rect *srcRect, SDL_Rect *dstRect, bool isPostProcessed, int bloomAmount) {
+void Camera::displayTexture(SDL_Texture *texture, SDL_Rect *srcRect, SDL_Rect *dstRect, bool isPostProcessed, int bloomAmount) {
     // Copy the texture onto the appropriate frame buffer
     SDL_SetRenderTarget(_renderer, getFrameBuffer(isPostProcessed));
     SDL_RenderCopy(_renderer, texture, srcRect, dstRect);
@@ -209,13 +208,6 @@ void Camera::renderCopy(SDL_Texture *texture, SDL_Rect *srcRect, SDL_Rect *dstRe
 
         if (bloomAmount > 0) {
             // Add texture to bloom buffer to create a glowing effect
-            SDL_BlendMode addBlendMode = SDL_ComposeCustomBlendMode(
-                SDL_BLENDFACTOR_ONE,
-                SDL_BLENDFACTOR_ZERO,
-                SDL_BLENDOPERATION_ADD,
-                SDL_BLENDFACTOR_ONE,
-                SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
-                SDL_BLENDOPERATION_ADD);
             SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
             SDL_SetTextureAlphaMod(texture, bloomAmount);
             SDL_RenderCopy(_renderer, texture, srcRect, dstRect);

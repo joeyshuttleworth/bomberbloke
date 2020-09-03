@@ -26,6 +26,12 @@ public:
     mScreenRectangle.x=0;
     mScreenRectangle.y=0;
 
+    /* Different buffers processing effects
+     * mpFrameBuffer - current buffer with post processing effects
+     * mpNoProcessingBuffer - current buffer with no post processing effects
+     * mpBloomBuffer - buffer with blur and "addition" to create a bloom effect.
+     * */
+
     mpFrameBuffer = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, mScreenRectangle.w, mScreenRectangle.h);
     mpNoProcessingBuffer = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, mScreenRectangle.w, mScreenRectangle.h);
     mpBloomBuffer = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, mScreenRectangle.w, mScreenRectangle.h);
@@ -57,8 +63,8 @@ public:
 
   void resetFrameBuffer();
 
-  void renderCopy(SDL_Texture *texture, SDL_Rect *srcRect=nullptr,
-      SDL_Rect *dstRect=nullptr, bool isPostProcessed=true, int bloomAmount=0);
+  void displayTexture(SDL_Texture *texture, SDL_Rect *srcRect=nullptr,
+                      SDL_Rect *dstRect=nullptr, bool isPostProcessed=true, int bloomAmount=0);
 
   void renderFillRect(SDL_Rect *dstRect, SDL_Color colour, bool isPostProcessed=true, int bloomAmount=0);
 
@@ -66,7 +72,7 @@ public:
       return {{ mScreenRectangle.w, mScreenRectangle.h }};
   }
 
-  double GetZoom(){
+  double GetZoom() const{
     return mZoom;
   }
 
