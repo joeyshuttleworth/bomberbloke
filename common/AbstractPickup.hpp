@@ -38,7 +38,7 @@ public:
     }
   }
 
-  void handle_command(std::string command){
+  void handleCommand(std::string command){
     if(command == "kill" || command == "+kill"){
       remove();
     }

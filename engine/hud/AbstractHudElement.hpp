@@ -109,6 +109,39 @@ public:
      *
      * @param camera    Current Camera object.
      */
+
+  void updatePosition(std::shared_ptr<Camera> camera) {
+        std::array<int, 2> screenDimensions = camera->getScreenDimensions();
+        
+        switch(mAlignFlags[0]) {
+            case ALIGN_CENTER:
+                // Centred positioning
+                mPosition[0] = (screenDimensions[0] - mDimensions[0]) / 2;
+                break;
+            case ALIGN_RIGHT:
+                // Right-aligned positioning
+                mPosition[0] = screenDimensions[0] - mDimensions[0] - mRelativePosition[0];
+                break;
+            default:
+                // Left-aligned positioning
+                mPosition[0] = mRelativePosition[0];
+        }
+        
+        switch(mAlignFlags[1]) {
+            case ALIGN_CENTER:
+                // Centred positioning
+                mPosition[1] = (screenDimensions[1] - mDimensions[1]) / 2;
+                break;
+            case ALIGN_RIGHT:
+                // Right-aligned positioning
+                mPosition[1] = screenDimensions[1] - mDimensions[1] - mRelativePosition[1];
+                break;
+            default:
+                // Left-aligned positioning
+                mPosition[1] = mRelativePosition[1];
+        }
+    }
+
     virtual void updatePosition(Camera* camera);
 
     /**
@@ -122,6 +155,9 @@ public:
      * @param event Input event that is handled by HUD element.
      */
     virtual void onInput(SDL_Event *event) {};
+
+    // flag to indicate whether the object should be drawn to screen or not
+    bool mVisible = true;
 
 protected:
     // Pixel-position of the top left corner of the bounding box.

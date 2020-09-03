@@ -23,13 +23,10 @@ void ClickableHudElement::onInput(SDL_Event *event) {
     if (mIsClicked && event->type == SDL_MOUSEBUTTONUP) {
         SDL_StartTextInput();
         mIsClicked = false;
-<<<<<<< Updated upstream
-=======
         return;
     }
 
     else if (event->type == SDL_MOUSEBUTTONDOWN) {
->>>>>>> Stashed changes
         mPropertiesUpdated = true;
         if (mOnClickFn != nullptr && mIsMouseOver)
             mOnClickFn();

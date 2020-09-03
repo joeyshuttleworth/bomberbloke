@@ -6,6 +6,7 @@ engine/config.cpp
 common/bloke.cpp
 common/bomb.cpp
 common/Explosion.cpp
+common/BomberBlokeScene.cpp
 engine/network/NetClient.cpp
 engine/network/NetServer.cpp
 engine/collider/AbstractCollider.cpp

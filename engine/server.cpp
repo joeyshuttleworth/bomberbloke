@@ -1,6 +1,7 @@
 #include "engine.hpp"
 #include "server.h"
 #include "network/NetServer.hpp"
+#include <memory>
 
 bool _server = true;
 bool _draw   = false;
@@ -26,12 +27,16 @@ void server_loop(){
     if(_tick % (5 * TICK_RATE) == 0){
       _ping_time = _tick;
     }
+    /* Lock _scene_mutex to protect _pScene from other threads */
+    const std::lock_guard<std::mutex> lock(_scene_mutex);
+    if(!_pScene)
+      _pScene = std::make_shared<scene>(10,10);
     _pScene->update();
-    handle_input();
     draw_screen();
-      _tick++;
-      if(_tick%1000==0)
+    _tick++;
+    if(_tick%1000==0)
       _net_server.syncPlayers();
+    handle_input();
   }
   return;
 }

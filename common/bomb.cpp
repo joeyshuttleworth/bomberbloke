@@ -30,7 +30,7 @@ void bomb::init(bloke *bloke){
   return;
 }
 
-void bomb::handle_command(std::string command){
+void bomb::handleCommand(std::string command){
   if(mRemove==false){
     if(command == "+kill" && _server){
       explode();
@@ -76,7 +76,7 @@ void bomb::explode(){
        /* Check we are in the blast zone - if so set dead to true */
         for(int j = 0; j < 2; j++){
           if(bomb_square[j] == actor_square[j] && std::abs(bomb_square[!j] - actor_square[!j]) <= mPower){
-            (*i)->handle_command("+kill");
+            (*i)->handleCommand("+kill");
             break;
           }
         }
@@ -87,7 +87,7 @@ void bomb::explode(){
       placed_by->mBombs--;
     _pScene->mParticleList.push_back(std::shared_ptr<Explosion>(new Explosion(mPosition[0] - 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), mPosition[1] - 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), 1 ,1)));
     /*  Rumble effect */
-    _pCamera->rumble();
+    _pScene->getCamera()->rumble();
   }
 
   /* Play explosion sound effect */
