@@ -72,6 +72,13 @@ void Camera::draw() {
     SDL_SetRenderTarget(_renderer, nullptr);
     SDL_RenderCopy(_renderer, mpFrameBuffer, nullptr, &mScreenRectangle);
 
+    // Apply blur to mpBloomBuffer and "add" to window to create a bloom effect
+    blurTexture(mpBloomBuffer, mBloomSize, mBloomPasses);
+    SDL_SetRenderTarget(_renderer, nullptr);
+    SDL_SetTextureBlendMode(mpBloomBuffer, SDL_BLENDMODE_ADD);
+    SDL_SetTextureAlphaMod(mpBloomBuffer, mBloomAlpha);
+    SDL_RenderCopy(_renderer, mpBloomBuffer, nullptr, &mScreenRectangle);
+
     // Draw mpNoProcessingBuffer on window
     SDL_SetTextureBlendMode(mpNoProcessingBuffer, SDL_BLENDMODE_BLEND);
     SDL_RenderCopy(_renderer, mpNoProcessingBuffer, nullptr, nullptr);
