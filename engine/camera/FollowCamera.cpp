@@ -22,7 +22,7 @@ void FollowCamera::update() {
             mVelocity[0] = 0;
             mVelocity[1] = 0;
         } else {
-            double speed = std::pow(std::pow(mVelocity[0], 2) + std::pow(mVelocity[1], 2), 0.5);
+            double speed = std::sqrt(std::pow(mVelocity[0], 2) + std::pow(mVelocity[1], 2));
 
             // Accelerate towards bloke
             speed += CAMERA_ACCELERATION / TICK_RATE;
@@ -52,7 +52,7 @@ void FollowCamera::update() {
             }
         }
     } else if (mVelocity[0] != 0 || mVelocity[1] != 0) {
-        double speed = std::pow(std::pow(mVelocity[0], 2) + std::pow(mVelocity[1], 2), 0.5);
+        double speed = std::sqrt(std::pow(mVelocity[0], 2) + std::pow(mVelocity[1], 2));
 
         // Camera isn't attached to any subject - decelerate to 0 velocity
         if (CAMERA_ACCELERATION / TICK_RATE < speed) {
