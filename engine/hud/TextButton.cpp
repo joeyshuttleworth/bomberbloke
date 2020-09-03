@@ -26,6 +26,9 @@ TextButton::TextButton(std::shared_ptr<Text> text, int xPos, int yPos, int xDim,
 }
 
 void TextButton::draw(Camera *camera) {
+    if (!mIsVisible)
+        return;
+
     if (mPropertiesUpdated) {
         // Set colour and text offset according to mIsClicked and mIsMouseOver
         if (mIsClicked) {

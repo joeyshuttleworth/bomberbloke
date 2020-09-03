@@ -96,11 +96,6 @@ void create_window(){
         SDL_DestroyRenderer(_renderer);
     }
     _renderer = SDL_CreateRenderer(_window, -1, 0);
-    /*  Set blendmode */
-    SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(_renderer, 0xff, 0x00, 0x00, 0xff);
-    SDL_RenderClear(_renderer);
-    SDL_RenderPresent(_renderer);
 
     if(_pScene)
       _pScene->onResize();
@@ -274,6 +269,7 @@ void draw_screen() {
     if(_halt || !_renderer || !_window || !_draw)
         return;
     SDL_SetRenderDrawColor(_renderer, 0x00, 0x00, 0x00, 0xFF);
+    SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_NONE);
     SDL_RenderClear(_renderer);
     if(_pScene)
       _pScene->draw();
@@ -581,7 +577,7 @@ static void load_assets(){
                     continue; // no file extension
                 std::string file_name = whole_filename.substr(0, dot_pos);
                 std::string file_extension = whole_filename.substr(dot_pos);
- 
+
                 if (file_extension == ".png") {
                     // Found texture
                     SDL_Texture *sprite = IMG_LoadTexture(_renderer, ("assets" + PATHSEPARATOR +  whole_filename).c_str());

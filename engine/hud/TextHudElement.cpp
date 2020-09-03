@@ -14,3 +14,11 @@ void TextHudElement::updatePosition(Camera* camera) {
     mText->setDimensions(mDimensions[0], mDimensions[1]);
     mText->setPosition(mPosition[0], mPosition[1]);
 }
+
+void TextHudElement::draw(Camera *camera) {
+    if (!mIsVisible)
+        return;
+
+    AbstractHudElement::draw(camera);
+    mText->draw(camera, mIsPostProcessed);
+}
