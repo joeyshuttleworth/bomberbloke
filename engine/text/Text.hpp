@@ -167,6 +167,18 @@ public:
     }
 
     /**
+    * Sets the colour of the background.
+    *
+    * @param colour    The new colour.
+    */
+    void setBackgroundColour(SDL_Color colour) {
+      mBackColour = colour;
+      mHasBackground = true;
+      mPropertiesUpdated = true;
+    }
+
+
+    /**
      * Gets the text colour.
      *
      * @return  SDL_Color object.
@@ -199,6 +211,8 @@ protected:
     double mTextScale[2] = { 1., 1. };
     // Colour of rendered text.
     SDL_Color mColour;
+    // Colour of background colour;
+    SDL_Color mBackColour;
     // Text alignment flags in x and y direction (see setTextAlignment).
     TextAlignFlag mAlignment[2];
 
@@ -212,7 +226,8 @@ protected:
     // Boolean value which is set to true whenever a property is changed that
     // may effect the render. Set back to false when draw is called.
     bool mPropertiesUpdated;
-
+    // Boolean value to whether the textbox has a background colour
+    bool mHasBackground = false;
     /**
      * Updates the texture used in the draw function.
      *
