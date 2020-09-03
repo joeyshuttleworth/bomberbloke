@@ -23,7 +23,7 @@ public:
       dstrect.w = round(zoom * mDimmension[0]);
       dstrect.h = round(zoom * mDimmension[1]);
 
-      cam->renderCopy(mpSprite, nullptr, &dstrect);
+      cam->displayTexture(mpSprite, nullptr, &dstrect);
 
       return;
     }
