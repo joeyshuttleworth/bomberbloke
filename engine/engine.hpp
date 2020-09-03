@@ -17,6 +17,8 @@
 #include <SDL_joystick.h>
 #include <thread>
 #include <cereal/archives/json.hpp>
+#include <mutex>
+
 #define DEFAULT_ZOOM  50
 #define DEFAULT_ACTOR_SIZE 1
 #define DEFAULT_WINDOW_WIDTH  700
@@ -35,6 +37,8 @@ enum state{
            PLAYING,
            DISCONNECTED
 };
+
+extern std::mutex _scene_mutex;
 
 class actor;
 class scene;
@@ -83,6 +87,9 @@ extern bool _controller_connected;
 #include "SoundManager.hpp"
 extern SoundManager soundManager;
 
+#include "TextManager.hpp"
+extern TextManager textManager;
+
 
 typedef struct{
   SDL_Scancode scancode;
@@ -124,9 +131,6 @@ extern std::vector<CommandBinding> _default_bindings;
 extern std::list<LocalPlayer> _local_player_list;
 
 const std::array<std::string, 2> _system_commands  = {{"bind", "set"}};
-
-class Camera;
-extern std::shared_ptr<Camera> _pCamera;
 
 /*  A function defined by the game / test called each tick */
 void gameUpdate();

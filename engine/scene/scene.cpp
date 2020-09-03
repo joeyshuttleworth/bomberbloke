@@ -1,12 +1,14 @@
 #include "engine.hpp"
 #include "Camera.hpp"
 #include "CreateEvent.hpp"
+#include "AbstractHudElement.hpp"
 
 extern std::list<std::shared_ptr<AbstractSpriteHandler>> _particle_list;
 
 scene :: scene(double x, double y){
   mDimmension[0] = x;
   mDimmension[1] = y;
+  mpCamera = std::make_shared<Camera>(this);
   return;
 }
 
@@ -89,7 +91,7 @@ void scene :: addActor(std::shared_ptr<actor> a){
   log_message(ERROR, "Failed to add actor - too many actors in mActors");
 }
 
-static bool collides(std::shared_ptr<AbstractCollider> a, std::shared_ptr<AbstractCollider> b){
+static bool collides(AbstractCollider* a, AbstractCollider* b){
   dvector iAxesMtv = a->testNormalAxes(b);
   if (iAxesMtv[0] == 0 && iAxesMtv[1] == 0)
     return false;
@@ -125,7 +127,7 @@ void scene::physicsUpdate() {
             dvector iAxesMtv = (*i)->testNormalAxes(*j);
             if (iAxesMtv[0] == 0 && iAxesMtv[1] == 0)
                 continue;
-            dvector jAxesMtv = (*i)->testNormalAxes(*j);
+            dvector jAxesMtv = (*j)->testNormalAxes(*i);
             if (jAxesMtv[0] == 0 && jAxesMtv[1] == 0)
                 continue;
             // No separating axis found - find minimum translation vector (MTV)
@@ -158,38 +160,58 @@ void scene::physicsUpdate() {
     }
 }
 
-void scene :: draw(Camera *cam){
-  // mpSpriteHandler->draw();
-  int zoom = cam->GetZoom();
+void scene::updateHudPositions() {
+    for(auto i = mHudElements.begin(); i != mHudElements.end(); i++){
+        (*i)->updatePosition(mpCamera);
+    }
+}
 
-  SDL_SetRenderTarget(_renderer, cam->getFrameBuffer());
+void scene::draw(){
+  mpCamera->resetFrameBuffer();
+  drawActors();
+  drawParticles();
+  drawHud();
 
-  SDL_SetRenderDrawColor(_renderer, 0x00, 0x10, 0xff, 0xff);
-  SDL_RenderFillRect(_renderer, nullptr);
+  mpCamera->draw();
+}
 
-  SDL_SetRenderDrawColor(_renderer, 0x10, 0x10, 0x10, 0xa0);
-
-  /* Draw a grid */
-  for(int i = 0; i<=10; i++){
-    SDL_RenderDrawLine(_renderer, i * zoom, 0, i * zoom, mDimmension[1]*zoom);
-    SDL_RenderDrawLine(_renderer, 0, i*zoom, mDimmension[0]*zoom, i*zoom);
-  }
-
-  if(!cam){
+void scene::drawHud(){
+  if(!mpCamera){
     log_message(ERROR, "Attempted to draw with null camera object!");
     return;
   }
 
-  //Next draw each actor
-  for(auto i = mActors.begin(); i!=mActors.end(); i++){
-    (*i)->draw(cam);
+  // Draw HUD elements
+  // SDL_SetRenderTarget(_renderer, mpCamera->getFrameBuffer());
+  for(auto i = mHudElements.begin(); i!= mHudElements.end(); i++){
+    (*i)->draw(mpCamera.get());
+  }
+}
+
+void scene::drawParticles(){
+  if(!mpCamera){
+    log_message(ERROR, "Attempted to draw with null camera object!");
+    return;
   }
 
+ // SDL_SetRenderTarget(_renderer, mpCamera->getFrameBuffer());
   /*  Draw all particles.*/
   for(auto i = mParticleList.begin(); i!= mParticleList.end(); i++){
-    (*i)->draw(cam);
+    (*i)->draw(mpCamera.get());
   }
-  return;
+}
+
+void scene::drawActors(){
+  if(!mpCamera){
+    log_message(ERROR, "Attempted to draw with null camera object!");
+    return;
+  }
+
+  // SDL_SetRenderTarget(_renderer, mpCamera->getFrameBuffer());
+  //Next draw each actor
+  for(auto i = mActors.begin(); i!=mActors.end(); i++){
+    (*i)->draw(mpCamera.get());
+  }
 }
 
 static void interpolateActors(std::list<std::shared_ptr<actor>> &actors){
@@ -207,6 +229,7 @@ void scene :: update(){
   cleanUp();
   physicsUpdate();
   updateSprites();
+  logicUpdate();
   return;
 }
 
@@ -214,16 +237,35 @@ void scene::updateSprites(){
   for(auto i = mActors.begin(); i != mActors.end(); i++){
     (*i)->updateSprite();
   }
+  for(auto i = mParticleList.begin(); i!=mParticleList.end(); i++){
+    (*i)->update();
+  }
 }
 
-std::list<std::shared_ptr<actor>> scene::ActorsCollidingWith(std::shared_ptr<AbstractCollider> p_collider){
+std::list<std::shared_ptr<actor>> scene::ActorsCollidingWith(AbstractCollider* p_collider){
   std::list<std::shared_ptr<actor>> r_list;
 
   for(auto i = mActors.begin(); i != mActors.end(); i++){
-    if(collides(p_collider, *i)){
+    if(i->get() == p_collider)
+      continue;
+    else if(collides(p_collider, i->get())){
       r_list.push_back(*i);
     }
   }
 
   return r_list;
+}
+
+void scene::onInput(SDL_Event *event) {
+    // Let interactive HUD elements handle the detected input
+    for (auto i = mHudElements.begin(); i != mHudElements.end(); i++) {
+        if ((*i)->mIsInteractive) {
+            (*i)->onInput(event);
+        }
+    }
+}
+
+void scene::onResize(){
+    if(mpCamera)
+      mpCamera->onResize();
 }

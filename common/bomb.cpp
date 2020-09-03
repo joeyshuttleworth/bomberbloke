@@ -1,3 +1,4 @@
+#include "CreateEvent.hpp"
 #include "bomberbloke.h"
 #include "bloke.hpp"
 #include "bomb.hpp"
@@ -9,28 +10,19 @@ unsigned int _default_bomb_timer = DEFAULT_BOMB_TIMER;
 void bomb::init(bloke *bloke){
   mDimmension[0]=BOMB_SIZE;
   mDimmension[1]=BOMB_SIZE;
-  std::shared_ptr<PlaceHolderSprite> sprite(new  PlaceHolderSprite(mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]));
-  mpSpriteHandler = std::dynamic_pointer_cast<AbstractSpriteHandler>(sprite);
   mCollides = false;
-  mTimer = _default_bomb_timer;
   if(bloke){
     mPlacedById = bloke->mId;
-    mPower = bloke->GetProperties().mPower;
+    mPower = bloke->GetProperties()->mPower;
   }
   else{
     log_message(ERROR, "Bomb placed by malformed actor");
   }
 
-  /* Create sound objects for explosion sound effects */
-  for (int i = 0; i < N_EXPLOSION_SOUNDS; i++) {
-      std::shared_ptr<Sound> sound = soundManager.createSound(EXPLOSION_SOUND_NAMES[i]);
-      mExplosionSounds[i] = sound;
-  }
-
   return;
 }
 
-void bomb::handle_command(std::string command){
+void bomb::handleCommand(std::string command){
   if(mRemove==false){
     if(command == "+kill" && _server){
       explode();
@@ -58,41 +50,38 @@ void bomb::update(){
       explode();
     else
       mTimer--;
-  return;
+    return;
 }
 
 void bomb::explode(){
+  remove();
   if(_server){
     /*Iterate over all actors and kill the ones if they are in the right (wrong) zone.*/
-      for(auto i = _pScene->mActors.begin(); i != _pScene->mActors.end(); i++){
+    const std::list<std::shared_ptr<actor>> actor_list = _pScene->mActors;
+      for(auto i = actor_list.begin(); i != actor_list.end(); i++){
         /* Do not kill this bomb*/
         if(i->get() == this)
           continue;
-        /*TODO: Figure out the explosion properly*/
-        int bomb_square[] = {int(mPosition[0] + mDimmension[0]/2), int(mPosition[1] + mDimmension[1]/2)};
+        int bomb_square[] = {int(mPosition[0]), int(mPosition[1])};
         int actor_square[] = {int((*i)->mPosition[0] + (*i)->mDimmension[0]/2), int((*i)->mPosition[1] + (*i)->mDimmension[1]/2)};
        /* Check we are in the blast zone - if so set dead to true */
         for(int j = 0; j < 2; j++){
-          if(bomb_square[j] == actor_square[j] && std::abs(bomb_square[!j] - actor_square[!j]) <= mPower){
-            (*i)->handle_command("+kill");
+          if(bomb_square[j] == actor_square[j] && std::abs(bomb_square[!j] - actor_square[!j]) <= mPower+1){
+            (*i)->handleCommand("+kill");
             break;
           }
         }
       }
     /*Cast to a bloke pointer.*/
     std::shared_ptr<bloke> placed_by = std::dynamic_pointer_cast<bloke>(_pScene->GetActor(mPlacedById));
-    if(placed_by)
+    if(placed_by && _server)
       placed_by->mBombs--;
-    _pScene->mParticleList.push_back(std::shared_ptr<Explosion>(new Explosion(mPosition[0] - 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), mPosition[1] - 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), 1 ,1)));
-    /*  Rumble effect */
-    _pCamera->rumble();
-    remove();
-  }
 
-  /* Play explosion sound effect */
-  int randIndex = std::rand() % N_EXPLOSION_SOUNDS;
-  std::shared_ptr<Sound> bomb_sound = mExplosionSounds[randIndex];
-  soundManager.playSound(bomb_sound);
+    /* Create an explosion particle on all clients */
+    std::shared_ptr<AbstractSpriteHandler> explosion = std::make_shared<Explosion>(int(mPosition[0]), int(mPosition[1]), 1, 1);
+    std::unique_ptr<AbstractEvent> c_event(new CreateEvent(explosion));
+    _net_server.broadcastEvent(c_event);
+  }
 
   return;
 }

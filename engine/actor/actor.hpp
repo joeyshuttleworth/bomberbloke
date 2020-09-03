@@ -4,11 +4,11 @@
 #include <SDL2/SDL.h>
 #include <memory>
 #include <array>
+#include "Interpolator.hpp"
+#include "KinematicCollider.hpp"
 #include "Camera.hpp"
 #include "Interpolator.hpp"
 #include "KinematicCollider.hpp"
-
-extern SDL_Renderer *_renderer;
 
 class AbstractPlayer; class AbstractSpriteHandler;
 
@@ -103,7 +103,7 @@ public:
       mpSpriteHandler->update(mPosition);
   }
 
-  virtual void handle_command(std::string) = 0;
+  virtual void handleCommand(std::string) = 0;
 
   /*Serialise this class using cereal.
     NB: We don't send the size of the actor (dimmension) as this should

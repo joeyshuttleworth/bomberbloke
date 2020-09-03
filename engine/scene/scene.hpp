@@ -5,13 +5,12 @@
 #include <SDL2/SDL.h>
 #include <cereal/types/list.hpp>
 #include <memory>
-
 #include "AbstractSpriteHandler.hpp"
 #include "AbstractCollider.hpp"
 
 extern double _zoom;
 
-class actor; class Camera;
+class actor; class Camera; class AbstractHudElement;
 
 /* Actor which stores information about the scene including the actors present and methods for updating and drawing the scene */
 class scene{
@@ -21,16 +20,34 @@ protected:
   std::string mName;
   std::string mDescription;
   std::shared_ptr<AbstractSpriteHandler> mpSpriteHandler;
-
+  int mState;
   int mLastActorId=0;
+
+  /*
+   * The camera object that we will use to draw the scene.
+   */
+  std::shared_ptr<Camera> mpCamera;
+
 public:
+
+  std::shared_ptr<Camera> getCamera(){
+    return mpCamera;
+  }
+
+  /**  onResize
+   *
+   *  Update the camera to reflect the new window size.
+   */
+
+  void onResize();
+
   /* Spawnpoints is a collection of coordinates where players can be spawned */
   std::vector<int*> mSpawnPoints;
 
   void addActorWithId(std::shared_ptr<actor> a);
 
   void addActor(std::shared_ptr<actor> a);
-/* dim_x and dim_y are the size of our scene in the x and y axis respectively */
+  /* dim_x and dim_y are the size of our scene in the x and y axis respectively */
   double mDimmension[2];
 
   /*
@@ -41,8 +58,22 @@ public:
    */
   std::list<std::shared_ptr<actor>> mActors;
 
+  /**
+   * HUD elements drawn on top of the scene
+   */
+  std::list<std::shared_ptr<AbstractHudElement>> mHudElements;
+
+  /**
+   * Computes positions of HUD elements based on camera parameters.
+   * Must be called when the window is created or resized.
+   */
+  void updateHudPositions();
+
   /*Draw our scene on the window. Then draw every actor in mActors*/
-  void draw(Camera *cam);
+  virtual void draw();
+  void drawActors();
+  void drawHud();
+  void drawParticles();
   void refreshSprites();
 
   /*
@@ -86,6 +117,13 @@ public:
   void physicsUpdate();
 
   /**
+   *  A virtual function which can be overridden by child classes to implement
+   *  game specific logic.
+   */
+
+  virtual void logicUpdate(){};
+
+  /**
    * Uses the simple axis theorem to detect whether a collision has occurred between
    * two actors in the scene and returns a vector telling handleMovement how to
    * separate them.
@@ -113,13 +151,19 @@ public:
    * @return A std vector of pointers to all the actors in the level which are colliding with the given collider
    *
    */
-  std::list<std::shared_ptr<actor>> ActorsCollidingWith(std::shared_ptr<AbstractCollider> p_collider);
+  std::list<std::shared_ptr<actor>> ActorsCollidingWith(AbstractCollider* p_collider);
 
   /*We only need to send mDimmension and the mActorList*/
   template <class Archive>
   void serialize(Archive &archive){
     archive(mDimmension, mActors);
   }
+
+  /**
+   * Called by the engine whenever any input is detected.
+   * Used primarily to update interactive HUD elements.
+   */
+  virtual void onInput(SDL_Event *event);
 };
 
 #endif

@@ -62,6 +62,7 @@ public:
 
     void sendEvent(std::unique_ptr<AbstractEvent>&, ENetPeer *peer);
     void broadcastEvent(std::unique_ptr<AbstractEvent>&);
+    void syncPlayerProperties(std::shared_ptr<AbstractPlayer> player);
     void syncPlayers();
 
     void flush();

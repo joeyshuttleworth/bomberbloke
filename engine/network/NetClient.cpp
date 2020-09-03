@@ -10,7 +10,8 @@
 #include "ServerInfoEvent.hpp"
 #include "JoinEvent.hpp"
 #include "acceptEvent.hpp"
-#include  "syncEvent.hpp"
+#include "PlayerPropertiesEvent.hpp"
+#include "syncEvent.hpp"
 #include "errorEvent.hpp"
 #include "MoveEvent.hpp"
 #include "actor.hpp"
@@ -211,7 +212,13 @@ void NetClient::pollServer(){
 
      case EVENT_CREATE:{
        std::shared_ptr<CreateEvent> c_event = std::dynamic_pointer_cast<CreateEvent>(sp_to_handle);
-       _pScene->addActorWithId(c_event->getActor());
+       if(c_event->getActor())
+         _pScene->addActorWithId(c_event->getActor());
+       else if(c_event->getParticle())
+         _pScene->mParticleList.push_back(c_event->getParticle());
+       else{
+         log_message(ERROR, "Received malformed create event");
+       }
        break;
      }
      case EVENT_REMOVE:{
@@ -221,6 +228,15 @@ void NetClient::pollServer(){
          log_message(ERROR, "Couldn't find requested actor to remove");
        else
          a->remove();
+       break;
+     }
+     case EVENT_PROPERTIES:{
+       std::shared_ptr<PlayerPropertiesEvent> p_event = std::dynamic_pointer_cast<PlayerPropertiesEvent>(sp_to_handle);
+       /* TODO handle local multiple players */
+       GamePlayerProperties props = p_event->getProperties();
+       std::shared_ptr<AbstractPlayerProperties> p_properties = std::make_shared<GamePlayerProperties>(props);
+       _local_player_list.back().resetPlayerProperties(p_properties);
+       break;
      }
      default:
        break;

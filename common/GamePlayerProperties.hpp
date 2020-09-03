@@ -9,6 +9,9 @@
 #ifndef  GAMEPLAYERPROPERTIES_HPP
 #define  GAMEPLAYERPROPERTIES_HPP
 #include "AbstractPlayerProperties.hpp"
+#include <cereal/cereal.hpp>
+
+class bloke;
 
 class GamePlayerProperties : public AbstractPlayerProperties{
 public:
@@ -18,8 +21,11 @@ public:
     mBombKick  = 1;
     mSatellite = false;
     mBigBomb   = false;
+    mPower = 1;
     return;
   };
+
+  GamePlayerProperties(std::shared_ptr<bloke> b);
 
   void reset(std::shared_ptr<AbstractPlayerProperties> p_properties){
     std::shared_ptr<GamePlayerProperties> gp_properties = std::dynamic_pointer_cast<GamePlayerProperties>(p_properties);
@@ -27,11 +33,6 @@ public:
       *this = GamePlayerProperties(*gp_properties);
     else
       *this = GamePlayerProperties();
-  }
-
-  template<class Archive>
-  void serialize(Archive &archive){
-    archive(mSpeed, mMaxBombs, mBombKick, mSatellite, mBigBomb);
   }
 
   std::vector<std::string> GetProperties(){
@@ -45,6 +46,13 @@ public:
   bool mBombKick;
   bool mSatellite;
   bool mBigBomb;
+
+
+  template<class Archive>
+  void serialize(Archive &archive){
+    archive(cereal::make_nvp("speed", mSpeed), cereal::make_nvp("Max bombs", mMaxBombs), cereal::make_nvp("bomb kick", mBombKick), cereal::make_nvp("satellite", mSatellite), cereal::make_nvp("bigbomb", mBigBomb));
+  }
+
 };
 
 

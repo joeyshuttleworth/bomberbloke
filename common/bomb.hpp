@@ -15,13 +15,13 @@ const std::string EXPLOSION_SOUND_NAMES[N_EXPLOSION_SOUNDS] = { "bomb_1", "bomb_
 class bomb : public actor {
  protected:
   Uint8 mTimer;
-  Uint8 mPower = 2;
+  Uint8 mPower = 1;
   int  mPlacedById = 0;
   bool mPenetration;
   bool mBigBomb;
   bool mSatellite;
+  bool mInitialised = false;
 
-  std::array<std::shared_ptr<Sound>, N_EXPLOSION_SOUNDS> mExplosionSounds;
  public:
 
   /*Cereal serialisation*/
@@ -34,23 +34,22 @@ class bomb : public actor {
   void init(bloke*);
   void explode();
   void update();
-  void handle_command(std::string command);
+  void handleCommand(std::string command);
 
-  bomb() : actor(0, 0, BOMB_SIZE, BOMB_SIZE){
-    mpSpriteHandler = std::shared_ptr<AbstractSpriteHandler>(new PlaceHolderSprite(mPosition[0], mPosition[1], mDimmension[0], mDimmension[0]));
-  }
-
-  bomb(std::shared_ptr<actor> placed_by) : actor(placed_by->mPosition[0], placed_by->mDimmension[1], BOMB_SIZE, BOMB_SIZE, false){
+  bomb(actor* placed_by) : actor(int(placed_by->mPosition[0] + placed_by->mDimmension[0]/2) + 0.5 - BOMB_SIZE/2.0, int(placed_by->mPosition[1] + placed_by->mDimmension[1]/2) + 0.5 - BOMB_SIZE/2.0, BOMB_SIZE, BOMB_SIZE, false){
     if(placed_by)
       mPlacedById = placed_by->getId();
-    mpSpriteHandler = std::shared_ptr<AbstractSpriteHandler>(new PlaceHolderSprite(mPosition[0], mPosition[1], mDimmension[0], mDimmension[0]));
+    bomb();
     return;
   };
+
+  bomb() : actor(0,0, BOMB_SIZE, BOMB_SIZE){
+    mpSpriteHandler = std::shared_ptr<AbstractSpriteHandler>(new PlaceHolderSprite(mPosition[0], mPosition[1], BOMB_SIZE, BOMB_SIZE));
+  }
 
   int getType() const{
     return ACTOR_BOMB;
   };
-  using actor::actor;
 };
 
 /*This is required for classes using polymorphism*/

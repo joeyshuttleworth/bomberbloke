@@ -1,7 +1,11 @@
 #ifndef WOODENCRATE_HPP
 #define WOODENCRATE_HPP
+
+#include <random>
 #include "staticSprite.hpp"
 #include "bomberbloke.h"
+#include "SpeedPickup.hpp"
+#include "BombPickup.hpp"
 
 class woodenCrate : public actor{
 public:
@@ -15,17 +19,32 @@ public:
     return;
   }
 
-  void handle_command(std::string command){
+  void handleCommand(std::string command){
     std::list<std::string> tokens = split_to_tokens(command);
     if(tokens.size() == 0)
       return;
-    else if(tokens.front() == "kill" || tokens.front() == "+kill"){
+    else if(_server && (tokens.front() == "kill" || tokens.front() == "+kill")){
       /* TODO drop powerups and draw particle effect */
-      log_message(DEBUG, "crate died");
       remove();
+
+      std::random_device rd;
+      std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
+      std::uniform_int_distribution<> distrib(0, 2);
+
+      switch(distrib(gen)){
+      case PICKUP_SPEED:{
+        _pScene->addActor(std::make_shared<BombPickup>(mPosition[0], mPosition[1]));
+        break;
+      }
+      case PICKUP_BOMB:{
+        _pScene->addActor(std::make_shared<SpeedPickup>(mPosition[0], mPosition[1]));
+        break;
+      }
+      case PICKUP_NONE:
+      default: break;
+      }
     }
   }
-
   template<class Archive>
   void serialize(Archive &archive){
     archive(cereal::base_class<actor>(this));
