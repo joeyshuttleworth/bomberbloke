@@ -25,15 +25,6 @@ enum powerups{
   PENETRATION
 };
 
-enum actor_types{
-  ACTOR_WOODEN_CRATE,
-  ACTOR_METAL_CRATE,
-  ACTOR_EXPLOSIVE_CRATE,
-  ACTOR_DEATH_BLOCK,
-  ACTOR_BLOKE,
-  ACTOR_BOMB
-};
-
 enum flags{
   FLAG_NONE = 0,
   FLAG_DEAD,
@@ -45,6 +36,8 @@ enum block_types{
   SPAWN_POINT,
   WOOD
 };
+
+#include "bomberbloke_actors.hpp"
 
 /* Cereal magic: include all actor types here so cereal knows about them */
 #include "bomb.hpp"

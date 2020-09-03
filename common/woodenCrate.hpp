@@ -33,11 +33,13 @@ public:
 
       switch(distrib(gen)){
       case PICKUP_SPEED:{
-        _pScene->addActor(std::make_shared<BombPickup>(mPosition[0], mPosition[1]));
+        std::shared_ptr<actor> act(new SpeedPickup(mPosition[0], mPosition[1]));
+        _pScene->addActor(act);
         break;
       }
       case PICKUP_BOMB:{
-        _pScene->addActor(std::make_shared<SpeedPickup>(mPosition[0], mPosition[1]));
+        std::shared_ptr<actor> act = std::make_shared<BombPickup>(mPosition[0], mPosition[1]);
+        _pScene->addActor(act);
         break;
       }
       case PICKUP_NONE:

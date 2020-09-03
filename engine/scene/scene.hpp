@@ -5,8 +5,6 @@
 #include <SDL2/SDL.h>
 #include <cereal/types/list.hpp>
 #include <memory>
-
-#include "engine.hpp"
 #include "AbstractSpriteHandler.hpp"
 #include "AbstractCollider.hpp"
 
@@ -22,7 +20,7 @@ protected:
   std::string mName;
   std::string mDescription;
   std::shared_ptr<AbstractSpriteHandler> mpSpriteHandler;
-  int mState = PAUSED;
+  int mState = 0;
   int mLastActorId=0;
 
   /*

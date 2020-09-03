@@ -1,5 +1,8 @@
 #ifndef ABSTRACTPLAYERPROPERTIES_HPP
 #define ABSTRACTPLAYERPROPERTIES_HPP
+#include <vector>
+#include <string>
+#include <memory>
 
 class AbstractPlayerProperties{
 public:

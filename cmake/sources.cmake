@@ -22,3 +22,6 @@ engine/hud/TextHudElement.cpp
 engine/hud/TextButton.cpp
 engine/hud/SpriteHudElement.cpp
 engine/camera/FollowCamera.cpp
+common/SpeedPickup.cpp
+common/BombPickup.cpp
+common/GamePlayerProperties.cpp

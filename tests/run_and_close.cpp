@@ -3,6 +3,7 @@
 #include <SDL2/SDL.h>
 #include "bloke.hpp"
 #include "bomb.hpp"
+#include "BomberBlokeScene.hpp"
 
 /* Register our actors with cereal */
 CEREAL_REGISTER_DYNAMIC_INIT(actors)

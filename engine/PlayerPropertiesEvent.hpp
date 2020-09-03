@@ -5,30 +5,34 @@
 #ifndef PLAYERPROPERTIESEVENT_HPP
 #define PLAYERPROPERTIESEVENT_HPP
 
+#include <memory>
 #include <cereal/types/vector.hpp>
 #include "AbstractEvent.hpp"
 #include <cereal/types/base_class.hpp>
 
 class PlayerPropertiesEvent :  public  AbstractEvent{
 private:
-  std::shared_ptr<GamePlayerProperties> mProperties;
+  GamePlayerProperties mProperties;
 public:
-
-  int getType() const{
-    return PROPERTIES;
+  GamePlayerProperties getProperties(){
+    return mProperties;
   }
 
-  QueryEvent(GamePlayerProperties &properties){
-    std::shared_ptr<GamePlayerProperties> pProperties = new GamePlayerProperties;
-    *pProperties = properties;
-    mProperties.reset(new GamePlayerProperties(&properties));
+  int getType() const{
+    return EVENT_PROPERTIES;
+  }
+
+  PlayerPropertiesEvent(GamePlayerProperties &properties){
+    mProperties = properties;
   };
+
+  PlayerPropertiesEvent(){};
 
   template<class Archive>
   void serialize(Archive &archive){
-    archive(cereal::base_class<AbstractEvent>(this), mNickname);
+    archive(cereal::base_class<AbstractEvent>(this), mProperties);
   };
-
 };
 
+CEREAL_REGISTER_TYPE(PlayerPropertiesEvent)
 #endif

@@ -10,6 +10,7 @@
 #include "acceptEvent.hpp"
 #include "errorEvent.hpp"
 #include "syncEvent.hpp"
+#include "PlayerPropertiesEvent.hpp"
 #include "engine.hpp"
 #include <enet/enet.h>
 #include <curl/curl.h>
@@ -327,6 +328,7 @@ void NetServer::sendEvent(std::unique_ptr<AbstractEvent> &event, ENetPeer *to){
   case EVENT_QUERY:
   case EVENT_MESSAGE:
   case EVENT_COMMAND:
+  case EVENT_PROPERTIES:
     reliable = true;
   default:
     break;
@@ -358,12 +360,30 @@ void NetServer::syncPlayers(){
     ENetPeer *peer = (*i)->getPeer();
     if(peer){
       std::unique_ptr<AbstractEvent> s_event(new syncEvent(peer));
-      sendEvent(s_event, peer);
+      std::shared_ptr<GamePlayerProperties> p_props = (*i)->getPlayerProperties();
+      if(p_props){
+        GamePlayerProperties props = *p_props;
+        std::unique_ptr<AbstractEvent> p_event(new PlayerPropertiesEvent(props));
+        sendEvent(s_event, peer);
+        sendEvent(p_event, peer);
+      }
+      else{
+        log_message(ERROR, "Failed to sync properties - null properties");
+      }
     }
   }
   return;
 }
 
+void NetServer::syncPlayerProperties(std::shared_ptr<AbstractPlayer> player){
+  ENetPeer* peer = player->getPeer();
+
+  if(!peer)
+    return;
+  GamePlayerProperties g_props = *player->getPlayerProperties();
+  std::unique_ptr<AbstractEvent> p_event(new PlayerPropertiesEvent(g_props));
+  sendEvent(p_event, peer);
+}
 
 void NetServer::broadcastPacket(ENetPacket *packet, enet_uint8 channel) {
     if (clientCount() == 0) {

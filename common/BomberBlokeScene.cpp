@@ -11,6 +11,8 @@
 #include "TextButton.hpp"
 #include "SpriteHudElement.hpp"
 #include "FollowCamera.hpp"
+#include "woodenCrate.hpp"
+#include "bloke.hpp"
 
 const std::string BACKGROUND_TILE_PREFIX = "background_tile_";
 const int N_BACKGROUND_TILES = 10;

@@ -13,7 +13,7 @@ private:
 public:
   unsigned int state = DISCONNECTED;
 
-  NetworkPlayer(std::string nickname, ENetPeer* peer){
+  NetworkPlayer(std::string nickname, ENetPeer* peer) : AbstractPlayer(){
     mNickname = nickname;
     mpPeer = peer;
     return;

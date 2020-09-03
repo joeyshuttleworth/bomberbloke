@@ -1,4 +1,3 @@
-#include <cereal/archives/json.hpp>
 #include "bomberbloke.h"
 #include "ServerInfo.hpp"
 #include "ServerInfoEvent.hpp"
@@ -8,6 +7,7 @@
 #include <memory>
 #include "woodenCrate.hpp"
 #include "BomberBlokeScene.hpp"
+#include <cereal/archives/json.hpp>
 
 /* Register our actors with cereal */
 CEREAL_REGISTER_DYNAMIC_INIT(actors)
@@ -37,17 +37,17 @@ void new_game(std::string){
 
   /* First set reset everyone's powerups */
   for(auto i = _player_list.begin(); i != _player_list.end(); i++){
-    if(!(*i)->mpPlayerProperties)
-      (*i)->mpPlayerProperties = std::make_shared<GamePlayerProperties>();
-    (*i)->ResetPlayerProperties();
+    if(!(*i)->getPlayerProperties())
+      (*i)->resetPlayerProperties(std::make_shared<GamePlayerProperties>());
+    (*i)->resetPlayerProperties();
   }
 
   _pScene = std::make_shared<BomberBlokeScene>(10,10);
 
   /* Reset everyone's powerups */
   for(auto i = _player_list.begin(); i != _player_list.end(); i++){
-    if(!(*i)->mpPlayerProperties)
-      (*i)->mpPlayerProperties = std::make_shared<GamePlayerProperties>();
-    (*i)->ResetPlayerProperties();
+    if(!(*i)->getPlayerProperties())
+      (*i)->resetPlayerProperties(std::make_shared<GamePlayerProperties>());
+    (*i)->resetPlayerProperties();
   }
 }
