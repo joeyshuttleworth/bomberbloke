@@ -28,12 +28,11 @@ void BomberBlokeScene::draw(){
     log_message(ERROR, "null camera");
   }
 
-  SDL_SetRenderTarget(_renderer, mpCamera->getFrameBuffer());
-  SDL_SetRenderDrawColor(_renderer, 0x00, 0x10, 0xff, 0xff);
-  SDL_RenderClear(_renderer);
+  mpCamera->resetFrameBuffer();
 
   int zoom = mpCamera->GetZoom();
 
+  SDL_SetRenderTarget(_renderer, mpCamera->getFrameBuffer());
   SDL_SetRenderDrawColor(_renderer, 0x10, 0x10, 0x10, 0xa0);
 
   /* Draw a grid */
@@ -56,7 +55,7 @@ void BomberBlokeScene::logicUpdate(){
 
   /*   */
   if(_tick % 30){
-    
+
   }
 
   if(mState == PAUSED || mState == STOPPED)
@@ -158,8 +157,8 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
   pTextTitle->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
   pTextTitle->setTextColour({255, 255, 255});
   pTextTitle->setTextScale(2.);
-
   std::shared_ptr<TextHudElement> hudElementTitle = std::make_shared<TextHudElement>(pTextTitle, 5, 5, 400, 50, ALIGN_CENTER);
+  hudElementTitle->setIsPostProcessed(false);
   mHudElements.push_back(hudElementTitle);
 
   std::shared_ptr<Text> pText1 = textManager.createText("Aileron-Black", "DAVE1");
@@ -168,7 +167,7 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
   pText1->setTextScale(1.5);
   std::shared_ptr<TextButton> hudElement1 = std::make_shared<TextButton>(pText1, 9, 71, 200, 30, hudTestFn1, ALIGN_LEFT, ALIGN_BOTTOM);
   hudElement1->setMouseOverColour({200, 200, 200});
-  hudElement1->setOnClickOffset(1, 2);
+  hudElement1->setOnClickOffset(-1, 2);
   mHudElements.push_back(hudElement1);
 
   std::shared_ptr<Text> pText2 = textManager.createText("Aileron-Black", "DAVE2");
@@ -177,7 +176,7 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
   pText2->setTextScale(1.5);
   std::shared_ptr<TextButton> hudElement2 = std::make_shared<TextButton>(pText2, 9, 40, 200, 30, hudTestFn2, ALIGN_LEFT, ALIGN_BOTTOM);
   hudElement2->setMouseOverColour({200, 200, 200});
-  hudElement2->setOnClickOffset(1, 2);
+  hudElement2->setOnClickOffset(-1, 2);
   mHudElements.push_back(hudElement2);
 
   std::shared_ptr<Text> pTextJoin = textManager.createText("Aileron-Black", "JOIN LOCAL");
@@ -186,12 +185,13 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
   pTextJoin->setTextScale(1.5);
   std::shared_ptr<TextButton> hudElementJoin = std::make_shared<TextButton>(pTextJoin, 9, 9, 200, 30, hudTestFnJoin, ALIGN_LEFT, ALIGN_BOTTOM);
   hudElementJoin->setMouseOverColour({200, 200, 200});
-  hudElementJoin->setOnClickOffset(0, 3);
+  hudElementJoin->setOnClickOffset(-1, 2);
   mHudElements.push_back(hudElementJoin);
 
   // Speed HUD demo
   for (int i = 0; i < 4; i++) {
     std::shared_ptr<SpriteHudElement> hudElement = std::make_shared<SpriteHudElement>("lightning.png", 9 + i * 34, 9, 32, 32);
+    hudElement->setGlowAmount(150);
     mSpeedIcons[i] = hudElement;
     mHudElements.push_back(hudElement);
   }
@@ -199,9 +199,21 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
   // Power HUD demo
   for (int i = 0; i < 3; i++) {
     std::shared_ptr<SpriteHudElement> hudElement = std::make_shared<SpriteHudElement>("flames.png", 9 + i * 34, 9, 32, 32, ALIGN_RIGHT);
+    hudElement->setGlowAmount(150);
     mPowerIcons[i] = hudElement;
     mHudElements.push_back(hudElement);
   }
 
   return;
+}
+
+void BomberBlokeScene::onInput(SDL_Event *event) {
+    scene::onInput(event);
+
+    // Blur effect demo
+    if (event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_ESCAPE) {
+        mpCamera->blur(10);
+    } else if (event->type == SDL_KEYUP && event->key.keysym.sym == SDLK_ESCAPE) {
+        mpCamera->blur(0);
+    }
 }

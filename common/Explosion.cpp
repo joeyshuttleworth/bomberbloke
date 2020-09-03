@@ -20,19 +20,23 @@ void Explosion::draw(Camera *cam){
   }
 
   unsigned int frame_no = (_tick - mStartTick) % mAnimationSpeed;
-  unsigned int alpha = 0xFF * (1 - (double)(_tick - mStartTick) / (2*mTimeout));
+  Uint8 alpha = 0xFF * (1 - (double)(_tick - mStartTick) / (2*mTimeout));
+  Uint8 backAlpha = 0xFF - alpha;
+  int glowAmount = mMaxGlowAMount * (1 - (_tick - mStartTick) / mTimeout);
 
   /*  Set our blend mode so that our shapes blend nicely */
   SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
 
+  SDL_Color colour;
+
   if(frame_no < mAnimationSpeed/2){
     /*Set colour to white*/
-    SDL_SetRenderDrawColor(_renderer, 0xff, 0xff, 0xff, alpha);
+    colour = SDL_Color({0xff, 0xff, 0xff, alpha});
   }
 
   else{
     /*Set colour to red*/
-    SDL_SetRenderDrawColor(_renderer, 0xff, 1 - alpha, 1 - alpha, alpha);
+    colour = SDL_Color({0xff, backAlpha, backAlpha, alpha});
   }
   /*  Copy our texture across to the window */
   SDL_Rect dstrect;
@@ -40,6 +44,6 @@ void Explosion::draw(Camera *cam){
   dstrect.y = round((_pScene->mDimmension[1]-mPosition[1]-mDimmension[1]) * zoom);
   dstrect.w = round(zoom * mDimmension[0]);
   dstrect.h = round(zoom * mDimmension[1]);
-  SDL_RenderFillRect(_renderer, &dstrect);
+  cam->renderFillRect(&dstrect, colour, true, glowAmount);
   return;
 }

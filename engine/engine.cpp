@@ -274,6 +274,7 @@ void draw_screen() {
     if(_halt || !_renderer || !_window || !_draw)
         return;
     SDL_SetRenderDrawColor(_renderer, 0x00, 0x00, 0x00, 0xFF);
+    SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_NONE);
     SDL_RenderClear(_renderer);
     if(_pScene)
       _pScene->draw();
@@ -581,7 +582,7 @@ static void load_assets(){
                     continue; // no file extension
                 std::string file_name = whole_filename.substr(0, dot_pos);
                 std::string file_extension = whole_filename.substr(dot_pos);
- 
+
                 if (file_extension == ".png") {
                     // Found texture
                     SDL_Texture *sprite = IMG_LoadTexture(_renderer, ("assets" + PATHSEPARATOR +  whole_filename).c_str());
