@@ -21,9 +21,7 @@ enum AlignFlag {
  */
 class AbstractHudElement {
 public:
-    /**
-     * If set to false, onInput will not be called by scene.
-     */
+    // If set to false, onInput will not be called by scene.
     bool mIsInteractive = false;
 
      /**
@@ -91,6 +89,26 @@ public:
     }
 
     /**
+     * Sets mIsVisible boolean.
+     *
+     * @param isVisible New mIsVisible value.
+     */
+    void setIsVisible(bool isVisible) {
+        mIsVisible = isVisible;
+        mPropertiesUpdated = true;
+    }
+
+    /**
+     * Sets mIsPostProcessed boolean.
+     *
+     * @param isPostProcessed   New mIsPostProcessed value.
+     */
+    void setIsPostProcessed(bool isPostProcessed) {
+        mIsPostProcessed = isPostProcessed;
+        mPropertiesUpdated = true;
+    }
+
+    /**
      * Draw function.
      *
      * Called by scene on every frame. Any children classes that overide
@@ -112,7 +130,7 @@ public:
 
   void updatePosition(std::shared_ptr<Camera> camera) {
         std::array<int, 2> screenDimensions = camera->getScreenDimensions();
-        
+
         switch(mAlignFlags[0]) {
             case ALIGN_CENTER:
                 // Centred positioning
@@ -126,7 +144,7 @@ public:
                 // Left-aligned positioning
                 mPosition[0] = mRelativePosition[0];
         }
-        
+
         switch(mAlignFlags[1]) {
             case ALIGN_CENTER:
                 // Centred positioning
@@ -156,10 +174,13 @@ public:
      */
     virtual void onInput(SDL_Event *event) {};
 
-    // flag to indicate whether the object should be drawn to screen or not
-    bool mVisible = true;
-
 protected:
+    // Flag to indicate whether the object should be drawn to screen or not.
+    bool mIsVisible = true;
+
+    // Flag to indicate whether the object should be drawn to screen or not
+    bool mIsPostProcessed = true;
+
     // Pixel-position of the top left corner of the bounding box.
     int mPosition[2];
 

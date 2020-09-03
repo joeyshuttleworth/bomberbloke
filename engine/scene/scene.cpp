@@ -167,11 +167,8 @@ void scene::updateHudPositions() {
 }
 
 void scene::draw(){
-  SDL_SetRenderTarget(_renderer, mpCamera->getFrameBuffer());
-  /* Set background colour */
-  SDL_SetRenderDrawColor(_renderer, 0x00, 0x10, 0xff, 0xff);
-  SDL_RenderFillRect(_renderer, nullptr);
-
+  mpCamera->resetFrameBuffer();
+  
   drawActors();
   drawParticles();
   drawHud();
@@ -228,6 +225,9 @@ static void interpolateActors(std::list<std::shared_ptr<actor>> &actors){
 void scene :: update(){
   if(!_server)
     interpolateActors(mActors);
+
+  if (mpCamera)
+    mpCamera->update();
 
   movementUpdate();
   cleanUp();

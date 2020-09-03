@@ -163,7 +163,7 @@ public:
    * Called by the engine whenever any input is detected.
    * Used primarily to update interactive HUD elements.
    */
-  void onInput(SDL_Event *event);
+  virtual void onInput(SDL_Event *event);
 };
 
 #endif

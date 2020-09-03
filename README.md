@@ -1,4 +1,4 @@
-# Bomberbloke
+# Bomberbloke [![Build Status](https://travis-ci.com/joeyshuttleworth/bomberbloke.svg?branch=default)](https://travis-ci.com/joeyshuttleworth/bomberbloke)
 
 A multiplayer bomberman clone made in C++.
 

@@ -13,7 +13,7 @@ public:
     /*TODO: draw asset*/
     return;
   }
-
+  
   void pickup(std::shared_ptr<bloke> b);
 
   template<class Archive>
