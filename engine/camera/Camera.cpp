@@ -115,7 +115,7 @@ void Camera::update() {
         mRumbleOffset[0] = 0;
         mRumbleOffset[1] = 0;
     }
-    }
+}
 
 void Camera::blurTexture(SDL_Texture *texture, double size, int passes) {
     if (size <= 0)

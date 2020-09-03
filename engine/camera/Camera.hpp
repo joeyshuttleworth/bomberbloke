@@ -7,17 +7,15 @@
 #include "engine.hpp"
 
 extern int _window_size[];
+extern SDL_Renderer* _renderer;
 
 extern bool _halt;
-extern SDL_Renderer *_renderer;
 extern SDL_Window   *_window;
 
 class Camera{
-public:
+  public:
   double mZoom = 0.1;
   std::array<double, 2> mPosition = {{ 0, 0 }};
-
-  Camera(){};
 
   Camera(scene *lvl){
     mpScene = lvl;
@@ -44,7 +42,6 @@ public:
 
   virtual ~Camera(){
     /* We will get a double free if we destroy the texture after SDL_Quit is called */
-    return;
     if(mpFrameBuffer && !_halt){
       SDL_DestroyTexture(mpFrameBuffer);
     }

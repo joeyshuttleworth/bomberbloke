@@ -17,12 +17,19 @@ public:
     // Subject that is followed by the camera
     std::weak_ptr<actor> mSubject;
 
-    using Camera::Camera;
+     FollowCamera(scene* scn) : Camera(scn){}
+
+    ~FollowCamera(){
+      /* We will get a double free if we destroy the texture after SDL_Quit is called */
+      if(mpFrameBuffer && !_halt){
+        SDL_DestroyTexture(mpFrameBuffer);
+      }
+    }
 
     /**
      * Updates camera position and velocity.
      */
-    void update();
+     void update() override;
 protected:
     // Velocity of camera in scene units.
     std::array<double, 2> mVelocity = {{ 0, 0 }};
