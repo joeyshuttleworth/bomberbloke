@@ -10,6 +10,7 @@
 #include "TextHudElement.hpp"
 #include "TextButton.hpp"
 #include "SpriteHudElement.hpp"
+#include "FollowCamera.hpp"
 
 const std::string BACKGROUND_TILE_PREFIX = "background_tile_";
 const int N_BACKGROUND_TILES = 10;
@@ -27,26 +28,36 @@ static void hudTestFn2() {
 }
 
 void BomberBlokeScene::draw(){
-  if(!mpCamera){
-    return;
-    log_message(ERROR, "null camera");
-  }
-
+  // Reset the frame buffer
   mpCamera->resetFrameBuffer();
 
-  int zoom = mpCamera->GetZoom();
+  // Draw background
+  SDL_Rect sceneScreenRect = mpCamera->getScreenRect(0, 0, mDimmension[0], mDimmension[1]);
+  mpCamera->renderCopy(mBackgroundTexture, nullptr, &sceneScreenRect);
 
-  // TODO: make the background change with zoom
-  mpCamera->displayTexture(mBackgroundTexture, nullptr, nullptr);
-
+  // Draw actors, particles and HUD
   drawActors();
   drawParticles();
   drawHud();
 
-
+  // Draw camera to window
   mpCamera->draw();
 }
 
+void BomberBlokeScene::update() {
+  // Check if blokeCamera doesn't have a subject
+  if (blokeCamera->mSubject.expired()) {
+    if (_local_player_list.size() > 0 && _local_player_list.back().getCharacter()) {
+      // Get player actor and use blokeCamera
+      blokeCamera->mSubject = _local_player_list.back().getCharacter();
+      mpCamera = blokeCamera;
+    }
+    // TODO: go back to full scene camera when the player is removed
+  }
+
+  // Update scene
+  scene::update();
+}
 
 void BomberBlokeScene::logicUpdate(){
   // count blokes
@@ -150,6 +161,13 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
 
   log_message(INFO, "no. actors " + std::to_string(mActors.size()));
 
+  // Create cameras
+  blokeCamera = std::make_shared<FollowCamera>(this);
+  blokeCamera->mZoom = 0.1;
+  mpCamera->mPosition[0] = ((double) size_x) / 2;
+  mpCamera->mPosition[1] = ((double) size_y) / 2;
+  mpCamera->mZoom = 1 / std::fmax(size_x, size_y);
+
   // Create background texture
   mBackgroundTexture = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, size_x * 64, size_y * 64);
   SDL_SetRenderTarget(_renderer, mBackgroundTexture);
@@ -216,7 +234,7 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
   // Speed HUD demo
   for (int i = 0; i < 4; i++) {
     std::shared_ptr<SpriteHudElement> hudElement = std::make_shared<SpriteHudElement>("lightning.png", 9 + i * 34, 9, 32, 32);
-    hudElement->setGlowAmount(150);
+    hudElement->setGlowAmount(100);
     mSpeedIcons[i] = hudElement;
     mHudElements.push_back(hudElement);
   }
@@ -224,7 +242,7 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
   // Power HUD demo
   for (int i = 0; i < 3; i++) {
     std::shared_ptr<SpriteHudElement> hudElement = std::make_shared<SpriteHudElement>("flames.png", 9 + i * 34, 9, 32, 32, ALIGN_RIGHT);
-    hudElement->setGlowAmount(150);
+    hudElement->setGlowAmount(100);
     mPowerIcons[i] = hudElement;
     mHudElements.push_back(hudElement);
   }

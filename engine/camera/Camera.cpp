@@ -54,8 +54,6 @@ void Camera::onResize() {
 }
 
 void Camera::draw() {
-    update();
-
     // Update the screen rectangle for applying the rumble effect
     mScreenRectangle.x = mRumbleOffset[0];
     mScreenRectangle.y = mRumbleOffset[1];
@@ -243,4 +241,15 @@ void Camera::renderFillRect(SDL_Rect *dstRect, SDL_Color colour, bool isPostProc
 
         SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
     }
+}
+
+SDL_Rect Camera::getScreenRect(double x, double y, double w, double h) {
+    SDL_Rect screenRect;
+    int pxPerUnit = mZoom * mScreenRectangle.w;
+    screenRect.x = (x - mPosition[0]) * pxPerUnit + mScreenRectangle.w / 2;
+    screenRect.y = - (y + h - mPosition[1]) * pxPerUnit + mScreenRectangle.h / 2;
+    screenRect.w = w * pxPerUnit;
+    screenRect.h = h * pxPerUnit;
+
+    return screenRect;
 }
