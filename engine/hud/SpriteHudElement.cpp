@@ -24,5 +24,5 @@ void SpriteHudElement::draw(Camera *camera) {
     dstRect.h = mDimensions[1];
 
     // Copy sprite to destination rectangle
-    camera->renderCopy(mSprite, nullptr, &dstRect, mIsPostProcessed, mGlowAmount);
+    camera->displayTexture(mSprite, nullptr, &dstRect, mIsPostProcessed, mGlowAmount);
 }

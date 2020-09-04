@@ -91,8 +91,6 @@ public:
     }
 
     /**
-<<<<<<< HEAD
-=======
      * Sets mIsVisible boolean.
      *
      * @param isVisible New mIsVisible value.
@@ -113,7 +111,10 @@ public:
     }
 
     /**
+<<<<<<< HEAD
 >>>>>>> 21b8114b56d35f587b3aac17a2f1161898a411f9
+=======
+>>>>>>> d417cdfa817f09f5773d4dd71f18c320d5bab159
      * Draw function.
      *
      * Called by scene on every frame. Any children classes that overide

@@ -5,12 +5,10 @@
 #include "Explosion.hpp"
 #include "engine.hpp"
 #include "actor.hpp"
-unsigned int _default_bomb_timer = DEFAULT_BOMB_TIMER;
 
 void bomb::init(bloke *bloke){
   mDimmension[0]=BOMB_SIZE;
   mDimmension[1]=BOMB_SIZE;
-  mCollides = false;
   if(bloke){
     mPlacedById = bloke->mId;
     mPower = bloke->GetProperties()->mPower;

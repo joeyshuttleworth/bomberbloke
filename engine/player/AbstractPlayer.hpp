@@ -22,7 +22,6 @@ class actor;
 class AbstractPlayer{
 public:
   AbstractPlayer(std::string);
-
   AbstractPlayer(){
     mpProperties = std::make_shared<GamePlayerProperties>();
   }

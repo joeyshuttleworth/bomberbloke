@@ -7,8 +7,6 @@
 #include "Interpolator.hpp"
 #include "KinematicCollider.hpp"
 #include "Camera.hpp"
-#include "Interpolator.hpp"
-#include "KinematicCollider.hpp"
 
 class AbstractPlayer; class AbstractSpriteHandler;
 

@@ -20,7 +20,7 @@ protected:
   std::string mName;
   std::string mDescription;
   std::shared_ptr<AbstractSpriteHandler> mpSpriteHandler;
-  int mState;
+  int mState = 0;
   int mLastActorId=0;
 
   /*

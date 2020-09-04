@@ -31,6 +31,7 @@ public:
      *
      * Called by scene on every frame. Any children classes that overide
      * this function must call it before drawing.
+     *
      * @param camera    Current Camera object.
      */
     void draw(Camera* camera);

@@ -48,13 +48,8 @@ void Explosion::draw(Camera *cam){
     /*Set colour to red*/
     colour = SDL_Color({0xff, backAlpha, backAlpha, alpha});
   }
-
   /*  Copy our texture across to the window */
-  SDL_Rect dstrect;
-  dstrect.x = round(zoom * mPosition[0]);
-  dstrect.y = round((_pScene->mDimmension[1]-mPosition[1]-mDimmension[1]) * zoom);
-  dstrect.w = round(zoom * mDimmension[0]);
-  dstrect.h = round(zoom * mDimmension[1]);
+  SDL_Rect dstrect = cam->getScreenRect(mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]);
   cam->renderFillRect(&dstrect, colour, true, glowAmount);
   return;
 }

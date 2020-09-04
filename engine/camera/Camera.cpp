@@ -52,12 +52,20 @@ void Camera::onResize() {
     log_message(DEBUG, "Zoom level is " + std::to_string(mZoom));
     return;
 }
+
 void Camera::draw() {
     update();
 
     // Update the screen rectangle for applying the rumble effect
     mScreenRectangle.x = mRumbleOffset[0];
     mScreenRectangle.y = mRumbleOffset[1];
+
+    // Apply blur to mpBloomBuffer and "add" to window to create a bloom effect
+    blurTexture(mpBloomBuffer, mBloomSize, mBloomPasses);
+    SDL_SetRenderTarget(_renderer, mpFrameBuffer);
+    SDL_SetTextureBlendMode(mpBloomBuffer, SDL_BLENDMODE_ADD);
+    SDL_SetTextureAlphaMod(mpBloomBuffer, mBloomAlpha);
+    SDL_RenderCopy(_renderer, mpBloomBuffer, nullptr, nullptr);
 
     // Apply blur to mpFrameBuffer and draw to window
     blurTexture(mpFrameBuffer, mBlurSize, mBlurPasses);
@@ -180,7 +188,7 @@ void Camera::blurTexture(SDL_Texture *texture, double size, int passes) {
     SDL_DestroyTexture(tmpTexture);
 }
 
-void Camera::renderCopy(SDL_Texture *texture, SDL_Rect *srcRect, SDL_Rect *dstRect, bool isPostProcessed, int bloomAmount) {
+void Camera::displayTexture(SDL_Texture *texture, SDL_Rect *srcRect, SDL_Rect *dstRect, bool isPostProcessed, int bloomAmount) {
     // Copy the texture onto the appropriate frame buffer
     SDL_SetRenderTarget(_renderer, getFrameBuffer(isPostProcessed));
     SDL_RenderCopy(_renderer, texture, srcRect, dstRect);
@@ -243,4 +251,15 @@ void Camera::renderFillRect(SDL_Rect *dstRect, SDL_Color colour, bool isPostProc
 
         SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
     }
+}
+
+SDL_Rect Camera::getScreenRect(double x, double y, double w, double h) {
+    SDL_Rect screenRect;
+    int pxPerUnit = mZoom * mScreenRectangle.w;
+    screenRect.x = (x - mPosition[0]) * pxPerUnit + mScreenRectangle.w / 2;
+    screenRect.y = - (y + h - mPosition[1]) * pxPerUnit + mScreenRectangle.h / 2;
+    screenRect.w = w * pxPerUnit;
+    screenRect.h = h * pxPerUnit;
+
+    return screenRect;
 }

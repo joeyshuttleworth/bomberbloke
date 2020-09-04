@@ -9,32 +9,30 @@ enum SpriteType{
                 SPRITE_STATIC
 };
 
-extern unsigned int _tick;
 class Camera;
+
+extern unsigned int _tick;
+
 class AbstractSpriteHandler{
 public:
-  virtual int getType() const = 0;
-
-  unsigned int getStartTick(){return mStartTick;}
-
-  AbstractSpriteHandler(){}
-
-  virtual ~AbstractSpriteHandler(){}
-
-  virtual void draw(Camera*) = 0;
-
-  AbstractSpriteHandler(double x_pos, double y_pos, double x_dim, double y_dim, int speed = 300, int timeout = 0, unsigned int delay = 0){
-   mPosition[0] = x_pos;
-   mPosition[1] = y_pos;
-   mDimmension[0] = x_dim;
-   mDimmension[1] = y_dim;
-   mStartTick = _tick + delay;
-   mAnimationSpeed = speed;
-   mTimeout = timeout;
-   mRemove = false;
-   mDelay = delay;
-   return;
+  AbstractSpriteHandler(double x_pos=0, double y_pos=0, double x_dim=0, double y_dim=0, int speed = 300, int timeout = 0, int delay = 0){
+    mPosition[0] = x_pos;
+    mPosition[1] = y_pos;
+    mDimmension[0] = x_dim;
+    mDimmension[1] = y_dim;
+    mStartTick = _tick + delay;
+    mAnimationSpeed = speed;
+    mTimeout = timeout;
+    mRemove = false;
+    mDelay = delay;
+    return;
   }
+
+  /**
+   *  Draw the sprite to the framebuffer of the Camera
+   *  @param the camera we are drawing to.
+   */
+  virtual void draw(Camera*)= 0;
 
   virtual void refreshSprite(){};
 
@@ -73,6 +71,7 @@ public:
     }
     return;
   }
+
 
   template<class Archive>
   void serialize(Archive &archive){

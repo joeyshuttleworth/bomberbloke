@@ -2,6 +2,7 @@
 #include <random>
 #include <memory>
 #include <algorithm>
+#include <string>
 #include "engine.hpp"
 #include "scene.hpp"
 #include "bomberbloke.h"
@@ -9,6 +10,7 @@
 #include "TextHudElement.hpp"
 #include "TextButton.hpp"
 #include "SpriteHudElement.hpp"
+#include "FollowCamera.hpp"
 #include "woodenCrate.hpp"
 #include "bloke.hpp"
 
@@ -28,27 +30,38 @@ static void hudTestFn2() {
 }
 
 void BomberBlokeScene::draw(){
-  if(!mpCamera){
-    return;
-    log_message(ERROR, "null camera");
-  }
-
+  // Reset the frame buffer
   mpCamera->resetFrameBuffer();
 
-  int zoom = mpCamera->GetZoom();
+  // Draw background
+  SDL_Rect sceneScreenRect = mpCamera->getScreenRect(0, 0, mDimmension[0], mDimmension[1]);
+  mpCamera->displayTexture(mBackgroundTexture, nullptr, &sceneScreenRect);
 
+  // Draw actors, particles and HUD
   drawActors();
   drawParticles();
   drawHud();
-
-
+  // Draw camera to window
   mpCamera->draw();
 }
 
+void BomberBlokeScene::update() {
+  // Check if blokeCamera doesn't have a subject
+  if (blokeCamera->mSubject.expired()) {
+    if (_local_player_list.size() > 0 && _local_player_list.back().getCharacter()) {
+      // Get player actor and use blokeCamera
+      blokeCamera->mSubject = _local_player_list.back().getCharacter();
+      mpCamera = blokeCamera;
+    }
+    // TODO: go back to full scene camera when the player is removed
+  }
+
+  // Update scene
+  scene::update();
+}
 
 void BomberBlokeScene::logicUpdate(){
   // count blokes
-
   if(mState == PAUSED || mState == STOPPED)
     return;
 
@@ -83,8 +96,6 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
 
  if(_server){
     /*  Initialisation for random number generation */
-    std::random_device rd;
-    std::mt19937 gen(rd());
     std::uniform_int_distribution<> distrib(0, 9);
     std::vector<std::array<int, 2>> spawn_points;
     spawn_points.reserve(5);
@@ -146,6 +157,13 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
 
   log_message(INFO, "no. actors " + std::to_string(mActors.size()));
 
+
+  // Create cameras
+  blokeCamera = std::make_shared<FollowCamera>(this);
+  blokeCamera->mZoom = 0.1;
+  mpCamera->mPosition[0] = ((double) size_x) / 2;
+  mpCamera->mPosition[1] = ((double) size_y) / 2;
+  mpCamera->mZoom = 1 / std::fmax(size_x, size_y);
 
   /* Create tiled background texture */
   mBackgroundTexture = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, size_x * 64, size_y * 64);

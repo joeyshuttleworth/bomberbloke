@@ -10,11 +10,8 @@ void Text::draw(Camera *camera, bool isPostProcessed) {
         mPropertiesUpdated = false;
     }
 
-    // Copy rendered text into the text box (in the renderer)
-    SDL_RenderCopy(_renderer, mTextTexture, &mSrcRect, &mDstRect);
-
     // Copy rendered text into the text box
-    camera->renderCopy(mTextTexture, &mSrcRect, &mDstRect, isPostProcessed);
+    camera->displayTexture(mTextTexture, &mSrcRect, &mDstRect, isPostProcessed);
 }
 
 void Text::updateTexture(Camera *camera) {
@@ -60,14 +57,17 @@ void Text::updateTexture(Camera *camera) {
     // rectangle
     mSrcRect.x = fmax(0, -xDisplacement) / mTextScale[0];
     mSrcRect.y = fmax(0, -yDisplacement) / mTextScale[0];
+
     // Crop the texture according to the dimensions of the text box and the
     // displacement
     mSrcRect.w = fmin(mTextSurface->w - mSrcRect.x, mDimensions[0] / mTextScale[0]);
     mSrcRect.h = fmin(mTextSurface->h - mSrcRect.y, mDimensions[1] / mTextScale[1]);;
+
     // If displacement is positive, change the start position of the
     // destination rectangle
     mDstRect.x = mPosition[0] + fmax(0, xDisplacement);
     mDstRect.y = mPosition[1] + fmax(0, yDisplacement);
+
     // Scale the source rectangle dimensions
     mDstRect.w = mSrcRect.w * mTextScale[0];
     mDstRect.h = mSrcRect.h * mTextScale[1];

@@ -225,6 +225,9 @@ void scene :: update(){
   if(!_server)
     interpolateActors(mActors);
 
+  if (mpCamera)
+    mpCamera->update();
+
   movementUpdate();
   cleanUp();
   physicsUpdate();
@@ -237,6 +240,7 @@ void scene::updateSprites(){
   for(auto i = mActors.begin(); i != mActors.end(); i++){
     (*i)->updateSprite();
   }
+
   for(auto i = mParticleList.begin(); i!=mParticleList.end(); i++){
     (*i)->update();
   }

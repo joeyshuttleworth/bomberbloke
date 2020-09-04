@@ -14,8 +14,8 @@ const std::string EXPLOSION_SOUND_NAMES[N_EXPLOSION_SOUNDS] = { "bomb_1", "bomb_
 
 class bomb : public actor {
  protected:
-  Uint8 mTimer;
-  Uint8 mPower = 1;
+  unsigned int mTimer = DEFAULT_BOMB_TIMER;
+  Uint8 mPower = 2;
   int  mPlacedById = 0;
   bool mPenetration;
   bool mBigBomb;
@@ -23,7 +23,6 @@ class bomb : public actor {
   bool mInitialised = false;
 
  public:
-
   /*Cereal serialisation*/
   template<class Archive>
   void serialize(Archive &archive){

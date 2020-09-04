@@ -8,7 +8,7 @@
 #include "TextHudElement.hpp"
 #include "SpriteHudElement.hpp"
 
-const bool EXPLOSION_INTRO = false;
+const bool EXPLOSION_INTRO = true;
 
 /* Register our actors with cereal */
 CEREAL_REGISTER_DYNAMIC_INIT(actors)

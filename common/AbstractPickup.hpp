@@ -46,7 +46,7 @@ public:
     }
   }
 
-  ~AbstractPickup(){};
+  virtual ~AbstractPickup(){};
 
 protected:
   virtual void pickup(std::shared_ptr<bloke>) = 0;

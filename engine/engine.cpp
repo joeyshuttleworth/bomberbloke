@@ -96,11 +96,6 @@ void create_window(){
         SDL_DestroyRenderer(_renderer);
     }
     _renderer = SDL_CreateRenderer(_window, -1, 0);
-    /*  Set blendmode */
-    SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(_renderer, 0xff, 0x00, 0x00, 0xff);
-    SDL_RenderClear(_renderer);
-    SDL_RenderPresent(_renderer);
 
     if(_pScene)
       _pScene->onResize();
@@ -326,7 +321,7 @@ void load_config(std::string fname) {
     }
 }
 
-bool handle_system_command(std::list<std::string> tokens) {
+bool handle_system_command(std::list<std::string> tokens){
     if(tokens.size()==0)
         return true;
 
@@ -449,7 +444,7 @@ bool handle_system_command(std::list<std::string> tokens) {
             }
 
         }
-    }
+   }
 
 
     else if(command == "quit"){

@@ -19,15 +19,8 @@ public:
     }
 
     void draw(Camera *cam){
-      SDL_Rect dstrect;
-      double zoom = cam->GetZoom();
-      dstrect.x = round(zoom * mPosition[0]);
-      dstrect.y = round((_pScene->mDimmension[1]-mPosition[1]-mDimmension[1]) * zoom);
-      dstrect.w = round(zoom * mDimmension[0]);
-      dstrect.h = round(zoom * mDimmension[1]);
-
-      cam->renderCopy(mpSprite, nullptr, &dstrect);
-
+      SDL_Rect dstrect = cam->getScreenRect(mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]);
+      cam->displayTexture(mpSprite, nullptr, &dstrect);
       return;
     }
 

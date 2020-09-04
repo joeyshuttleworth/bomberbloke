@@ -13,9 +13,9 @@ extern SDL_Renderer *_renderer;
 extern SDL_Window   *_window;
 
 class Camera{
-public:
-
-  Camera(){};
+  public:
+  double mZoom = 0.1;
+  std::array<double, 2> mPosition = {{ 0, 0 }};
 
   Camera(scene *lvl){
     mpScene = lvl;
@@ -25,6 +25,12 @@ public:
 
     mScreenRectangle.x=0;
     mScreenRectangle.y=0;
+
+    /* Different buffers processing effects
+     * mpFrameBuffer - current buffer with post processing effects
+     * mpNoProcessingBuffer - current buffer with no post processing effects
+     * mpBloomBuffer - buffer with blur and "addition" to create a bloom effect.
+     * */
 
     mpFrameBuffer = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, mScreenRectangle.w, mScreenRectangle.h);
     mpNoProcessingBuffer = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, mScreenRectangle.w, mScreenRectangle.h);
@@ -57,8 +63,8 @@ public:
 
   void resetFrameBuffer();
 
-  void renderCopy(SDL_Texture *texture, SDL_Rect *srcRect=nullptr,
-      SDL_Rect *dstRect=nullptr, bool isPostProcessed=true, int bloomAmount=0);
+  void displayTexture(SDL_Texture *texture, SDL_Rect *srcRect=nullptr,
+                      SDL_Rect *dstRect=nullptr, bool isPostProcessed=true, int bloomAmount=0);
 
   void renderFillRect(SDL_Rect *dstRect, SDL_Color colour, bool isPostProcessed=true, int bloomAmount=0);
 
@@ -119,9 +125,11 @@ public:
    */
   void blurTexture(SDL_Texture *texture, double size, int passes=8);
 
+  SDL_Rect getScreenRect(double x, double y, double w, double h);
+
 protected:
   scene *mpScene;
-  double mZoom;
+
   SDL_Texture *mpFrameBuffer = nullptr;
   SDL_Texture *mpNoProcessingBuffer = nullptr;
   SDL_Texture *mpBloomBuffer = nullptr;

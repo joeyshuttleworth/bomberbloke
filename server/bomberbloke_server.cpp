@@ -43,4 +43,11 @@ void new_game(std::string){
   }
 
   _pScene = std::make_shared<BomberBlokeScene>(10,10);
+
+  /* Reset everyone's powerups */
+  for(auto i = _player_list.begin(); i != _player_list.end(); i++){
+    if(!(*i)->getPlayerProperties())
+      (*i)->resetPlayerProperties(std::make_shared<GamePlayerProperties>());
+    (*i)->resetPlayerProperties();
+  }
 }

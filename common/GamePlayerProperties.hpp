@@ -26,7 +26,6 @@ public:
   };
 
   GamePlayerProperties(std::shared_ptr<bloke> b);
-
   void reset(std::shared_ptr<AbstractPlayerProperties> p_properties){
     std::shared_ptr<GamePlayerProperties> gp_properties = std::dynamic_pointer_cast<GamePlayerProperties>(p_properties);
     if(gp_properties)
