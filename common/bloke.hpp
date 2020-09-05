@@ -4,6 +4,7 @@
 #include <cereal/types/base_class.hpp>
 #include "actor.hpp"
 #include "bomberbloke.h"
+#include "GamePlayerProperties.hpp"
 #include "PlaceHolderSprite.hpp"
 
 class SpeedPickup;
@@ -15,6 +16,7 @@ class bloke : public actor{
   friend bomb;
   friend SpeedPickup;
   friend BombPickup;
+  friend GamePlayerProperties;
 protected:
   std::list<int> mPowerups;
 
@@ -27,7 +29,6 @@ protected:
   };
 
   void place_bomb();
-   public:
 
   double mMaxSpeed = double(DEFAULT_SPEED);
   int    mBombs=0;
@@ -38,7 +39,7 @@ protected:
   bool   mDirectionsHeld[4] = {false, false, false, false};
   double mAcceleration[2] = {0,0};
 
-
+public:
   bloke(double x=1, double y=1, bool collides = true) : actor(x, y, DEFAULT_BLOKE_SIZE, DEFAULT_BLOKE_SIZE, true){
     mCollides = collides;
     mPosition[0]=x;

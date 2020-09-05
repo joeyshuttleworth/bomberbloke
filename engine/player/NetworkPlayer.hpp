@@ -27,20 +27,11 @@ public:
   }
 
   void ping(){
-    //int mLastPingElapsedTime = 0;
+    int mLastPingElapsedTime = 0;
     return;
   }
 
   bool synced = false;
-
-  // void serialize(Archive &archive){
-  //   archive(cereal::base_class<AbstractPlayer>(this));
-  // }
 };
-
-/*Polymorphic types have to be registered for cereal*/
-// CEREAL_REGISTER_TYPE(NetworkPlayer)
-
-
 #endif
 

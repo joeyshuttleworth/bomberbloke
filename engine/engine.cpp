@@ -321,7 +321,7 @@ void load_config(std::string fname) {
     }
 }
 
-bool handle_system_command(std::list<std::string> tokens) {
+bool handle_system_command(std::list<std::string> tokens){
     if(tokens.size()==0)
         return true;
 
@@ -444,7 +444,7 @@ bool handle_system_command(std::list<std::string> tokens) {
             }
 
         }
-    }
+   }
 
 
     else if(command == "quit"){
@@ -577,7 +577,6 @@ static void load_assets(){
                     continue; // no file extension
                 std::string file_name = whole_filename.substr(0, dot_pos);
                 std::string file_extension = whole_filename.substr(dot_pos);
-
                 if (file_extension == ".png") {
                     // Found texture
                     SDL_Texture *sprite = IMG_LoadTexture(_renderer, ("assets" + PATHSEPARATOR +  whole_filename).c_str());

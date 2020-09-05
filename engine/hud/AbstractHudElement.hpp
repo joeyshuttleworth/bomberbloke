@@ -21,7 +21,9 @@ enum AlignFlag {
  */
 class AbstractHudElement {
 public:
-    // If set to false, onInput will not be called by scene.
+    /**
+     * If set to false, onInput will not be called by scene.
+     */
     bool mIsInteractive = false;
 
      /**
@@ -109,6 +111,10 @@ public:
     }
 
     /**
+<<<<<<< HEAD
+>>>>>>> 21b8114b56d35f587b3aac17a2f1161898a411f9
+=======
+>>>>>>> d417cdfa817f09f5773d4dd71f18c320d5bab159
      * Draw function.
      *
      * Called by scene on every frame. Any children classes that overide
@@ -130,7 +136,6 @@ public:
 
   void updatePosition(std::shared_ptr<Camera> camera) {
         std::array<int, 2> screenDimensions = camera->getScreenDimensions();
-
         switch(mAlignFlags[0]) {
             case ALIGN_CENTER:
                 // Centred positioning
@@ -144,7 +149,6 @@ public:
                 // Left-aligned positioning
                 mPosition[0] = mRelativePosition[0];
         }
-
         switch(mAlignFlags[1]) {
             case ALIGN_CENTER:
                 // Centred positioning

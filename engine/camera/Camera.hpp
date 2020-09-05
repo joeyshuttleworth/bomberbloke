@@ -7,9 +7,9 @@
 #include "engine.hpp"
 
 extern int _window_size[];
-extern SDL_Renderer* _renderer;
 
 extern bool _halt;
+extern SDL_Renderer *_renderer;
 extern SDL_Window   *_window;
 
 class Camera{
@@ -42,6 +42,7 @@ class Camera{
 
   virtual ~Camera(){
     /* We will get a double free if we destroy the texture after SDL_Quit is called */
+    return;
     if(mpFrameBuffer && !_halt){
       SDL_DestroyTexture(mpFrameBuffer);
     }
@@ -71,7 +72,7 @@ class Camera{
       return {{ mScreenRectangle.w, mScreenRectangle.h }};
   }
 
-  double GetZoom() const{
+  double GetZoom(){
     return mZoom;
   }
 
@@ -92,7 +93,6 @@ class Camera{
   virtual void update();
 
   void rumble(double amplitude = 0.02, double timeout = 30);
-
   /**
    * Sets the parameters for the post-processing blur.
    *
@@ -129,10 +129,12 @@ class Camera{
 
 protected:
   scene *mpScene;
+
   SDL_Texture *mpFrameBuffer = nullptr;
   SDL_Texture *mpNoProcessingBuffer = nullptr;
   SDL_Texture *mpBloomBuffer = nullptr;
   SDL_Rect mScreenRectangle;
+  std::array<double, 2> mFocusCoordinates = {{ 0, 0 }};
   std::shared_ptr<SDL_Renderer> mpRenderer;
   /*  Use mOffsets for animations on the camera object */
   std::array<double, 2> mOffsets = {{ 0, 0 }};
@@ -142,7 +144,6 @@ protected:
   unsigned int mRumbleTimeout = 0;
   /* Maximum displacement in each axis as a proportion of the window size */
   double mRumbleAmplitude;
-
   // Determines the size of the blur, larger is blurier.
   double mBlurSize = 0;
   // Determines the quality of the blur, larger is better.

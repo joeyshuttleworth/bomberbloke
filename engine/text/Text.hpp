@@ -179,7 +179,14 @@ public:
     /**
      * Draws the text to the renderer.
      *
+<<<<<<< HEAD
+     * @param camera    Current scene camera.
+     */
+    void draw(Camera *camera);
+     /* @param camera            Current scene camera.
+=======
      * @param camera            Current scene camera.
+>>>>>>> d417cdfa817f09f5773d4dd71f18c320d5bab159
      * @param isPostProcessed   Determines whether the text is drawn after
                                 camera post-processing.
      */

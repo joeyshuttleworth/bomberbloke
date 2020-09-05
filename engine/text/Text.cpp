@@ -5,14 +5,13 @@
 #include "Camera.hpp"
 
 void Text::draw(Camera *camera, bool isPostProcessed) {
-    // If properties have been updated re-render text.
     if (mPropertiesUpdated) {
         updateTexture(camera);
         mPropertiesUpdated = false;
     }
 
     // Copy rendered text into the text box
-  camera->displayTexture(mTextTexture, &mSrcRect, &mDstRect, isPostProcessed);
+    camera->displayTexture(mTextTexture, &mSrcRect, &mDstRect, isPostProcessed);
 }
 
 void Text::updateTexture(Camera *camera) {
@@ -20,7 +19,6 @@ void Text::updateTexture(Camera *camera) {
     SDL_Surface *mTextSurface = TTF_RenderText_Solid(mFont, mTextString.c_str(), mColour);
     mTextTexture = SDL_CreateTextureFromSurface(_renderer, mTextSurface);
     SDL_FreeSurface(mTextSurface);
-
     // Convert alignment and texture dimensions to displacement from the
     // top-left corner of the text box
     int xDisplacement = 0;
@@ -42,7 +40,6 @@ void Text::updateTexture(Camera *camera) {
         default:
             xDisplacement = mOffset[0];
     }
-
     // Displacement in the y-direction
     switch (mAlignment[1]) {
         case TEXT_ALIGN_BOTTOM:
@@ -56,11 +53,11 @@ void Text::updateTexture(Camera *camera) {
         default:
             yDisplacement = mOffset[1];
     }
-
     // If displacement is negative, change the start position of the source
     // rectangle
     mSrcRect.x = fmax(0, -xDisplacement) / mTextScale[0];
     mSrcRect.y = fmax(0, -yDisplacement) / mTextScale[0];
+
     // Crop the texture according to the dimensions of the text box and the
     // displacement
     mSrcRect.w = fmin(mTextSurface->w - mSrcRect.x, mDimensions[0] / mTextScale[0]);
@@ -70,10 +67,10 @@ void Text::updateTexture(Camera *camera) {
     // destination rectangle
     mDstRect.x = mPosition[0] + fmax(0, xDisplacement);
     mDstRect.y = mPosition[1] + fmax(0, yDisplacement);
+
     // Scale the source rectangle dimensions
     mDstRect.w = mSrcRect.w * mTextScale[0];
     mDstRect.h = mSrcRect.h * mTextScale[1];
-
     // Texture has been updated - set boolean back to false.
     mPropertiesUpdated = false;
 }

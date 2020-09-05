@@ -21,6 +21,7 @@ public:
     mBombKick  = 1;
     mSatellite = false;
     mBigBomb   = false;
+    mPower = 1;
     return;
   };
 

@@ -11,9 +11,7 @@ class BomberBlokeScene : public scene{
 protected:
   std::weak_ptr<AbstractHudElement> mPowerIcons[5];
   std::weak_ptr<AbstractHudElement> mSpeedIcons[5];
-
-  SDL_Texture *mBackgroundTexture;
-
+  SDL_Texture* mBackgroundTexture;
   std::shared_ptr<FollowCamera> blokeCamera;
 
 public:
@@ -23,7 +21,7 @@ public:
 
 
     /**
-     * Update function
+     * Update function - called every tick
      */
     void update();
 
