@@ -3,7 +3,6 @@
 
 #define PICKUP_SIZE 0.2
 
-#include "engine.hpp"
 #include "PlaceHolderSprite.hpp"
 #include "bomberbloke_actors.hpp"
 #include "scene.hpp"

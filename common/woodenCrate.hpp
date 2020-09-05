@@ -33,8 +33,7 @@ public:
 
       switch(distrib(gen)){
       case PICKUP_SPEED:{
-        std::shared_ptr<actor> act(new SpeedPickup(mPosition[0], mPosition[1]));
-        _pScene->addActor(act);
+        _pScene->addActor(std::make_shared<BombPickup>(mPosition[0], mPosition[1]));
         break;
       }
       case PICKUP_BOMB:{
@@ -47,7 +46,6 @@ public:
       }
     }
   }
-
   template<class Archive>
   void serialize(Archive &archive){
     archive(cereal::base_class<actor>(this));

@@ -8,7 +8,7 @@
 #include "TextHudElement.hpp"
 #include "SpriteHudElement.hpp"
 
-const bool EXPLOSION_INTRO = false;
+const bool EXPLOSION_INTRO = true;
 
 /* Register our actors with cereal */
 CEREAL_REGISTER_DYNAMIC_INIT(actors)
@@ -44,8 +44,8 @@ int main (){
   }
 
   // Demo for glow effect
-  _pScene->mParticleList.push_back(std::shared_ptr<Explosion>(new Explosion(4, 4, 1, 1, 30, 300)));
-  _pScene->mParticleList.push_back(std::shared_ptr<Explosion>(new Explosion(3.5, 3.5, 1, 1, 30, 300, 0)));
+  _pScene->mParticleList.push_back(std::make_shared<Explosion>(4, 4, 1, 1, 30, 300, 0, false, 255));
+  _pScene->mParticleList.push_back(std::make_shared<Explosion>(3.5, 3.5, 1, 1, 30, 300, 0, false, 50));
 
   client_loop();
 

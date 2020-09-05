@@ -168,7 +168,6 @@ void scene::updateHudPositions() {
 
 void scene::draw(){
   mpCamera->resetFrameBuffer();
-  
   drawActors();
   drawParticles();
   drawHud();
@@ -240,6 +239,10 @@ void scene :: update(){
 void scene::updateSprites(){
   for(auto i = mActors.begin(); i != mActors.end(); i++){
     (*i)->updateSprite();
+  }
+
+  for(auto i = mParticleList.begin(); i!=mParticleList.end(); i++){
+    (*i)->update();
   }
 }
 

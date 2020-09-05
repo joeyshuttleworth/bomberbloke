@@ -26,7 +26,6 @@ public:
      */
    SpriteHudElement(std::string asset, int xPos, int yPos, int xDim, int yDim,
            AlignFlag xAlignFlag=ALIGN_LEFT, AlignFlag yAlignFlag=ALIGN_TOP);
-
     /**
      * Draw function.
      *

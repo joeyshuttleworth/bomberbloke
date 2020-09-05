@@ -7,6 +7,9 @@ extern unsigned int _tick;
 
 class PlaceHolderSprite : public AbstractSpriteHandler{
 public:
+  int getType() const{
+    return SPRITE_PLACEHOLDER;
+  }
   using AbstractSpriteHandler :: AbstractSpriteHandler;
   void draw(Camera *cam);
 };

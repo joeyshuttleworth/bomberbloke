@@ -370,6 +370,7 @@ void NetServer::syncPlayers(){
       else{
         log_message(ERROR, "Failed to sync properties - null properties");
       }
+      sendEvent(s_event, peer);
     }
   }
   return;
