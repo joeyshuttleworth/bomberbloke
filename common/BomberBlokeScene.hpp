@@ -30,7 +30,7 @@ public:
     ~BomberBlokeScene(){}
 
     /**
-     * Update function.
+     * Update function - called every tick
      */
     void update() override;
 

@@ -45,7 +45,6 @@ void BomberBlokeScene::draw(){
   drawActors();
   drawParticles();
   drawHud();
-
   // Draw camera to window
   mpCamera->draw();
 }
@@ -67,12 +66,6 @@ void BomberBlokeScene::update() {
 
 void BomberBlokeScene::logicUpdate(){
   // count blokes
-
-  /*   */
-  if(_tick % 30){
-
-  }
-
   if(mState == PAUSED || mState == STOPPED)
     return;
 
@@ -100,12 +93,13 @@ void BomberBlokeScene::logicUpdate(){
 
 BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_y){
   mState = PLAYING;
-
   /*  Initialisation for random number generation */
   std::random_device rd;
   std::mt19937 gen(rd());
 
-  if(_server){
+
+ if(_server){
+    /*  Initialisation for random number generation */
     std::uniform_int_distribution<> distrib(0, 9);
     std::vector<std::array<int, 2>> spawn_points;
     spawn_points.reserve(5);
@@ -167,6 +161,7 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
 
   log_message(INFO, "no. actors " + std::to_string(mActors.size()));
 
+
   // Create cameras
   blokeCamera = std::make_shared<FollowCamera>(this);
   blokeCamera->mZoom = 0.1;
@@ -174,7 +169,7 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
   mpCamera->mPosition[1] = ((double) size_y) / 2;
   mpCamera->mZoom = 1 / std::fmax(size_x, size_y);
 
-  // Create background texture
+  /* Create tiled background texture */
   mBackgroundTexture = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, size_x * 64, size_y * 64);
   SDL_SetRenderTarget(_renderer, mBackgroundTexture);
 
@@ -201,7 +196,8 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
   }
   SDL_SetRenderTarget(_renderer, mpCamera->getFrameBuffer());
 
-  // Create HUD elements
+  /* Create HUD elements */
+
   std::shared_ptr<Text> pTextTitle = textManager.createText("Aileron-Black", "BLOKE/ENGINE");
   pTextTitle->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
   pTextTitle->setTextColour({255, 255, 255});
@@ -246,7 +242,7 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
   // Speed HUD demo
   for (int i = 0; i < 4; i++) {
     std::shared_ptr<SpriteHudElement> hudElement = std::make_shared<SpriteHudElement>("lightning.png", 9 + i * 34, 9, 32, 32);
-    hudElement->setGlowAmount(100);
+    hudElement->setGlowAmount(150);
     mSpeedIcons[i] = hudElement;
     mHudElements.push_back(hudElement);
   }
@@ -254,7 +250,7 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
   // Power HUD demo
   for (int i = 0; i < 3; i++) {
     std::shared_ptr<SpriteHudElement> hudElement = std::make_shared<SpriteHudElement>("flames.png", 9 + i * 34, 9, 32, 32, ALIGN_RIGHT);
-    hudElement->setGlowAmount(100);
+    hudElement->setGlowAmount(150);
     mPowerIcons[i] = hudElement;
     mHudElements.push_back(hudElement);
   }

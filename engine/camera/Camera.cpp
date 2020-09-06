@@ -2,7 +2,7 @@
 #include "Camera.hpp"
 #include <algorithm>
 
-void Camera::rumble(double amplitude, double timeout) {
+void Camera::rumble(double amplitude, double timeout){
     mRumbleTimeout = timeout;
     mRumbleAmplitude = amplitude;
     return;
@@ -58,6 +58,8 @@ void Camera::onResize() {
 }
 
 void Camera::draw() {
+    update();
+
     // Update the screen rectangle for applying the rumble effect
     mScreenRectangle.x = mRumbleOffset[0];
     mScreenRectangle.y = mRumbleOffset[1];
@@ -132,6 +134,7 @@ void Camera::update() {
         mRumbleOffset[0] = 0;
         mRumbleOffset[1] = 0;
     }
+    return;
 }
 
 void Camera::blurTexture(SDL_Texture *texture, double size, int passes) {
@@ -223,6 +226,13 @@ void Camera::renderCopy(SDL_Texture *texture, SDL_Rect *srcRect, SDL_Rect *dstRe
 
         if (bloomAmount > 0) {
             // Add texture to bloom buffer to create a glowing effect
+            SDL_BlendMode addBlendMode = SDL_ComposeCustomBlendMode(
+                SDL_BLENDFACTOR_ONE,
+                SDL_BLENDFACTOR_ZERO,
+                SDL_BLENDOPERATION_ADD,
+                SDL_BLENDFACTOR_ONE,
+                SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
+                SDL_BLENDOPERATION_ADD);
             SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
             SDL_SetTextureAlphaMod(texture, bloomAmount);
             SDL_RenderCopy(_renderer, texture, srcRect, dstRect);

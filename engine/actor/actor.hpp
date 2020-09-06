@@ -6,6 +6,7 @@
 #include <array>
 #include "Interpolator.hpp"
 #include "KinematicCollider.hpp"
+#include "Camera.hpp"
 
 class AbstractPlayer; class AbstractSpriteHandler;
 
@@ -100,7 +101,7 @@ public:
       mpSpriteHandler->update(mPosition);
   }
 
-  virtual void handleCommand(std::string){};
+  virtual void handleCommand(std::string) = 0;
 
   /*Serialise this class using cereal.
     NB: We don't send the size of the actor (dimmension) as this should

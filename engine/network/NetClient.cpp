@@ -10,8 +10,8 @@
 #include "ServerInfoEvent.hpp"
 #include "JoinEvent.hpp"
 #include "acceptEvent.hpp"
-#include "syncEvent.hpp"
 #include "PlayerPropertiesEvent.hpp"
+#include "syncEvent.hpp"
 #include "errorEvent.hpp"
 #include "MoveEvent.hpp"
 #include "actor.hpp"
@@ -212,7 +212,13 @@ void NetClient::pollServer(){
 
      case EVENT_CREATE:{
        std::shared_ptr<CreateEvent> c_event = std::dynamic_pointer_cast<CreateEvent>(sp_to_handle);
-       _pScene->addActorWithId(c_event->getActor());
+       if(c_event->getActor())
+         _pScene->addActorWithId(c_event->getActor());
+       else if(c_event->getParticle())
+         _pScene->mParticleList.push_back(c_event->getParticle());
+       else{
+         log_message(ERROR, "Received malformed create event");
+       }
        break;
      }
      case EVENT_REMOVE:{

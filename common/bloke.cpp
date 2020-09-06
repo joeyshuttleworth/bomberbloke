@@ -89,7 +89,7 @@ void bloke :: update(){
 
 void bloke :: place_bomb(){
   if(mBombs<mMaxBombs){
-    std::shared_ptr<bomb> new_bomb(new bomb(round(mPosition[0])+0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), round(mPosition[1]) + 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), false));
+    std::shared_ptr<bomb> new_bomb = std::make_shared<bomb>(this);
     new_bomb->init(this);
     _pScene->addActor(new_bomb);
     mBombs++;

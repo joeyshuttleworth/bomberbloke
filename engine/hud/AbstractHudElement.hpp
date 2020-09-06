@@ -21,7 +21,9 @@ enum AlignFlag {
  */
 class AbstractHudElement {
 public:
-    // If set to false, onInput will not be called by scene.
+    /**
+     * If set to false, onInput will not be called by scene.
+     */
     bool mIsInteractive = false;
 
      /**
