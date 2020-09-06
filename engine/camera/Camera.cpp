@@ -8,17 +8,21 @@ void Camera::rumble(double amplitude, double timeout){
     return;
 }
 
-void Camera::blur(double size, int passes) {
+void Camera::setBlur(double size, int passes) {
     mBlurSize = size;
     if (passes > 0)
         mBlurPasses = passes;
 }
 
-void Camera::bloom(double size, int alpha, int passes) {
+void Camera::setBloom(double size, int alpha, int passes) {
     mBloomSize = size;
     mBloomAlpha = alpha;
     if (passes > 0)
         mBloomPasses = passes;
+}
+
+void Camera::setBrightness(int brightness) {
+    mBrightness = brightness;
 }
 
 void Camera::onResize() {
@@ -54,13 +58,11 @@ void Camera::onResize() {
 }
 
 void Camera::draw() {
-    update();
-
     // Update the screen rectangle for applying the rumble effect
     mScreenRectangle.x = mRumbleOffset[0];
     mScreenRectangle.y = mRumbleOffset[1];
 
-    // Apply blur to mpBloomBuffer and "add" to window to create a bloom effect
+    // Apply blur to mpBloomBuffer and "add" to frame buffer to create a bloom effect
     blurTexture(mpBloomBuffer, mBloomSize, mBloomPasses);
     SDL_SetRenderTarget(_renderer, mpFrameBuffer);
     SDL_SetTextureBlendMode(mpBloomBuffer, SDL_BLENDMODE_ADD);
@@ -72,18 +74,29 @@ void Camera::draw() {
     SDL_SetRenderTarget(_renderer, nullptr);
     SDL_RenderCopy(_renderer, mpFrameBuffer, nullptr, &mScreenRectangle);
 
-    // Apply blur to mpBloomBuffer and "add" to window to create a bloom effect
-    blurTexture(mpBloomBuffer, mBloomSize, mBloomPasses);
-    SDL_SetRenderTarget(_renderer, nullptr);
-    SDL_SetTextureBlendMode(mpBloomBuffer, SDL_BLENDMODE_ADD);
-    SDL_SetTextureAlphaMod(mpBloomBuffer, mBloomAlpha);
-    SDL_RenderCopy(_renderer, mpBloomBuffer, nullptr, &mScreenRectangle);
+    // Apply brightness effect to window
+    if (mBrightness != 0) {
+        // Set target and blend mode
+        SDL_SetRenderTarget(_renderer, nullptr);
+        if (mBrightness > 0) {
+            // If brightness is positive use additive blending
+            SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_ADD);
+        } else {
+            // If brightness is negative use subtractive blending
+            SDL_BlendMode subtractBlendMode = SDL_ComposeCustomBlendMode(
+                SDL_BLENDFACTOR_SRC_ALPHA, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_REV_SUBTRACT,
+                SDL_BLENDFACTOR_ZERO, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD
+            );
+            SDL_SetRenderDrawBlendMode(_renderer, subtractBlendMode);
+        }
+        // Add/subtract a white box from the image to change the brightness
+        SDL_SetRenderDrawColor(_renderer, 255, 255, 255, std::abs(mBrightness));
+        SDL_RenderFillRect(_renderer, nullptr);
+    }
 
     // Draw mpNoProcessingBuffer on window
     SDL_SetTextureBlendMode(mpNoProcessingBuffer, SDL_BLENDMODE_BLEND);
     SDL_RenderCopy(_renderer, mpNoProcessingBuffer, nullptr, nullptr);
-
-    return;
 }
 
 void Camera::resetFrameBuffer() {
@@ -188,7 +201,7 @@ void Camera::blurTexture(SDL_Texture *texture, double size, int passes) {
     SDL_DestroyTexture(tmpTexture);
 }
 
-void Camera::displayTexture(SDL_Texture *texture, SDL_Rect *srcRect, SDL_Rect *dstRect, bool isPostProcessed, int bloomAmount) {
+void Camera::renderCopy(SDL_Texture *texture, SDL_Rect *srcRect, SDL_Rect *dstRect, bool isPostProcessed, int bloomAmount) {
     // Copy the texture onto the appropriate frame buffer
     SDL_SetRenderTarget(_renderer, getFrameBuffer(isPostProcessed));
     SDL_RenderCopy(_renderer, texture, srcRect, dstRect);
@@ -209,13 +222,6 @@ void Camera::displayTexture(SDL_Texture *texture, SDL_Rect *srcRect, SDL_Rect *d
 
         if (bloomAmount > 0) {
             // Add texture to bloom buffer to create a glowing effect
-            SDL_BlendMode addBlendMode = SDL_ComposeCustomBlendMode(
-                SDL_BLENDFACTOR_ONE,
-                SDL_BLENDFACTOR_ZERO,
-                SDL_BLENDOPERATION_ADD,
-                SDL_BLENDFACTOR_ONE,
-                SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
-                SDL_BLENDOPERATION_ADD);
             SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
             SDL_SetTextureAlphaMod(texture, bloomAmount);
             SDL_RenderCopy(_renderer, texture, srcRect, dstRect);

@@ -13,9 +13,13 @@
 #include "FollowCamera.hpp"
 #include "woodenCrate.hpp"
 #include "bloke.hpp"
+#include "PauseMenuHudGroup.hpp"
 
 const std::string BACKGROUND_TILE_PREFIX = "background_tile_";
 const int N_BACKGROUND_TILES = 10;
+
+const int PAUSE_BLUR_SIZE = 10;
+const int PAUSE_BRIGHTNESS = -30;
 
 static void hudTestFnJoin() {
   handle_system_command({"open", "localhost"});
@@ -35,7 +39,7 @@ void BomberBlokeScene::draw(){
 
   // Draw background
   SDL_Rect sceneScreenRect = mpCamera->getScreenRect(0, 0, mDimmension[0], mDimmension[1]);
-  mpCamera->displayTexture(mBackgroundTexture, nullptr, &sceneScreenRect);
+  mpCamera->renderCopy(mBackgroundTexture, nullptr, &sceneScreenRect);
 
   // Draw actors, particles and HUD
   drawActors();
@@ -229,10 +233,16 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
   hudElementJoin->setOnClickOffset(-1, 2);
   mHudElements.push_back(hudElementJoin);
 
+  std::shared_ptr<PauseMenuHudGroup> pPauseMenu = std::make_shared<PauseMenuHudGroup>();
+  pPauseMenu->setIsVisible(false);
+  pPauseMenu->mIsInteractive = false;
+  mHudElements.push_back(pPauseMenu);
+  mPauseMenuHud = pPauseMenu;
+
   // Speed HUD demo
   for (int i = 0; i < 4; i++) {
     std::shared_ptr<SpriteHudElement> hudElement = std::make_shared<SpriteHudElement>("lightning.png", 9 + i * 34, 9, 32, 32);
-    hudElement->setGlowAmount(150);
+    hudElement->setGlowAmount(100);
     mSpeedIcons[i] = hudElement;
     mHudElements.push_back(hudElement);
   }
@@ -240,7 +250,7 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
   // Power HUD demo
   for (int i = 0; i < 3; i++) {
     std::shared_ptr<SpriteHudElement> hudElement = std::make_shared<SpriteHudElement>("flames.png", 9 + i * 34, 9, 32, 32, ALIGN_RIGHT);
-    hudElement->setGlowAmount(150);
+    hudElement->setGlowAmount(100);
     mPowerIcons[i] = hudElement;
     mHudElements.push_back(hudElement);
   }
@@ -249,12 +259,45 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
 }
 
 void BomberBlokeScene::onInput(SDL_Event *event) {
+  // TODO: Consider disabling player control when paused
+  if (!mIsPaused) {
     scene::onInput(event);
+  } else {
+    // Is paused so only share input with pause menu
+    std::shared_ptr<PauseMenuHudGroup> pPauseMenu = mPauseMenuHud.lock();
+    pPauseMenu->onInput(event);
+  }
 
-    // Blur effect demo
-    if (event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_ESCAPE) {
-        mpCamera->blur(10);
-    } else if (event->type == SDL_KEYUP && event->key.keysym.sym == SDLK_ESCAPE) {
-        mpCamera->blur(0);
-    }
+
+  // Toggle pause
+  if (event->type == SDL_KEYUP && event->key.keysym.sym == SDLK_ESCAPE)
+    togglePause();
+}
+
+void BomberBlokeScene::togglePause() {
+  if (!mIsPaused) {
+    // Pause game
+    mIsPaused = true;
+
+    // Set post-processing effects
+    mpCamera->setBlur(PAUSE_BLUR_SIZE);
+    mpCamera->setBrightness(PAUSE_BRIGHTNESS);
+
+    // Make pause menu visible and interactive
+    std::shared_ptr<PauseMenuHudGroup> pPauseMenu = mPauseMenuHud.lock();
+    pPauseMenu->setIsVisible(true);
+    pPauseMenu->mIsInteractive = true;
+  } else {
+    // Un-pause game
+    mIsPaused = false;
+
+    // Reset post-processing effects
+    mpCamera->setBlur(0);
+    mpCamera->setBrightness(0);
+
+    // Make pause menu invisible and non-interactive
+    std::shared_ptr<PauseMenuHudGroup> pPauseMenu = mPauseMenuHud.lock();
+    pPauseMenu->setIsVisible(false);
+    pPauseMenu->mIsInteractive = false;
+  }
 }

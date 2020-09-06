@@ -63,9 +63,33 @@ class Camera{
 
   void resetFrameBuffer();
 
-  void displayTexture(SDL_Texture *texture, SDL_Rect *srcRect=nullptr,
-                      SDL_Rect *dstRect=nullptr, bool isPostProcessed=true, int bloomAmount=0);
+  /**
+   * Copies texture onto the appropriate frame buffer.
+   *
+   * Wrapper for SDL_RenderCopy with additional logic for post-processing
+   * effects. See documentation for SDL_RenderCopy for more detail on how
+   * srcRect and dstRect affect the rendering.
+   *
+   * @param texture         Texture to be copied onto buffer.
+   * @param srcRect         Rectangle of texture to be copied.
+   * @param dstRect         Rectangle of the buffer to copy onto.
+   * @param isPostProcessed Set to false to avoid post-processing effects.
+   * @param bloomAmount     Determines the amount of bloom applied to texture.
+   */
+  void renderCopy(SDL_Texture *texture, SDL_Rect *srcRect=nullptr,
+      SDL_Rect *dstRect=nullptr, bool isPostProcessed=true, int bloomAmount=0);
 
+  /**
+   * Draws a rectangle onto the appropriate frame buffer.
+   *
+   * Wrapper for SDL_RenderFillRect with additional logic for post-processing
+   * effects.
+   *
+   * @param dstRect         Rectangle of the buffer to draw the rectangle onto.
+   * @param colour          Colour of rectangle.
+   * @param isPostProcessed Set to false to avoid post-processing effects.
+   * @param bloomAmount     Determines the amount of bloom applied to texture.
+   */
   void renderFillRect(SDL_Rect *dstRect, SDL_Color colour, bool isPostProcessed=true, int bloomAmount=0);
 
   std::array<int, 2> getScreenDimensions() {
@@ -99,7 +123,7 @@ class Camera{
    * @param size    Size of the blur, larger is more blury.
    * @param passes  Quality of the blur, larger is higher quality.
    */
-  void blur(double size, int passes=0);
+  void setBlur(double size, int passes=0);
 
   /**
    * Sets the parameters for the post-processing bloom.
@@ -108,7 +132,14 @@ class Camera{
    * @param alpha   Opacity of the blur, 0-255 where 0 is transparent.
    * @param passes  Quality of the bloom, larger is higher quality.
    */
-  void bloom(double size, int alpha=255, int passes=0);
+  void setBloom(double size, int alpha=255, int passes=0);
+
+  /**
+   * Sets the parameter for the post-processing brightness effect.
+   *
+   * @param brightness  Amount of brightness added to the image.
+   */
+  void setBrightness(int brightness);
 
   /**
    * Applies a blur effect to a given texture
@@ -155,5 +186,8 @@ protected:
   double mBloomAlpha = 255;
   // Determines the quality of the bloom, larger is better.
   int mBloomPasses = 4;
+
+  // Controls how bright or dark the image is - ranges from -255 to 255.
+  int mBrightness = 0;
 };
 #endif
