@@ -242,7 +242,7 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
   // Speed HUD demo
   for (int i = 0; i < 4; i++) {
     std::shared_ptr<SpriteHudElement> hudElement = std::make_shared<SpriteHudElement>("lightning.png", 9 + i * 34, 9, 32, 32);
-    hudElement->setGlowAmount(150);
+    hudElement->setGlowAmount(100);
     mSpeedIcons[i] = hudElement;
     mHudElements.push_back(hudElement);
   }
@@ -250,7 +250,7 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
   // Power HUD demo
   for (int i = 0; i < 3; i++) {
     std::shared_ptr<SpriteHudElement> hudElement = std::make_shared<SpriteHudElement>("flames.png", 9 + i * 34, 9, 32, 32, ALIGN_RIGHT);
-    hudElement->setGlowAmount(150);
+    hudElement->setGlowAmount(100);
     mPowerIcons[i] = hudElement;
     mHudElements.push_back(hudElement);
   }
@@ -290,7 +290,7 @@ void BomberBlokeScene::togglePause() {
   } else {
     // Un-pause game
     mIsPaused = false;
-    
+
     // Reset post-processing effects
     mpCamera->setBlur(0);
     mpCamera->setBrightness(0);
