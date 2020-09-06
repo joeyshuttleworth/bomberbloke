@@ -135,6 +135,13 @@ class Camera{
   void setBloom(double size, int alpha=255, int passes=0);
 
   /**
+   * Sets the parameter for the post-processing brightness effect.
+   *
+   * @param brightness  Amount of brightness added to the image.
+   */
+  void setBrightness(int brightness);
+
+  /**
    * Applies a blur effect to a given texture
    *
    * Creates a blur effect by drawing the texture onto itself slightly shifted
@@ -178,5 +185,8 @@ protected:
   double mBloomAlpha = 255;
   // Determines the quality of the bloom, larger is better.
   int mBloomPasses = 4;
+
+  // Controls how bright or dark the image is - ranges from -255 to 255.
+  int mBrightness = 0;
 };
 #endif
