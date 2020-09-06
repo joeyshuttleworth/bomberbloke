@@ -21,6 +21,10 @@ void Camera::setBloom(double size, int alpha, int passes) {
         mBloomPasses = passes;
 }
 
+void Camera::setBrightness(int brightness) {
+    mBrightness = brightness;
+}
+
 void Camera::onResize() {
     // Get window size
     int width, height;
