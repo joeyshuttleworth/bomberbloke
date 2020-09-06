@@ -162,13 +162,13 @@ void scene::physicsUpdate() {
 
 void scene::updateHudPositions() {
     for(auto i = mHudElements.begin(); i != mHudElements.end(); i++){
-        (*i)->updatePosition(mpCamera);
+        (*i)->updatePosition(mpCamera.get());
     }
 }
 
 void scene::draw(){
   mpCamera->resetFrameBuffer();
-  
+
   drawActors();
   drawParticles();
   drawHud();
