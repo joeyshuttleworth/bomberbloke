@@ -57,10 +57,24 @@ public:
      * @param xPos  X-coordinate of the screen position (pixels).
      * @param yPos  Y-coordinate of the screen position (pixels).
      */
-    void setPosition(int xPos, int yPos) {
+    virtual void setPosition(int xPos, int yPos) {
         mPosition[0] = xPos;
         mPosition[1] = yPos;
         mPropertiesUpdated = true;
+    }
+
+    /**
+     * Sets the (relative) screen position of the bounding box.
+     *
+     * The position corresponds to the top-left corner of the box. See the
+     * constructor for information on how this property interacts with
+     * alignment.
+     *
+     * @param xPos  X-coordinate of the screen position (pixels).
+     * @param yPos  Y-coordinate of the screen position (pixels).
+     */
+    virtual std::array<int, 2> getPosition() {
+        return { mPosition[0], mPosition[1] };
     }
 
     /**
@@ -71,7 +85,7 @@ public:
      * @param xDim  Number of pixels wide.
      * @param yDim  Number of pixels high.
      */
-    void setDimensions(int xDim, int yDim) {
+    virtual void setDimensions(int xDim, int yDim) {
         mDimensions[0] = xDim;
         mDimensions[1] = yDim;
         mPropertiesUpdated = true;
@@ -85,7 +99,7 @@ public:
      * @param yAlign    Horizontal alignment of the box. Accepts ALIGN_TOP,
      *                  ALIGN_BOTTOM and ALIGN_CENTER (default).
      */
-    void setAlignment(AlignFlag xAlign, AlignFlag yAlign=ALIGN_TOP) {
+    virtual void setAlignment(AlignFlag xAlign, AlignFlag yAlign=ALIGN_TOP) {
         mAlignFlags[0] = xAlign;
         mAlignFlags[1] = yAlign;
     }
@@ -95,7 +109,7 @@ public:
      *
      * @param isVisible New mIsVisible value.
      */
-    void setIsVisible(bool isVisible) {
+    virtual void setIsVisible(bool isVisible) {
         mIsVisible = isVisible;
         mPropertiesUpdated = true;
     }
@@ -105,16 +119,12 @@ public:
      *
      * @param isPostProcessed   New mIsPostProcessed value.
      */
-    void setIsPostProcessed(bool isPostProcessed) {
+    virtual void setIsPostProcessed(bool isPostProcessed) {
         mIsPostProcessed = isPostProcessed;
         mPropertiesUpdated = true;
     }
 
     /**
-<<<<<<< HEAD
->>>>>>> 21b8114b56d35f587b3aac17a2f1161898a411f9
-=======
->>>>>>> d417cdfa817f09f5773d4dd71f18c320d5bab159
      * Draw function.
      *
      * Called by scene on every frame. Any children classes that overide
@@ -133,37 +143,6 @@ public:
      *
      * @param camera    Current Camera object.
      */
-
-  void updatePosition(std::shared_ptr<Camera> camera) {
-        std::array<int, 2> screenDimensions = camera->getScreenDimensions();
-        switch(mAlignFlags[0]) {
-            case ALIGN_CENTER:
-                // Centred positioning
-                mPosition[0] = (screenDimensions[0] - mDimensions[0]) / 2;
-                break;
-            case ALIGN_RIGHT:
-                // Right-aligned positioning
-                mPosition[0] = screenDimensions[0] - mDimensions[0] - mRelativePosition[0];
-                break;
-            default:
-                // Left-aligned positioning
-                mPosition[0] = mRelativePosition[0];
-        }
-        switch(mAlignFlags[1]) {
-            case ALIGN_CENTER:
-                // Centred positioning
-                mPosition[1] = (screenDimensions[1] - mDimensions[1]) / 2;
-                break;
-            case ALIGN_RIGHT:
-                // Right-aligned positioning
-                mPosition[1] = screenDimensions[1] - mDimensions[1] - mRelativePosition[1];
-                break;
-            default:
-                // Left-aligned positioning
-                mPosition[1] = mRelativePosition[1];
-        }
-    }
-
     virtual void updatePosition(Camera* camera);
 
     /**
