@@ -178,5 +178,8 @@ protected:
   double mBloomAlpha = 255;
   // Determines the quality of the bloom, larger is better.
   int mBloomPasses = 4;
+
+  // Controls how bright or dark the image is - ranges from -255 to 255.
+  int mBrightness = 0;
 };
 #endif

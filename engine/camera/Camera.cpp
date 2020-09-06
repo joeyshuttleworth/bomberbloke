@@ -70,6 +70,25 @@ void Camera::draw() {
     SDL_SetRenderTarget(_renderer, nullptr);
     SDL_RenderCopy(_renderer, mpFrameBuffer, nullptr, &mScreenRectangle);
 
+    // Apply brightness effect to window
+    if (mBrightness != 0) {
+        // Set target and blend mode
+        SDL_SetRenderTarget(_renderer, nullptr);
+        if (mBrightness > 0) {
+            // If brightness is positive use additive blending
+            SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_ADD);
+        } else {
+            // If brightness is negative use subtractive blending
+            SDL_BlendMode subtractBlendMode = SDL_ComposeCustomBlendMode(
+                SDL_BLENDFACTOR_SRC_ALPHA, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_REV_SUBTRACT,
+                SDL_BLENDFACTOR_ZERO, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD
+            );
+            SDL_SetRenderDrawBlendMode(_renderer, subtractBlendMode);
+        }
+        // Add/subtract a white box from the image to change the brightness
+        SDL_SetRenderDrawColor(_renderer, 255, 255, 255, std::abs(mBrightness));
+        SDL_RenderFillRect(_renderer, nullptr);
+    }
 
     // Draw mpNoProcessingBuffer on window
     SDL_SetTextureBlendMode(mpNoProcessingBuffer, SDL_BLENDMODE_BLEND);
