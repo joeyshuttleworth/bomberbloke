@@ -8,13 +8,13 @@ void Camera::rumble(double amplitude, double timeout) {
     return;
 }
 
-void Camera::blur(double size, int passes) {
+void Camera::setBlur(double size, int passes) {
     mBlurSize = size;
     if (passes > 0)
         mBlurPasses = passes;
 }
 
-void Camera::bloom(double size, int alpha, int passes) {
+void Camera::setBloom(double size, int alpha, int passes) {
     mBloomSize = size;
     mBloomAlpha = alpha;
     if (passes > 0)
@@ -179,7 +179,7 @@ void Camera::blurTexture(SDL_Texture *texture, double size, int passes) {
     SDL_DestroyTexture(tmpTexture);
 }
 
-void Camera::displayTexture(SDL_Texture *texture, SDL_Rect *srcRect, SDL_Rect *dstRect, bool isPostProcessed, int bloomAmount) {
+void Camera::renderCopy(SDL_Texture *texture, SDL_Rect *srcRect, SDL_Rect *dstRect, bool isPostProcessed, int bloomAmount) {
     // Copy the texture onto the appropriate frame buffer
     SDL_SetRenderTarget(_renderer, getFrameBuffer(isPostProcessed));
     SDL_RenderCopy(_renderer, texture, srcRect, dstRect);

@@ -35,7 +35,7 @@ void BomberBlokeScene::draw(){
 
   // Draw background
   SDL_Rect sceneScreenRect = mpCamera->getScreenRect(0, 0, mDimmension[0], mDimmension[1]);
-  mpCamera->displayTexture(mBackgroundTexture, nullptr, &sceneScreenRect);
+  mpCamera->renderCopy(mBackgroundTexture, nullptr, &sceneScreenRect);
 
   // Draw actors, particles and HUD
   drawActors();
