@@ -6,6 +6,7 @@
 #include "bomberbloke.h"
 
 class FollowCamera;
+class PauseMenuHudGroup;
 
 class BomberBlokeScene : public scene{
 protected:
@@ -17,6 +18,11 @@ protected:
 
   // Camera that follows local player.
   std::shared_ptr<FollowCamera> blokeCamera;
+
+  // When true, the game is paused.
+  bool mIsPaused = false;
+  // Weak pointer to the pause menu HUD group (contained in mHudElements).
+  std::weak_ptr<PauseMenuHudGroup> mPauseMenuHud;
 
 public:
 
@@ -48,6 +54,10 @@ public:
      */
     void onInput(SDL_Event *event) override;
 
+    /**
+     * Alternates pause state.
+     */
+    void togglePause();
 
     template<class Archive>
     void serialize(Archive &archive){

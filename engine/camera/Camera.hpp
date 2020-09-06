@@ -123,7 +123,7 @@ class Camera{
    * @param size    Size of the blur, larger is more blury.
    * @param passes  Quality of the blur, larger is higher quality.
    */
-  void blur(double size, int passes=0);
+  void setBlur(double size, int passes=0);
 
   /**
    * Sets the parameters for the post-processing bloom.

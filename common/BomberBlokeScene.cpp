@@ -13,6 +13,7 @@
 #include "FollowCamera.hpp"
 #include "woodenCrate.hpp"
 #include "bloke.hpp"
+#include "PauseMenuHudGroup.hpp"
 
 const std::string BACKGROUND_TILE_PREFIX = "background_tile_";
 const int N_BACKGROUND_TILES = 10;
@@ -233,6 +234,12 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
   hudElementJoin->setOnClickOffset(-1, 2);
   mHudElements.push_back(hudElementJoin);
 
+  std::shared_ptr<PauseMenuHudGroup> pPauseMenu = std::make_shared<PauseMenuHudGroup>();
+  pPauseMenu->setIsVisible(false);
+  pPauseMenu->mIsInteractive = false;
+  mHudElements.push_back(pPauseMenu);
+  mPauseMenuHud = pPauseMenu;
+
   // Speed HUD demo
   for (int i = 0; i < 4; i++) {
     std::shared_ptr<SpriteHudElement> hudElement = std::make_shared<SpriteHudElement>("lightning.png", 9 + i * 34, 9, 32, 32);
@@ -253,12 +260,41 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
 }
 
 void BomberBlokeScene::onInput(SDL_Event *event) {
+  // TODO: Consider disabling player control when paused
+  if (!mIsPaused) {
     scene::onInput(event);
+  } else {
+    // Is paused so only share input with pause menu
+    std::shared_ptr<PauseMenuHudGroup> pPauseMenu = mPauseMenuHud.lock();
+    pPauseMenu->onInput(event);
+  }
 
-    // Blur effect demo
-    if (event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_ESCAPE) {
-        mpCamera->blur(10);
-    } else if (event->type == SDL_KEYUP && event->key.keysym.sym == SDLK_ESCAPE) {
-        mpCamera->blur(0);
-    }
+
+  // Toggle pause
+  if (event->type == SDL_KEYUP && event->key.keysym.sym == SDLK_ESCAPE)
+    togglePause();
+}
+
+void BomberBlokeScene::togglePause() {
+  if (!mIsPaused) {
+    // Pause game
+    mIsPaused = true;
+
+    mpCamera->setBlur(10);
+
+    // Make pause menu visible and interactive
+    std::shared_ptr<PauseMenuHudGroup> pPauseMenu = mPauseMenuHud.lock();
+    pPauseMenu->setIsVisible(true);
+    pPauseMenu->mIsInteractive = true;
+  } else {
+    // Un-pause game
+    mIsPaused = false;
+
+    mpCamera->setBlur(0);
+
+    // Make pause menu invisible and non-interactive
+    std::shared_ptr<PauseMenuHudGroup> pPauseMenu = mPauseMenuHud.lock();
+    pPauseMenu->setIsVisible(false);
+    pPauseMenu->mIsInteractive = false;
+  }
 }
