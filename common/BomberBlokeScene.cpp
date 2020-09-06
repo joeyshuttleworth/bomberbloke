@@ -18,6 +18,9 @@
 const std::string BACKGROUND_TILE_PREFIX = "background_tile_";
 const int N_BACKGROUND_TILES = 10;
 
+const int PAUSE_BLUR_SIZE = 10;
+const int PAUSE_BRIGHTNESS = -30;
+
 static void hudTestFnJoin() {
   handle_system_command({"open", "localhost"});
 }
@@ -280,7 +283,9 @@ void BomberBlokeScene::togglePause() {
     // Pause game
     mIsPaused = true;
 
-    mpCamera->setBlur(10);
+    // Set post-processing effects
+    mpCamera->setBlur(PAUSE_BLUR_SIZE);
+    mpCamera->setBrightness(PAUSE_BRIGHTNESS);
 
     // Make pause menu visible and interactive
     std::shared_ptr<PauseMenuHudGroup> pPauseMenu = mPauseMenuHud.lock();
@@ -289,8 +294,10 @@ void BomberBlokeScene::togglePause() {
   } else {
     // Un-pause game
     mIsPaused = false;
-
+    
+    // Reset post-processing effects
     mpCamera->setBlur(0);
+    mpCamera->setBrightness(0);
 
     // Make pause menu invisible and non-interactive
     std::shared_ptr<PauseMenuHudGroup> pPauseMenu = mPauseMenuHud.lock();
