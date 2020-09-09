@@ -4,9 +4,11 @@
 #include "AbstractHudGroup.hpp"
 
 #include <functional>
+#include <memory>
 
 #include "SoundManager.hpp"
 
+class TextHudElement;
 extern bool handle_system_command(std::list<std::string>);
 extern SoundManager soundManager;
 

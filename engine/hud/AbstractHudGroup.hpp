@@ -1,6 +1,11 @@
 #ifndef ABSTARCTHUDGROUP_HPP
 #define ABSTARCTHUDGROUP_HPP
 
+#include "AbstractHudElement.hpp"
+
+#include <memory>
+#include <list>
+
 class AbstractHudGroup: public AbstractHudElement {
 public:
   AbstractHudGroup(int xPos, int yPos): AbstractHudElement(xPos, yPos, 0, 0) {};
