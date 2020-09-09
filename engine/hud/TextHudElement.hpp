@@ -44,6 +44,16 @@ public:
      */
     void draw(Camera *camera);
 
+    /**
+     * Sets the string that is rendered and presented.
+     *
+     * @param newText New string.
+     */
+    void setText(std::string newText) {
+        mText->setText(newText);
+        mPropertiesUpdated = true;
+    }
+
 protected:
     // Text object used to render.
     std::shared_ptr<Text> mText;
