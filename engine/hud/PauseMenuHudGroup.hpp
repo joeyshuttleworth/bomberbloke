@@ -32,7 +32,7 @@ public:
     std::shared_ptr<TextButton> resumeElement = std::make_shared<TextButton>(resumeText, 0, 20, 200, 30, resumeFn, ALIGN_CENTER, ALIGN_CENTER);
     resumeElement->setMouseOverColour({200, 200, 200});
     resumeElement->setOnClickOffset(-1, 2);
-    mHudElements.push_back(resumeElement);
+    addElement(resumeElement);
 
     // Create options menu button
     std::shared_ptr<Text> optionsText = textManager.createText("Aileron-Black", "OPTIONS");
@@ -44,14 +44,14 @@ public:
     std::shared_ptr<TextButton> optionsElement = std::make_shared<TextButton>(optionsText, 0, -20, 200, 30, optionsFunction, ALIGN_CENTER, ALIGN_CENTER);
     optionsElement->setMouseOverColour({200, 200, 200});
     optionsElement->setOnClickOffset(-1, 2);
-    mHudElements.push_back(optionsElement);
+    addElement(optionsElement);
 
     // Create options menu HUD group
     auto closeOptionsFunction = std::bind(&PauseMenuHudGroup::closeOptionsMenu, this);
     std::shared_ptr<OptionsMenuHudGroup> optionsMenu = std::make_shared<OptionsMenuHudGroup>(closeOptionsFunction);
     optionsMenu->setIsVisible(false);
     optionsMenu->mIsInteractive = false;
-    mHudElements.push_back(optionsMenu);
+    addElement(optionsMenu);
     // Store options menu in weak pointer
     mOptionsMenu = optionsMenu;
 

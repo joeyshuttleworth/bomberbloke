@@ -15,7 +15,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
   titleText->setTextScale(2.);
   std::shared_ptr<TextHudElement> titleElement = std::make_shared<TextHudElement>(titleText, 0, -100, 200, 50, ALIGN_CENTER, ALIGN_CENTER);
   titleElement->setIsPostProcessed(false);
-  mHudElements.push_back(titleElement);
+  addElement(titleElement);
 
   // Create go back button text
   std::shared_ptr<Text> backText = textManager.createText("Aileron-Black", "BACK");
@@ -26,7 +26,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
   std::shared_ptr<TextButton> backElement = std::make_shared<TextButton>(backText, 50, 50, 200, -30, goBackFn, ALIGN_LEFT, ALIGN_BOTTOM);
   backElement->setMouseOverColour({200, 200, 200});
   backElement->setOnClickOffset(-1, 2);
-  mHudElements.push_back(backElement);
+  addElement(backElement);
 
   // Master volume option title
   std::shared_ptr<Text> volumeTitleText = textManager.createText("Aileron-Black", "MASTER VOLUME:");
@@ -35,7 +35,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
   volumeTitleText->setTextScale(1.);
   std::shared_ptr<TextHudElement> volumeTitleElement = std::make_shared<TextHudElement>(volumeTitleText, -105, 0, 200, 50, ALIGN_CENTER, ALIGN_CENTER);
   volumeTitleElement->setIsPostProcessed(false);
-  mHudElements.push_back(volumeTitleElement);
+  addElement(volumeTitleElement);
 
   // Create reduce volume text
   std::shared_ptr<Text> reduceVolumeText = textManager.createText("Aileron-Black", "-");
@@ -47,7 +47,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
   std::shared_ptr<TextButton> reduceVolumeElement = std::make_shared<TextButton>(reduceVolumeText, 15, 0, 20, 20, reduceVolumeFn, ALIGN_CENTER, ALIGN_CENTER);
   reduceVolumeElement->setMouseOverColour({200, 200, 200});
   reduceVolumeElement->setOnClickOffset(-1, 2);
-  mHudElements.push_back(reduceVolumeElement);
+  addElement(reduceVolumeElement);
 
   // Master volume option label
   int currentVolumeLabel = soundManager.getMasterVolume() * 8 / 128;
@@ -57,7 +57,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
   volumeLabelText->setTextScale(1.);
   std::shared_ptr<TextHudElement> volumeLabelElement = std::make_shared<TextHudElement>(volumeLabelText, 40, 0, 20, 20, ALIGN_CENTER, ALIGN_CENTER);
   volumeLabelElement->setIsPostProcessed(false);
-  mHudElements.push_back(volumeLabelElement);
+  addElement(volumeLabelElement);
   mMasterVolumeLabel = volumeLabelElement;
 
   // Create increase volume text
@@ -70,7 +70,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
   std::shared_ptr<TextButton> increaseVolumeElement = std::make_shared<TextButton>(increaseVolumeText, 65, 0, 20, 20, increaseVolumeFn, ALIGN_CENTER, ALIGN_CENTER);
   increaseVolumeElement->setMouseOverColour({200, 200, 200});
   increaseVolumeElement->setOnClickOffset(-1, 2);
-  mHudElements.push_back(increaseVolumeElement);
+  addElement(increaseVolumeElement);
 
   // Make group interactive
   mIsInteractive = true;
