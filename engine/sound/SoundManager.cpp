@@ -12,6 +12,8 @@ SoundManager::~SoundManager() {
 void SoundManager::init(void (*finishedCallback)(int)) {
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) == -1)
         printf("Mix_OpenAudio: %s\n", Mix_GetError());
+
+    // Callback for tracking which sounds are on which channels
     Mix_ChannelFinished(finishedCallback);
 }
 
@@ -72,11 +74,14 @@ void SoundManager::playSound(std::shared_ptr<Sound> sound) {
 }
 
 void SoundManager::channelFinishedCallback(int channel) {
+    // Obtain sound from channelToSound map
     std::shared_ptr<Sound> sound = channelToSound[channel].lock();
 
+    // Call callback if the sound has one
     if (sound->onFinishedPlaying != nullptr)
         sound->onFinishedPlaying();
 
+    // Remove the channelToSound entry
     channelToSound.erase(channel);
 }
 

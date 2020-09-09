@@ -30,7 +30,7 @@ public:
      */
     int mFadeInMs = 0;
     /**
-     * Volume of sound played
+     * Volume of sound played - ranges from 0 to 128
      */
     int mVolume = 128;
     /**
