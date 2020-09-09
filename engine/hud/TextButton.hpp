@@ -22,7 +22,7 @@ public:
      * @param yAlignFlag    DetermineS the alignment of the bounding box.
      */
     TextButton(std::shared_ptr<Text> text, int xPos, int yPos, int xDim,
-        int yDim, void (*onClickFn)()=nullptr, AlignFlag xAlignFlag=ALIGN_LEFT,
+        int yDim, std::function<void()> onClickFn, AlignFlag xAlignFlag=ALIGN_LEFT,
         AlignFlag yAlignFlag=ALIGN_TOP);
 
     /**
