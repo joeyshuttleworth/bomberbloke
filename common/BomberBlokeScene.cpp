@@ -202,7 +202,7 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
   pText1->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
   pText1->setTextColour({255, 255, 255});
   pText1->setTextScale(1.5);
-  std::shared_ptr<TextButton> hudElement1 = std::make_shared<TextButton>(pText1, 9, 71, 200, -30, hudTestFn1, ALIGN_LEFT, ALIGN_BOTTOM);
+  std::shared_ptr<TextButton> hudElement1 = std::make_shared<TextButton>(pText1, 9, -71, 200, 30, hudTestFn1, ALIGN_LEFT, ALIGN_BOTTOM);
   hudElement1->setMouseOverColour({200, 200, 200});
   hudElement1->setOnClickOffset(-1, 2);
   mHudElements.push_back(hudElement1);
@@ -211,7 +211,7 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
   pText2->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
   pText2->setTextColour({255, 255, 255});
   pText2->setTextScale(1.5);
-  std::shared_ptr<TextButton> hudElement2 = std::make_shared<TextButton>(pText2, 9, 40, 200, -30, hudTestFn2, ALIGN_LEFT, ALIGN_BOTTOM);
+  std::shared_ptr<TextButton> hudElement2 = std::make_shared<TextButton>(pText2, 9, -40, 200, 30, hudTestFn2, ALIGN_LEFT, ALIGN_BOTTOM);
   hudElement2->setMouseOverColour({200, 200, 200});
   hudElement2->setOnClickOffset(-1, 2);
   mHudElements.push_back(hudElement2);
@@ -220,7 +220,7 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
   pTextJoin->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
   pTextJoin->setTextColour({255, 255, 255});
   pTextJoin->setTextScale(1.5);
-  std::shared_ptr<TextButton> hudElementJoin = std::make_shared<TextButton>(pTextJoin, 9, 9, 200, -30, hudTestFnJoin, ALIGN_LEFT, ALIGN_BOTTOM);
+  std::shared_ptr<TextButton> hudElementJoin = std::make_shared<TextButton>(pTextJoin, 9, -9, 200, 30, hudTestFnJoin, ALIGN_LEFT, ALIGN_BOTTOM);
   hudElementJoin->setMouseOverColour({200, 200, 200});
   hudElementJoin->setOnClickOffset(-1, 2);
   mHudElements.push_back(hudElementJoin);
