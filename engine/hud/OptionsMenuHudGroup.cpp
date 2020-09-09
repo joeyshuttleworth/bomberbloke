@@ -5,7 +5,7 @@
 
 OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
   : AbstractHudGroup(0, 0) {
-  // Creaet title
+  // Create title
   std::shared_ptr<Text> titleText = textManager.createText("Aileron-Black", "OPTIONS");
   titleText->setTextAlignment(TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER);
   titleText->setTextColour({255, 255, 255});
