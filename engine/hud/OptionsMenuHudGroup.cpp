@@ -10,10 +10,10 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
   : AbstractHudGroup(0, 0) {
   // Create title
   std::shared_ptr<Text> titleText = textManager.createText("Aileron-Black", "OPTIONS");
-  titleText->setTextAlignment(TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER);
+  titleText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
   titleText->setTextColour({255, 255, 255});
   titleText->setTextScale(2.);
-  std::shared_ptr<TextHudElement> titleElement = std::make_shared<TextHudElement>(titleText, 0, -50, 200, 50, ALIGN_CENTER, ALIGN_CENTER);
+  std::shared_ptr<TextHudElement> titleElement = std::make_shared<TextHudElement>(titleText, 0, -100, 200, 50, ALIGN_CENTER, ALIGN_CENTER);
   titleElement->setIsPostProcessed(false);
   mHudElements.push_back(titleElement);
 
@@ -38,7 +38,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
   mHudElements.push_back(volumeTitleElement);
 
   // Create reduce volume text
-  std::shared_ptr<Text> reduceVolumeText = textManager.createText("Aileron-Black", "–");
+  std::shared_ptr<Text> reduceVolumeText = textManager.createText("Aileron-Black", "-");
   reduceVolumeText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
   reduceVolumeText->setTextColour({255, 255, 255});
   reduceVolumeText->setTextScale(1.);
