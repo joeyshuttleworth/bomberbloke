@@ -198,14 +198,6 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
 
   /* Create HUD elements */
 
-  std::shared_ptr<Text> pTextTitle = textManager.createText("Aileron-Black", "BLOKE/ENGINE");
-  pTextTitle->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-  pTextTitle->setTextColour({255, 255, 255});
-  pTextTitle->setTextScale(2.);
-  std::shared_ptr<TextHudElement> hudElementTitle = std::make_shared<TextHudElement>(pTextTitle, 5, 5, 400, 50, ALIGN_CENTER);
-  hudElementTitle->setIsPostProcessed(false);
-  mHudElements.push_back(hudElementTitle);
-
   std::shared_ptr<Text> pText1 = textManager.createText("Aileron-Black", "DAVE1");
   pText1->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
   pText1->setTextColour({255, 255, 255});
