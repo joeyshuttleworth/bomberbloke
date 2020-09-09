@@ -3,6 +3,9 @@
 #include <algorithm>
 #include <string>
 
+#include "TextHudElement.hpp"
+#include "TextButton.hpp"
+
 OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
   : AbstractHudGroup(0, 0) {
   // Create title
