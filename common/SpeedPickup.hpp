@@ -1,6 +1,7 @@
 #ifndef SPEEDPICKUP_HPP
 #define SPEEDPICKUP_HPP
 #include "AbstractPickup.hpp"
+#include "staticSprite.hpp"
 #include "bomberbloke_actors.hpp"
 
 class SpeedPickup : public AbstractPickup{
@@ -11,6 +12,7 @@ public:
 
   SpeedPickup(double xpos = 0, double ypos = 0) : AbstractPickup(xpos, ypos){
     /*TODO: draw asset*/
+    mpSpriteHandler = std::make_shared<staticSprite>(mPosition[0], mPosition[1], mDimmension[0], mDimmension[1], "lightning.png");
     return;
   }
 

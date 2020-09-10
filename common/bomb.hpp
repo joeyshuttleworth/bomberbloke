@@ -5,12 +5,12 @@
 #include "bloke.hpp"
 #include <cereal/types/base_class.hpp>
 #include <cereal/types/polymorphic.hpp>
-#include "PlaceHolderSprite.hpp"
+#include "staticSprite.hpp"
 #include "AbstractSpriteHandler.hpp"
 #include "Sound.hpp"
 
 const int N_EXPLOSION_SOUNDS = 2;
-const std::string EXPLOSION_SOUND_NAMES[N_EXPLOSION_SOUNDS] = { "bomb_1", "bomb_2" };
+const std::string EXPLOSION_SOUND_NAMES[N_EXPLOSION_SOUNDS] = {"bomb_1", "bomb_2"};
 
 class bomb : public actor {
  protected:
@@ -43,7 +43,7 @@ class bomb : public actor {
   };
 
   bomb() : actor(0,0, BOMB_SIZE, BOMB_SIZE){
-    mpSpriteHandler = std::shared_ptr<AbstractSpriteHandler>(new PlaceHolderSprite(mPosition[0], mPosition[1], BOMB_SIZE, BOMB_SIZE));
+    mpSpriteHandler = std::make_shared<staticSprite>(mPosition[0], mPosition[1], BOMB_SIZE, BOMB_SIZE, "bomb.png");
   }
 
   int getType() const{
