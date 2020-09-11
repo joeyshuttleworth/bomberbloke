@@ -77,12 +77,16 @@ void SoundManager::channelFinishedCallback(int channel) {
     // Obtain sound from channelToSound map
     std::shared_ptr<Sound> sound = channelToSound[channel].lock();
 
+    // Remove the channelToSound entry
+    channelToSound.erase(channel);
+    
+    if (!sound)
+        return;
+
     // Call callback if the sound has one
     if (sound->onFinishedPlaying != nullptr)
         sound->onFinishedPlaying();
 
-    // Remove the channelToSound entry
-    channelToSound.erase(channel);
 }
 
 void SoundManager::setMasterVolume(int volume) {
