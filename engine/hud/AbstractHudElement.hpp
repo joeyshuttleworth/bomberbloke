@@ -58,8 +58,8 @@ public:
      * @param yPos  Y-coordinate of the screen position (pixels).
      */
     virtual void setPosition(int xPos, int yPos) {
-        mPosition[0] = xPos;
-        mPosition[1] = yPos;
+        mRelativePosition[0] = xPos;
+        mRelativePosition[1] = yPos;
         mPropertiesUpdated = true;
     }
 
