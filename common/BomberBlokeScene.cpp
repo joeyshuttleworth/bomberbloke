@@ -21,18 +21,6 @@ const int N_BACKGROUND_TILES = 10;
 const int PAUSE_BLUR_SIZE = 10;
 const int PAUSE_BRIGHTNESS = -30;
 
-static void hudTestFnJoin() {
-  handle_system_command({"open", "localhost"});
-}
-
-static void hudTestFn1() {
-  handle_system_command({"nickname", "dave1"});
-}
-
-static void hudTestFn2() {
-  handle_system_command({"nickname",  "dave2"});
-}
-
 void BomberBlokeScene::draw(){
   // Reset the frame buffer
   mpCamera->resetFrameBuffer();
@@ -195,35 +183,6 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
       }
   }
   SDL_SetRenderTarget(_renderer, mpCamera->getFrameBuffer());
-
-  /* Create HUD elements */
-
-  std::shared_ptr<Text> pText1 = textManager.createText("Aileron-Black", "DAVE1");
-  pText1->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
-  pText1->setTextColour({255, 255, 255});
-  pText1->setTextScale(1.5);
-  std::shared_ptr<TextButton> hudElement1 = std::make_shared<TextButton>(pText1, 9, -71, 200, 30, hudTestFn1, ALIGN_LEFT, ALIGN_BOTTOM);
-  hudElement1->setMouseOverColour({200, 200, 200});
-  hudElement1->setOnClickOffset(-1, 2);
-  mHudElements.push_back(hudElement1);
-
-  std::shared_ptr<Text> pText2 = textManager.createText("Aileron-Black", "DAVE2");
-  pText2->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
-  pText2->setTextColour({255, 255, 255});
-  pText2->setTextScale(1.5);
-  std::shared_ptr<TextButton> hudElement2 = std::make_shared<TextButton>(pText2, 9, -40, 200, 30, hudTestFn2, ALIGN_LEFT, ALIGN_BOTTOM);
-  hudElement2->setMouseOverColour({200, 200, 200});
-  hudElement2->setOnClickOffset(-1, 2);
-  mHudElements.push_back(hudElement2);
-
-  std::shared_ptr<Text> pTextJoin = textManager.createText("Aileron-Black", "JOIN LOCAL");
-  pTextJoin->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
-  pTextJoin->setTextColour({255, 255, 255});
-  pTextJoin->setTextScale(1.5);
-  std::shared_ptr<TextButton> hudElementJoin = std::make_shared<TextButton>(pTextJoin, 9, -9, 200, 30, hudTestFnJoin, ALIGN_LEFT, ALIGN_BOTTOM);
-  hudElementJoin->setMouseOverColour({200, 200, 200});
-  hudElementJoin->setOnClickOffset(-1, 2);
-  mHudElements.push_back(hudElementJoin);
 
   std::shared_ptr<PauseMenuHudGroup> pPauseMenu = std::make_shared<PauseMenuHudGroup>();
   pPauseMenu->setIsVisible(false);
