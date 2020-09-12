@@ -7,6 +7,7 @@ common/bloke.cpp
 common/bomb.cpp
 common/Explosion.cpp
 common/BomberBlokeScene.cpp
+client/MainMenuScene.cpp
 engine/network/NetClient.cpp
 engine/network/NetServer.cpp
 engine/collider/AbstractCollider.cpp
@@ -21,6 +22,9 @@ engine/hud/AbstractHudElement.cpp
 engine/hud/TextHudElement.cpp
 engine/hud/TextButton.cpp
 engine/hud/SpriteHudElement.cpp
+engine/hud/PauseMenuHudGroup.cpp
+engine/hud/OptionsMenuHudGroup.cpp
+engine/hud/MainMenuHudGroup.cpp
 engine/camera/FollowCamera.cpp
 common/SpeedPickup.cpp
 common/BombPickup.cpp
