@@ -9,6 +9,7 @@
 
 class SpeedPickup;
 class BombPickup;
+class PowerPickup;
 class bomb;
 class GamePlayerProperties;
 
@@ -16,6 +17,7 @@ class bloke : public actor{
   friend bomb;
   friend SpeedPickup;
   friend BombPickup;
+  friend PowerPickup;
   friend GamePlayerProperties;
 protected:
   std::list<int> mPowerups;
@@ -31,6 +33,7 @@ protected:
   void place_bomb();
 
   double mMaxSpeed = double(DEFAULT_SPEED);
+  int    mPower=0;
   int    mBombs=0;
   Uint8  mMaxBombs = 1;
   bool mBigBomb = false;
