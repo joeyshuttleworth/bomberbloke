@@ -22,6 +22,7 @@ engine/hud/AbstractHudElement.cpp
 engine/hud/TextHudElement.cpp
 engine/hud/TextButton.cpp
 engine/hud/SpriteHudElement.cpp
+engine/hud/PauseMenuHudGroup.cpp
 engine/hud/OptionsMenuHudGroup.cpp
 engine/hud/MainMenuHudGroup.cpp
 engine/camera/FollowCamera.cpp
