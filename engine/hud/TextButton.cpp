@@ -3,7 +3,8 @@
 #include <array>
 
 TextButton::TextButton(std::shared_ptr<Text> text, int xPos, int yPos, int xDim,
-        int yDim, void (*onClickFn)(), AlignFlag xAlignFlag, AlignFlag yAlignFlag)
+        int yDim, std::function<void()> onClickFn, AlignFlag xAlignFlag,
+        AlignFlag yAlignFlag)
     : AbstractHudElement(xPos, yPos, xDim, yDim, xAlignFlag, yAlignFlag),
     ClickableHudElement(xPos, yPos, xDim, yDim, onClickFn, xAlignFlag, yAlignFlag),
     TextHudElement(text, xPos, yPos, xDim, yDim, xAlignFlag, yAlignFlag) {

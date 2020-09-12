@@ -4,9 +4,6 @@
 #include "bomb.hpp"
 #include <network/NetClient.hpp>
 #include "Explosion.hpp"
-#include "TextButton.hpp"
-#include "TextHudElement.hpp"
-#include "SpriteHudElement.hpp"
 
 const bool EXPLOSION_INTRO = false;
 
