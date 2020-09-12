@@ -35,6 +35,11 @@ void client_loop(){
      if(_draw)
        draw_screen();
      _tick++;
+
+     if (_pNewScene != nullptr) {
+       _pScene = _pNewScene;
+       _pNewScene = nullptr;
+     }
   }
 }
 
