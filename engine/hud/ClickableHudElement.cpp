@@ -1,7 +1,7 @@
 #include "ClickableHudElement.hpp"
 
 ClickableHudElement::ClickableHudElement(int xPos, int yPos, int xDim, int yDim,
-        void (*onClickFn)(), AlignFlag xAlignFlag, AlignFlag yAlignFlag)
+        std::function<void()> onClickFn, AlignFlag xAlignFlag, AlignFlag yAlignFlag)
         : AbstractHudElement(xPos, yPos, xDim, yDim, xAlignFlag, yAlignFlag) {
     // Base class constructor must be called
     mOnClickFn = onClickFn;
@@ -19,6 +19,9 @@ bool ClickableHudElement::isCoordOnElement(int x, int y) {
 }
 
 void ClickableHudElement::onInput(SDL_Event *event) {
+    if (!mIsInteractive)
+      return;
+
     // If its a mouse button up event, it cannot be clicked
     if (event->type == SDL_MOUSEBUTTONUP) {
         if (mIsClicked) {

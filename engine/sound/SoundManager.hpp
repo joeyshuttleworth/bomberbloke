@@ -10,6 +10,9 @@
 
 class SoundManager {
 private:
+    // Volume applied to all channels.
+    int mMasterVolume = 128;
+
     /**
      * Map object containing Mix_Chunk object (sound files). Indexed by sound
      * name (usually the stem of the filename).
@@ -19,7 +22,8 @@ private:
     /**
      * Map from channel number to currently playing Sound
      */
-    std::map<int, std::shared_ptr<Sound>> channelToSound;
+    std::map<int, std::weak_ptr<Sound>> channelToSound;
+
 public:
     /**
      * Initialisation: must be called before loading sounds
@@ -47,6 +51,20 @@ public:
      * ONLY call in finishedCallback function (see init)
      */
     void channelFinishedCallback(int channel);
+
+    /**
+     * Sets the master volume - the volume applied to all channels.
+     *
+     * @param volume  0-128 where 128 is the maximum volume.
+     */
+    void setMasterVolume(int volume);
+
+    /**
+     * Gets the master volume - the volume applied to all channels.
+     */
+    int getMasterVolume() {
+        return mMasterVolume;
+    }
 
     SoundManager();
     ~SoundManager();
