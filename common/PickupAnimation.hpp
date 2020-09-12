@@ -5,7 +5,9 @@
 #include "bomberbloke_actors.hpp"
 #include "staticSprite.hpp"
 
-class PickupAnimation : public AbstractPickup{
+class PickupAnimation : public AbstractSpriteHandler{
+private:
+  SDL_Texture* mpSprite;
 public:
   int getType() const{return PICKUP_SPEED;}
 
@@ -19,14 +21,16 @@ public:
   }
 
   void draw(Camera *cam){
+    int bloom = std::abs((int)(_tick - mStartTick) % (2*50) - 50);
+
     SDL_Rect dstrect = cam->getScreenRect(mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]);
-    cam->renderCopy(mpSprite, nullptr, &dstrect);
+    cam->renderCopy(mpSprite, nullptr, &dstrect, true, bloom);
     return;
   }
 
   template<class Archive>
   void serialize(Archive &archive){
-    archive(cereal::base_class<actor>(this));
+    archive(cereal::base_class<AbstractSpriteHandler>(this));
     return;
   }
 };

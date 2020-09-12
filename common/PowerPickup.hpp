@@ -3,6 +3,8 @@
 #include "AbstractPickup.hpp"
 #include "staticSprite.hpp"
 #include "bomberbloke_actors.hpp"
+#include "PowerPickup.hpp"
+#include "PickupAnimation.hpp"
 
 class PowerPickup : public AbstractPickup{
 public:
@@ -12,7 +14,7 @@ public:
 
   PowerPickup(double xpos = 0, double ypos = 0) : AbstractPickup(xpos, ypos){
     /*TODO: draw asset*/
-    mpSpriteHandler = std::make_shared<staticSprite>(mPosition[0], mPosition[1], mDimmension[0], mDimmension[1], "flames.png");
+    mpSpriteHandler = std::make_shared<PickupAnimation>(mPosition[0], mPosition[1], mDimmension[0], mDimmension[1], "flames.png");
     return;
   }
 
