@@ -4,6 +4,7 @@
 #include "bomb.hpp"
 #include <network/NetClient.hpp>
 #include "Explosion.hpp"
+#include "MainMenuScene.hpp"
 
 const bool EXPLOSION_INTRO = false;
 
@@ -26,8 +27,7 @@ int main (){
   SDL_Init(SDL_INIT_EVERYTHING);
   init_engine();
 
-
-  _pScene = std::make_shared<BomberBlokeScene>(10,10);
+  _pScene = std::make_shared<MainMenuScene>(15, 15);
 
   if (EXPLOSION_INTRO) {
     for(unsigned int i = 0; i < 10; i++) {
