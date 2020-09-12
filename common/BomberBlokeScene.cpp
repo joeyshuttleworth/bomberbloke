@@ -21,18 +21,6 @@ const int N_BACKGROUND_TILES = 10;
 const int PAUSE_BLUR_SIZE = 10;
 const int PAUSE_BRIGHTNESS = -30;
 
-static void hudTestFnJoin() {
-  handle_system_command({"open", "localhost"});
-}
-
-static void hudTestFn1() {
-  handle_system_command({"nickname", "dave1"});
-}
-
-static void hudTestFn2() {
-  handle_system_command({"nickname",  "dave2"});
-}
-
 void BomberBlokeScene::draw(){
   // Reset the frame buffer
   mpCamera->resetFrameBuffer();
@@ -51,13 +39,11 @@ void BomberBlokeScene::draw(){
 
 void BomberBlokeScene::update() {
   // Check if blokeCamera doesn't have a subject
-  if (blokeCamera->mSubject.expired()) {
+  if (!mIsFollowingBloke || mBlokeCamera->mSubject.expired()) {
     if (_local_player_list.size() > 0 && _local_player_list.back().getCharacter()) {
-      // Get player actor and use blokeCamera
-      blokeCamera->mSubject = _local_player_list.back().getCharacter();
-      mpCamera = blokeCamera;
+      // Get player actor and use bloke camera
+      followBloke(_local_player_list.back().getCharacter());
     }
-    // TODO: go back to full scene camera when the player is removed
   }
 
   // Update scene
@@ -161,14 +147,6 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
 
   log_message(INFO, "no. actors " + std::to_string(mActors.size()));
 
-
-  // Create cameras
-  blokeCamera = std::make_shared<FollowCamera>(this);
-  blokeCamera->mZoom = 0.1;
-  mpCamera->mPosition[0] = ((double) size_x) / 2;
-  mpCamera->mPosition[1] = ((double) size_y) / 2;
-  mpCamera->mZoom = 1 / std::fmax(size_x, size_y);
-
   /* Create tiled background texture */
   mBackgroundTexture = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, size_x * 64, size_y * 64);
   SDL_SetRenderTarget(_renderer, mBackgroundTexture);
@@ -196,43 +174,6 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
   }
   SDL_SetRenderTarget(_renderer, mpCamera->getFrameBuffer());
 
-  /* Create HUD elements */
-
-  std::shared_ptr<Text> pTextTitle = textManager.createText("Aileron-Black", "BLOKE/ENGINE");
-  pTextTitle->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-  pTextTitle->setTextColour({255, 255, 255});
-  pTextTitle->setTextScale(2.);
-  std::shared_ptr<TextHudElement> hudElementTitle = std::make_shared<TextHudElement>(pTextTitle, 5, 5, 400, 50, ALIGN_CENTER);
-  hudElementTitle->setIsPostProcessed(false);
-  mHudElements.push_back(hudElementTitle);
-
-  std::shared_ptr<Text> pText1 = textManager.createText("Aileron-Black", "DAVE1");
-  pText1->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
-  pText1->setTextColour({255, 255, 255});
-  pText1->setTextScale(1.5);
-  std::shared_ptr<TextButton> hudElement1 = std::make_shared<TextButton>(pText1, 9, 71, 200, 30, hudTestFn1, ALIGN_LEFT, ALIGN_BOTTOM);
-  hudElement1->setMouseOverColour({200, 200, 200});
-  hudElement1->setOnClickOffset(-1, 2);
-  mHudElements.push_back(hudElement1);
-
-  std::shared_ptr<Text> pText2 = textManager.createText("Aileron-Black", "DAVE2");
-  pText2->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
-  pText2->setTextColour({255, 255, 255});
-  pText2->setTextScale(1.5);
-  std::shared_ptr<TextButton> hudElement2 = std::make_shared<TextButton>(pText2, 9, 40, 200, 30, hudTestFn2, ALIGN_LEFT, ALIGN_BOTTOM);
-  hudElement2->setMouseOverColour({200, 200, 200});
-  hudElement2->setOnClickOffset(-1, 2);
-  mHudElements.push_back(hudElement2);
-
-  std::shared_ptr<Text> pTextJoin = textManager.createText("Aileron-Black", "JOIN LOCAL");
-  pTextJoin->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
-  pTextJoin->setTextColour({255, 255, 255});
-  pTextJoin->setTextScale(1.5);
-  std::shared_ptr<TextButton> hudElementJoin = std::make_shared<TextButton>(pTextJoin, 9, 9, 200, 30, hudTestFnJoin, ALIGN_LEFT, ALIGN_BOTTOM);
-  hudElementJoin->setMouseOverColour({200, 200, 200});
-  hudElementJoin->setOnClickOffset(-1, 2);
-  mHudElements.push_back(hudElementJoin);
-
   std::shared_ptr<PauseMenuHudGroup> pPauseMenu = std::make_shared<PauseMenuHudGroup>();
   pPauseMenu->setIsVisible(false);
   pPauseMenu->mIsInteractive = false;
@@ -249,11 +190,17 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
 
   // Power HUD demo
   for (int i = 0; i < 3; i++) {
-    std::shared_ptr<SpriteHudElement> hudElement = std::make_shared<SpriteHudElement>("flames.png", 9 + i * 34, 9, 32, 32, ALIGN_RIGHT);
+    std::shared_ptr<SpriteHudElement> hudElement = std::make_shared<SpriteHudElement>("flames.png", -(9 + i * 34), 9, 32, 32, ALIGN_RIGHT);
     hudElement->setGlowAmount(100);
     mPowerIcons[i] = hudElement;
     mHudElements.push_back(hudElement);
   }
+
+  // Create bloke camera
+  mSceneCamera = mpCamera;
+  mBlokeCamera = std::make_shared<FollowCamera>(this);
+
+  showEntireScene();
 
   return;
 }
@@ -268,10 +215,26 @@ void BomberBlokeScene::onInput(SDL_Event *event) {
     pPauseMenu->onInput(event);
   }
 
-
   // Toggle pause
   if (event->type == SDL_KEYUP && event->key.keysym.sym == SDLK_ESCAPE)
     togglePause();
+}
+
+void BomberBlokeScene::followBloke(std::shared_ptr<actor> subject) {
+  mBlokeCamera->mSubject = subject;
+  mBlokeCamera->mZoom = 0.1;
+
+  mpCamera = mBlokeCamera;
+  mIsFollowingBloke = true;
+}
+
+void BomberBlokeScene::showEntireScene() {
+  mSceneCamera->mPosition[0] = ((double) mDimmension[0]) / 2;
+  mSceneCamera->mPosition[1] = ((double) mDimmension[1]) / 2;
+  mSceneCamera->mZoom = 1 / std::fmax(mDimmension[0], mDimmension[1]);
+
+  mpCamera = mSceneCamera;
+  mIsFollowingBloke = false;
 }
 
 void BomberBlokeScene::togglePause() {
@@ -280,8 +243,10 @@ void BomberBlokeScene::togglePause() {
     mIsPaused = true;
 
     // Set post-processing effects
-    mpCamera->setBlur(PAUSE_BLUR_SIZE);
-    mpCamera->setBrightness(PAUSE_BRIGHTNESS);
+    mBlokeCamera->setBlur(PAUSE_BLUR_SIZE);
+    mBlokeCamera->setBrightness(PAUSE_BRIGHTNESS);
+    mSceneCamera->setBlur(PAUSE_BLUR_SIZE);
+    mSceneCamera->setBrightness(PAUSE_BRIGHTNESS);
 
     // Make pause menu visible and interactive
     std::shared_ptr<PauseMenuHudGroup> pPauseMenu = mPauseMenuHud.lock();
@@ -292,8 +257,10 @@ void BomberBlokeScene::togglePause() {
     mIsPaused = false;
 
     // Reset post-processing effects
-    mpCamera->setBlur(0);
-    mpCamera->setBrightness(0);
+    mBlokeCamera->setBlur(0);
+    mBlokeCamera->setBrightness(0);
+    mSceneCamera->setBlur(0);
+    mSceneCamera->setBrightness(0);
 
     // Make pause menu invisible and non-interactive
     std::shared_ptr<PauseMenuHudGroup> pPauseMenu = mPauseMenuHud.lock();

@@ -31,7 +31,7 @@ public:
       *
       * If xAlignFlag is set to ALIGN_LEFT the bounding box will be positioned with
       * its left side xPos pixels away from the left side of the window. If
-      * its set to ALIGN_RIGHT it will be positioned with its right side xPos pixels away
+      * its set to ALIGN_RIGHT it will be positioned with its right side -xPos pixels away
       * from the right side of the window. Setting it to ALIGN_CENTER will centre align the
       * box in the x-axis (regardless of the position values). yAlignFlag works
       * similarly with ALIGN_TOP corresponding to alignment relative to the top of the
@@ -58,8 +58,8 @@ public:
      * @param yPos  Y-coordinate of the screen position (pixels).
      */
     virtual void setPosition(int xPos, int yPos) {
-        mPosition[0] = xPos;
-        mPosition[1] = yPos;
+        mRelativePosition[0] = xPos;
+        mRelativePosition[1] = yPos;
         mPropertiesUpdated = true;
     }
 
