@@ -33,6 +33,7 @@ int DEADZONE = 9000;
 std::string dX = "0.1";
 Uint8 *_kb_state = NULL;
 std::shared_ptr<scene> _pScene;
+std::shared_ptr<scene> _pNewScene;
 unsigned int _tick = 0;
 std::string _nickname = "big_beef";
 ServerInfo _server_info;
@@ -347,7 +348,7 @@ bool handle_system_command(std::list<std::string> tokens){
 
         }
         else{
-
+            _net_client.disconnectClient();
         }
     }
 

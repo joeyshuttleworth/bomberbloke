@@ -245,6 +245,10 @@ void scene::updateSprites(){
   for(auto i = mParticleList.begin(); i!=mParticleList.end(); i++){
     (*i)->update();
   }
+
+  for(auto i = mHudElements.begin(); i != mHudElements.end(); i++){
+    (*i)->update();
+  }
 }
 
 std::list<std::shared_ptr<actor>> scene::ActorsCollidingWith(AbstractCollider* p_collider){

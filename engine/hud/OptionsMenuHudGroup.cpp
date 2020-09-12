@@ -23,7 +23,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
   backText->setTextColour({255, 255, 255});
   backText->setTextScale(1.5);
   // Create go back button element
-  std::shared_ptr<TextButton> backElement = std::make_shared<TextButton>(backText, 50, 50, 200, -30, goBackFn, ALIGN_LEFT, ALIGN_BOTTOM);
+  std::shared_ptr<TextButton> backElement = std::make_shared<TextButton>(backText, 50, -50, 200, 30, goBackFn, ALIGN_LEFT, ALIGN_BOTTOM);
   backElement->setMouseOverColour({200, 200, 200});
   backElement->setOnClickOffset(-1, 2);
   addElement(backElement);

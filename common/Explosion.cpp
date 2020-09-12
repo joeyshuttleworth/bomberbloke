@@ -16,11 +16,13 @@ void Explosion::draw(Camera *cam){
   if(!mStarted){
     mStarted = true;
     if(mSound && !_server){
-      _pScene->getCamera()->rumble();
       /* Play explosion sound effect */
       int randIndex = std::rand() % N_EXPLOSION_SOUNDS;
       std::shared_ptr<Sound> bomb_sound = mExplosionSounds[randIndex];
       soundManager.playSound(bomb_sound);
+    }
+    if (mRumble) {
+      _pScene->getCamera()->rumble();
     }
   }
 

@@ -125,6 +125,7 @@ class scene;
 class  ServerInfo;
 extern ServerInfo _server_info;
 extern std::shared_ptr<scene> _pScene;
+extern std::shared_ptr<scene> _pNewScene;
 
 extern unsigned int _tick;
 extern std::vector<CommandBinding> _default_bindings;
