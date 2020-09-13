@@ -4,6 +4,10 @@
 #include "ClickableHudElement.hpp"
 #include "TextHudElement.hpp"
 
+class Sound;
+class SoundManager;
+extern SoundManager soundManager;
+
 class TextButton: public ClickableHudElement, public TextHudElement {
 public:
     /**
@@ -74,7 +78,7 @@ public:
      *
      * @param camera    Current Camera object.
      */
-    void draw(Camera *camera);
+    void draw(Camera *camera) override;
 
 protected:
     // Text colour when neither a mouse-over or left-click is detected.
@@ -90,6 +94,14 @@ protected:
     int mMouseOverOffset[2] = { 0, 0 };
     // Text offset when a click is detected.
     int mOnClickOffset[2] = { 0, 0 };
+
+    // Sound effect that's played on click (button-up).
+    std::shared_ptr<Sound> mClickSound;
+
+    /**
+     * Called when a button-click is detected (button-up).
+     */
+    void onClick() override;
 };
 
 #endif
