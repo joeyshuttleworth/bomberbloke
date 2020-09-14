@@ -16,7 +16,7 @@
 #include <SDL2/SDL_image.h>
 
 /*  TODO: reduce number of globals */
-int _log_message_scene = 0;
+int _log_message_level = 0;
 bool _bind_next_key = false;
 std::string _next_bind_command;
 int _window_size[] = {DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT};
@@ -25,7 +25,6 @@ SDL_Window *_window;
 bool _halt = false;
 unsigned int _state;
 std::list <LocalPlayer> _local_player_list;
-std::list <std::shared_ptr<AbstractPlayer>> _player_list;
 SDL_Renderer *_renderer = NULL;
 SDL_Joystick *_controller = nullptr;
 bool _controller_connected = false;
@@ -40,7 +39,7 @@ ServerInfo _server_info;
 std::ofstream _console_log_file;
 std::list<std::shared_ptr<AbstractSpriteHandler>> _particle_list;
 std::vector<CommandBinding> _default_bindings;
-
+std::list<std::shared_ptr<AbstractPlayer>> _player_list;
 std::mutex _scene_mutex;
 
 NetClient _net_client;
@@ -289,7 +288,7 @@ void log_message(int scene, std::string str) {
     /* Output to our log file */
     _console_log_file << str << "\n";
 
-    if(scene < _log_message_scene){
+    if(scene < _log_message_level){
         /*Ignore the message*/
         return;
     }
@@ -327,6 +326,10 @@ bool handle_system_command(std::list<std::string> tokens){
         return true;
 
     std::string command = tokens.front();
+
+    if(command == "players" && _server){
+      _net_server.printPlayers();
+    }
 
     if(command == "new" && _server){
         log_message(INFO, "starting new game");
@@ -429,7 +432,7 @@ bool handle_system_command(std::list<std::string> tokens){
 
     if(command == "log_level"){
         if(tokens.size()!=2){
-            log_message(ERROR, "Command: log_level requires exactly one argument.");
+            log_message(ERROR, "Command: loglevel requires exactly one argument.");
             return false;
         }
         else{
@@ -439,7 +442,7 @@ bool handle_system_command(std::list<std::string> tokens){
             std::string input_string = *iterator;
             for(unsigned int i = 0; i <= CRITICAL; i++){
                 if(input_string == LOG_LEVEL_STRINGS[i]){
-                    _log_message_scene = i;
+                    _log_message_level = i;
                     log_message(ALL, "Log level set to " + LOG_LEVEL_STRINGS[i]);
                 }
             }
@@ -530,7 +533,7 @@ std::list <std::string> split_to_tokens(std::string str) {
                 count++;
         }
     }
-    if (last_index != str.length() - 1){
+    if (last_index - 1 != str.length() - 1){
         std::string last_token = str.substr(last_index);
         if(last_token.size()>0 && !std::isspace(last_token[0]))
             tokens.push_back(str.substr(last_index));

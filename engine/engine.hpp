@@ -106,11 +106,13 @@ enum LOG_SCENE{
 };
 
 const std::string LOG_LEVEL_STRINGS[] =
-  {"Debug",
-   "Info",
-   "Warning",
-   "ERROR",
-   "ALL"};
+  {"debug",
+   "info",
+   "warning",
+   "error",
+   "critical",
+   "all"
+  };
 
 enum player_types{
   LOCAL,
