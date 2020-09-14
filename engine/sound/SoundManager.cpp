@@ -33,10 +33,8 @@ std::shared_ptr<Sound> SoundManager::createSound(std::string soundName) {
 
 void SoundManager::playSound(std::shared_ptr<Sound> sound) {
     // Don't play anything if it is a server
-    if(!sound || _server) {
-        std::cout << "fail " << _server << std::endl;
+    if(!sound || _server)
         return;
-    }
 
     int tmpChannel = -1;
     if (sound->mFadeInMs > 0) {
