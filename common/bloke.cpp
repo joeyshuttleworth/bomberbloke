@@ -4,6 +4,19 @@
 #include "bomb.hpp"
 #include <sstream>
 #include <cereal/archives/json.hpp>
+#include <string>
+
+const std::string PLACE_BOMB_SOUND_NAME = "place_bomb";
+
+bloke::bloke(double x, double y, bool collides)
+  : actor(x, y, DEFAULT_BLOKE_SIZE, DEFAULT_BLOKE_SIZE, true) {
+  mCollides = collides;
+  mPosition[0]=x;
+  mPosition[1]=y;
+  mpSpriteHandler = std::make_shared<PlaceHolderSprite>(mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]);
+  mProperties = std::make_shared<GamePlayerProperties>();
+  mPlaceBombSound = soundManager.createSound(PLACE_BOMB_SOUND_NAME);
+}
 
 void bloke :: accelerate(){
   /*Count how many directions we are accelerating in*/
@@ -61,7 +74,7 @@ void bloke :: handleCommand(std::string command){
       }
     }
 
-    if(command == "+bomb" && _server){
+    if(command == "+bomb"){
       place_bomb();
     }
 
@@ -77,6 +90,10 @@ void bloke :: handleCommand(std::string command){
         mAcceleration[0] = x_accel;
         mAcceleration[0] = y_accel;
       }
+    }
+  } else {
+    if (command == "+bomb") {
+      soundManager.playSound(mPlaceBombSound);
     }
   }
   return;
@@ -96,4 +113,3 @@ void bloke :: place_bomb(){
   }
   return;
 }
-

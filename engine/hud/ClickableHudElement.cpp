@@ -27,8 +27,7 @@ void ClickableHudElement::onInput(SDL_Event *event) {
         if (mIsClicked) {
             mIsClicked = false;
             mPropertiesUpdated = true;
-            if (mOnClickFn != nullptr)
-                mOnClickFn();
+            onClick();
         }
     } else if (event->type == SDL_MOUSEBUTTONDOWN) {
         // If it is a mouse button down event and the cursor is on the button
@@ -47,4 +46,9 @@ void ClickableHudElement::onInput(SDL_Event *event) {
             mPropertiesUpdated = true;
         }
     }
+}
+
+void ClickableHudElement::onClick() {
+    if (mOnClickFn != nullptr)
+        mOnClickFn();
 }

@@ -51,6 +51,11 @@ protected:
      */
     bool mIsMouseOver = false;
 
+    /**
+     * Function that is called on click.
+     */
+    virtual void onClick();
+
 private:
     /**
      * Method that returns true only if the pixel-coordinates (x, y) are

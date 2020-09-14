@@ -32,7 +32,8 @@ std::shared_ptr<Sound> SoundManager::createSound(std::string soundName) {
 }
 
 void SoundManager::playSound(std::shared_ptr<Sound> sound) {
-    if(!sound)
+    // Don't play anything if it is a server
+    if(!sound || _server)
         return;
 
     int tmpChannel = -1;
@@ -79,7 +80,7 @@ void SoundManager::channelFinishedCallback(int channel) {
 
     // Remove the channelToSound entry
     channelToSound.erase(channel);
-    
+
     if (!sound)
         return;
 

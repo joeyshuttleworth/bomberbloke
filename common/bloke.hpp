@@ -2,6 +2,7 @@
 #define BLOKE_HPP
 #include <cereal/types/polymorphic.hpp>
 #include <cereal/types/base_class.hpp>
+#include <memory>
 #include "actor.hpp"
 #include "bomberbloke.h"
 #include "GamePlayerProperties.hpp"
@@ -12,6 +13,10 @@ class BombPickup;
 class PowerPickup;
 class bomb;
 class GamePlayerProperties;
+class Sound;
+class SoundManager;
+
+extern SoundManager soundManager;
 
 class bloke : public actor{
   friend bomb;
@@ -41,16 +46,10 @@ protected:
   bool   mAccelerated;
   bool   mDirectionsHeld[4] = {false, false, false, false};
   double mAcceleration[2] = {0,0};
+  std::shared_ptr<Sound> mPlaceBombSound;
 
 public:
-  bloke(double x=1, double y=1, bool collides = true) : actor(x, y, DEFAULT_BLOKE_SIZE, DEFAULT_BLOKE_SIZE, true){
-    mCollides = collides;
-    mPosition[0]=x;
-    mPosition[1]=y;
-    mpSpriteHandler = std::make_shared<PlaceHolderSprite>(mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]);
-    mProperties = std::make_shared<GamePlayerProperties>();
-    return;
-  };
+  bloke(double x=1, double y=1, bool collides=true);
 
   int getType() const{
     return ACTOR_BLOKE;

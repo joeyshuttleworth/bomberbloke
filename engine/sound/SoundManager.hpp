@@ -8,6 +8,8 @@
 
 #include "Sound.hpp"
 
+extern bool _server;
+
 class SoundManager {
 private:
     // Volume applied to all channels.
