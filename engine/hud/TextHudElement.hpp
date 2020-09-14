@@ -35,14 +35,14 @@ public:
      *
      * @param camera    Current Camera object.
      */
-    void updatePosition(Camera* camera);
+    void updatePosition(Camera* camera) override;
 
     /**
      * Draws the text object in the position of the HUD element.
      *
      * @param camera    Current Camera object.
      */
-    void draw(Camera *camera);
+    void draw(Camera *camera) override;
 
     /**
      * Sets the string that is rendered and presented.
