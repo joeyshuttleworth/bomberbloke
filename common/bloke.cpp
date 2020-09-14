@@ -74,7 +74,7 @@ void bloke :: handleCommand(std::string command){
       }
     }
 
-    if(command == "+bomb" && _server){
+    if(command == "+bomb"){
       place_bomb();
     }
 
@@ -91,6 +91,10 @@ void bloke :: handleCommand(std::string command){
         mAcceleration[0] = y_accel;
       }
     }
+  } else {
+    if (command == "+bomb") {
+      soundManager.playSound(mPlaceBombSound);
+    }
   }
   return;
 }
@@ -101,8 +105,6 @@ void bloke :: update(){
 }
 
 void bloke :: place_bomb(){
-  soundManager.playSound(mPlaceBombSound);
-
   if(mBombs<mMaxBombs){
     std::shared_ptr<bomb> new_bomb = std::make_shared<bomb>(this);
     new_bomb->init(this);
