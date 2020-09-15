@@ -63,6 +63,9 @@ public:
 
     void printPlayers();
 
+    void disconnectPlayer(std::shared_ptr<AbstractPlayer>, std::string="");
+
+    void disconnectPlayer(std::string player_name, std::string reason="");
 private:
 
   /** A list containing information about every player connected to the server

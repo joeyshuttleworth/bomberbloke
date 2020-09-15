@@ -3,6 +3,7 @@
 //
 
 #include "engine.hpp"
+#include "KickEvent.hpp"
 #include "CreateEvent.hpp"
 #include "RemoveEvent.hpp"
 #include "NetClient.hpp"
@@ -242,6 +243,11 @@ void NetClient::pollServer(){
        _local_player_list.back().resetPlayerProperties(p_properties);
        break;
      }
+     case EVENT_KICK:{
+       std::shared_ptr<KickEvent> p_event = std::dynamic_pointer_cast<KickEvent>(sp_to_handle);
+       log_message(INFO, "Kicked by server. Reason: " + p_event->getReason());
+       disconnectClient();
+     }
      default:
        break;
      }
@@ -271,7 +277,7 @@ void NetClient::disconnectClient() {
   }
   //Disconnect didn't happen in three seconds, force reset peer
   enet_peer_reset(mENetServer);
-  log_message(INFO, "foreced disconnection from server");
+  log_message(INFO, "Forced disconnection from server");
 }
 
 void NetClient::sendStringMessage(std::string message) {

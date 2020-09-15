@@ -10,6 +10,7 @@
 #include "acceptEvent.hpp"
 #include "errorEvent.hpp"
 #include "syncEvent.hpp"
+#include "KickEvent.hpp"
 #include "PlayerPropertiesEvent.hpp"
 #include "engine.hpp"
 #include <enet/enet.h>
@@ -296,6 +297,7 @@ void NetServer::sendEvent(std::unique_ptr<AbstractEvent> &event, ENetPeer *to){
   case EVENT_MESSAGE:
   case EVENT_COMMAND:
   case EVENT_PROPERTIES:
+  case EVENT_KICK:
     reliable = true;
   default:
     break;
@@ -400,4 +402,29 @@ void NetServer::update(){
 void NetServer::printPlayers(){
   /*  TODO include more info */
   log_message(INFO, "there are " + std::to_string(_player_list.size()) + " players connected");
+}
+
+void NetServer::disconnectPlayer(std::shared_ptr<AbstractPlayer> p_player, std::string reason){
+  ENetPeer* peer = p_player->getPeer();
+  if(peer){
+    /*First send a kick event*/
+    std::unique_ptr<AbstractEvent> k_event(new KickEvent(reason));
+    sendEvent(k_event, peer);
+    SDL_Delay(500);
+    /* Now disconnect the peer */
+    enet_peer_disconnect(peer, 0);
+    SDL_Delay(1000);
+    enet_peer_reset(peer);
+  }
+  _player_list.remove_if([&](std::shared_ptr<AbstractPlayer> p) -> bool {return p_player == p;});
+}
+
+void NetServer::disconnectPlayer(std::string player_name, std::string reason){
+  for(auto i = _player_list.begin(); i != _player_list.end(); i++){
+    if((*i)->mNickname == player_name){
+      disconnectPlayer(*i, reason);
+      return;
+    }
+ }
+  log_message(ERROR, "Unable to kick player, \"" + player_name + "\"; no matching players");
 }
