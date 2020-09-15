@@ -66,6 +66,11 @@ add_executable(local_server_connect "tests/local_server_connect.cpp")
 target_link_libraries(local_server_connect CLIENT ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES})
 add_test(LOCAL_SERVER_CONNECT local_server_connect COMMAND)
 
+#test split_to_tokens
+add_executable(tokens_test "tests/split_to_tokens_test.cpp")
+target_link_libraries(tokens_test CLIENT ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES})
+add_test(TEST_SPLIT_TO_TOKENS tokens_test COMMAND)
+
 # explosion demo
 add_executable(explosion_demo "tests/ExplosionDemo.cpp" "engine/client.cpp")
 target_link_libraries(explosion_demo CLIENT ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES})

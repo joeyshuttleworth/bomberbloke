@@ -31,7 +31,6 @@ void client_loop(){
        _pScene->update();
        handle_input();
      }
-     gameUpdate();
      if(_draw)
        draw_screen();
      _tick++;

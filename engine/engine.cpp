@@ -16,7 +16,7 @@
 #include <SDL2/SDL_image.h>
 
 /*  TODO: reduce number of globals */
-int _log_message_scene = 0;
+int _log_message_level = 0;
 bool _bind_next_key = false;
 std::string _next_bind_command;
 int _window_size[] = {DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT};
@@ -25,7 +25,6 @@ SDL_Window *_window;
 bool _halt = false;
 unsigned int _state;
 std::list <LocalPlayer> _local_player_list;
-std::list <std::shared_ptr<AbstractPlayer>> _player_list;
 SDL_Renderer *_renderer = NULL;
 SDL_Joystick *_controller = nullptr;
 bool _controller_connected = false;
@@ -40,7 +39,7 @@ ServerInfo _server_info;
 std::ofstream _console_log_file;
 std::list<std::shared_ptr<AbstractSpriteHandler>> _particle_list;
 std::vector<CommandBinding> _default_bindings;
-
+std::list<std::shared_ptr<AbstractPlayer>> _player_list;
 std::mutex _scene_mutex;
 
 NetClient _net_client;
@@ -289,7 +288,7 @@ void log_message(int scene, std::string str) {
     /* Output to our log file */
     _console_log_file << str << "\n";
 
-    if(scene < _log_message_scene){
+    if(scene < _log_message_level){
         /*Ignore the message*/
         return;
     }
@@ -328,13 +327,28 @@ bool handle_system_command(std::list<std::string> tokens){
 
     std::string command = tokens.front();
 
-    if(command == "new" && _server){
+    if(_server && command == "kick"){
+      if(tokens.size() != 3){
+        log_message(ERROR, "kick command requires 3 arguments kick <playername> <\"reason\">");
+        return false;
+      }
+      auto iter = tokens.begin();
+      iter++;
+      _net_server.disconnectPlayer(*iter, tokens.back());
+      return true;
+    }
+
+    else if(command == "players" && _server){
+      _net_server.printPlayers();
+    }
+
+    else if(command == "new" && _server){
         log_message(INFO, "starting new game");
         new_game("");
         _net_server.syncPlayers();
     }
 
-    if(command == "nickname" && !_server){
+    else if(command == "nickname" && !_server){
         if(tokens.size()!=2)
             log_message(ERROR, "nickname requires exactly one argument");
         else{
@@ -343,7 +357,7 @@ bool handle_system_command(std::list<std::string> tokens){
         }
     }
 
-    if(command == "disconnect"){
+    else if(command == "disconnect"){
         /*TODO:*/if(_server){
 
         }
@@ -352,7 +366,7 @@ bool handle_system_command(std::list<std::string> tokens){
         }
     }
 
-    if(command == "draw"){
+    else if(command == "draw"){
         if(tokens.size() == 2){
             if(tokens.back() == "on"){
                 set_draw(true);
@@ -372,7 +386,7 @@ bool handle_system_command(std::list<std::string> tokens){
         }
     }
 
-    if(!_server && command == "open"){
+    else if(!_server && command == "open"){
         if(tokens.size() == 2){
             auto iter = tokens.begin();
             iter++;        //Select the first token
@@ -421,15 +435,15 @@ bool handle_system_command(std::list<std::string> tokens){
         }
     }
 
-    if(command == "info"){
+    else if(command == "info"){
         QueryEvent e("big_beef");
         cereal::JSONOutputArchive oArchive(std::cout);
         oArchive(e);
     }
 
-    if(command == "log_level"){
+    else if(command == "log_level"){
         if(tokens.size()!=2){
-            log_message(ERROR, "Command: log_level requires exactly one argument.");
+            log_message(ERROR, "Command: loglevel requires exactly one argument.");
             return false;
         }
         else{
@@ -439,7 +453,7 @@ bool handle_system_command(std::list<std::string> tokens){
             std::string input_string = *iterator;
             for(unsigned int i = 0; i <= CRITICAL; i++){
                 if(input_string == LOG_LEVEL_STRINGS[i]){
-                    _log_message_scene = i;
+                    _log_message_level = i;
                     log_message(ALL, "Log level set to " + LOG_LEVEL_STRINGS[i]);
                 }
             }
@@ -507,39 +521,81 @@ bool handle_system_command(std::list<std::string> tokens){
 }
 
 std::list <std::string> split_to_tokens(std::string str) {
-    unsigned int last_index = 0;
-    unsigned int count = 0;
-    bool space = false;
-    std::list <std::string> tokens;
+  /*  First remove all unnecessary whitespace */
+  std::string clean_str;
+  clean_str.reserve(str.length());
 
-    for (unsigned int i = 0; i < str.length(); i++) {
-        char ch = str[i];
-        if (space) {
-            if (!std::isspace(ch)) {
-                last_index = i;
-                count = 1;
-                space = false;
+  bool space=true;
+  bool in_quotes = false;
+  for(char ch : str){
+    if(ch == '\"'){
+      in_quotes = !in_quotes;
+    }
+    if(in_quotes){
+      clean_str.push_back(ch);
+      continue;
+    }
+    else if(!in_quotes && !space && std::isspace(ch)){
+      space = true;
+      clean_str.push_back(ch);
+    }
+    else if(space && !std::isspace(ch)){
+      space = false;
+      clean_str.push_back(ch);
+    }
+    else if(!space && !std::isspace(ch))
+      clean_str.push_back(ch);
+  }
+  if(clean_str.back()==' ')
+    clean_str.pop_back();
+
+  /* Next split the string into tokens */
+  std::list<std::string> tokens;
+
+  int last_space = -1;
+  for(int i = 0; i < clean_str.length(); i++){
+    char ch = clean_str[i];
+    if(std::isspace(ch)){
+      assert(i - last_space - 1 >= 0);
+      tokens.push_back(clean_str.substr(last_space+1, i - last_space-1));
+      last_space = i;
+    }
+    else if(ch == '\"'){
+      if(i > 1){
+        if(!std::isspace(clean_str[i-1])){
+            log_message(ERROR, "Syntax error");
+            return {};
+          }
+      }
+      i++;
+      while(i < clean_str.length()){
+        if(clean_str[i] == '\"'){
+          if(i + 1 < clean_str.length()){
+            if(!std::isspace(clean_str[i+1])){
+              log_message(ERROR, "Syntax error");
+              return {};
             }
-        } else {
-            if (std::isspace(ch)) {
-                if (count != last_index) {
-                    tokens.push_back(str.substr(last_index, count));
-                    space = true;
-                }
-            } else
-                count++;
+          }
+          break;
         }
+        i++;
+      }
+      if(i == clean_str.length()){
+        log_message(ERROR, "Syntax error");
+        return{};
+      }
+      else
+        tokens.push_back(clean_str.substr(last_space+2, i - last_space-2));
+      i++;
+      last_space = i;
     }
-    if (last_index != str.length() - 1){
-        std::string last_token = str.substr(last_index);
-        if(last_token.size()>0 && !std::isspace(last_token[0]))
-            tokens.push_back(str.substr(last_index));
-    }
-
-    return tokens;
+  }
+  if(last_space + 1 <= clean_str.length() - 1)
+    tokens.push_back(clean_str.substr(last_space+1));
+  return tokens;
 }
 
-void console_loop() {
+void console_loop(){
     std::cout << "Bomberbloke console...\n";
     while (!_halt) {
         switch (_state) {
