@@ -22,7 +22,7 @@ public:
   ENetPeer *getPeer(){return mpPeer;}
 
   ~NetworkPlayer(){
-    free(mpPeer);
+    // free(mpPeer);
     return;
   }
 

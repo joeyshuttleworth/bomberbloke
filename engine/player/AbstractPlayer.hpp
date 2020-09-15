@@ -38,7 +38,7 @@ public:
 
   /** Get a pointer the ENetAddress of the player.
       this is only non-null for NetworkPlayers
-   */
+  */
 
   virtual ENetPeer *getPeer(){return nullptr;}
 

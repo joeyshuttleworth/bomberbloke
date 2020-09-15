@@ -43,7 +43,6 @@ public:
       else
         mPlayers.push_back(serverPlayer(*i, false));
     }
-    // mActor = _pScene.mActors;
     return;
   }
 
