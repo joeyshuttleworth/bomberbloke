@@ -8,6 +8,7 @@
 
 class FollowCamera;
 class PauseMenuHudGroup;
+class CountdownHudGroup;
 class TextHudElement;
 class actor;
 
@@ -31,6 +32,8 @@ protected:
   // Weak pointer to the pause menu HUD group (contained in mHudElements).
   std::weak_ptr<PauseMenuHudGroup> mPauseMenuHud;
 
+  std::weak_ptr<CountdownHudGroup> mCountdownHud;
+
   /**
    * Configures the camera such that it follows a bloke.
    *
@@ -42,6 +45,7 @@ protected:
    * Configures the camera such that the entire scene is visible.
    */
   void showEntireScene();
+
 public:
 
   BomberBlokeScene(int size_x = 10, int size_y = 10);
@@ -76,6 +80,18 @@ public:
    * Alternates pause state.
    */
   void togglePause();
+
+  /**
+   * Starts the countdown (see mCountdownHud).
+   *
+   * @param nSecs Number of seconds counted down.
+   */
+  void startCountdown(int nSecs);
+
+  /**
+   * Callback for when the countdown is finished.
+   */
+  void onCountdownFinished();
 
   template<class Archive>
   void serialize(Archive &archive){
