@@ -11,7 +11,7 @@ void Text::draw(Camera *camera, bool isPostProcessed) {
     }
 
     // Copy rendered text into the text box
-    camera->renderCopy(mTextTexture, &mSrcRect, &mDstRect, isPostProcessed);
+    camera->renderCopy(mTextTexture, &mSrcRect, &mDstRect, isPostProcessed, mGlowAmount);
 }
 
 void Text::updateTexture(Camera *camera) {
