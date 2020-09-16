@@ -31,3 +31,4 @@ common/BombPickup.cpp
 common/PowerPickup.cpp
 common/GamePlayerProperties.cpp
 engine/hud/OptionsMenuHudGroup.cpp
+engine/hud/CountdownHudGroup.cpp
