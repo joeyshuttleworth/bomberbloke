@@ -5,6 +5,8 @@
 #include <cereal/cereal.hpp>
 #include <cereal/types/polymorphic.hpp>
 
+class Sound;
+
 #define EXPLOSION_SPRITE_SIZE 1000
 #define SPRITE_EXPLOSION 100
 #define N_EXPLOSION_SOUNDS 2

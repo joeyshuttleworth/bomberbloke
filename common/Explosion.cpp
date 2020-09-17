@@ -1,5 +1,7 @@
-#include "engine.hpp"
 #include "Explosion.hpp"
+
+#include "Sound.hpp"
+#include "engine.hpp"
 
 Explosion::Explosion(){
   /* Create sound objects for explosion sound effects */
