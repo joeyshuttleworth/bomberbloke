@@ -16,7 +16,6 @@
 #include "woodenCrate.hpp"
 #include "bloke.hpp"
 #include "PauseMenuHudGroup.hpp"
-#include "InputField.hpp"
 
 const std::string BACKGROUND_TILE_PREFIX = "background_tile_";
 const int N_BACKGROUND_TILES = 10;
@@ -221,23 +220,6 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
   std::shared_ptr<CountdownHudGroup> pCountdown = std::make_shared<CountdownHudGroup>(countdownFn, 150);
   mHudElements.push_back(pCountdown);
   mCountdownHud = pCountdown;
-
-  std::shared_ptr<Text> pTextInput = textManager.createText("Aileron-Black", "Name");
-  pTextInput->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
-  pTextInput->setTextColour({255, 255, 255});
-  pTextInput->setTextScale(1.5);
-  std::shared_ptr<InputField> hudElementInput = std::make_shared<InputField>(pTextInput, 9, 120, 400, 30, nullptr, ALIGN_LEFT, ALIGN_BOTTOM);
-  hudElementInput->setOnClickOffset(0, 3);
-  mHudElements.push_back(hudElementInput);
-
-  std::shared_ptr<Text> pTextInput2 = textManager.createText("Aileron-Black", "SERVER IP");
-  pTextInput2->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
-  pTextInput2->setTextColour({255, 255, 255});
-  pTextInput2->setTextScale(1.5);
-  std::shared_ptr<InputField> hudElementInput2 = std::make_shared<InputField>(pTextInput2, 9, 150, 400, 30, nullptr, ALIGN_LEFT, ALIGN_BOTTOM);
-  hudElementInput2->setOnClickOffset(0, 3);
-  mHudElements.push_back(hudElementInput2);
-
 
   // Speed HUD demo
   for(int i = 0; i < 10; i++) {
