@@ -2,6 +2,8 @@
 
 #include <SDL2/SDL.h>
 
+#include "Camera.hpp"
+
 AbstractHudElement::AbstractHudElement(int xPos, int yPos, int xDim, int yDim,
         AlignFlag xAlignFlag, AlignFlag yAlignFlag) {
     // Actual position is set in updatePosition

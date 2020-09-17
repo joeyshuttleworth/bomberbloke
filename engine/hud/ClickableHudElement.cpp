@@ -1,5 +1,7 @@
 #include "ClickableHudElement.hpp"
 
+#include <SDL2/SDL.h>
+
 ClickableHudElement::ClickableHudElement(int xPos, int yPos, int xDim, int yDim,
         std::function<void()> onClickFn, AlignFlag xAlignFlag, AlignFlag yAlignFlag)
         : AbstractHudElement(xPos, yPos, xDim, yDim, xAlignFlag, yAlignFlag) {

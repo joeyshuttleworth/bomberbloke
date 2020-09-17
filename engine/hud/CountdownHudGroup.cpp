@@ -4,6 +4,7 @@
 
 #include "TextHudElement.hpp"
 #include "Sound.hpp"
+#include "engine.hpp"
 
 const std::string SOUND_3_NAME = "countdown_3";
 const std::string SOUND_2_NAME = "countdown_2";
@@ -39,7 +40,7 @@ void CountdownHudGroup::start(int nSecs) {
   std::shared_ptr<TextHudElement> text = mCountdownText.lock();
   setIsVisible(true);
   text->setText(std::to_string(nSecs));
-  text->setGlowAmount(mMaxGlowAmount);
+  text->mText->setGlowAmount(mMaxGlowAmount);
 }
 
 void CountdownHudGroup::update() {
@@ -48,12 +49,12 @@ void CountdownHudGroup::update() {
   if (mTicksLeft > 0) {
     mTicksLeft--;
 
-    text->setGlowAmount(mMaxGlowAmount * (mTicksLeft % TICK_RATE) / TICK_RATE);
+    std::shared_ptr<TextHudElement> text = mCountdownText.lock();
+    text->mText->setGlowAmount(mMaxGlowAmount * (mTicksLeft % TICK_RATE) / TICK_RATE);
 
     // Update every second
     if (mTicksLeft % TICK_RATE == 0) {
       int secsLeft = mTicksLeft / TICK_RATE - 1;
-      std::shared_ptr<TextHudElement> text = mCountdownText.lock();
 
       if (secsLeft > 0) {
         // Update text

@@ -6,11 +6,13 @@
 #include <functional>
 #include <memory>
 
-#include "SoundManager.hpp"
-
 class TextHudElement;
+class SoundManager;
+class TextManager;
+
 extern bool handle_system_command(std::list<std::string>);
 extern SoundManager soundManager;
+extern TextManager textManager;
 
 class OptionsMenuHudGroup: public AbstractHudGroup {
 public:

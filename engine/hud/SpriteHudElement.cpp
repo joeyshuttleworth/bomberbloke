@@ -1,6 +1,6 @@
 #include "SpriteHudElement.hpp"
 
-#include <SDL2/SDL.h>
+#include "engine.hpp"
 
 SpriteHudElement::SpriteHudElement(std::string asset, int xPos, int yPos,
         int xDim, int yDim, AlignFlag xAlignFlag, AlignFlag yAlignFlag)

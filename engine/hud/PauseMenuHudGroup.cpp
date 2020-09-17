@@ -4,6 +4,7 @@
 #include "TextHudElement.hpp"
 #include "TextButton.hpp"
 #include "MainMenuScene.hpp"
+#include "engine.hpp"
 
 /**
  * Function that resumes the game by simulating an escape key press

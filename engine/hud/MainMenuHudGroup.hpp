@@ -4,6 +4,7 @@
 #include "AbstractHudGroup.hpp"
 
 #include <memory>
+#include <string>
 
 class OptionsMenuHudGroup;
 class TextHudElement;
@@ -29,7 +30,7 @@ protected:
 
   // If set to true the server will be joined on next update.
   bool mJoinServer = false;
-  
+
   // Address of server to be joined.
   std::string mServerAddress = "localhost";
 
