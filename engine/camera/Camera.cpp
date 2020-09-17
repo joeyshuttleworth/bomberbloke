@@ -38,14 +38,16 @@ void Camera::onResize() {
     mScreenRectangle.w = width;
     mScreenRectangle.h = height;
 
-    // Update HUD positions
-    if(mpScene)
-       mpScene->updateHudPositions();
-
     // Clear frame buffer
     if (mpFrameBuffer)
         SDL_DestroyTexture(mpFrameBuffer);
     mpFrameBuffer = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, width, height);
+
+    if(mpScene){
+      mpScene->updateHudPositions();
+      mpScene->refreshSprites();
+    }
+
     return;
 }
 
@@ -64,7 +66,7 @@ void Camera::draw() {
     // Apply blur to mpFrameBuffer and draw to window
     blurTexture(mpFrameBuffer, mBlurSize, mBlurPasses);
     SDL_SetRenderTarget(_renderer, nullptr);
-    SDL_RenderCopy(_renderer, mpFrameBuffer, nullptr, &mScreenRectangle);
+    SDL_RenderCopy(_renderer, mpFrameBuffer, nullptr, nullptr);
 
     // Apply brightness effect to window
     if (mBrightness != 0) {
