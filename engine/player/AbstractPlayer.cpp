@@ -35,4 +35,4 @@ void AbstractPlayer::resetPlayerProperties(std::shared_ptr<AbstractPlayerPropert
    }
    else
      mpProperties = std::make_shared<GamePlayerProperties>();
-  }
+}

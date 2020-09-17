@@ -341,6 +341,7 @@ void NetServer::syncPlayers(){
       }
       sendEvent(s_event, peer);
     }
+    syncPlayerProperties(*i);
   }
   return;
 }

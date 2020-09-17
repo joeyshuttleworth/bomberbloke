@@ -19,17 +19,24 @@ bloke::bloke(double x, double y, bool collides)
 }
 
 void bloke :: accelerate(){
+  // Maximum speed in units per tick
+  double max_speed;
+
+  max_speed = (BASE_SPEED + DEFAULT_SPEED_INCREASE*mMaxSpeed)/TICK_RATE;
+
   /*Count how many directions we are accelerating in*/
   double acceleration_magnitude =  pow(mAcceleration[1]*mAcceleration[1] + mAcceleration[0]*mAcceleration[0], 0.5);
 
-  const double velocity_increase[2] = {mMaxSpeed*ACCELERATION_RATIO*mAcceleration[0]/acceleration_magnitude, mMaxSpeed*ACCELERATION_RATIO*mAcceleration[1]/acceleration_magnitude};
+  const double velocity_increase[2] = {max_speed*ACCELERATION_RATIO*mAcceleration[0]/acceleration_magnitude, mMaxSpeed*ACCELERATION_RATIO*mAcceleration[1]/acceleration_magnitude};
 
   for(int i=0; i<2; i++){
     if(mAcceleration[i] != 0){
       mVelocity[i] = mVelocity[i] + velocity_increase[i];
+      if(std::abs(mVelocity[i]) > max_speed)
+        mVelocity[i] = mVelocity[i] * max_speed / std::abs(mVelocity[i]);
     }
     else{
-      double decceleration = (mVelocity[i]>0)?-mMaxSpeed*0.5: mMaxSpeed*0.5;
+      double decceleration = (mVelocity[i]>0)?-max_speed*0.5: max_speed*0.5;
       if(std::abs(decceleration) > std::abs(mVelocity[i]))
         mVelocity[i] = 0;
       else
@@ -105,7 +112,7 @@ void bloke :: update(){
 }
 
 void bloke :: place_bomb(){
-  if(mBombs<mMaxBombs){
+  if(mBombs<mMaxBombs+1){
     std::shared_ptr<bomb> new_bomb = std::make_shared<bomb>(this);
     new_bomb->init(this);
     _pScene->addActor(new_bomb);
