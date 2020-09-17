@@ -30,8 +30,8 @@ CountdownHudGroup::CountdownHudGroup(std::function<void()> onFinished, int maxGl
 
   // Create countdown sound effects
   m3Sound = soundManager.createSound(SOUND_3_NAME);
-  m2Sound = soundManager.createSound(SOUND_3_NAME);
-  m1Sound = soundManager.createSound(SOUND_3_NAME);
+  m2Sound = soundManager.createSound(SOUND_2_NAME);
+  m1Sound = soundManager.createSound(SOUND_1_NAME);
   mCommenceSound = soundManager.createSound(SOUND_COMMENCE_NAME);
 }
 
@@ -54,7 +54,7 @@ void CountdownHudGroup::update() {
 
     // Update every second
     if (mTicksLeft % TICK_RATE == 0) {
-      int secsLeft = mTicksLeft / TICK_RATE - 1;
+      int secsLeft = mTicksLeft / TICK_RATE;
 
       if (secsLeft > 0) {
         // Update text

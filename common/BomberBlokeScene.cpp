@@ -183,7 +183,7 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
   mPauseMenuHud = pPauseMenu;
 
   auto countdownFn = std::bind(&BomberBlokeScene::onCountdownFinished, this);
-  std::shared_ptr<CountdownHudGroup> pCountdown = std::make_shared<CountdownHudGroup>(countdownFn);
+  std::shared_ptr<CountdownHudGroup> pCountdown = std::make_shared<CountdownHudGroup>(countdownFn, 150);
   mHudElements.push_back(pCountdown);
   mCountdownHud = pCountdown;
 
