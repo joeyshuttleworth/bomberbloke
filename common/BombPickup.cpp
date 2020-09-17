@@ -4,12 +4,13 @@
 void BombPickup::pickup(std::shared_ptr<bloke> b){
   log_message(INFO, "Picked up extra bomb");
     if(_server){
-      if(b->mMaxBombs < MAX_BOMBS)
+      if(b->mMaxBombs < MAX_BOMBS){
         b->mMaxBombs++;
-      std::shared_ptr<AbstractPlayerProperties> props = std::make_shared<GamePlayerProperties>(b);
-      _local_player_list.back().resetPlayerProperties(props);
+        std::shared_ptr<AbstractPlayerProperties> props = std::make_shared<GamePlayerProperties>(b);
+        b->getPlayer()->resetPlayerProperties(props);
+      }
+      else
+        log_message(INFO, "Max bombs reached");
     }
-  else
-    log_message(INFO, "Max bombs reached");
 }
 

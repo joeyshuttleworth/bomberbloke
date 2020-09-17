@@ -26,20 +26,7 @@ public:
       mPosition[i] = square[i] + 0.5 - (double)PICKUP_SIZE/2.0;
   }
 
-  void update(){
-    if(!_server)
-      return;
-    std::list<std::shared_ptr<actor>> actor_list = _pScene->ActorsCollidingWith(this);
-    for(auto i = actor_list.begin(); i != actor_list.end(); i++){
-      if((*i)->getType() == ACTOR_BLOKE){
-        log_message(DEBUG, "bloke picked up pickup");
-        std::shared_ptr<bloke> bloke1 = std::dynamic_pointer_cast<bloke>(*i);
-        pickup(bloke1);
-        remove();
-        break;
-      }
-    }
-  }
+  void update();
 
   void handleCommand(std::string command){
     if(command == "kill" || command == "+kill"){

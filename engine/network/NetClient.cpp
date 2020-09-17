@@ -198,7 +198,7 @@ void NetClient::pollServer(){
        }
        log_message(DEBUG, "synced with server");
        break;
-        }
+     }
      case EVENT_MOVE:{
        std::shared_ptr<MoveEvent> m_event = std::dynamic_pointer_cast<MoveEvent>(sp_to_handle);
        std::shared_ptr<actor> p_actor = _pScene->GetActor(m_event->mActorId);

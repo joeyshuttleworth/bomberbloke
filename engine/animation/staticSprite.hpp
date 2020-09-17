@@ -26,7 +26,7 @@ public:
     }
 
     ~staticSprite(){return;}
-
+protected:
     SDL_Texture *mpSprite;
   };
 #endif

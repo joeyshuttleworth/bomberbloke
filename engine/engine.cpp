@@ -97,9 +97,6 @@ void create_window(){
     }
     _renderer = SDL_CreateRenderer(_window, -1, 0);
 
-    if(_pScene)
-      _pScene->onResize();
-
     return;
 }
 
@@ -122,8 +119,7 @@ void resize_window(int x, int y){
     _window_size[1] = y;
 
     if(_window){
-        SDL_DestroyWindow(_window);
-        create_window();
+      SDL_SetWindowSize(_window, x, y);
     }
     if(_pScene){
       _pScene->onResize();

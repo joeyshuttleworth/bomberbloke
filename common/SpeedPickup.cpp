@@ -3,13 +3,13 @@
 
 void SpeedPickup::pickup(std::shared_ptr<bloke> b){
   log_message(INFO, "Picked up extra speed");
-    if(_server){
-      if(b->mMaxSpeed < DEFAULT_MAX_SPEED){
-        b->mMaxSpeed + DEFAULT_SPEED;
+  if(_server){
+    if(b->mMaxSpeed < 9){
+      b->mMaxSpeed++;
       std::shared_ptr<AbstractPlayerProperties> props = std::make_shared<GamePlayerProperties>(b);
-      _local_player_list.back().resetPlayerProperties(props);
+      b->getPlayer()->resetPlayerProperties(props);
     }
-  }
-  else
-    log_message(INFO, "Max speed reached");
-  }
+    else
+      log_message(INFO, "Max speed reached");
+    }
+}

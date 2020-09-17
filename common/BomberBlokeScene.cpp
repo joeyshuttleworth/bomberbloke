@@ -32,7 +32,41 @@ void BomberBlokeScene::draw(){
   // Draw actors, particles and HUD
   drawActors();
   drawParticles();
+
+  /* Set the HUD icons to be visible based on our player properties */
+
+  //Power
+  for(unsigned int i = 0; i < 10; i++){
+    if(auto observe = mPowerIcons[i].lock()){
+      if(i < _local_player_list.back().getPlayerProperties()->mPower)
+        observe->setIsVisible(true);
+      else
+        observe->setIsVisible(false);
+    }
+  }
+
+  //Speed
+  for(unsigned int i = 0; i < 10; i++){
+    if(auto observe = mSpeedIcons[i].lock()){
+      if(i < _local_player_list.back().getPlayerProperties()->mSpeed)
+        observe->setIsVisible(true);
+      else
+        observe->setIsVisible(false);
+    }
+  }
+
+  //Bombs
+  for(unsigned int i = 0; i < 10; i++){
+    if(auto observe = mBombIcons[i].lock()){
+      if(i < _local_player_list.back().getPlayerProperties()->mMaxBombs)
+        observe->setIsVisible(true);
+      else
+        observe->setIsVisible(false);
+    }
+  }
+
   drawHud();
+
   // Draw camera to window
   mpCamera->draw();
 }
@@ -181,7 +215,7 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
   mPauseMenuHud = pPauseMenu;
 
   // Speed HUD demo
-  for (int i = 0; i < 4; i++) {
+  for(int i = 0; i < 10; i++) {
     std::shared_ptr<SpriteHudElement> hudElement = std::make_shared<SpriteHudElement>("lightning.png", 9 + i * 34, 9, 32, 32);
     hudElement->setGlowAmount(100);
     mSpeedIcons[i] = hudElement;
@@ -189,10 +223,18 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
   }
 
   // Power HUD demo
-  for (int i = 0; i < 3; i++) {
-    std::shared_ptr<SpriteHudElement> hudElement = std::make_shared<SpriteHudElement>("flames.png", -(9 + i * 34), 9, 32, 32, ALIGN_RIGHT);
+  for(int i = 0; i < 10; i++) {
+    std::shared_ptr<SpriteHudElement> hudElement = std::make_shared<SpriteHudElement>("flames.png", 9 + i * 34, 43, 32, 32);
     hudElement->setGlowAmount(100);
     mPowerIcons[i] = hudElement;
+    mHudElements.push_back(hudElement);
+  }
+
+  // Bomb HUD demo
+  for(int i = 0; i < 10; i++) {
+    std::shared_ptr<SpriteHudElement> hudElement = std::make_shared<SpriteHudElement>("bomb_pickup.png", 9 + i * 34, 91, 32, 32);
+    hudElement->setGlowAmount(100);
+    mBombIcons[i] = hudElement;
     mHudElements.push_back(hudElement);
   }
 
