@@ -4,10 +4,10 @@
 #include "AbstractHudElement.hpp"
 
 #include <string>
+#include "SDL2/SDL_image.h"
 
-extern SDL_Renderer *_renderer;
-SDL_Texture* get_sprite(std::string);
 class Camera;
+SDL_Texture* get_sprite(std::string);
 
 class SpriteHudElement: public virtual AbstractHudElement {
 public:

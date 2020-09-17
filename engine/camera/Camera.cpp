@@ -38,19 +38,16 @@ void Camera::onResize() {
     mScreenRectangle.w = width;
     mScreenRectangle.h = height;
 
-    // Update HUD positions
+    // Clear frame buffer
+    if (mpFrameBuffer)
+        SDL_DestroyTexture(mpFrameBuffer);
+    mpFrameBuffer = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, width, height);
+
     if(mpScene){
       mpScene->updateHudPositions();
       mpScene->refreshSprites();
     }
 
-    const double min = std::min(width, height);
-
-    if(mpScene)
-      mZoom = ((double)min / mpScene->mDimmension[0]);
-    else
-      mZoom = 70;
-    log_message(DEBUG, "Zoom level is " + std::to_string(mZoom));
     return;
 }
 

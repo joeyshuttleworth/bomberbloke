@@ -5,6 +5,8 @@
 
 #include "TextHudElement.hpp"
 #include "TextButton.hpp"
+#include "Sound.hpp"
+#include "engine.hpp"
 
 OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
   : AbstractHudGroup(0, 0) {

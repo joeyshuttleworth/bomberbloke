@@ -10,6 +10,9 @@ class Camera;
 
 class TextHudElement: public virtual AbstractHudElement {
 public:
+    // Text object used to render.
+    std::shared_ptr<Text> mText;
+
     /**
      * Constructor for TextHudElement.
      *
@@ -53,10 +56,6 @@ public:
         mText->setText(newText);
         mPropertiesUpdated = true;
     }
-
-protected:
-    // Text object used to render.
-    std::shared_ptr<Text> mText;
 };
 
 #endif

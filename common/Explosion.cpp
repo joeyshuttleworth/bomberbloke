@@ -1,5 +1,16 @@
-#include "engine.hpp"
 #include "Explosion.hpp"
+
+#include "Sound.hpp"
+#include "engine.hpp"
+
+Explosion::Explosion(){
+  /* Create sound objects for explosion sound effects */
+  for (int i = 0; i < N_EXPLOSION_SOUNDS; i++) {
+    std::shared_ptr<Sound> sound = soundManager.createSound(mExplosionSoundNames[i]);
+    mExplosionSounds[i] = sound;
+  }
+ return;
+}
 
 void Explosion::draw(Camera *cam){
 
