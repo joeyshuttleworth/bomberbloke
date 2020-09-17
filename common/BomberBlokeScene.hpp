@@ -13,8 +13,9 @@ class actor;
 
 class BomberBlokeScene : public scene{
 protected:
-  std::weak_ptr<AbstractHudElement> mPowerIcons[5];
-  std::weak_ptr<AbstractHudElement> mSpeedIcons[5];
+  std::weak_ptr<AbstractHudElement> mPowerIcons[10];
+  std::weak_ptr<AbstractHudElement> mSpeedIcons[10];
+  std::weak_ptr<AbstractHudElement> mBombIcons[10];
 
   // Texture containing bakground tiles.
   SDL_Texture *mBackgroundTexture;

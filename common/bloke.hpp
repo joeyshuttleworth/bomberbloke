@@ -37,9 +37,9 @@ protected:
 
   void place_bomb();
 
-  double mMaxSpeed = double(DEFAULT_SPEED);
-  int    mPower=0;
-  int    mBombs=0;
+  int mMaxSpeed = 1;
+  int    mPower=1;
+  int    mBombs=1;
   Uint8  mMaxBombs = 1;
   bool mBigBomb = false;
   std::shared_ptr<GamePlayerProperties> mProperties;
