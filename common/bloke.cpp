@@ -4,19 +4,39 @@
 #include "bomb.hpp"
 #include <sstream>
 #include <cereal/archives/json.hpp>
+#include <string>
+
+const std::string PLACE_BOMB_SOUND_NAME = "place_bomb";
+
+bloke::bloke(double x, double y, bool collides)
+  : actor(x, y, DEFAULT_BLOKE_SIZE, DEFAULT_BLOKE_SIZE, true) {
+  mCollides = collides;
+  mPosition[0]=x;
+  mPosition[1]=y;
+  mpSpriteHandler = std::make_shared<PlaceHolderSprite>(mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]);
+  mProperties = std::make_shared<GamePlayerProperties>();
+  mPlaceBombSound = soundManager.createSound(PLACE_BOMB_SOUND_NAME);
+}
 
 void bloke :: accelerate(){
+  // Maximum speed in units per tick
+  double max_speed;
+
+  max_speed = (BASE_SPEED + DEFAULT_SPEED_INCREASE*mMaxSpeed)/TICK_RATE;
+
   /*Count how many directions we are accelerating in*/
   double acceleration_magnitude =  pow(mAcceleration[1]*mAcceleration[1] + mAcceleration[0]*mAcceleration[0], 0.5);
 
-  const double velocity_increase[2] = {mMaxSpeed*ACCELERATION_RATIO*mAcceleration[0]/acceleration_magnitude, mMaxSpeed*ACCELERATION_RATIO*mAcceleration[1]/acceleration_magnitude};
+  const double velocity_increase[2] = {max_speed*ACCELERATION_RATIO*mAcceleration[0]/acceleration_magnitude, mMaxSpeed*ACCELERATION_RATIO*mAcceleration[1]/acceleration_magnitude};
 
   for(int i=0; i<2; i++){
     if(mAcceleration[i] != 0){
       mVelocity[i] = mVelocity[i] + velocity_increase[i];
+      if(std::abs(mVelocity[i]) > max_speed)
+        mVelocity[i] = mVelocity[i] * max_speed / std::abs(mVelocity[i]);
     }
     else{
-      double decceleration = (mVelocity[i]>0)?-mMaxSpeed*0.5: mMaxSpeed*0.5;
+      double decceleration = (mVelocity[i]>0)?-max_speed*0.5: max_speed*0.5;
       if(std::abs(decceleration) > std::abs(mVelocity[i]))
         mVelocity[i] = 0;
       else
@@ -61,7 +81,7 @@ void bloke :: handleCommand(std::string command){
       }
     }
 
-    if(command == "+bomb" && _server){
+    if(command == "+bomb"){
       place_bomb();
     }
 
@@ -78,6 +98,10 @@ void bloke :: handleCommand(std::string command){
         mAcceleration[0] = y_accel;
       }
     }
+  } else {
+    if (command == "+bomb") {
+      soundManager.playSound(mPlaceBombSound);
+    }
   }
   return;
 }
@@ -88,12 +112,11 @@ void bloke :: update(){
 }
 
 void bloke :: place_bomb(){
-  if(mBombs<mMaxBombs){
-    std::shared_ptr<bomb> new_bomb(new bomb(round(mPosition[0])+0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), round(mPosition[1]) + 0.5*(DEFAULT_BLOKE_SIZE - BOMB_SIZE), false));
+  if(mBombs<mMaxBombs+1){
+    std::shared_ptr<bomb> new_bomb = std::make_shared<bomb>(this);
     new_bomb->init(this);
     _pScene->addActor(new_bomb);
     mBombs++;
   }
   return;
 }
-

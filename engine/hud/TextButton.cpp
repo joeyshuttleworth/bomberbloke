@@ -1,9 +1,16 @@
 #include "TextButton.hpp"
 
 #include <array>
+#include <string>
+
+#include "Sound.hpp"
+#include "engine.hpp"
+
+const std::string CLICK_SOUND_NAME = "click";
 
 TextButton::TextButton(std::shared_ptr<Text> text, int xPos, int yPos, int xDim,
-        int yDim, void (*onClickFn)(), AlignFlag xAlignFlag, AlignFlag yAlignFlag)
+        int yDim, std::function<void()> onClickFn, AlignFlag xAlignFlag,
+        AlignFlag yAlignFlag)
     : AbstractHudElement(xPos, yPos, xDim, yDim, xAlignFlag, yAlignFlag),
     ClickableHudElement(xPos, yPos, xDim, yDim, onClickFn, xAlignFlag, yAlignFlag),
     TextHudElement(text, xPos, yPos, xDim, yDim, xAlignFlag, yAlignFlag) {
@@ -11,7 +18,6 @@ TextButton::TextButton(std::shared_ptr<Text> text, int xPos, int yPos, int xDim,
     mDefaultColour = text->getTextColour();
     mMouseOverColour = mDefaultColour;
     mOnClickColour = mDefaultColour;
-
 
     // Use text offset as default offset.
     std::array<int, 2> mOffsetArray = text->getTextOffset();
@@ -23,9 +29,15 @@ TextButton::TextButton(std::shared_ptr<Text> text, int xPos, int yPos, int xDim,
 
     mOnClickOffset[0] = mOffsetArray[0];
     mOnClickOffset[1] = mOffsetArray[1];
+
+    // Get click sound
+    mClickSound = soundManager.createSound(CLICK_SOUND_NAME);
 }
 
 void TextButton::draw(Camera *camera) {
+    if (!mIsVisible)
+        return;
+
     if (mPropertiesUpdated) {
         // Set colour and text offset according to mIsClicked and mIsMouseOver
         if (mIsClicked) {
@@ -42,4 +54,12 @@ void TextButton::draw(Camera *camera) {
 
     // Call draw function inherited fromm TextHUDElement
     TextHudElement::draw(camera);
+}
+
+void TextButton::onClick() {
+    // Play click sound
+    soundManager.playSound(mClickSound);
+
+    // Call mOnClick function.
+    ClickableHudElement::onClick();
 }

@@ -162,15 +162,12 @@ void scene::physicsUpdate() {
 
 void scene::updateHudPositions() {
     for(auto i = mHudElements.begin(); i != mHudElements.end(); i++){
-        (*i)->updatePosition(mpCamera);
+        (*i)->updatePosition(mpCamera.get());
     }
 }
 
 void scene::draw(){
-  SDL_SetRenderTarget(_renderer, mpCamera->getFrameBuffer());
-  /* Set background colour */
-  SDL_SetRenderDrawColor(_renderer, 0x00, 0x10, 0xff, 0xff);
-  SDL_RenderFillRect(_renderer, nullptr);
+  mpCamera->resetFrameBuffer();
 
   drawActors();
   drawParticles();
@@ -229,6 +226,9 @@ void scene :: update(){
   if(!_server)
     interpolateActors(mActors);
 
+  if (mpCamera)
+    mpCamera->update();
+
   movementUpdate();
   cleanUp();
   physicsUpdate();
@@ -240,6 +240,14 @@ void scene :: update(){
 void scene::updateSprites(){
   for(auto i = mActors.begin(); i != mActors.end(); i++){
     (*i)->updateSprite();
+  }
+
+  for(auto i = mParticleList.begin(); i!=mParticleList.end(); i++){
+    (*i)->update();
+  }
+
+  for(auto i = mHudElements.begin(); i != mHudElements.end(); i++){
+    (*i)->update();
   }
 }
 
@@ -269,4 +277,6 @@ void scene::onInput(SDL_Event *event) {
 void scene::onResize(){
     if(mpCamera)
       mpCamera->onResize();
+    refreshSprites();
+    return;
 }

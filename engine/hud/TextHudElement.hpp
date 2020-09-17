@@ -10,6 +10,9 @@ class Camera;
 
 class TextHudElement: public virtual AbstractHudElement {
 public:
+    // Text object used to render.
+    std::shared_ptr<Text> mText;
+
     /**
      * Constructor for TextHudElement.
      *
@@ -35,23 +38,24 @@ public:
      *
      * @param camera    Current Camera object.
      */
-    void updatePosition(Camera* camera);
+    void updatePosition(Camera* camera) override;
 
     /**
      * Draws the text object in the position of the HUD element.
      *
      * @param camera    Current Camera object.
      */
-    void draw(Camera *camera) {
-        if(!mVisible)
-          return;
-        AbstractHudElement::draw(camera);
-        mText->draw(camera);
-    }
+    void draw(Camera *camera) override;
 
-protected:
-    // Text object used to render.
-    std::shared_ptr<Text> mText;
+    /**
+     * Sets the string that is rendered and presented.
+     *
+     * @param newText New string.
+     */
+    void setText(std::string newText) {
+        mText->setText(newText);
+        mPropertiesUpdated = true;
+    }
 };
 
 #endif

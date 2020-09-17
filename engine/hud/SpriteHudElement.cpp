@@ -1,6 +1,6 @@
 #include "SpriteHudElement.hpp"
 
-#include <SDL2/SDL.h>
+#include "engine.hpp"
 
 SpriteHudElement::SpriteHudElement(std::string asset, int xPos, int yPos,
         int xDim, int yDim, AlignFlag xAlignFlag, AlignFlag yAlignFlag)
@@ -10,8 +10,8 @@ SpriteHudElement::SpriteHudElement(std::string asset, int xPos, int yPos,
 }
 
 void SpriteHudElement::draw(Camera *camera) {
-    if(!mVisible)
-      return;
+    if (!mIsVisible)
+        return;
 
     // Base class draw function
     AbstractHudElement::draw(camera);
@@ -24,5 +24,5 @@ void SpriteHudElement::draw(Camera *camera) {
     dstRect.h = mDimensions[1];
 
     // Copy sprite to destination rectangle
-    SDL_RenderCopy(_renderer, mSprite, nullptr, &dstRect);
+    camera->renderCopy(mSprite, nullptr, &dstRect, mIsPostProcessed, mGlowAmount);
 }

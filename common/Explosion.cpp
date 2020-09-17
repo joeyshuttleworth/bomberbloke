@@ -1,45 +1,68 @@
-#include "engine.hpp"
 #include "Explosion.hpp"
+
+#include "Sound.hpp"
+#include "engine.hpp"
+
+Explosion::Explosion(){
+  /* Create sound objects for explosion sound effects */
+  for (int i = 0; i < N_EXPLOSION_SOUNDS; i++) {
+    std::shared_ptr<Sound> sound = soundManager.createSound(mExplosionSoundNames[i]);
+    mExplosionSounds[i] = sound;
+  }
+ return;
+}
 
 void Explosion::draw(Camera *cam){
 
   double zoom = cam->GetZoom();
 
+  if(!mStarted && _tick < mStartTick){
+    return;
+  }
+
   if(mRemove){
     return;
   }
 
-  if(mDelay > 0){
-    mDelay--;
-    return;
+  if(!mStarted){
+    mStarted = true;
+    if(mSound && !_server){
+      /* Play explosion sound effect */
+      int randIndex = std::rand() % N_EXPLOSION_SOUNDS;
+      std::shared_ptr<Sound> bomb_sound = mExplosionSounds[randIndex];
+      soundManager.playSound(bomb_sound);
+    }
+    if (mRumble) {
+      _pScene->getCamera()->rumble();
+    }
   }
+
+  unsigned int frame_no = (_tick - mStartTick) % mAnimationSpeed;
+  Uint8 alpha = 0xFF * (1 - (double)(_tick - mStartTick) / (2*mTimeout));
+  Uint8 backAlpha = 0xFF - alpha;
+  int glowAmount = mMaxGlowAmount * (1 - (_tick - mStartTick) / mTimeout);
 
   if(_tick - mStartTick >= mTimeout){
     mRemove = true;
     return;
   }
 
-  unsigned int frame_no = (_tick - mStartTick) % mAnimationSpeed;
-  unsigned int alpha = 0xFF * (1 - (double)(_tick - mStartTick) / (2*mTimeout));
-
   /*  Set our blend mode so that our shapes blend nicely */
   SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
 
-  if(frame_no < mAnimationSpeed/2){
+  SDL_Color colour;
+
+  if(frame_no < mAnimationSpeed/2.0){
     /*Set colour to white*/
-    SDL_SetRenderDrawColor(_renderer, 0xff, 0xff, 0xff, alpha);
+    colour = SDL_Color({0xff, 0xff, 0xff, alpha});
   }
 
   else{
     /*Set colour to red*/
-    SDL_SetRenderDrawColor(_renderer, 0xff, 1 - alpha, 1 - alpha, alpha);
+    colour = SDL_Color({0xff, backAlpha, backAlpha, alpha});
   }
   /*  Copy our texture across to the window */
-  SDL_Rect dstrect;
-  dstrect.x = round(zoom * mPosition[0]);
-  dstrect.y = round((_pScene->mDimmension[1]-mPosition[1]-mDimmension[1]) * zoom);
-  dstrect.w = round(zoom * mDimmension[0]);
-  dstrect.h = round(zoom * mDimmension[1]);
-  SDL_RenderFillRect(_renderer, &dstrect);
+  SDL_Rect dstrect = cam->getScreenRect(mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]);
+  cam->renderFillRect(&dstrect, colour, true, glowAmount);
   return;
 }

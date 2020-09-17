@@ -12,6 +12,8 @@ SoundManager::~SoundManager() {
 void SoundManager::init(void (*finishedCallback)(int)) {
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) == -1)
         printf("Mix_OpenAudio: %s\n", Mix_GetError());
+
+    // Callback for tracking which sounds are on which channels
     Mix_ChannelFinished(finishedCallback);
 }
 
@@ -30,41 +32,71 @@ std::shared_ptr<Sound> SoundManager::createSound(std::string soundName) {
 }
 
 void SoundManager::playSound(std::shared_ptr<Sound> sound) {
-    if(!sound)
+    // Don't play anything if it is a server
+    if(!sound || _server)
         return;
 
     int tmpChannel = -1;
-
     if (sound->mFadeInMs > 0) {
         if (sound->mLengthMs > 0)
+            // Play sound with fade in and timeout
             tmpChannel = Mix_FadeInChannelTimed(
                 -1, sound->mMixChunk, sound->mNLoops, sound->mLengthMs, sound->mFadeInMs);
         else
+            // Play sound with fade in
             tmpChannel = Mix_FadeInChannel(
                 -1, sound->mMixChunk, sound->mNLoops, sound->mFadeInMs);
     } else {
         if (sound->mLengthMs > 0)
+            // Play sound with timeout
             tmpChannel = Mix_PlayChannelTimed(
                 -1, sound->mMixChunk, sound->mNLoops, sound->mLengthMs);
         else
+            // Play sound
             tmpChannel = Mix_PlayChannel(-1, sound->mMixChunk, sound->mNLoops);
     }
 
+    // Check the sound is playing
     if (tmpChannel == -1) {
-        std::cout << Mix_GetError() << std::endl;
+        std::cout << "Mix_PlayChannel: " << Mix_GetError() << std::endl;
         return;
     }
 
+    // Set sound volume
+    int soundVolume = sound->mVolume * mMasterVolume / 128;
+    Mix_Volume(tmpChannel, soundVolume);
+
+    // Add positional audio effect
     Mix_SetPosition(tmpChannel, sound->mAngle, sound->mDistance);
 
+    // Store channel of the sound
     sound->channel = tmpChannel;
     channelToSound[tmpChannel] = sound;
 }
 
 void SoundManager::channelFinishedCallback(int channel) {
-    auto sound = channelToSound[channel];
+    // Obtain sound from channelToSound map
+    std::shared_ptr<Sound> sound = channelToSound[channel].lock();
+
+    // Remove the channelToSound entry
     channelToSound.erase(channel);
 
+    if (!sound)
+        return;
+
+    // Call callback if the sound has one
     if (sound->onFinishedPlaying != nullptr)
         sound->onFinishedPlaying();
+
+}
+
+void SoundManager::setMasterVolume(int volume) {
+    mMasterVolume = volume;
+
+    // Adjust the volume of all channels
+    for(std::map<int, std::weak_ptr<Sound>>::iterator iter = channelToSound.begin(); iter != channelToSound.end(); ++iter) {
+        int soundChannel = iter->first;
+        int newVolume = iter->second.lock()->mVolume * mMasterVolume / 128;
+        Mix_Volume(soundChannel, newVolume);
+    }
 }

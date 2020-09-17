@@ -4,11 +4,9 @@
 #include <SDL2/SDL.h>
 #include <memory>
 #include <array>
-#include "Camera.hpp"
 #include "Interpolator.hpp"
 #include "KinematicCollider.hpp"
-
-extern SDL_Renderer *_renderer;
+#include "Camera.hpp"
 
 class AbstractPlayer; class AbstractSpriteHandler;
 

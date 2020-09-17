@@ -4,10 +4,9 @@
 #include "bomb.hpp"
 #include <network/NetClient.hpp>
 #include "Explosion.hpp"
-#include "TextButton.hpp"
-#include "TextHudElement.hpp"
-#include "SpriteHudElement.hpp"
-#include "InputField.hpp"
+#include "MainMenuScene.hpp"
+
+const bool EXPLOSION_INTRO = false;
 
 /* Register our actors with cereal */
 CEREAL_REGISTER_DYNAMIC_INIT(actors)
@@ -28,17 +27,19 @@ int main (){
   SDL_Init(SDL_INIT_EVERYTHING);
   init_engine();
 
-  SDL_StartTextInput();
-  _pScene = std::make_shared<BomberBlokeScene>(10,10);
+  _pScene = std::make_shared<MainMenuScene>(15, 15);
 
-  for(unsigned int i = 0; i < 10; i++)
-    for(unsigned int j = 0; j < 10; j++){
-      _pScene->mParticleList.push_back(std::shared_ptr<Explosion>(new Explosion(i, j, 1, 1, 60 + i + 2*j, 600 - 2*i - j)));
+  if (EXPLOSION_INTRO) {
+    for(unsigned int i = 0; i < 10; i++) {
+      for(unsigned int j = 0; j < 10; j++)
+        _pScene->mParticleList.push_back(std::shared_ptr<Explosion>(new Explosion(i, j, 1, 1, 60 + i + 2*j, 600 - 2*i - j, 0)));
     }
 
-  // Play intro music
-  std::shared_ptr<Sound> pIntroSound = soundManager.createSound("explosion_intro");
-  soundManager.playSound(pIntroSound);
+    // Play intro music
+    std::shared_ptr<Sound> pIntroSound = soundManager.createSound("explosion_intro");
+    soundManager.playSound(pIntroSound);
+  }
+
   client_loop();
 
   return 0;

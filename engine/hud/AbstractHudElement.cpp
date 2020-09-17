@@ -2,6 +2,8 @@
 
 #include <SDL2/SDL.h>
 
+#include "Camera.hpp"
+
 AbstractHudElement::AbstractHudElement(int xPos, int yPos, int xDim, int yDim,
         AlignFlag xAlignFlag, AlignFlag yAlignFlag) {
     // Actual position is set in updatePosition
@@ -18,6 +20,9 @@ AbstractHudElement::AbstractHudElement(int xPos, int yPos, int xDim, int yDim,
 }
 
 void AbstractHudElement::draw(Camera* camera) {
+    if(!mIsVisible)
+        return;
+
     // If properties have been updated re-position HUD element.
     if (mPropertiesUpdated) {
         updatePosition(camera);
@@ -31,11 +36,11 @@ void AbstractHudElement::updatePosition(Camera* camera) {
     switch(mAlignFlags[0]) {
         case ALIGN_CENTER:
             // Centred positioning
-          mPosition[0] = (screenDimensions[0] - mDimensions[0]) / 2;
+          mPosition[0] = (screenDimensions[0] - mDimensions[0]) / 2 + mRelativePosition[0];
             break;
         case ALIGN_RIGHT:
             // Right-aligned positioning
-            mPosition[0] = screenDimensions[0] - mDimensions[0] - mRelativePosition[0];
+            mPosition[0] = screenDimensions[0] - mDimensions[0] + mRelativePosition[0];
             break;
         default:
             // Left-aligned positioning
@@ -45,11 +50,11 @@ void AbstractHudElement::updatePosition(Camera* camera) {
     switch(mAlignFlags[1]) {
         case ALIGN_CENTER:
             // Centred positioning
-            mPosition[1] = (screenDimensions[1] - mDimensions[1]) / 2;
+            mPosition[1] = (screenDimensions[1] - mDimensions[1]) / 2 + mRelativePosition[1];
             break;
         case ALIGN_BOTTOM:
             // Right-aligned positioning
-            mPosition[1] = screenDimensions[1] - mDimensions[1] - mRelativePosition[1];
+            mPosition[1] = screenDimensions[1] - mDimensions[1] + mRelativePosition[1];
             break;
         default:
             // Left-aligned positioning

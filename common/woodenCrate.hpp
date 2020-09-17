@@ -5,6 +5,7 @@
 #include "staticSprite.hpp"
 #include "bomberbloke.h"
 #include "SpeedPickup.hpp"
+#include "PowerPickup.hpp"
 #include "BombPickup.hpp"
 
 class woodenCrate : public actor{
@@ -29,15 +30,21 @@ public:
 
       std::random_device rd;
       std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
-      std::uniform_int_distribution<> distrib(0, 2);
+      std::uniform_int_distribution<> distrib(0, 3);
 
       switch(distrib(gen)){
       case PICKUP_SPEED:{
-        _pScene->addActor(std::make_shared<BombPickup>(mPosition[0], mPosition[1]));
+        _pScene->addActor(std::make_shared<SpeedPickup>(mPosition[0], mPosition[1]));
         break;
       }
       case PICKUP_BOMB:{
-        _pScene->addActor(std::make_shared<SpeedPickup>(mPosition[0], mPosition[1]));
+        std::shared_ptr<actor> act = std::make_shared<BombPickup>(mPosition[0], mPosition[1]);
+        _pScene->addActor(act);
+        break;
+      }
+      case PICKUP_POWER:{
+        std::shared_ptr<actor> act = std::make_shared<PowerPickup>(mPosition[0], mPosition[1]);
+        _pScene->addActor(act);
         break;
       }
       case PICKUP_NONE:
@@ -45,7 +52,6 @@ public:
       }
     }
   }
-
   template<class Archive>
   void serialize(Archive &archive){
     archive(cereal::base_class<actor>(this));

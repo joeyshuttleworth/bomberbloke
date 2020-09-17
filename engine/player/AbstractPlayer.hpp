@@ -15,14 +15,17 @@
 #include <enet/enet.h>
 #include <cereal/types/base_class.hpp>
 #include <cereal/archives/json.hpp>
-#include "AbstractPlayerProperties.hpp"
+#include "GamePlayerProperties.hpp"
 
 class actor;
 
 class AbstractPlayer{
 public:
   AbstractPlayer(std::string);
-  AbstractPlayer(){};
+  AbstractPlayer(){
+    mpProperties = std::make_shared<GamePlayerProperties>();
+  }
+
   virtual  ~AbstractPlayer(){};
 
   void setId(int id);
@@ -35,7 +38,7 @@ public:
 
   /** Get a pointer the ENetAddress of the player.
       this is only non-null for NetworkPlayers
-   */
+  */
 
   virtual ENetPeer *getPeer(){return nullptr;}
 
@@ -50,10 +53,20 @@ public:
 
   virtual int getPing(){return 0;}
 
-  void ResetPlayerProperties(std::shared_ptr<AbstractPlayerProperties> p_properties = nullptr);
+  /*
+   * Change the player properties object relating to this player
+   *
+   * @param a pointer to the new properties object
+   */
 
-  std::shared_ptr<AbstractPlayerProperties> mpPlayerProperties;
+  void resetPlayerProperties(std::shared_ptr<AbstractPlayerProperties> p_properties = nullptr);
+
+  std::shared_ptr<GamePlayerProperties> getPlayerProperties(){
+    return mpProperties;
+  }
+
 protected:
+  std::shared_ptr<GamePlayerProperties> mpProperties;
   std::shared_ptr<actor> mpCharacter;
   virtual void ping(){}
   int mId;

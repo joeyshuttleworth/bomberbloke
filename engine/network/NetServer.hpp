@@ -12,11 +12,6 @@
 class AbstractEvent;
 class JoinEvent;
 
-typedef struct unjoinedPeer{
-  ENetPeer* peer;
-  unsigned int timeout = 600;
-} unjoinedPeer;
-
 class NetServer {
 public:
     uint32_t clientCount() const;
@@ -38,9 +33,6 @@ public:
     void sendPacket(ENetPeer *peer, ENetPacket *packet, enet_uint8 channel = 0);
 
 
-    //! Poll and Handle all ENetEvents in the queue, by default will wait one second for an event before processing
-    void poll();
-
     //! Keeps polling until the _halt flag is set to true. This is used to have the server running in a separate thread.
     void pollLoop();
 
@@ -58,14 +50,37 @@ public:
 
     bool stop();
 
+  /*
+   * This is called every tick to ping players, remove timed out players
+   * and flush the message queue.
+   */
     void update();
 
     void sendEvent(std::unique_ptr<AbstractEvent>&, ENetPeer *peer);
     void broadcastEvent(std::unique_ptr<AbstractEvent>&);
+    void syncPlayerProperties(std::shared_ptr<AbstractPlayer> player);
     void syncPlayers();
 
-    void flush();
+    void printPlayers();
+
+    void disconnectPlayer(std::shared_ptr<AbstractPlayer>, std::string="");
+
+    void disconnectPlayer(std::string player_name, std::string reason="");
 private:
+
+  /** A list containing information about every player connected to the server
+   * including local and network players
+   */
+  std::list<std::shared_ptr<AbstractPlayer>> mPlayerList;
+
+  /* Poll and Handle all ENetEvents in the queue, by default will wait one second
+   * for an event before processing
+   */
+    void poll();
+    /*
+    * Send all of the ENet messages which are waiting to be sent.
+    */
+    void flush();
     ENetHost *mENetServer = nullptr;
     ENetAddress mENetAddress;
     std::string mMasterServerAddress;
@@ -79,8 +94,6 @@ private:
      *  @param pointer to an event that has been received
      */
   void handleEvent(std::shared_ptr<AbstractEvent>, ENetPeer*);
-
-  std::list<unjoinedPeer> mUnjoinedPeers;
 
   void updateGameMasterServer(bool disconnect);
   enet_uint16 mPort = 8888;

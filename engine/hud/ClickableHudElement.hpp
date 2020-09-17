@@ -3,6 +3,8 @@
 
 #include "AbstractHudElement.hpp"
 
+#include <functional>
+
 class ClickableHudElement: public virtual AbstractHudElement {
 public:
     /**
@@ -19,7 +21,7 @@ public:
      * @param yAlignFlag    DetermineS the alignment of the bounding box.
      */
     ClickableHudElement(int xPos, int yPos, int xDim, int yDim,
-        void (*onClickFn)()=nullptr, AlignFlag xAlignFlag=ALIGN_LEFT,
+        std::function<void()> onClickFn, AlignFlag xAlignFlag=ALIGN_LEFT,
         AlignFlag yAlignFlag=ALIGN_BOTTOM);
 
     /**
@@ -36,7 +38,7 @@ protected:
      * The static function that is called when the element is left-clicked by
      * the mouse.
      */
-    void (*mOnClickFn)();
+    std::function<void()> mOnClickFn;
 
     /**
      * Boolean that is set to true when the element is left-clicked. It is set
@@ -48,6 +50,11 @@ protected:
      * element.
      */
     bool mIsMouseOver = false;
+
+    /**
+     * Function that is called on click.
+     */
+    virtual void onClick();
 
 private:
     /**

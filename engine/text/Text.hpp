@@ -187,13 +187,24 @@ public:
         return mColour;
     }
 
+    /**
+     * Sets the ammount of glow applied to the text.
+     *
+     * @param glowAmount  New glow amount.
+     */
+    void setGlowAmount(int glowAmount) {
+        mGlowAmount = glowAmount;
+        mPropertiesUpdated = true;
+    }
 
     /**
      * Draws the text to the renderer.
      *
-     * @param camera    Current scene camera.
+     * @param camera            Current scene camera.
+     * @param isPostProcessed   Determines whether the text is drawn after
+     *                          camera post-processing.
      */
-    void draw(Camera *camera);
+    void draw(Camera *camera, bool isPostProcessed=true);
 
 protected:
     // Text font given on construction (typically by the text manager).
@@ -207,7 +218,7 @@ protected:
     int mDimensions[2];
     // Offset values (see setOffset).
     int mOffset[2] = { 0, 0 };
-    //
+    // Ratio by which text is scaled.
     double mTextScale[2] = { 1., 1. };
     // Colour of rendered text.
     SDL_Color mColour;
@@ -215,6 +226,8 @@ protected:
     SDL_Color mBackColour;
     // Text alignment flags in x and y direction (see setTextAlignment).
     TextAlignFlag mAlignment[2];
+    // Amount of glow applied (0-255).
+    int mGlowAmount = 0;
 
     // Texture containing rendered text. Updated only when mPropertiesUpdated
     // is set to True (see draw).

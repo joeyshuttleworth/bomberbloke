@@ -1,12 +1,10 @@
 #ifndef ABSTRACTHUDElEMENT_HPP
 #define ABSTRACTHUDElEMENT_HPP
 
-#include "engine.hpp"
-
 #include <array>
 
 class Camera;
-extern SDL_Renderer *_renderer;
+union SDL_Event;
 
 enum AlignFlag {
     ALIGN_LEFT,
@@ -31,7 +29,7 @@ public:
       *
       * If xAlignFlag is set to ALIGN_LEFT the bounding box will be positioned with
       * its left side xPos pixels away from the left side of the window. If
-      * its set to ALIGN_RIGHT it will be positioned with its right side xPos pixels away
+      * its set to ALIGN_RIGHT it will be positioned with its right side -xPos pixels away
       * from the right side of the window. Setting it to ALIGN_CENTER will centre align the
       * box in the x-axis (regardless of the position values). yAlignFlag works
       * similarly with ALIGN_TOP corresponding to alignment relative to the top of the
@@ -57,10 +55,24 @@ public:
      * @param xPos  X-coordinate of the screen position (pixels).
      * @param yPos  Y-coordinate of the screen position (pixels).
      */
-    void setPosition(int xPos, int yPos) {
-        mPosition[0] = xPos;
-        mPosition[1] = yPos;
+    virtual void setPosition(int xPos, int yPos) {
+        mRelativePosition[0] = xPos;
+        mRelativePosition[1] = yPos;
         mPropertiesUpdated = true;
+    }
+
+    /**
+     * Sets the (relative) screen position of the bounding box.
+     *
+     * The position corresponds to the top-left corner of the box. See the
+     * constructor for information on how this property interacts with
+     * alignment.
+     *
+     * @param xPos  X-coordinate of the screen position (pixels).
+     * @param yPos  Y-coordinate of the screen position (pixels).
+     */
+    virtual std::array<int, 2> getPosition() {
+        return { mPosition[0], mPosition[1] };
     }
 
     /**
@@ -71,7 +83,7 @@ public:
      * @param xDim  Number of pixels wide.
      * @param yDim  Number of pixels high.
      */
-    void setDimensions(int xDim, int yDim) {
+    virtual void setDimensions(int xDim, int yDim) {
         mDimensions[0] = xDim;
         mDimensions[1] = yDim;
         mPropertiesUpdated = true;
@@ -85,9 +97,29 @@ public:
      * @param yAlign    Horizontal alignment of the box. Accepts ALIGN_TOP,
      *                  ALIGN_BOTTOM and ALIGN_CENTER (default).
      */
-    void setAlignment(AlignFlag xAlign, AlignFlag yAlign=ALIGN_TOP) {
+    virtual void setAlignment(AlignFlag xAlign, AlignFlag yAlign=ALIGN_TOP) {
         mAlignFlags[0] = xAlign;
         mAlignFlags[1] = yAlign;
+    }
+
+    /**
+     * Sets mIsVisible boolean.
+     *
+     * @param isVisible New mIsVisible value.
+     */
+    virtual void setIsVisible(bool isVisible) {
+        mIsVisible = isVisible;
+        mPropertiesUpdated = true;
+    }
+
+    /**
+     * Sets mIsPostProcessed boolean.
+     *
+     * @param isPostProcessed   New mIsPostProcessed value.
+     */
+    virtual void setIsPostProcessed(bool isPostProcessed) {
+        mIsPostProcessed = isPostProcessed;
+        mPropertiesUpdated = true;
     }
 
     /**
@@ -109,39 +141,6 @@ public:
      *
      * @param camera    Current Camera object.
      */
-
-  void updatePosition(std::shared_ptr<Camera> camera) {
-        std::array<int, 2> screenDimensions = camera->getScreenDimensions();
-        
-        switch(mAlignFlags[0]) {
-            case ALIGN_CENTER:
-                // Centred positioning
-                mPosition[0] = (screenDimensions[0] - mDimensions[0]) / 2;
-                break;
-            case ALIGN_RIGHT:
-                // Right-aligned positioning
-                mPosition[0] = screenDimensions[0] - mDimensions[0] - mRelativePosition[0];
-                break;
-            default:
-                // Left-aligned positioning
-                mPosition[0] = mRelativePosition[0];
-        }
-        
-        switch(mAlignFlags[1]) {
-            case ALIGN_CENTER:
-                // Centred positioning
-                mPosition[1] = (screenDimensions[1] - mDimensions[1]) / 2;
-                break;
-            case ALIGN_RIGHT:
-                // Right-aligned positioning
-                mPosition[1] = screenDimensions[1] - mDimensions[1] - mRelativePosition[1];
-                break;
-            default:
-                // Left-aligned positioning
-                mPosition[1] = mRelativePosition[1];
-        }
-    }
-
     virtual void updatePosition(Camera* camera);
 
     /**
@@ -156,10 +155,13 @@ public:
      */
     virtual void onInput(SDL_Event *event) {};
 
-    // flag to indicate whether the object should be drawn to screen or not
-    bool mVisible = true;
-
 protected:
+    // Flag to indicate whether the object should be drawn to screen or not.
+    bool mIsVisible = true;
+
+    // Flag to indicate whether the object should be drawn to screen or not
+    bool mIsPostProcessed = true;
+
     // Pixel-position of the top left corner of the bounding box.
     int mPosition[2];
 

@@ -1,7 +1,9 @@
 #include "ClickableHudElement.hpp"
 
+#include <SDL2/SDL.h>
+
 ClickableHudElement::ClickableHudElement(int xPos, int yPos, int xDim, int yDim,
-        void (*onClickFn)(), AlignFlag xAlignFlag, AlignFlag yAlignFlag)
+        std::function<void()> onClickFn, AlignFlag xAlignFlag, AlignFlag yAlignFlag)
         : AbstractHudElement(xPos, yPos, xDim, yDim, xAlignFlag, yAlignFlag) {
     // Base class constructor must be called
     mOnClickFn = onClickFn;
@@ -19,17 +21,17 @@ bool ClickableHudElement::isCoordOnElement(int x, int y) {
 }
 
 void ClickableHudElement::onInput(SDL_Event *event) {
-    // If its a mouse button up event, it cannot be clicked
-    if (mIsClicked && event->type == SDL_MOUSEBUTTONUP) {
-        SDL_StartTextInput();
-        mIsClicked = false;
-        return;
-    }
+    if (!mIsInteractive)
+      return;
 
-    else if (event->type == SDL_MOUSEBUTTONDOWN) {
-        mPropertiesUpdated = true;
-        if (mOnClickFn != nullptr && mIsMouseOver)
-            mOnClickFn();
+    // If its a mouse button up event, it cannot be clicked
+    if (event->type == SDL_MOUSEBUTTONUP) {
+        if (mIsClicked) {
+            mIsClicked = false;
+            mPropertiesUpdated = true;
+            onClick();
+        }
+    } else if (event->type == SDL_MOUSEBUTTONDOWN) {
         // If it is a mouse button down event and the cursor is on the button
         // it must be clicked and the mouse must be over it
         if (isCoordOnElement(event->button.x, event->button.y)) {
@@ -51,4 +53,9 @@ void ClickableHudElement::onInput(SDL_Event *event) {
             mPropertiesUpdated = true;
         }
     }
+}
+
+void ClickableHudElement::onClick() {
+    if (mOnClickFn != nullptr)
+        mOnClickFn();
 }

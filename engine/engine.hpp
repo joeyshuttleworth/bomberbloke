@@ -106,11 +106,13 @@ enum LOG_SCENE{
 };
 
 const std::string LOG_LEVEL_STRINGS[] =
-  {"Debug",
-   "Info",
-   "Warning",
-   "ERROR",
-   "ALL"};
+  {"debug",
+   "info",
+   "warning",
+   "error",
+   "critical",
+   "all"
+  };
 
 enum player_types{
   LOCAL,
@@ -125,6 +127,7 @@ class scene;
 class  ServerInfo;
 extern ServerInfo _server_info;
 extern std::shared_ptr<scene> _pScene;
+extern std::shared_ptr<scene> _pNewScene;
 
 extern unsigned int _tick;
 extern std::vector<CommandBinding> _default_bindings;

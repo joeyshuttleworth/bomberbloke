@@ -2,64 +2,93 @@
 #include <random>
 #include <memory>
 #include <algorithm>
+#include <functional>
+#include <string>
 #include "engine.hpp"
 #include "scene.hpp"
 #include "bomberbloke.h"
 #include "ClickableHudElement.hpp"
+#include "CountdownHudGroup.hpp"
 #include "TextHudElement.hpp"
 #include "TextButton.hpp"
 #include "SpriteHudElement.hpp"
+#include "FollowCamera.hpp"
+#include "woodenCrate.hpp"
+#include "bloke.hpp"
+#include "PauseMenuHudGroup.hpp"
 #include "InputField.hpp"
 
-static void hudTestFnJoin() {
-  handle_system_command({"open", "localhost"});
-}
+const std::string BACKGROUND_TILE_PREFIX = "background_tile_";
+const int N_BACKGROUND_TILES = 10;
 
-static void hudTestFn1() {
-  handle_system_command({"nickname", "dave1"});
-}
-
-static void hudTestFn2() {
-  handle_system_command({"nickname",  "dave2"});
-}
+const int PAUSE_BLUR_SIZE = 10;
+const int PAUSE_BRIGHTNESS = -30;
 
 void BomberBlokeScene::draw(){
-  if(!mpCamera){
-    return;
-    log_message(ERROR, "null camera");
-  }
+  // Reset the frame buffer
+  mpCamera->resetFrameBuffer();
 
-  SDL_SetRenderTarget(_renderer, mpCamera->getFrameBuffer());
-  SDL_SetRenderDrawColor(_renderer, 0x00, 0x10, 0xff, 0xff);
-  SDL_RenderClear(_renderer);
+  // Draw background
+  SDL_Rect sceneScreenRect = mpCamera->getScreenRect(0, 0, mDimmension[0], mDimmension[1]);
+  mpCamera->renderCopy(mBackgroundTexture, nullptr, &sceneScreenRect);
 
-  int zoom = mpCamera->GetZoom();
-
-  SDL_SetRenderDrawColor(_renderer, 0x10, 0x10, 0x10, 0xa0);
-
-  /* Draw a grid */
-  for(int i = 0; i<=10; i++){
-    SDL_RenderDrawLine(_renderer, i * zoom, 0, i * zoom, mDimmension[1]*zoom);
-    SDL_RenderDrawLine(_renderer, 0, i*zoom, mDimmension[0]*zoom, i*zoom);
-  }
-
+  // Draw actors, particles and HUD
   drawActors();
   drawParticles();
+
+  /* Set the HUD icons to be visible based on our player properties */
+
+  //Power
+  for(unsigned int i = 0; i < 10; i++){
+    if(auto observe = mPowerIcons[i].lock()){
+      if(i < _local_player_list.back().getPlayerProperties()->mPower)
+        observe->setIsVisible(true);
+      else
+        observe->setIsVisible(false);
+    }
+  }
+
+  //Speed
+  for(unsigned int i = 0; i < 10; i++){
+    if(auto observe = mSpeedIcons[i].lock()){
+      if(i < _local_player_list.back().getPlayerProperties()->mSpeed)
+        observe->setIsVisible(true);
+      else
+        observe->setIsVisible(false);
+    }
+  }
+
+  //Bombs
+  for(unsigned int i = 0; i < 10; i++){
+    if(auto observe = mBombIcons[i].lock()){
+      if(i < _local_player_list.back().getPlayerProperties()->mMaxBombs)
+        observe->setIsVisible(true);
+      else
+        observe->setIsVisible(false);
+    }
+  }
+
   drawHud();
 
-
+  // Draw camera to window
   mpCamera->draw();
 }
 
+void BomberBlokeScene::update() {
+  // Check if blokeCamera doesn't have a subject
+  if (!mIsFollowingBloke || mBlokeCamera->mSubject.expired()) {
+    if (_local_player_list.size() > 0 && _local_player_list.back().getCharacter()) {
+      // Get player actor and use bloke camera
+      followBloke(_local_player_list.back().getCharacter());
+    }
+  }
+
+  // Update scene
+  scene::update();
+}
 
 void BomberBlokeScene::logicUpdate(){
   // count blokes
-
-  /*   */
-  if(_tick % 30){
-    
-  }
-
   if(mState == PAUSED || mState == STOPPED)
     return;
 
@@ -87,11 +116,13 @@ void BomberBlokeScene::logicUpdate(){
 
 BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_y){
   mState = PLAYING;
+  /*  Initialisation for random number generation */
+  std::random_device rd;
+  std::mt19937 gen(rd());
+
 
  if(_server){
     /*  Initialisation for random number generation */
-    std::random_device rd;
-    std::mt19937 gen(rd());
     std::uniform_int_distribution<> distrib(0, 9);
     std::vector<std::array<int, 2>> spawn_points;
     spawn_points.reserve(5);
@@ -153,42 +184,43 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
 
   log_message(INFO, "no. actors " + std::to_string(mActors.size()));
 
-  /* Create HUD elements */
+  /* Create tiled background texture */
+  mBackgroundTexture = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, size_x * 64, size_y * 64);
+  SDL_SetRenderTarget(_renderer, mBackgroundTexture);
 
-  std::shared_ptr<Text> pTextTitle = textManager.createText("Aileron-Black", "BLOKE/ENGINE");
-  pTextTitle->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-  pTextTitle->setTextColour({255, 255, 255});
-  pTextTitle->setTextScale(2.);
+  SDL_Texture *tileTexture;
+  SDL_Rect tileRect({0, 0, 64, 64});
+  std::uniform_int_distribution<> tileDistribution(0, N_BACKGROUND_TILES - 1);
+  std::uniform_int_distribution<> flipDistribution(0, 1);
+  for (int i = 0; i < size_x; i++) {
+      for (int j = 0; j < size_y; j++) {
+          tileRect.x = i * 64;
+          tileRect.y = j * 64;
+          // Randomly choose tile
+          int tileIndex = tileDistribution(gen);
+          tileTexture = get_sprite(BACKGROUND_TILE_PREFIX + std::to_string(tileIndex) + ".png");
+          // Randomly choose whether to flip the texture
+          if (flipDistribution(gen) == 1)
+            // Flip and rotate in such a way that the top-right corner is static
+            SDL_RenderCopyEx(_renderer, tileTexture, nullptr, &tileRect, 90,
+              nullptr, SDL_FLIP_HORIZONTAL);
+          else
+            // Don't flip the texture
+            SDL_RenderCopy(_renderer, tileTexture, nullptr, &tileRect);
+      }
+  }
+  SDL_SetRenderTarget(_renderer, mpCamera->getFrameBuffer());
 
-  std::shared_ptr<TextHudElement> hudElementTitle = std::make_shared<TextHudElement>(pTextTitle, 5, 5, 400, 50, ALIGN_CENTER);
-  mHudElements.push_back(hudElementTitle);
+  std::shared_ptr<PauseMenuHudGroup> pPauseMenu = std::make_shared<PauseMenuHudGroup>();
+  pPauseMenu->setIsVisible(false);
+  pPauseMenu->mIsInteractive = false;
+  mHudElements.push_back(pPauseMenu);
+  mPauseMenuHud = pPauseMenu;
 
-  std::shared_ptr<Text> pText1 = textManager.createText("Aileron-Black", "DAVE1");
-  pText1->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
-  pText1->setTextColour({255, 255, 255});
-  pText1->setTextScale(1.5);
-  std::shared_ptr<TextButton> hudElement1 = std::make_shared<TextButton>(pText1, 9, 71, 200, 30, hudTestFn1, ALIGN_LEFT, ALIGN_BOTTOM);
-  hudElement1->setMouseOverColour({200, 200, 200});
-  hudElement1->setOnClickOffset(1, 2);
-  mHudElements.push_back(hudElement1);
-
-  std::shared_ptr<Text> pText2 = textManager.createText("Aileron-Black", "DAVE2");
-  pText2->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
-  pText2->setTextColour({255, 255, 255});
-  pText2->setTextScale(1.5);
-  std::shared_ptr<TextButton> hudElement2 = std::make_shared<TextButton>(pText2, 9, 40, 200, 30, hudTestFn2, ALIGN_LEFT, ALIGN_BOTTOM);
-  hudElement2->setMouseOverColour({200, 200, 200});
-  hudElement2->setOnClickOffset(1, 2);
-  mHudElements.push_back(hudElement2);
-
-  std::shared_ptr<Text> pTextJoin = textManager.createText("Aileron-Black", "JOIN LOCAL");
-  pTextJoin->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
-  pTextJoin->setTextColour({255, 255, 255});
-  pTextJoin->setTextScale(1.5);
-  std::shared_ptr<TextButton> hudElementJoin = std::make_shared<TextButton>(pTextJoin, 9, 9, 200, 30, hudTestFnJoin, ALIGN_LEFT, ALIGN_BOTTOM);
-  hudElementJoin->setMouseOverColour({200, 200, 200});
-  hudElementJoin->setOnClickOffset(0, 3);
-  mHudElements.push_back(hudElementJoin);
+  auto countdownFn = std::bind(&BomberBlokeScene::onCountdownFinished, this);
+  std::shared_ptr<CountdownHudGroup> pCountdown = std::make_shared<CountdownHudGroup>(countdownFn, 150);
+  mHudElements.push_back(pCountdown);
+  mCountdownHud = pCountdown;
 
   std::shared_ptr<Text> pTextInput = textManager.createText("Aileron-Black", "Name");
   pTextInput->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
@@ -208,18 +240,108 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
 
 
   // Speed HUD demo
-  for (int i = 0; i < 4; i++) {
+  for(int i = 0; i < 10; i++) {
     std::shared_ptr<SpriteHudElement> hudElement = std::make_shared<SpriteHudElement>("lightning.png", 9 + i * 34, 9, 32, 32);
+    hudElement->setGlowAmount(100);
     mSpeedIcons[i] = hudElement;
     mHudElements.push_back(hudElement);
   }
 
   // Power HUD demo
-  for (int i = 0; i < 3; i++) {
-    std::shared_ptr<SpriteHudElement> hudElement = std::make_shared<SpriteHudElement>("flames.png", 9 + i * 34, 9, 32, 32, ALIGN_RIGHT);
+  for(int i = 0; i < 10; i++) {
+    std::shared_ptr<SpriteHudElement> hudElement = std::make_shared<SpriteHudElement>("flames.png", 9 + i * 34, 43, 32, 32);
+    hudElement->setGlowAmount(100);
     mPowerIcons[i] = hudElement;
     mHudElements.push_back(hudElement);
   }
 
+  // Bomb HUD demo
+  for(int i = 0; i < 10; i++) {
+    std::shared_ptr<SpriteHudElement> hudElement = std::make_shared<SpriteHudElement>("bomb_pickup.png", 9 + i * 34, 91, 32, 32);
+    hudElement->setGlowAmount(100);
+    mBombIcons[i] = hudElement;
+    mHudElements.push_back(hudElement);
+  }
+
+  // Create bloke camera
+  mSceneCamera = mpCamera;
+  mBlokeCamera = std::make_shared<FollowCamera>(this);
+
+  showEntireScene();
+  startCountdown(3);
+
   return;
+}
+
+void BomberBlokeScene::onInput(SDL_Event *event) {
+  // TODO: Consider disabling player control when paused
+  if (!mIsPaused) {
+    scene::onInput(event);
+  } else {
+    // Is paused so only share input with pause menu
+    std::shared_ptr<PauseMenuHudGroup> pPauseMenu = mPauseMenuHud.lock();
+    pPauseMenu->onInput(event);
+  }
+
+  // Toggle pause
+  if (event->type == SDL_KEYUP && event->key.keysym.sym == SDLK_ESCAPE)
+    togglePause();
+}
+
+void BomberBlokeScene::followBloke(std::shared_ptr<actor> subject) {
+  mBlokeCamera->mSubject = subject;
+  mBlokeCamera->mZoom = 0.1;
+
+  mpCamera = mBlokeCamera;
+  mIsFollowingBloke = true;
+}
+
+void BomberBlokeScene::showEntireScene() {
+  mSceneCamera->mPosition[0] = ((double) mDimmension[0]) / 2;
+  mSceneCamera->mPosition[1] = ((double) mDimmension[1]) / 2;
+  mSceneCamera->mZoom = 1 / std::fmax(mDimmension[0], mDimmension[1]);
+
+  mpCamera = mSceneCamera;
+  mIsFollowingBloke = false;
+}
+
+void BomberBlokeScene::togglePause() {
+  if (!mIsPaused) {
+    // Pause game
+    mIsPaused = true;
+
+    // Set post-processing effects
+    mBlokeCamera->setBlur(PAUSE_BLUR_SIZE);
+    mBlokeCamera->setBrightness(PAUSE_BRIGHTNESS);
+    mSceneCamera->setBlur(PAUSE_BLUR_SIZE);
+    mSceneCamera->setBrightness(PAUSE_BRIGHTNESS);
+
+    // Make pause menu visible and interactive
+    std::shared_ptr<PauseMenuHudGroup> pPauseMenu = mPauseMenuHud.lock();
+    pPauseMenu->setIsVisible(true);
+    pPauseMenu->mIsInteractive = true;
+  } else {
+    // Un-pause game
+    mIsPaused = false;
+
+    // Reset post-processing effects
+    mBlokeCamera->setBlur(0);
+    mBlokeCamera->setBrightness(0);
+    mSceneCamera->setBlur(0);
+    mSceneCamera->setBrightness(0);
+
+    // Make pause menu invisible and non-interactive
+    std::shared_ptr<PauseMenuHudGroup> pPauseMenu = mPauseMenuHud.lock();
+    pPauseMenu->setIsVisible(false);
+    pPauseMenu->mIsInteractive = false;
+  }
+}
+
+void BomberBlokeScene::startCountdown(int nSecs) {
+  std::shared_ptr<CountdownHudGroup> countdown = mCountdownHud.lock();
+  countdown->start(nSecs);
+}
+
+void BomberBlokeScene::onCountdownFinished() {
+  std::cout << "countdown finished!" << std::endl;
 }
