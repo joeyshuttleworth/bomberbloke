@@ -4,6 +4,7 @@
 
 #include "MainMenuHudGroup.hpp"
 #include "Explosion.hpp"
+#include "Camera.hpp"
 
 MainMenuScene::MainMenuScene(int sizeX, int sizeY) {
   std::shared_ptr<MainMenuHudGroup> menuHud = std::make_shared<MainMenuHudGroup>();

@@ -1,12 +1,10 @@
 #ifndef ABSTRACTHUDElEMENT_HPP
 #define ABSTRACTHUDElEMENT_HPP
 
-#include "engine.hpp"
-
 #include <array>
 
 class Camera;
-extern SDL_Renderer *_renderer;
+union SDL_Event;
 
 enum AlignFlag {
     ALIGN_LEFT,

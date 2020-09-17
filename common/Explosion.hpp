@@ -3,11 +3,13 @@
 
 #include "AbstractSpriteHandler.hpp"
 #include <cereal/cereal.hpp>
+#include <cereal/types/polymorphic.hpp>
+
+class Sound;
 
 #define EXPLOSION_SPRITE_SIZE 1000
 #define SPRITE_EXPLOSION 100
 #define N_EXPLOSION_SOUNDS 2
-
 
 class Explosion : public AbstractSpriteHandler{
 protected:
@@ -22,17 +24,10 @@ public:
     return SPRITE_EXPLOSION;
   }
 
-  Explosion(){
-    /* Create sound objects for explosion sound effects */
-    for (int i = 0; i < N_EXPLOSION_SOUNDS; i++) {
-      std::shared_ptr<Sound> sound = soundManager.createSound(mExplosionSoundNames[i]);
-      mExplosionSounds[i] = sound;
-    }
-   return;
-  }
+  Explosion();
 
   /*  Use the default constructor for everything except creating the texture */
-  Explosion(double x_pos, double y_pos, double x_dim, double y_dim, int speed = 30, int timeout = TICK_RATE, int start_delay = 0, bool sound_on = true, bool rumble_on = true, int max_glow=255)
+  Explosion(double x_pos, double y_pos, double x_dim, double y_dim, int speed = 30, int timeout = 64, int start_delay = 0, bool sound_on = true, bool rumble_on = true, int max_glow=255)
     :AbstractSpriteHandler(x_pos, y_pos, x_dim, y_dim, speed, timeout, start_delay){
     mSound = sound_on;
     mRumble = rumble_on;
@@ -52,7 +47,6 @@ public:
     return;
   }
 };
-
 
 CEREAL_REGISTER_TYPE(Explosion)
 

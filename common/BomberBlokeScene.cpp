@@ -2,11 +2,13 @@
 #include <random>
 #include <memory>
 #include <algorithm>
+#include <functional>
 #include <string>
 #include "engine.hpp"
 #include "scene.hpp"
 #include "bomberbloke.h"
 #include "ClickableHudElement.hpp"
+#include "CountdownHudGroup.hpp"
 #include "TextHudElement.hpp"
 #include "TextButton.hpp"
 #include "SpriteHudElement.hpp"
@@ -214,6 +216,11 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
   mHudElements.push_back(pPauseMenu);
   mPauseMenuHud = pPauseMenu;
 
+  auto countdownFn = std::bind(&BomberBlokeScene::onCountdownFinished, this);
+  std::shared_ptr<CountdownHudGroup> pCountdown = std::make_shared<CountdownHudGroup>(countdownFn, 150);
+  mHudElements.push_back(pCountdown);
+  mCountdownHud = pCountdown;
+
   // Speed HUD demo
   for(int i = 0; i < 10; i++) {
     std::shared_ptr<SpriteHudElement> hudElement = std::make_shared<SpriteHudElement>("lightning.png", 9 + i * 34, 9, 32, 32);
@@ -243,6 +250,7 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
   mBlokeCamera = std::make_shared<FollowCamera>(this);
 
   showEntireScene();
+  startCountdown(3);
 
   return;
 }
@@ -309,4 +317,13 @@ void BomberBlokeScene::togglePause() {
     pPauseMenu->setIsVisible(false);
     pPauseMenu->mIsInteractive = false;
   }
+}
+
+void BomberBlokeScene::startCountdown(int nSecs) {
+  std::shared_ptr<CountdownHudGroup> countdown = mCountdownHud.lock();
+  countdown->start(nSecs);
+}
+
+void BomberBlokeScene::onCountdownFinished() {
+  std::cout << "countdown finished!" << std::endl;
 }

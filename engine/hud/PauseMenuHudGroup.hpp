@@ -6,6 +6,10 @@
 #include <memory>
 
 class OptionsMenuHudGroup;
+class scene;
+
+extern std::shared_ptr<scene> _pScene;
+extern std::shared_ptr<scene> _pNewScene;
 
 class PauseMenuHudGroup: public AbstractHudGroup {
 public:

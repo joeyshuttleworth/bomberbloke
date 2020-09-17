@@ -4,6 +4,7 @@
 #include <string>
 
 #include "Sound.hpp"
+#include "engine.hpp"
 
 const std::string CLICK_SOUND_NAME = "click";
 
