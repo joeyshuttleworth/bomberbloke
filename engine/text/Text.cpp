@@ -2,7 +2,6 @@
 
 #include <SDL2/SDL.h>
 #include <algorithm>
-#include <iostream>
 
 #include "Camera.hpp"
 
@@ -15,8 +14,14 @@ void Text::draw(Camera *camera, bool isPostProcessed) {
     }
 
     // Copy rendered text into the text box
-    camera->renderFillRect(&mDstRect, mBackColour, isPostProcessed, mGlowAmount);
-    camera->renderCopy(mTextTexture, &mSrcRect, &mDstRect, isPostProcessed, mGlowAmount);
+    if (mBackColour.a > 0) {
+        SDL_Rect backgroundRect({mPosition[0], mPosition[1], mDimensions[0], mDimensions[1]});
+        camera->renderFillRect(&backgroundRect, mBackColour, isPostProcessed, mGlowAmount);
+    }
+
+    if (mTextTexture) {
+        camera->renderCopy(mTextTexture, &mSrcRect, &mDstRect, isPostProcessed, mGlowAmount);
+    }
 }
 
 void Text::updateTexture(Camera *camera) {
@@ -59,7 +64,7 @@ void Text::updateTexture(Camera *camera) {
         }
         if (textCursorSurface) {
             if (textBeforeSurface) {
-                SDL_Rect cursorRect = SDL_Rect({textBeforeSurface->w, 0, textCursorSurface->w, textCursorSurface->h});
+                SDL_Rect cursorRect = SDL_Rect({textBeforeSurface->w - textCursorSurface->w / 2, 0, textCursorSurface->w, textCursorSurface->h});
                 SDL_BlitSurface(textCursorSurface, nullptr, fullSurface, &cursorRect);
             } else {
                 SDL_BlitSurface(textCursorSurface, nullptr, fullSurface, nullptr);
@@ -76,10 +81,16 @@ void Text::updateTexture(Camera *camera) {
     } else {
         // Render text to texture
         SDL_Surface *mTextSurface = TTF_RenderText_Solid(mFont, mTextString.c_str(), mColour);
-        mTextTexture = SDL_CreateTextureFromSurface(_renderer, mTextSurface);
-        SDL_FreeSurface(mTextSurface);
-        width = mTextSurface->w;
-        height = mTextSurface->h;
+        if (mTextSurface) {
+            mTextTexture = SDL_CreateTextureFromSurface(_renderer, mTextSurface);
+            width = mTextSurface->w;
+            height = mTextSurface->h;
+            SDL_FreeSurface(mTextSurface);
+        } else {
+            mTextTexture = nullptr;
+            width = 0;
+            height = 0;
+        }
     }
 
     // Convert alignment and texture dimensions to displacement from the
@@ -139,24 +150,22 @@ void Text::updateTexture(Camera *camera) {
 }
 
 int Text::getCursorIndex(int x) {
-    int targetX = (x - mDstRect.x) * mTextScale[0];
-    int totalX = 0;
+    int targetX = (x - mDstRect.x) / mTextScale[0];
+    std::string renderText = "";
+    int lastWidth = 0;
+
     // TODO: Make this more efficient
     for (std::string::size_type i = 0; i < mTextString.size(); i++) {
         // Render character and add width to toal
-        std::string charString(1, mTextString[i]);
-        SDL_Surface *charSurface = TTF_RenderText_Solid(mFont, charString.c_str(), mColour);
-        if (charSurface) {
-            totalX += charSurface->w;
-
-            // Check if we have reached the target x-coord
-            if (totalX > targetX) {
-                if ((totalX - targetX) <= charSurface->w / 2) {
-                    return i;
-                } else {
-                    return i - 1;
-                }
+        renderText += mTextString[i];
+        SDL_Surface *charSurface = TTF_RenderText_Solid(mFont, renderText.c_str(), mColour);
+        if (charSurface && charSurface->w > targetX) {
+            if ((charSurface->w - targetX) < (charSurface->w - lastWidth) / 2) {
+                return i + 1;
+            } else {
+                return i;
             }
+            lastWidth = charSurface->w;
         }
     }
     return mTextString.size();
