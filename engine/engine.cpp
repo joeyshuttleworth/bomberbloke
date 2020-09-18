@@ -599,7 +599,6 @@ void console_loop(){
         tokens = split_to_tokens(line);
         handle_system_command(tokens);
       }
-      break;
     }
     return;
 }
