@@ -22,88 +22,51 @@ public:
      * @param yAlignFlag    DetermineS the alignment of the bounding box.
      */
     InputField(std::shared_ptr<Text> text, int xPos, int yPos, int xDim,
-        int yDim, void (*onClickFn)()=nullptr, AlignFlag xAlignFlag=ALIGN_LEFT,
-        AlignFlag yAlignFlag=ALIGN_TOP);
+        int yDim, AlignFlag xAlignFlag=ALIGN_LEFT, AlignFlag yAlignFlag=ALIGN_TOP);
 
     /**
-     * Sets the colour of text on mouse over.
+     * Sets the colour of text after input is given.
      *
      * @param colour    New colour object.
      */
-    void setMouseOverColour(SDL_Color colour) {
-        mMouseOverColour = colour;
+    void setInputColour(SDL_Color colour) {
+        mInputColour = colour;
         mPropertiesUpdated = true;
     }
 
-    void setRectangleColour(SDL_Color colour) {
-      mMouseOverColour = colour;
-      mPropertiesUpdated = true;
-    }
-
-
     /**
-     * Sets the colour of text on left-click.
-     *
-     * @param colour    New colour object.
+     * Update method to be called on every tick.
      */
-    void setOnClickColour(SDL_Color colour) {
-        mOnClickColour = colour;
-        mPropertiesUpdated = true;
-    }
+    void update() override;
 
     /**
-     * Sets the offset of the text on mouse-over.
-     *
-     * @param xOffset   X-coordinate of the offset (pixels).
-     * @param yOffset   Y-coordinate of the offset (pixels).
-     */
-    void setMouseOverOffset(int xOffset, int yOffset) {
-        mMouseOverOffset[0] = xOffset;
-        mMouseOverOffset[1] = yOffset;
-        mPropertiesUpdated = true;
-    }
-
-    /**
-     * Sets the offset of the text on left-click.
-     *
-     * @param xOffset   X-coordinate of the offset (pixels).
-     * @param yOffset   Y-coordinate of the offset (pixels).
-     */
-    void setOnClickOffset(int xOffset, int yOffset) {
-        mOnClickOffset[0] = xOffset;
-        mOnClickOffset[1] = yOffset;
-        mPropertiesUpdated = true;
-    }
-
-    /**
-     * Draws the text object in the position of the HUD element.
+     * Called by the handle input function.
      *
      * @param camera    Current Camera object.
      */
-    void draw(Camera *camera) override;
-
     void onInput(SDL_Event *event) override;
 
 protected:
-    // Text colour when neither a mouse-over or left-click is detected.
+    // Text colour of default text for when input field is empty
     SDL_Color mDefaultColour;
-    // Text colour when a mouse over is detected.
-    SDL_Color mMouseOverColour;
-    // Text colour when a click is detected.
-    SDL_Color mOnClickColour;
+    // Text colour when input is given.
+    SDL_Color mInputColour;
 
-    SDL_Color mBackgroundColour;
+    // Current text in field
+    std::string mTextInput = "";
+    // Text shown when input field is empty
+    std::string mDefaultText = "";
 
-    // Text offset when neither a mouse-over or left-click is detected.
-    int mDefaultOffset[2] = { 0, 0 };
-    // Text offset when a mouse over is detected.
-    int mMouseOverOffset[2] = { 0, 0 };
-    // Text offset when a click is detected.
-    int mOnClickOffset[2] = { 0, 0 };
     // Boolean value if the box has current focus
     bool mHasFocus = false;
 
-    std::string textInput = "";
+    // Cursor index
+    int mCursorIndex = 0;
+
+    /**
+     * Function that is called on click.
+     */
+    void onClick(int x, int y) override;
 };
 
 #endif

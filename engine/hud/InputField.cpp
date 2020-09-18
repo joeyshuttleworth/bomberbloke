@@ -1,31 +1,22 @@
 #include "InputField.hpp"
 
 #include <array>
+#include <string>
 
-InputField::InputField(std::shared_ptr<Text> text, int xPos, int yPos, int xDim,
-                       int yDim, void (*onClickFn)(), AlignFlag xAlignFlag, AlignFlag yAlignFlag)
-        : AbstractHudElement(xPos, yPos, xDim, yDim, xAlignFlag, yAlignFlag),
-          ClickableHudElement(xPos, yPos, xDim, yDim, onClickFn, xAlignFlag, yAlignFlag),
-          TextHudElement(text, xPos, yPos, xDim, yDim, xAlignFlag, yAlignFlag) {
+#include "engine.hpp"
+
+const int CURSOR_UPDATE_TICKS = TICK_RATE / 4;
+
+InputField::InputField(std::shared_ptr<Text> text, int xPos, int yPos,
+    int xDim, int yDim, AlignFlag xAlignFlag, AlignFlag yAlignFlag)
+  : AbstractHudElement(xPos, yPos, xDim, yDim, xAlignFlag, yAlignFlag),
+  TextHudElement(text, xPos, yPos, xDim, yDim, xAlignFlag, yAlignFlag),
+  ClickableHudElement(xPos, yPos, xDim, yDim, nullptr, xAlignFlag, yAlignFlag) {
   // Use text colour as default colour.
   mDefaultColour = text->getTextColour();
-  mMouseOverColour = mDefaultColour;
-  mOnClickColour = mDefaultColour;
+  mInputColour = mDefaultColour;
 
-  // Set Input Field Green
-  text->setBackgroundColour(SDL_Color{0,255,0,255});
-
-
-  // Use text offset as default offset.
-  std::array<int, 2> mOffsetArray = text->getTextOffset();
-  mDefaultOffset[0] = mOffsetArray[0];
-  mDefaultOffset[1] = mOffsetArray[1];
-
-  mMouseOverOffset[0] = mOffsetArray[0];
-  mMouseOverOffset[1] = mOffsetArray[1];
-
-  mOnClickOffset[0] = mOffsetArray[0];
-  mOnClickOffset[1] = mOffsetArray[1];
+  mDefaultText = text->getText();
 }
 
 
