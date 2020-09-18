@@ -52,6 +52,9 @@ public:
         mAlignment[0] = xAlign;
         mAlignment[1] = yAlign;
         mPropertiesUpdated = true;
+
+        mColour = SDL_Color({255, 255, 255, 255});
+        mBackColour = SDL_Color({0, 0, 0, 0});
     }
 
     /**
@@ -172,9 +175,8 @@ public:
     * @param colour    The new colour.
     */
     void setBackgroundColour(SDL_Color colour) {
-      mBackColour = colour;
-      mHasBackground = true;
-      mPropertiesUpdated = true;
+        mBackColour = colour;
+        mPropertiesUpdated = true;
     }
 
 
@@ -239,8 +241,6 @@ protected:
     // Boolean value which is set to true whenever a property is changed that
     // may effect the render. Set back to false when draw is called.
     bool mPropertiesUpdated;
-    // Boolean value to whether the textbox has a background colour
-    bool mHasBackground = false;
     /**
      * Updates the texture used in the draw function.
      *
