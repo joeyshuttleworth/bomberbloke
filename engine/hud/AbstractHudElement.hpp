@@ -180,9 +180,6 @@ protected:
     // may effect the render. Set back to false when draw is called.
     bool mPropertiesUpdated;
 
-    //Boolean value if the box has current focus
-    bool mHasFocus;
-
 };
 
 #endif

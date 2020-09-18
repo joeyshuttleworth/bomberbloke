@@ -38,11 +38,6 @@ void ClickableHudElement::onInput(SDL_Event *event) {
             mIsMouseOver = true;
             mIsClicked = true;
             mPropertiesUpdated = true;
-            mHasFocus = true;
-        }
-        else{
-          mHasFocus = false;
-          //SDL_StopTextInput();
         }
     } else if (event->type == SDL_MOUSEMOTION) {
         // If it is a mouse motion event check if the cursor is on the button

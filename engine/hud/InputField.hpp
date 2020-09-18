@@ -100,6 +100,8 @@ protected:
     int mMouseOverOffset[2] = { 0, 0 };
     // Text offset when a click is detected.
     int mOnClickOffset[2] = { 0, 0 };
+    // Boolean value if the box has current focus
+    bool mHasFocus = false;
 
     std::string textInput = "";
 };
