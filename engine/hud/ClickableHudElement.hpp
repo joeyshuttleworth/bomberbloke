@@ -54,7 +54,7 @@ protected:
     /**
      * Function that is called on click.
      */
-    virtual void onClick();
+    virtual void onClick(int x, int y);
 
 private:
     /**

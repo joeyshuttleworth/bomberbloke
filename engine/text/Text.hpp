@@ -52,6 +52,9 @@ public:
         mAlignment[0] = xAlign;
         mAlignment[1] = yAlign;
         mPropertiesUpdated = true;
+
+        mColour = SDL_Color({255, 255, 255, 255});
+        mBackColour = SDL_Color({0, 0, 0, 0});
     }
 
     /**
@@ -62,6 +65,15 @@ public:
     void setText(std::string text) {
         mTextString = text;
         mPropertiesUpdated = true;
+    }
+
+    /**
+     * Gets the string that is rendered.
+     *
+     * @return  String that is rendered on draw.
+     */
+    std::string getText() {
+        return mTextString;
     }
 
     /**
@@ -167,6 +179,16 @@ public:
     }
 
     /**
+    * Sets the colour of the background.
+    *
+    * @param colour    The new colour.
+    */
+    void setBackgroundColour(SDL_Color colour) {
+        mBackColour = colour;
+        mPropertiesUpdated = true;
+    }
+
+    /**
      * Gets the text colour.
      *
      * @return  SDL_Color object.
@@ -184,6 +206,35 @@ public:
         mGlowAmount = glowAmount;
         mPropertiesUpdated = true;
     }
+
+    /**
+     * Sets whether the cursor is visible.
+     *
+     * @param newCursorVisible  New cursor visible value.
+     */
+    void setCursorVisible(bool newCursorVisible) {
+        mCursorVisible = newCursorVisible;
+        mPropertiesUpdated = true;
+    }
+
+    /**
+     * Sets the cursor index.
+     *
+     * @param newCursorIndex  New cursor index value.
+     */
+    void setCursorIndex(int newCursorIndex) {
+        mCursorIndex = newCursorIndex;
+        mPropertiesUpdated = true;
+    }
+
+    /**
+     * Get the cursor index nearest to an x-coordinate.
+     *
+     * @param x X-coordinate in text texture.
+     *
+     * @return  Closest cursor index.
+     */
+    int getCursorIndex(int x);
 
     /**
      * Draws the text to the renderer.
@@ -210,10 +261,17 @@ protected:
     double mTextScale[2] = { 1., 1. };
     // Colour of rendered text.
     SDL_Color mColour;
+    // Colour of background colour;
+    SDL_Color mBackColour;
     // Text alignment flags in x and y direction (see setTextAlignment).
     TextAlignFlag mAlignment[2];
     // Amount of glow applied (0-255).
     int mGlowAmount = 0;
+
+    // If true, a cursor is rendered in the text.
+    bool mCursorVisible = false;
+    // Index of the cursor.
+    int mCursorIndex = 0;
 
     // Texture containing rendered text. Updated only when mPropertiesUpdated
     // is set to True (see draw).
@@ -225,7 +283,6 @@ protected:
     // Boolean value which is set to true whenever a property is changed that
     // may effect the render. Set back to false when draw is called.
     bool mPropertiesUpdated;
-
     /**
      * Updates the texture used in the draw function.
      *

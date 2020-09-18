@@ -101,7 +101,7 @@ protected:
     /**
      * Called when a button-click is detected (button-up).
      */
-    void onClick() override;
+    void onClick(int x, int y) override;
 };
 
 #endif

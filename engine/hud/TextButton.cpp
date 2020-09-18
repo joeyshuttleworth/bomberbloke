@@ -56,10 +56,10 @@ void TextButton::draw(Camera *camera) {
     TextHudElement::draw(camera);
 }
 
-void TextButton::onClick() {
+void TextButton::onClick(int x, int y) {
     // Play click sound
     soundManager.playSound(mClickSound);
 
     // Call mOnClick function.
-    ClickableHudElement::onClick();
+    ClickableHudElement::onClick(x, y);
 }
