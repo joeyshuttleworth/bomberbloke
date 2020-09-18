@@ -46,6 +46,13 @@ public:
      */
     void onInput(SDL_Event *event) override;
 
+    /**
+     * Draws the text object in the position of the HUD element.
+     *
+     * @param camera    Current Camera object.
+     */
+    void draw(Camera *camera) override;
+
 protected:
     // Text colour of default text for when input field is empty
     SDL_Color mDefaultColour;

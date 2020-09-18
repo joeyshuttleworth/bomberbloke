@@ -25,10 +25,7 @@ void InputField::onInput(SDL_Event *event) {
     // If button up is on the input field onClick will be called
     mHasFocus = false;
     mText->setCursorVisible(false);
-    if (mTextInput == "") {
-      mText->setText(mDefaultText);
-      mText->setTextColour(mDefaultColour);
-    }
+    mPropertiesUpdated = true;
   }
   ClickableHudElement::onInput(event);
 
@@ -70,8 +67,9 @@ void InputField::onInput(SDL_Event *event) {
 
 void InputField::onClick(int x, int y) {
   mHasFocus = true;
+  mPropertiesUpdated = true;
+
   mText->setText(mTextInput);
-  mText->setTextColour(mInputColour);
 
   // Set cursor position
   if (mTextInput != "") {
@@ -79,15 +77,33 @@ void InputField::onClick(int x, int y) {
   } else {
     mCursorIndex = 0;
   }
+  mText->setCursorIndex(mCursorIndex);
+  mText->setCursorVisible(true);
 }
 
 void InputField::update() {
   // Flashing cursor animation
   if (mHasFocus && _tick % CURSOR_UPDATE_TICKS == 0) {
-    if ((_tick / CURSOR_UPDATE_TICKS) % 3 == 0) {
+    if ((_tick / CURSOR_UPDATE_TICKS) % 2 == 0) {
       mText->setCursorVisible(false);
     } else {
       mText->setCursorVisible(true);
     }
   }
+}
+
+void InputField::draw(Camera *camera) {
+  if (mPropertiesUpdated) {
+    if (mHasFocus) {
+      mText->setTextColour(mInputColour);
+    } else {
+      mText->setCursorVisible(false);
+      if (mTextInput == "") {
+        mText->setText(mDefaultText);
+        mText->setTextColour(mDefaultColour);
+      }
+    }
+  }
+
+  TextHudElement::draw(camera);
 }
