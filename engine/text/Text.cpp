@@ -150,7 +150,7 @@ void Text::updateTexture(Camera *camera) {
 }
 
 int Text::getCursorIndex(int x) {
-    int targetX = (x - mDstRect.x) / mTextScale[0];
+    double targetX = ((double) (x - mDstRect.x)) / mTextScale[0];
     std::string renderText = "";
     int lastWidth = 0;
 
@@ -158,14 +158,15 @@ int Text::getCursorIndex(int x) {
     for (std::string::size_type i = 0; i < mTextString.size(); i++) {
         // Render character and add width to toal
         renderText += mTextString[i];
-        SDL_Surface *charSurface = TTF_RenderText_Solid(mFont, renderText.c_str(), mColour);
-        if (charSurface && charSurface->w > targetX) {
-            if ((charSurface->w - targetX) < (charSurface->w - lastWidth) / 2) {
+        SDL_Surface *substrSurface = TTF_RenderText_Solid(mFont, renderText.c_str(), mColour);
+        if (substrSurface && substrSurface->w > targetX) {
+            // Check if the cursor is closer to the right or left of the new character
+            if (2 * (substrSurface->w - targetX) < (substrSurface->w - lastWidth)) {
                 return i + 1;
             } else {
                 return i;
             }
-            lastWidth = charSurface->w;
+            lastWidth = substrSurface->w;
         }
     }
     return mTextString.size();
