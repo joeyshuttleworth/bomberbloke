@@ -13,8 +13,8 @@ ClickableHudElement::ClickableHudElement(int xPos, int yPos, int xDim, int yDim,
 }
 
 bool ClickableHudElement::isCoordOnElement(int x, int y) {
-    if (x >= mPosition[0] && x <= mPosition[0] + mDimensions[0]) {
-        if (y >= mPosition[1] && y <= mPosition[1] + mDimensions[1])
+    if (x >= mPosition[0] && x < mPosition[0] + mDimensions[0]) {
+        if (y >= mPosition[1] && y < mPosition[1] + mDimensions[1])
             return true;
     }
     return false;
@@ -29,7 +29,7 @@ void ClickableHudElement::onInput(SDL_Event *event) {
         if (mIsClicked) {
             mIsClicked = false;
             mPropertiesUpdated = true;
-            onClick();
+            onClick(event->button.x, event->button.y);
         }
     } else if (event->type == SDL_MOUSEBUTTONDOWN) {
         // If it is a mouse button down event and the cursor is on the button
@@ -50,7 +50,7 @@ void ClickableHudElement::onInput(SDL_Event *event) {
     }
 }
 
-void ClickableHudElement::onClick() {
+void ClickableHudElement::onClick(int x, int y) {
     if (mOnClickFn != nullptr)
         mOnClickFn();
 }
