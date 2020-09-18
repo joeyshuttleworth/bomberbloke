@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <functional>
 #include <string>
+#include "CommandEvent.hpp"
 #include "engine.hpp"
 #include "scene.hpp"
 #include "bomberbloke.h"
@@ -93,28 +94,29 @@ void BomberBlokeScene::logicUpdate(){
 
   int number_of_blokes = std::count_if(mActors.begin(), mActors.end(), [](std::shared_ptr<actor> i) -> bool {return i->getType() == ACTOR_BLOKE;});
   bool new_game = false;
-  switch(number_of_blokes){
-  case 0:{
+  if(!mNewGame){
+    switch(number_of_blokes){
+    case 0:{
       log_message(INFO, "All blokes are dead.");
-      new_game = true;
+      mNewGame = true;
       mState = STOPPED;
       break;
-  }
-  case 1:{
+    }
+    case 1:{
       log_message(INFO, "Someone has won");
-      new_game = true;
-      mState = STOPPED;
+      mNewGame = true;
       break;
+    }
+    default:
+      break;
+    }
   }
-  default:
-    break;
-  }
-  // if(new_game)
-  //   _pScene = std::make_shared<BomberBlokeScene>(10, 10);
+  if(mNewGame && _player_list.size()>1 && _server)
+    _pScene = std::make_shared<BomberBlokeScene>(10, 10);
 }
 
 BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_y){
-  mState = PLAYING;
+  mState = STOPPED;
   /*  Initialisation for random number generation */
   std::random_device rd;
   std::mt19937 gen(rd());
@@ -250,8 +252,9 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
   mBlokeCamera = std::make_shared<FollowCamera>(this);
 
   showEntireScene();
-  startCountdown(3);
 
+  if(_server)
+    startCountdown(3);
   return;
 }
 
@@ -322,8 +325,21 @@ void BomberBlokeScene::togglePause() {
 void BomberBlokeScene::startCountdown(int nSecs) {
   std::shared_ptr<CountdownHudGroup> countdown = mCountdownHud.lock();
   countdown->start(nSecs);
+  if(_server){
+    std::unique_ptr<AbstractEvent> c_event(new CommandEvent("start"));
+    _net_server.broadcastEvent(c_event);
+  }
 }
 
 void BomberBlokeScene::onCountdownFinished() {
-  std::cout << "countdown finished!" << std::endl;
+  mState = PLAYING;
+  if(_server){
+    _net_server.syncPlayers();
+  }
+}
+
+void BomberBlokeScene::handleCommand(std::string str){
+  if(str == "start"){
+    startCountdown(3);
+  }
 }

@@ -229,11 +229,14 @@ void scene :: update(){
   if (mpCamera)
     mpCamera->update();
 
-  movementUpdate();
+  logicUpdate();
+
+  if(mState==PLAYING)
+    movementUpdate();
+
   cleanUp();
   physicsUpdate();
   updateSprites();
-  logicUpdate();
   return;
 }
 

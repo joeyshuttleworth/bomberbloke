@@ -23,7 +23,6 @@ int _window_size[] = {DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT};
 double _zoom = DEFAULT_ZOOM;
 SDL_Window *_window;
 bool _halt = false;
-unsigned int _state;
 std::list <LocalPlayer> _local_player_list;
 SDL_Renderer *_renderer = NULL;
 SDL_Joystick *_controller = nullptr;
@@ -151,7 +150,6 @@ void init_engine() {
     memset((void *) _kb_state, 0, sizeof(Uint8) * SDL_SCANCODE_APP2);
     std::thread console(console_loop);
     console.detach();
-    _state = DISCONNECTED;
     /*  Open a log file  */
     _console_log_file.open("/tmp/bloke.log");
 
@@ -594,21 +592,14 @@ std::list <std::string> split_to_tokens(std::string str) {
 void console_loop(){
     std::cout << "Bomberbloke console...\n";
     while (!_halt) {
-        switch (_state) {
-            default: {
-                std::string line;
-                std::list <std::string> tokens;
-
-                std::cout << ">";
-                if(std::getline(std::cin, line)){
-                    tokens = split_to_tokens(line);
-                    handle_system_command(tokens);
-                  }
-                break;
-            }
-            case JOINING:
-                break;
-        }
+      std::string line;
+      std::list <std::string> tokens;
+      std::cout << ">";
+      if(std::getline(std::cin, line)){
+        tokens = split_to_tokens(line);
+        handle_system_command(tokens);
+      }
+      break;
     }
     return;
 }
