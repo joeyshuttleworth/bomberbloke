@@ -77,7 +77,6 @@ extern double _screen_offset[2];
 extern bool _draw;
 extern bool _server;
 extern bool _halt;
-extern unsigned int _state;
 extern std::list<std::shared_ptr<AbstractPlayer>> _player_list;
 extern std::string _nickname;
 extern SDL_Joystick* _controller;

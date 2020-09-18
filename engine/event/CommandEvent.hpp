@@ -20,7 +20,9 @@ public:
     return EVENT_COMMAND;
   }
 
-  std::string getCommand(){return mCommand;}
+  std::string getCommand(){
+    return mCommand;
+  }
 
   CommandEvent(std::string command){
     mCommand = command;

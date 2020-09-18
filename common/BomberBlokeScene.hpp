@@ -18,6 +18,8 @@ protected:
   std::weak_ptr<AbstractHudElement> mSpeedIcons[10];
   std::weak_ptr<AbstractHudElement> mBombIcons[10];
 
+  bool mNewGame = false;
+
   // Texture containing bakground tiles.
   SDL_Texture *mBackgroundTexture;
 
@@ -93,6 +95,8 @@ public:
    * Callback for when the countdown is finished.
    */
   void onCountdownFinished();
+
+  void handleCommand(std::string str);
 
   template<class Archive>
   void serialize(Archive &archive){

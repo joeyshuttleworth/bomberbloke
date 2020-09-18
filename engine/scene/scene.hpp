@@ -10,11 +10,12 @@
 
 extern double _zoom;
 
-class actor; class Camera; class AbstractHudElement;
+class actor; class Camera; class AbstractHudElement; class NetServer; class NetClient;
 
 /* Actor which stores information about the scene including the actors present and methods for updating and drawing the scene */
 class scene{
-
+  friend NetClient;
+  friend NetServer;
 protected:
   /*name and description are information about this scene*/
   std::string mName;
@@ -29,10 +30,13 @@ protected:
   std::shared_ptr<Camera> mpCamera;
 
 public:
+  virtual void handleCommand(std::string str){}
 
   std::shared_ptr<Camera> getCamera(){
     return mpCamera;
   }
+
+  int getState(){return mState;}
 
   /**  onResize
    *

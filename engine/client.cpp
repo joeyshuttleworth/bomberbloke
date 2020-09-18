@@ -17,7 +17,6 @@ enet_uint16 _port = 8888;
 void client_loop(){
   unsigned int current=0, last;
   int delay;
-  _state = PLAYING;
   while(!_halt){
      last = current;
      delay=(1000/TICK_RATE) - current + last;
