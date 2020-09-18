@@ -68,6 +68,15 @@ public:
     }
 
     /**
+     * Gets the string that is rendered.
+     *
+     * @return  String that is rendered on draw.
+     */
+    std::string getText() {
+        return mTextString;
+    }
+
+    /**
      * Sets the screen position of the text box.
      *
      * The position corresponds to the top-left corner of the text box. The
@@ -179,7 +188,6 @@ public:
         mPropertiesUpdated = true;
     }
 
-
     /**
      * Gets the text colour.
      *
@@ -198,6 +206,35 @@ public:
         mGlowAmount = glowAmount;
         mPropertiesUpdated = true;
     }
+
+    /**
+     * Sets whether the cursor is visible.
+     *
+     * @param newCursorVisible  New cursor visible value.
+     */
+    void setCursorVisible(bool newCursorVisible) {
+        mCursorVisible = newCursorVisible;
+        mPropertiesUpdated = true;
+    }
+
+    /**
+     * Sets the cursor index.
+     *
+     * @param newCursorIndex  New cursor index value.
+     */
+    void setCursorIndex(int newCursorIndex) {
+        mCursorIndex = newCursorIndex;
+        mPropertiesUpdated = true;
+    }
+
+    /**
+     * Get the cursor index nearest to an x-coordinate.
+     *
+     * @param x X-coordinate in text texture.
+     *
+     * @return  Closest cursor index.
+     */
+    int getCursorIndex(int x);
 
     /**
      * Draws the text to the renderer.
@@ -230,6 +267,11 @@ protected:
     TextAlignFlag mAlignment[2];
     // Amount of glow applied (0-255).
     int mGlowAmount = 0;
+
+    // If true, a cursor is rendered in the text.
+    bool mCursorVisible = false;
+    // Index of the cursor.
+    int mCursorIndex = 0;
 
     // Texture containing rendered text. Updated only when mPropertiesUpdated
     // is set to True (see draw).
