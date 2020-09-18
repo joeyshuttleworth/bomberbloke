@@ -144,12 +144,22 @@ bool NetClient::joinBlokeServer(std::string address, int port, std::string nickn
             log_message(INFO, "Successfully joined server. Message: " + receive_event->output());
             return true;
           }
-        default:break;
+        default:
+          break;
         }
       }
     }
   }
   return false;
+}
+
+void NetClient::handleServerCommand(std::string str){
+  if(str == "start"){
+    _pScene->handleCommand("start");
+  }
+  else if(str == "stop"){
+  }
+  return;
 }
 
 void NetClient::pollServer(){
@@ -177,6 +187,7 @@ void NetClient::pollServer(){
      case EVENT_SYNC:{
        std::shared_ptr<syncEvent> s_event = std::dynamic_pointer_cast<syncEvent>(sp_to_handle);
        mPlayers = s_event->getPlayers();
+       _pScene->mState = s_event->mState;
        /* TODO move mPlayers to _player_list */
        auto iter = std::find_if(mPlayers.begin(), mPlayers.end(), [](serverPlayer sp) -> bool{return sp.isLocal();});
        if(iter != mPlayers.end()){
@@ -199,6 +210,13 @@ void NetClient::pollServer(){
        log_message(DEBUG, "synced with server");
        break;
      }
+
+     case EVENT_COMMAND:{
+       std::shared_ptr<CommandEvent> c_event = std::dynamic_pointer_cast<CommandEvent>(sp_to_handle);
+       handleServerCommand(c_event->getCommand());
+       break;
+     }
+
      case EVENT_MOVE:{
        std::shared_ptr<MoveEvent> m_event = std::dynamic_pointer_cast<MoveEvent>(sp_to_handle);
        std::shared_ptr<actor> p_actor = _pScene->GetActor(m_event->mActorId);

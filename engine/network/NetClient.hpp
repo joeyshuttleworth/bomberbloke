@@ -25,6 +25,7 @@ public:
     void pollServer();
     bool joinBlokeServer(std::string address, int, std::string);
     void sendEvent(std::unique_ptr<AbstractEvent>&);
+    void handleServerCommand(std::string);
 
     std::vector<serverPlayer> mPlayers;
 

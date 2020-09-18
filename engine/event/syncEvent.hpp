@@ -25,8 +25,9 @@ class syncEvent : public AbstractEvent{
 private:
   std::vector<serverPlayer> mPlayers;
   std::vector<actor>    mActors;
-
 public:
+
+  int mState;
 
   int getType() const{
     return EVENT_SYNC;
@@ -43,13 +44,15 @@ public:
       else
         mPlayers.push_back(serverPlayer(*i, false));
     }
+    if(_pScene)
+      mState = _pScene->getState();
     return;
   }
 
   /*Used by cereal to serialize the event for it to be sent/received*/
   template<class Archive>
   void serialize(Archive &archive){
-    archive(cereal::base_class<AbstractEvent>(this), cereal::make_nvp("state", _state), cereal::make_nvp("mActors", _pScene->mActors), cereal::make_nvp("players", mPlayers));
+    archive(cereal::base_class<AbstractEvent>(this), cereal::make_nvp("state", mState), cereal::make_nvp("mActors", _pScene->mActors), cereal::make_nvp("players", mPlayers));
   }
 
 };
