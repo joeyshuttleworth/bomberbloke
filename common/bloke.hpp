@@ -15,6 +15,7 @@ class bomb;
 class GamePlayerProperties;
 class Sound;
 class SoundManager;
+class BigBombPickup;
 
 extern SoundManager soundManager;
 
@@ -23,6 +24,7 @@ class bloke : public actor{
   friend SpeedPickup;
   friend BombPickup;
   friend PowerPickup;
+  friend BigBombPickup;
   friend GamePlayerProperties;
 protected:
   std::list<int> mPowerups;
@@ -42,6 +44,7 @@ protected:
   int    mBombs=1;
   Uint8  mMaxBombs = 1;
   bool mBigBomb = false;
+  bool mBigBombPlaced = false;
   std::shared_ptr<GamePlayerProperties> mProperties;
   bool   mAccelerated;
   bool   mDirectionsHeld[4] = {false, false, false, false};

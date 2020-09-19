@@ -11,7 +11,7 @@ public:
      */
     void registerCollision(std::shared_ptr<AbstractCollider> collider, dvector mtv) {};
     void resolveCollision() {};
-    
+
     /**
      * Function for obtaining collider type.
      */

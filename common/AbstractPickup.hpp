@@ -12,7 +12,8 @@ enum{
      PICKUP_NONE,
      PICKUP_SPEED,
      PICKUP_BOMB,
-     PICKUP_POWER
+     PICKUP_POWER,
+     PICKUP_BIG_BOMB
 };
 
 
