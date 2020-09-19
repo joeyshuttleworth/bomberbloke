@@ -154,11 +154,7 @@ bool NetClient::joinBlokeServer(std::string address, int port, std::string nickn
 }
 
 void NetClient::handleServerCommand(std::string str){
-  if(str == "start"){
-    _pScene->handleCommand("start");
-  }
-  else if(str == "stop"){
-  }
+  _pScene->handleCommand(str);
   return;
 }
 
