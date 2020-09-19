@@ -16,6 +16,7 @@
 #include "FollowCamera.hpp"
 #include "woodenCrate.hpp"
 #include "bloke.hpp"
+#include "EndRoundHudGroup.hpp"
 #include "PauseMenuHudGroup.hpp"
 #include "Soundtrack.hpp"
 
@@ -234,6 +235,11 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
   mHudElements.push_back(pCountdown);
   mCountdownHud = pCountdown;
 
+  std::shared_ptr<EndRoundHudGroup> endRoundHud = std::make_shared<EndRoundHudGroup>();
+  endRoundHud->setIsVisible(false);
+  mHudElements.push_back(endRoundHud);
+  mEndRoundHud = endRoundHud;
+
   // Speed HUD demo
   for(int i = 0; i < 10; i++) {
     std::shared_ptr<SpriteHudElement> hudElement = std::make_shared<SpriteHudElement>("lightning.png", 9 + i * 34, 9, 32, 32);
@@ -367,9 +373,14 @@ void BomberBlokeScene::handleCommand(std::string str){
     }
     mSoundtrack->playIdle();
 
+    std::shared_ptr<EndRoundHudGroup> endRoundHud = mEndRoundHud.lock();
+    endRoundHud->setIsVisible(false);
+
     startCountdown(5);
   } else if (str == "end") {
     if (mSoundtrack)
       mSoundtrack->playIdle();
+    std::shared_ptr<EndRoundHudGroup> endRoundHud = mEndRoundHud.lock();
+    endRoundHud->setIsVisible(true);
   }
 }
