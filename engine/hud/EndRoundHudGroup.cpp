@@ -36,7 +36,10 @@ EndRoundHudGroup::EndRoundHudGroup()
 
 void EndRoundHudGroup::updateScores(std::shared_ptr<AbstractPlayer> roundWinner, std::list<std::shared_ptr<AbstractPlayer>> playerList) {
   std::shared_ptr<TextHudElement> winnerText = mWinnerText.lock();
-  winnerText->setText(roundWinner->mNickname);
+  if (roundWinner)
+    winnerText->setText(roundWinner->mNickname);
+  else
+    winnerText->setText("NOBODY");
 
   std::list<std::shared_ptr<AbstractPlayer>> sortedPlayerList = playerList;
   sortedPlayerList.sort(comparePlayers);
@@ -67,5 +70,16 @@ void EndRoundHudGroup::updateScores(std::shared_ptr<AbstractPlayer> roundWinner,
       textIter++;
     }
     playerIter++;
+  }
+
+  if (sortedPlayerList.size() < mScoreTexts.size()) {
+    auto textIter = mScoreTexts.begin();
+    std::advance(textIter, sortedPlayerList.size());
+    for (; textIter != mScoreTexts.end(); textIter++) {
+      std::shared_ptr<TextHudElement> playerElement = textIter->first.lock();
+      std::shared_ptr<TextHudElement> scoreElement = textIter->second.lock();
+      playerElement->setText("");
+      scoreElement->setText("");
+    }
   }
 }

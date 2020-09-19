@@ -31,7 +31,7 @@ protected:
   std::weak_ptr<TextHudElement> mWinnerText;
 
   // List of score HUD elements. First in pair is nickname, second is score value.
-  std::list<std::pair<std::weak_ptr<TextHudElement>, std::weak_ptr<TextHudElement>>> mScoreTexts;
+  std::list<std::pair<std::weak_ptr<TextHudElement>, std::weak_ptr<TextHudElement>>> mScoreTexts = {};
 };
 
 #endif
