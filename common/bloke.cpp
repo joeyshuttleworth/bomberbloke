@@ -17,6 +17,7 @@ bloke::bloke(double x, double y, bool collides)
   mpSpriteHandler = std::make_shared<PlaceHolderSprite>(mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]);
   mProperties = std::make_shared<GamePlayerProperties>();
   mPlaceBombSound = soundManager.createSound(PLACE_BOMB_SOUND_NAME);
+  mPlaceBombSound->mGroup = SOUND_FX;
 }
 
 void bloke :: accelerate(){
