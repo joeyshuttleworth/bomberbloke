@@ -62,7 +62,7 @@ public:
 
   /*Returns an enum defined by the game identifying what type of actor this is
     e.g block, bloke.*/
-  virtual int getType() const = 0;
+  virtual int getType() const {return -1;};
 
 
   /*Returns a pointer to the player object.
@@ -101,7 +101,7 @@ public:
       mpSpriteHandler->update(mPosition);
   }
 
-  virtual void handleCommand(std::string) = 0;
+  virtual void handleCommand(std::string){};
 
   /*Serialise this class using cereal.
     NB: We don't send the size of the actor (dimmension) as this should
