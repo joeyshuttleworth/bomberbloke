@@ -11,6 +11,7 @@ class PauseMenuHudGroup;
 class CountdownHudGroup;
 class TextHudElement;
 class actor;
+class Soundtrack;
 
 class BomberBlokeScene : public scene{
 protected:
@@ -35,7 +36,11 @@ protected:
   // Weak pointer to the pause menu HUD group (contained in mHudElements).
   std::weak_ptr<PauseMenuHudGroup> mPauseMenuHud;
 
+  // Weak pointer to the options menu.
   std::weak_ptr<CountdownHudGroup> mCountdownHud;
+
+  // Soundtrack object.
+  std::shared_ptr<Soundtrack> mSoundtrack;
 
   /**
    * Configures the camera such that it follows a bloke.
@@ -52,7 +57,7 @@ protected:
 public:
 
   BomberBlokeScene(int size_x = 10, int size_y = 10);
-  ~BomberBlokeScene(){}
+  ~BomberBlokeScene();
 
   /**
    * Update function - called every tick
