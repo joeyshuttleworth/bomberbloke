@@ -19,8 +19,6 @@ protected:
   std::weak_ptr<AbstractHudElement> mSpeedIcons[10];
   std::weak_ptr<AbstractHudElement> mBombIcons[10];
 
-  bool mNewGame = false;
-
   // Texture containing bakground tiles.
   SDL_Texture *mBackgroundTexture;
 
@@ -55,6 +53,7 @@ protected:
   void showEntireScene();
 
 public:
+  void setBigBomb();
 
   BomberBlokeScene(int size_x = 10, int size_y = 10);
   ~BomberBlokeScene();
