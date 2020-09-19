@@ -94,14 +94,20 @@ void InputField::update() {
 
 void InputField::draw(Camera *camera) {
   if (mPropertiesUpdated) {
+    if (mTextInput == "") {
+      mText->setText(mDefaultText);
+      mText->setTextColour(mDefaultColour);
+    } else {
+      mText->setText(mTextInput);
+      mText->setTextColour(mInputColour);
+    }
+
     if (mHasFocus) {
+      mText->setText(mTextInput);
+      mText->setCursorVisible(true);
       mText->setTextColour(mInputColour);
     } else {
       mText->setCursorVisible(false);
-      if (mTextInput == "") {
-        mText->setText(mDefaultText);
-        mText->setTextColour(mDefaultColour);
-      }
     }
   }
 
