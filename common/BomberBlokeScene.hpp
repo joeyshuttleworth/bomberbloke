@@ -96,7 +96,7 @@ public:
    */
   void onCountdownFinished();
 
-  void handleCommand(std::string str);
+  void handleCommand(std::string str) override;
 
   template<class Archive>
   void serialize(Archive &archive){

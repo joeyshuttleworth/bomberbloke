@@ -1,12 +1,14 @@
 #include "MainMenuHudGroup.hpp"
 
 #include <cmath>
+#include <string>
 
-#include "BomberBlokeScene.hpp"
 #include "MainMenuScene.hpp"
 #include "OptionsMenuHudGroup.hpp"
+#include "JoinMenuHudGroup.hpp"
 #include "TextHudElement.hpp"
 #include "TextButton.hpp"
+#include "TextManager.hpp"
 
 /**
  * Function that closes the game
@@ -27,13 +29,13 @@ MainMenuHudGroup::MainMenuHudGroup()
   addElement(titleElement);
 
   // Create start game button text
-  std::shared_ptr<Text> startText = textManager.createText("Aileron-Black", "JOIN LOCAL");
+  std::shared_ptr<Text> startText = textManager.createText("Aileron-Black", "JOIN GAME");
   startText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
   startText->setTextColour({255, 255, 255});
   startText->setTextScale(1.5);
   // Create start game button element
-  auto startGameFn = std::bind(&MainMenuHudGroup::joinServer, this);
-  std::shared_ptr<TextButton> startElement = std::make_shared<TextButton>(startText, 0, -20, 200, 30, startGameFn, ALIGN_CENTER, ALIGN_CENTER);
+  auto startGameFunction = std::bind(&MainMenuHudGroup::showJoinMenu, this);
+  std::shared_ptr<TextButton> startElement = std::make_shared<TextButton>(startText, 0, -20, 200, 30, startGameFunction, ALIGN_CENTER, ALIGN_CENTER);
   startElement->setMouseOverColour({200, 200, 200});
   startElement->setOnClickOffset(-1, 2);
   addElement(startElement);
@@ -62,24 +64,21 @@ MainMenuHudGroup::MainMenuHudGroup()
   addElement(quitElement);
 
   // Create options menu HUD group
-  auto closeOptionsFunction = std::bind(&MainMenuHudGroup::showMainMenu, this);
-  std::shared_ptr<OptionsMenuHudGroup> optionsMenu = std::make_shared<OptionsMenuHudGroup>(closeOptionsFunction);
+  auto returnToMainMenu = std::bind(&MainMenuHudGroup::showMainMenu, this);
+  std::shared_ptr<OptionsMenuHudGroup> optionsMenu = std::make_shared<OptionsMenuHudGroup>(returnToMainMenu);
   optionsMenu->setIsVisible(false);
   optionsMenu->mIsInteractive = false;
   addElement(optionsMenu);
   // Store options menu in weak pointer
   mOptionsMenu = optionsMenu;
 
-  // Create loading text
-  std::shared_ptr<Text> loadingText = textManager.createText("Aileron-Black", "LOADING...");
-  loadingText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-  loadingText->setTextColour({255, 255, 255});
-  loadingText->setTextScale(3.);
-  std::shared_ptr<TextHudElement> loadingElement = std::make_shared<TextHudElement>(loadingText, 0, 0, 400, 80, ALIGN_CENTER, ALIGN_CENTER);
-  loadingElement->setIsPostProcessed(false);
-  loadingElement->setIsVisible(false);
-  mLoadingText = loadingElement;
-  addElement(loadingElement);
+  // Create join menu HUD group
+  std::shared_ptr<JoinMenuHudGroup> joinMenu = std::make_shared<JoinMenuHudGroup>(returnToMainMenu);
+  joinMenu->setIsVisible(false);
+  joinMenu->mIsInteractive = false;
+  addElement(joinMenu);
+  // Store join menu in weak pointer
+  mJoinMenu = joinMenu;
 
   // Make group interactive
   mIsInteractive = true;
@@ -88,22 +87,17 @@ MainMenuHudGroup::MainMenuHudGroup()
   setIsPostProcessed(false);
 }
 
-void MainMenuHudGroup::update() {
-  AbstractHudGroup::update();
-
-  if (mJoinServer) {
-    // Attempt connection
-    bool retVal = handle_system_command({"open", mServerAddress});
-
-    if (retVal) {
-      // If successful move to bomberbloke scene
-      _pNewScene = std::make_shared<BomberBlokeScene>(10, 10);
-    } else {
-      // If failed go back to main menu
-      showMainMenu();
-      mJoinServer = false;
-    }
+void MainMenuHudGroup::showJoinMenu() {
+  // Make all HUD elements invisible and non-interactive
+  for (auto i = mHudElements.begin(); i != mHudElements.end(); i++) {
+    (*i)->setIsVisible(false);
+    (*i)->mIsInteractive = false;
   }
+
+  // Set join menu to visible and interactive
+  std::shared_ptr<JoinMenuHudGroup> joinMenu = mJoinMenu.lock();
+  joinMenu->setIsVisible(true);
+  joinMenu->mIsInteractive = true;
 }
 
 void MainMenuHudGroup::showOptionsMenu() {
@@ -119,18 +113,6 @@ void MainMenuHudGroup::showOptionsMenu() {
   optionsMenu->mIsInteractive = true;
 }
 
-void MainMenuHudGroup::showLoadingText() {
-  // Make all HUD elements invisible and non-interactive
-  for (auto i = mHudElements.begin(); i != mHudElements.end(); i++) {
-    (*i)->setIsVisible(false);
-    (*i)->mIsInteractive = false;
-  }
-
-  // Set loading text visible
-  std::shared_ptr<TextHudElement> loadingText = mLoadingText.lock();
-  loadingText->setIsVisible(true);
-}
-
 void MainMenuHudGroup::showMainMenu() {
   // Make all HUD elements visible and interactive
   for (auto i = mHudElements.begin(); i != mHudElements.end(); i++) {
@@ -143,12 +125,8 @@ void MainMenuHudGroup::showMainMenu() {
   optionsMenu->setIsVisible(false);
   optionsMenu->mIsInteractive = false;
 
-  // Set loading text visible
-  std::shared_ptr<TextHudElement> loadingText = mLoadingText.lock();
-  loadingText->setIsVisible(false);
-}
-
-void MainMenuHudGroup::joinServer() {
-  showLoadingText();
-  mJoinServer = true;
+  // Set join menu to invisible and non-interactive
+  std::shared_ptr<JoinMenuHudGroup> joinMenu = mJoinMenu.lock();
+  joinMenu->setIsVisible(false);
+  joinMenu->mIsInteractive = false;
 }
