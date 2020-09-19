@@ -28,16 +28,16 @@ public:
     void handleServerCommand(std::string);
 
     std::vector<serverPlayer> mPlayers;
+    
+    std::string mServerAddress;
+    enet_uint16 mPort;
 
-private:
+protected:
   /* And ENet representation of the address of the server */
     ENetAddress mENetServerAddress;
     ENetPeer *mENetServer;
   /** The ENet host used by this client   */
     ENetHost *mENetHost = nullptr;
-
-    std::string mServerAddress;
-    enet_uint16 mPort;
 };
 
 #endif
