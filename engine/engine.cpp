@@ -197,7 +197,7 @@ void handle_input() {
     /*Iterate over local players */
     for (auto i = _local_player_list.begin(); i != _local_player_list.end(); i++) {
         /*Iterate over key bindings */
-        if (event.type != SDL_JOYAXISMOTION && event.type != SDL_TEXTINPUT) {
+        if (event.type != SDL_JOYAXISMOTION) {
             for (auto j = i->mControlScheme.begin(); j != i->mControlScheme.end(); j++) {
                 if (kb_state[j->scancode] != _kb_state[j->scancode]) { // ensure that current keymap is different to old
                     //We will prepend "+" or "-" to the command depending on keystate
