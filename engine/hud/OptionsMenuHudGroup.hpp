@@ -25,6 +25,9 @@ private:
   // Weak pointer to the text HUD element displaying the current master volume.
   std::weak_ptr<TextHudElement> mMasterVolumeLabel;
 
+  // Weak pointer to the text HUD element displaying the current music volume.
+  std::weak_ptr<TextHudElement> mMusicVolumeLabel;
+
   /**
    * Reduces the master volume by 1 unit.
    */
@@ -34,6 +37,16 @@ private:
    * Increases the master volume by 1 unit.
    */
   void increaseMasterVolume();
+
+  /**
+   * Reduces the music volume by 1 unit.
+   */
+  void reduceMusicVolume();
+
+  /**
+   * Increases the master volume by 1 unit.
+   */
+  void increaseMusicVolume();
 };
 
 #endif

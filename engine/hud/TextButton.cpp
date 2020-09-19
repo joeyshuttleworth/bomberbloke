@@ -32,6 +32,7 @@ TextButton::TextButton(std::shared_ptr<Text> text, int xPos, int yPos, int xDim,
 
     // Get click sound
     mClickSound = soundManager.createSound(CLICK_SOUND_NAME);
+    mClickSound->mGroup = SOUND_FX;
 }
 
 void TextButton::draw(Camera *camera) {

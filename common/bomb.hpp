@@ -9,9 +9,6 @@
 #include "AbstractSpriteHandler.hpp"
 #include "Sound.hpp"
 
-const int N_EXPLOSION_SOUNDS = 2;
-const std::string EXPLOSION_SOUND_NAMES[N_EXPLOSION_SOUNDS] = {"bomb_1", "bomb_2"};
-
 class bomb : public actor {
  protected:
   unsigned int mTimer = DEFAULT_BOMB_TIMER;
