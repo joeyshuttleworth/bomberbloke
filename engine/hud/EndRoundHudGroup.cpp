@@ -1,7 +1,16 @@
 #include "EndRoundHudGroup.hpp"
 
 #include "TextHudElement.hpp"
+#include "AbstractPlayer.hpp"
 #include "engine.hpp"
+
+bool comparePlayers(std::shared_ptr<AbstractPlayer> player1, std::shared_ptr<AbstractPlayer> player2) {
+  if (player1->getWins() >= player2->getWins()) {
+    return true;
+  } else {
+    return false;
+  }
+}
 
 EndRoundHudGroup::EndRoundHudGroup()
   : AbstractHudGroup(0, 0) {
@@ -25,22 +34,24 @@ EndRoundHudGroup::EndRoundHudGroup()
   setIsPostProcessed(true);
 }
 
-void EndRoundHudGroup::updateScores(std::string roundWinner, std::list<std::pair<std::string, int>> scores) {
+void EndRoundHudGroup::updateScores(std::shared_ptr<AbstractPlayer> roundWinner, std::list<std::shared_ptr<AbstractPlayer>> playerList) {
   std::shared_ptr<TextHudElement> winnerText = mWinnerText.lock();
-  winnerText->setText(roundWinner);
+  winnerText->setText(roundWinner->mNickname);
 
-  auto scoreIter = scores.begin();
+  std::list<std::shared_ptr<AbstractPlayer>> sortedPlayerList = playerList;
+  sortedPlayerList.sort(comparePlayers);
+  auto playerIter = sortedPlayerList.begin();
   auto textIter = mScoreTexts.begin();
-  for (int i = 0; i < scores.size(); i++) {
+  for (int i = 0; i < sortedPlayerList.size(); i++) {
     if (i >= mScoreTexts.size()) {
-      std::shared_ptr<Text> playerText = textManager.createText("Aileron-Black", scoreIter->first);
+      std::shared_ptr<Text> playerText = textManager.createText("Aileron-Black", (*playerIter)->mNickname);
       playerText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
       playerText->setTextColour({255, 255, 255});
       playerText->setTextScale(1.5);
       std::shared_ptr<TextHudElement> playerElement = std::make_shared<TextHudElement>(playerText, -100, i * 50 + 25, 250, 50, ALIGN_CENTER, ALIGN_CENTER);
       addElement(playerElement);
 
-      std::shared_ptr<Text> scoreText = textManager.createText("Aileron-Black", std::to_string(scoreIter->second));
+      std::shared_ptr<Text> scoreText = textManager.createText("Aileron-Black", std::to_string((*playerIter)->getWins()));
       scoreText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
       scoreText->setTextColour({255, 255, 255});
       scoreText->setTextScale(1.5);
@@ -51,10 +62,10 @@ void EndRoundHudGroup::updateScores(std::string roundWinner, std::list<std::pair
     } else {
       std::shared_ptr<TextHudElement> playerElement = textIter->first.lock();
       std::shared_ptr<TextHudElement> scoreElement = textIter->second.lock();
-      playerElement->setText(scoreIter->first);
-      scoreElement->setText(std::to_string(scoreIter->second));
-      scoreIter++;
+      playerElement->setText((*playerIter)->mNickname);
+      scoreElement->setText(std::to_string((*playerIter)->getWins()));
+      textIter++;
     }
-    textIter++;
+    playerIter++;
   }
 }

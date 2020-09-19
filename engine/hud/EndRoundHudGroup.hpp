@@ -7,6 +7,8 @@
 #include <string>
 #include <utility>
 
+#include "AbstractPlayer.hpp"
+
 class TextHudElement;
 
 class EndRoundHudGroup: public AbstractHudGroup {
@@ -19,10 +21,10 @@ public:
   /**
    * Update scores presented by HUD group.
    *
-   * @param roundWinner Nickname of round winner.
-   * @param scores      List of pairs with nicknames and scores.
+   * @param roundWinner Player that won the round.
+   * @param playerList  List of players.
    */
-  void updateScores(std::string roundWinner, std::list<std::pair<std::string, int>> scores);
+  void updateScores(std::shared_ptr<AbstractPlayer> roundWinner, std::list<std::shared_ptr<AbstractPlayer>> playerList);
 
 protected:
   // Weak pointer containing nickname of round winner.
