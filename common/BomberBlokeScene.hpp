@@ -48,6 +48,7 @@ protected:
   void showEntireScene();
 
 public:
+  void setBigBomb();
 
   BomberBlokeScene(int size_x = 10, int size_y = 10);
   ~BomberBlokeScene(){}

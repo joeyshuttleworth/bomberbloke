@@ -17,7 +17,6 @@ void bomb::init(bloke *bloke){
   else{
     log_message(ERROR, "Bomb placed by malformed actor");
   }
-
   return;
 }
 
@@ -54,6 +53,10 @@ void bomb::update(){
 
 void bomb::explode(){
   remove();
+
+  if(getType() == ACTOR_BIG_BOMB)
+    mPower = 100;
+
   if(_server){
     /*Iterate over all the sqares the bomb can reach and kill the ones if they are in the right (wrong) zone.*/
 

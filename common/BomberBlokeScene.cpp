@@ -24,6 +24,15 @@ const int N_BACKGROUND_TILES = 10;
 const int PAUSE_BLUR_SIZE = 10;
 const int PAUSE_BRIGHTNESS = -30;
 
+void BomberBlokeScene::setBigBomb(){
+  std::shared_ptr<AbstractHudElement> observe = mBombIcons[0].lock();
+  mHudElements.remove(observe);
+  std::shared_ptr<SpriteHudElement> hudElement = std::make_shared<SpriteHudElement>("bigredbomb.png", 9 + 0 * 34, 91, 32, 32);
+  hudElement->setGlowAmount(100);
+  mBombIcons[0] = hudElement;
+  mHudElements.push_back(hudElement);
+}
+
 void BomberBlokeScene::draw(){
   // Reset the frame buffer
   mpCamera->resetFrameBuffer();
@@ -88,6 +97,9 @@ void BomberBlokeScene::update() {
 }
 
 void BomberBlokeScene::logicUpdate(){
+  if(!_server)
+    return;
+
   // count blokes
   if(mState == PAUSED || mState == STOPPED)
     return;
@@ -105,13 +117,20 @@ void BomberBlokeScene::logicUpdate(){
     case 1:{
       log_message(INFO, "Someone has won");
       mNewGame = true;
-      mState = STOPPED;
       /*  add a win to the last remaining player */
-      (*std::find_if(mActors.begin(), mActors.end(), [](std::shared_ptr<actor> i) -> bool {return i->getType() == ACTOR_BLOKE;}))->getPlayer()->addWin();
+
+      std::shared_ptr<AbstractPlayer> winning_player = (*std::find_if(mActors.begin(), mActors.end(), [](std::shared_ptr<actor> i) -> bool {return i->getType() == ACTOR_BLOKE;}))->getPlayer();
+      if(winning_player)
+        winning_player->addWin();
       break;
     }
     default:
       break;
+    }
+    if(mNewGame){
+      /*Send end command*/
+      std::unique_ptr<AbstractEvent> c_event(new CommandEvent("end"));
+      _net_server.broadcastEvent(c_event);
     }
   }
 }
@@ -343,4 +362,6 @@ void BomberBlokeScene::handleCommand(std::string str){
   if(str == "start"){
     startCountdown(3);
   }
+  if(str == "bigbomb")
+    setBigBomb();
 }
