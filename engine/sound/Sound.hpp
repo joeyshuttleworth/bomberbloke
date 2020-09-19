@@ -3,7 +3,17 @@
 
 #include <SDL2/SDL_mixer.h>
 #include <string>
+#include <functional>
 #include <map>
+
+enum SoundGroup {
+    SOUND_MASTER,
+    SOUND_MUSIC,
+    SOUND_FX
+};
+
+extern const int SOUND_FREQUENCY;
+extern const int SOUND_N_CHANNELS;
 
 class Sound {
 public:
@@ -13,29 +23,34 @@ public:
     Mix_Chunk *mMixChunk;
 
     /**
-     * Mixer channel number
+     * Mixer channel number.
      */
     int channel = -1;
 
     /**
-     * Number of loops to play
+     * Group the sound belongs to.
+     */
+    SoundGroup mGroup = SOUND_MASTER;
+
+    /**
+     * Number of loops to play.
      */
     int mNLoops = 0;
     /**
-     * Maxium length of sound to play
+     * Maxium length of sound to play.
      */
-    int mLengthMs = 0;
+    int mMaxLengthMs = 0;
     /**
-     * Milliseconds of time the fade-in effect should take
+     * Milliseconds of time the fade-in effect should take.
      */
     int mFadeInMs = 0;
     /**
-     * Volume of sound played - ranges from 0 to 128
+     * Volume of sound played - ranges from 0 to 128.
      */
     int mVolume = 128;
     /**
      * Distance value which controls an effect emulating the attenuation of
-     * volume due to distance. Ranges from 0 (close/loud) to 255 (far/quiet)
+     * volume due to distance. Ranges from 0 (close/loud) to 255 (far/quiet).
      */
     int mDistance = 0;
     /**
@@ -45,12 +60,12 @@ public:
      */
     int mAngle = 0;
     /**
-     * Callback function for when sound is finished playing
+     * Callback function for when sound is finished playing.
      */
-    void (*onFinishedPlaying)() = nullptr;
+    std::function<void()> onFinishedPlaying = nullptr;
 
     /**
-     * Initialisation
+     * Initialisation.
      */
     Sound() {}
     Sound(Mix_Chunk *soundFile) {
@@ -58,7 +73,7 @@ public:
     }
 
     /**
-     * Pauses sound
+     * Pauses sound.
      */
     void pause() {
         if (channel >= 0)
@@ -66,7 +81,7 @@ public:
     }
 
     /**
-     * Resumes sound
+     * Resumes sound.
      */
     void resume() {
         if (channel >= 0)
@@ -74,7 +89,7 @@ public:
     }
 
     /**
-     * Stops sound
+     * Stops sound.
      */
     void stop(int waitMs=0) {
         if (channel >= 0) {
@@ -88,11 +103,18 @@ public:
 
     /**
      * Begins fade out effect at time of call. ms is the number of milliseconds
-     * that the fade-out effect should take to go to silence
+     * that the fade-out effect should take to go to silence.
      */
     void fadeOut(int ms) {
         if (channel >= 0)
             Mix_FadeOutChannel(channel, ms);
+    }
+
+    /**
+     * Returns the length of the sound file.
+     */
+    int getLengthMs() {
+        return mMixChunk->alen * 1000 / (SOUND_FREQUENCY * SOUND_N_CHANNELS * 2);
     }
 };
 
