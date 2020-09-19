@@ -34,6 +34,7 @@ void BomberBlokeScene::setBigBomb(){
   hudElement->setGlowAmount(100);
   mBombIcons[0] = hudElement;
   mHudElements.push_back(hudElement);
+}
 
 BomberBlokeScene::~BomberBlokeScene() {
   if (mSoundtrack)
@@ -124,11 +125,6 @@ void BomberBlokeScene::logicUpdate(){
     case 1:{
       log_message(INFO, "Someone has won");
       mNewGame = true;
-      /*  add a win to the last remaining player */
-
-      std::shared_ptr<AbstractPlayer> winning_player = (*std::find_if(mActors.begin(), mActors.end(), [](std::shared_ptr<actor> i) -> bool {return i->getType() == ACTOR_BLOKE;}))->getPlayer();
-      if(winning_player)
-        winning_player->addWin();
       break;
     }
     default:
@@ -140,7 +136,7 @@ void BomberBlokeScene::logicUpdate(){
       _net_server.broadcastEvent(c_event);
     }
   }
-  
+
   if(mNewGame && _player_list.size()>1 && _server)
     _pScene = std::make_shared<BomberBlokeScene>(10, 10);
 
@@ -403,7 +399,14 @@ void BomberBlokeScene::handleCommand(std::string str){
   } else if (str == "end") {
     if (mSoundtrack)
       mSoundtrack->playIdle();
+
+    /*  add a win to the last remaining player */
+    std::shared_ptr<AbstractPlayer> winning_player = (*std::find_if(mActors.begin(), mActors.end(), [](std::shared_ptr<actor> i) -> bool {return i->getType() == ACTOR_BLOKE;}))->getPlayer();
+    if(winning_player)
+      winning_player->addWin();
+
     std::shared_ptr<EndRoundHudGroup> endRoundHud = mEndRoundHud.lock();
+    endRoundHud->updateScores(winning_player, _player_list);
     endRoundHud->setIsVisible(true);
   }
   if(str == "bigbomb")

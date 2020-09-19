@@ -36,6 +36,10 @@ public:
     mWins++;
   }
 
+  int getWins() {
+    return mWins;
+  }
+
   int getId(){
     return mId;
   }
