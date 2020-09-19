@@ -7,6 +7,7 @@
 #include "SpeedPickup.hpp"
 #include "PowerPickup.hpp"
 #include "BombPickup.hpp"
+#include "BigBombPickup.hpp"
 
 class woodenCrate : public actor{
 public:
@@ -30,7 +31,7 @@ public:
 
       std::random_device rd;
       std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
-      std::uniform_int_distribution<> distrib(0, 3);
+      std::uniform_int_distribution<> distrib(0, 4);
 
       switch(distrib(gen)){
       case PICKUP_SPEED:{
@@ -46,6 +47,10 @@ public:
         std::shared_ptr<actor> act = std::make_shared<PowerPickup>(mPosition[0], mPosition[1]);
         _pScene->addActor(act);
         break;
+      }
+      case PICKUP_BIG_BOMB:{
+        std::shared_ptr<actor> act = std::make_shared<BigBombPickup>(mPosition[0], mPosition[1]);
+        _pScene->addActor(act);
       }
       case PICKUP_NONE:
       default: break;

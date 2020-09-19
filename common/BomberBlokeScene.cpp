@@ -105,14 +105,15 @@ void BomberBlokeScene::logicUpdate(){
     case 1:{
       log_message(INFO, "Someone has won");
       mNewGame = true;
+      mState = STOPPED;
+      /*  add a win to the last remaining player */
+      (*std::find_if(mActors.begin(), mActors.end(), [](std::shared_ptr<actor> i) -> bool {return i->getType() == ACTOR_BLOKE;}))->getPlayer()->addWin();
       break;
     }
     default:
       break;
     }
   }
-  if(mNewGame && _player_list.size()>1 && _server)
-    _pScene = std::make_shared<BomberBlokeScene>(10, 10);
 }
 
 BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_y){

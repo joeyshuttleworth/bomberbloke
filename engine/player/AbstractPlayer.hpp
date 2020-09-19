@@ -32,6 +32,10 @@ public:
 
   std::string mNickname;
 
+  void addWin(){
+    mWins++;
+  }
+
   int getId(){
     return mId;
   }
@@ -70,6 +74,7 @@ protected:
   std::shared_ptr<actor> mpCharacter;
   virtual void ping(){}
   int mId;
+  unsigned int mWins = 0;
 };
 
 #endif

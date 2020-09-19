@@ -7,7 +7,8 @@ enum actor_types{
                  ACTOR_EXPLOSIVE_CRATE,
                  ACTOR_DEATH_BLOCK,
                  ACTOR_BLOKE,
-                 ACTOR_BOMB
+                 ACTOR_BOMB,
+                 ACTOR_BIG_BOMB
 };
 
 #endif

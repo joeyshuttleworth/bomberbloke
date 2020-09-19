@@ -18,8 +18,6 @@ protected:
   std::weak_ptr<AbstractHudElement> mSpeedIcons[10];
   std::weak_ptr<AbstractHudElement> mBombIcons[10];
 
-  bool mNewGame = false;
-
   // Texture containing bakground tiles.
   SDL_Texture *mBackgroundTexture;
 
