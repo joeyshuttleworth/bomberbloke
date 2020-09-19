@@ -2,15 +2,26 @@
 
 #include <iostream>
 
+const int SOUND_FREQUENCY = 44100;
+const Uint16 SOUND_FORMAT = AUDIO_S16SYS;
+const int SOUND_N_CHANNELS = 2;
+const int SOUND_CHUNKSIZE = 1024;
+
 SoundManager::SoundManager() {}
 SoundManager::~SoundManager() {
+    // Free mix chunks
+    for(std::map<std::string, Mix_Chunk*>::iterator iter = soundFileBank.begin(); iter != soundFileBank.end(); ++iter) {
+        Mix_FreeChunk(iter->second);
+    }
+
+    // Quit SDL mixer
     while(Mix_Init(0)){
         Mix_Quit();
     }
 }
 
 void SoundManager::init(void (*finishedCallback)(int)) {
-    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) == -1)
+    if (Mix_OpenAudio(SOUND_FREQUENCY, SOUND_FORMAT, SOUND_N_CHANNELS, SOUND_CHUNKSIZE) == -1)
         printf("Mix_OpenAudio: %s\n", Mix_GetError());
 
     // Callback for tracking which sounds are on which channels
@@ -38,19 +49,19 @@ void SoundManager::playSound(std::shared_ptr<Sound> sound) {
 
     int tmpChannel = -1;
     if (sound->mFadeInMs > 0) {
-        if (sound->mLengthMs > 0)
+        if (sound->mMaxLengthMs > 0)
             // Play sound with fade in and timeout
             tmpChannel = Mix_FadeInChannelTimed(
-                -1, sound->mMixChunk, sound->mNLoops, sound->mLengthMs, sound->mFadeInMs);
+                -1, sound->mMixChunk, sound->mNLoops, sound->mMaxLengthMs, sound->mFadeInMs);
         else
             // Play sound with fade in
             tmpChannel = Mix_FadeInChannel(
                 -1, sound->mMixChunk, sound->mNLoops, sound->mFadeInMs);
     } else {
-        if (sound->mLengthMs > 0)
+        if (sound->mMaxLengthMs > 0)
             // Play sound with timeout
             tmpChannel = Mix_PlayChannelTimed(
-                -1, sound->mMixChunk, sound->mNLoops, sound->mLengthMs);
+                -1, sound->mMixChunk, sound->mNLoops, sound->mMaxLengthMs);
         else
             // Play sound
             tmpChannel = Mix_PlayChannel(-1, sound->mMixChunk, sound->mNLoops);
@@ -64,6 +75,11 @@ void SoundManager::playSound(std::shared_ptr<Sound> sound) {
 
     // Set sound volume
     int soundVolume = sound->mVolume * mMasterVolume / 128;
+    if (sound->mGroup == SOUND_FX) {
+      soundVolume = soundVolume * mFxVolume / 128;
+    } else if (sound->mGroup == SOUND_MUSIC) {
+      soundVolume = soundVolume * mMusicVolume / 128;
+    }
     Mix_Volume(tmpChannel, soundVolume);
 
     // Add positional audio effect
@@ -76,27 +92,45 @@ void SoundManager::playSound(std::shared_ptr<Sound> sound) {
 
 void SoundManager::channelFinishedCallback(int channel) {
     // Obtain sound from channelToSound map
-    std::shared_ptr<Sound> sound = channelToSound[channel].lock();
+    std::shared_ptr<Sound> sound = channelToSound[channel];
 
-    // Remove the channelToSound entry
-    channelToSound.erase(channel);
-
-    if (!sound)
+    if (!sound) {
+        // Remove the channelToSound entry
+        channelToSound.erase(channel);
         return;
+    }
 
-    // Call callback if the sound has one
-    if (sound->onFinishedPlaying != nullptr)
+    if (sound->onFinishedPlaying != nullptr) {
+        // Call callback if the sound has one
         sound->onFinishedPlaying();
-
+    }
 }
 
-void SoundManager::setMasterVolume(int volume) {
-    mMasterVolume = volume;
+void SoundManager::setVolume(int volume, SoundGroup group) {
+    // Set volume
+    if (group == SOUND_MASTER) {
+      mMasterVolume = volume;
+    } else if (group == SOUND_FX) {
+      mFxVolume = volume;
+    } else if (group == SOUND_MUSIC) {
+      mMusicVolume = volume;
+    }
 
     // Adjust the volume of all channels
-    for(std::map<int, std::weak_ptr<Sound>>::iterator iter = channelToSound.begin(); iter != channelToSound.end(); ++iter) {
+    for(std::map<int, std::shared_ptr<Sound>>::iterator iter = channelToSound.begin(); iter != channelToSound.end(); ++iter) {
         int soundChannel = iter->first;
-        int newVolume = iter->second.lock()->mVolume * mMasterVolume / 128;
+        int newVolume = mMasterVolume;
+
+        std::shared_ptr<Sound> sound = iter->second;
+        if (sound) {
+            newVolume = sound->mVolume * mMasterVolume / 128;
+            if (group == SOUND_FX && sound->mGroup == group) {
+                newVolume = newVolume * mFxVolume / 128;
+            } else if (group == SOUND_MUSIC && sound->mGroup == group) {
+                newVolume = newVolume * mMusicVolume / 128;
+            }
+        }
+
         Mix_Volume(soundChannel, newVolume);
     }
 }
