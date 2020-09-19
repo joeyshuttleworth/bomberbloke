@@ -7,6 +7,7 @@ Explosion::Explosion(){
   /* Create sound objects for explosion sound effects */
   for (int i = 0; i < N_EXPLOSION_SOUNDS; i++) {
     std::shared_ptr<Sound> sound = soundManager.createSound(mExplosionSoundNames[i]);
+    sound->mGroup = SOUND_FX;
     mExplosionSounds[i] = sound;
   }
  return;

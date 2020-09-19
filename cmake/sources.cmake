@@ -35,3 +35,4 @@ engine/hud/CountdownHudGroup.cpp
 common/AbstractPickup.cpp
 engine/hud/InputField.cpp
 engine/hud/JoinMenuHudGroup.cpp
+engine/sound/Soundtrack.cpp

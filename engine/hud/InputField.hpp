@@ -41,6 +41,7 @@ public:
      */
     void setInputText(std::string newText) {
         mTextInput = newText;
+        mText->setText(mTextInput);
         mPropertiesUpdated = true;
     }
 

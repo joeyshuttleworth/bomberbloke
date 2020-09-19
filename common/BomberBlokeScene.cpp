@@ -17,12 +17,18 @@
 #include "woodenCrate.hpp"
 #include "bloke.hpp"
 #include "PauseMenuHudGroup.hpp"
+#include "Soundtrack.hpp"
 
 const std::string BACKGROUND_TILE_PREFIX = "background_tile_";
 const int N_BACKGROUND_TILES = 10;
 
 const int PAUSE_BLUR_SIZE = 10;
 const int PAUSE_BRIGHTNESS = -30;
+
+BomberBlokeScene::~BomberBlokeScene() {
+  if (mSoundtrack)
+    mSoundtrack->stop();
+}
 
 void BomberBlokeScene::draw(){
   // Reset the frame buffer
@@ -113,6 +119,11 @@ void BomberBlokeScene::logicUpdate(){
   }
   if(mNewGame && _player_list.size()>1 && _server)
     _pScene = std::make_shared<BomberBlokeScene>(10, 10);
+
+  if (mSoundtrack) {
+    double intensity = 1 - ((double) number_of_blokes) / ((double) _player_list.size());
+    mSoundtrack->setIntensity(intensity);
+  }
 }
 
 BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_y){
@@ -254,7 +265,7 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
   showEntireScene();
 
   if(_server)
-    startCountdown(3);
+    startCountdown(5);
   return;
 }
 
@@ -336,10 +347,29 @@ void BomberBlokeScene::onCountdownFinished() {
   if(_server){
     _net_server.syncPlayers();
   }
+  if (mSoundtrack)
+    mSoundtrack->play();
 }
 
 void BomberBlokeScene::handleCommand(std::string str){
-  if(str == "start"){
-    startCountdown(3);
+  if (str == "start"){
+    if (mSoundtrack)
+      mSoundtrack->stop();
+
+    // TODO: make this work for more than two tracks
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::bernoulli_distribution dist;
+    if (dist(gen)) {
+      mSoundtrack = std::make_shared<Soundtrack1>();
+    } else {
+      mSoundtrack = std::make_shared<Soundtrack2>();
+    }
+    mSoundtrack->playIdle();
+
+    startCountdown(5);
+  } else if (str == "end") {
+    if (mSoundtrack)
+      mSoundtrack->playIdle();
   }
 }
