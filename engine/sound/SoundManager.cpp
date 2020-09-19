@@ -122,11 +122,11 @@ void SoundManager::setVolume(int volume, SoundGroup group) {
         int newVolume = mMasterVolume;
 
         std::shared_ptr<Sound> sound = iter->second;
-        if (sound) {
+        if (sound && (sound->mGroup == group || group == SOUND_MASTER)) {
             newVolume = sound->mVolume * mMasterVolume / 128;
-            if (group == SOUND_FX && sound->mGroup == group) {
+            if (group == SOUND_FX) {
                 newVolume = newVolume * mFxVolume / 128;
-            } else if (group == SOUND_MUSIC && sound->mGroup == group) {
+            } else if (group == SOUND_MUSIC) {
                 newVolume = newVolume * mMusicVolume / 128;
             }
         }
