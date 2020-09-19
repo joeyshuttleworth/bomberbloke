@@ -401,9 +401,12 @@ void BomberBlokeScene::handleCommand(std::string str){
       mSoundtrack->playIdle();
 
     /*  add a win to the last remaining player */
-    std::shared_ptr<AbstractPlayer> winning_player = (*std::find_if(mActors.begin(), mActors.end(), [](std::shared_ptr<actor> i) -> bool {return i->getType() == ACTOR_BLOKE;}))->getPlayer();
-    if(winning_player)
+    auto last_bloke_iter = std::find_if(mActors.begin(), mActors.end(), [](std::shared_ptr<actor> i) -> bool {return i->getType() == ACTOR_BLOKE;});
+    std::shared_ptr<AbstractPlayer> winning_player = nullptr;
+    if(last_bloke_iter != mActors.end()) {
+      winning_player = (*last_bloke_iter)->getPlayer();
       winning_player->addWin();
+    }
 
     std::shared_ptr<EndRoundHudGroup> endRoundHud = mEndRoundHud.lock();
     endRoundHud->updateScores(winning_player, _player_list);
