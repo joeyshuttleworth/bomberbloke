@@ -10,10 +10,22 @@
 
 extern bool _server;
 
+extern const int SOUND_FREQUENCY;
+extern const Uint16 SOUND_FORMAT;
+extern const int SOUND_N_CHANNELS;
+extern const int SOUND_CHUNKSIZE;
+
+
 class SoundManager {
 private:
     // Volume applied to all channels.
     int mMasterVolume = 128;
+
+    // Volume applied to FX sound group.
+    int mFxVolume = 128;
+
+    // Volume applied to music sound group.
+    int mMusicVolume = 128;
 
     /**
      * Map object containing Mix_Chunk object (sound files). Indexed by sound
@@ -24,7 +36,7 @@ private:
     /**
      * Map from channel number to currently playing Sound
      */
-    std::map<int, std::weak_ptr<Sound>> channelToSound;
+    std::map<int, std::shared_ptr<Sound>> channelToSound;
 
 public:
     /**
@@ -44,6 +56,11 @@ public:
     std::shared_ptr<Sound> createSound(std::string soundName);
 
     /**
+     * Returns Mix_Chunk with a given name.
+     */
+    Mix_Chunk *getSoundFile(std::string soundName);
+
+    /**
      * Play sound object.
      */
     void playSound(std::shared_ptr<Sound> sound);
@@ -55,17 +72,23 @@ public:
     void channelFinishedCallback(int channel);
 
     /**
-     * Sets the master volume - the volume applied to all channels.
+     * Sets the volume - the volume applied to all channels.
      *
      * @param volume  0-128 where 128 is the maximum volume.
+     * @param group   Sound group to change the volume of.
      */
-    void setMasterVolume(int volume);
+    void setVolume(int volume, SoundGroup group=SOUND_MASTER);
 
     /**
      * Gets the master volume - the volume applied to all channels.
      */
-    int getMasterVolume() {
-        return mMasterVolume;
+    int getVolume(SoundGroup group=SOUND_MASTER) {
+        if (group == SOUND_FX)
+          return mFxVolume;
+        else if (group == SOUND_MUSIC)
+          return mMusicVolume;
+        else
+          return mMasterVolume;
     }
 
     SoundManager();

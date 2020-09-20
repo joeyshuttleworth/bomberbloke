@@ -29,15 +29,17 @@ public:
 
     std::vector<serverPlayer> mPlayers;
 
-private:
+    std::string mServerAddress;
+    enet_uint16 mPort;
+
+    ENetPeer *getENetServer(){return mENetServer;}
+
+protected:
   /* And ENet representation of the address of the server */
     ENetAddress mENetServerAddress;
     ENetPeer *mENetServer;
   /** The ENet host used by this client   */
     ENetHost *mENetHost = nullptr;
-
-    std::string mServerAddress;
-    enet_uint16 mPort;
 };
 
 #endif

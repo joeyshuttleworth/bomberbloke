@@ -32,6 +32,14 @@ public:
 
   std::string mNickname;
 
+  void addWin(){
+    mWins++;
+  }
+
+  int getWins() {
+    return mWins;
+  }
+
   int getId(){
     return mId;
   }
@@ -48,7 +56,7 @@ public:
   /*Used by cereal to serialize the event for it to be sent/received*/
   template<class Archive>
   void serialize(Archive &archive){
-    archive(cereal::make_nvp("nickname", mNickname));
+    archive(cereal::make_nvp("nickname", mNickname), mWins, mId);
   }
 
   virtual int getPing(){return 0;}
@@ -70,6 +78,7 @@ protected:
   std::shared_ptr<actor> mpCharacter;
   virtual void ping(){}
   int mId;
+  unsigned int mWins = 0;
 };
 
 #endif

@@ -35,6 +35,17 @@ public:
     }
 
     /**
+     * Sets the text input string.
+     *
+     * @param newText New text string.
+     */
+    void setInputText(std::string newText) {
+        mTextInput = newText;
+        mText->setText(mTextInput);
+        mPropertiesUpdated = true;
+    }
+
+    /**
      * Update method to be called on every tick.
      */
     void update() override;

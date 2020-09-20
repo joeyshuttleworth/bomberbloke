@@ -38,6 +38,7 @@ int main (){
     // Play intro music
     std::shared_ptr<Sound> pIntroSound = soundManager.createSound("explosion_intro");
     soundManager.playSound(pIntroSound);
+    pIntroSound->mGroup = SOUND_FX;
   }
 
   client_loop();

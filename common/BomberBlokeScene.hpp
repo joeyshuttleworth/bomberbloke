@@ -9,16 +9,16 @@
 class FollowCamera;
 class PauseMenuHudGroup;
 class CountdownHudGroup;
+class EndRoundHudGroup;
 class TextHudElement;
 class actor;
+class Soundtrack;
 
 class BomberBlokeScene : public scene{
 protected:
   std::weak_ptr<AbstractHudElement> mPowerIcons[10];
   std::weak_ptr<AbstractHudElement> mSpeedIcons[10];
   std::weak_ptr<AbstractHudElement> mBombIcons[10];
-
-  bool mNewGame = false;
 
   // Texture containing bakground tiles.
   SDL_Texture *mBackgroundTexture;
@@ -37,6 +37,12 @@ protected:
 
   std::weak_ptr<CountdownHudGroup> mCountdownHud;
 
+  // Weak pointer to the options menu.
+  std::weak_ptr<EndRoundHudGroup> mEndRoundHud;
+
+  // Soundtrack object.
+  std::shared_ptr<Soundtrack> mSoundtrack;
+
   /**
    * Configures the camera such that it follows a bloke.
    *
@@ -50,9 +56,10 @@ protected:
   void showEntireScene();
 
 public:
+  void setBigBomb();
 
   BomberBlokeScene(int size_x = 10, int size_y = 10);
-  ~BomberBlokeScene(){}
+  ~BomberBlokeScene();
 
   /**
    * Update function - called every tick
@@ -96,7 +103,7 @@ public:
    */
   void onCountdownFinished();
 
-  void handleCommand(std::string str);
+  void handleCommand(std::string str) override;
 
   template<class Archive>
   void serialize(Archive &archive){

@@ -5,18 +5,18 @@
 #include "Explosion.hpp"
 #include "engine.hpp"
 #include "actor.hpp"
+#include "BigBomb.hpp"
 
 void bomb::init(bloke *bloke){
   mDimmension[0]=BOMB_SIZE;
   mDimmension[1]=BOMB_SIZE;
   if(bloke){
     mPlacedById = bloke->mId;
-    mPower = bloke->GetProperties()->mPower;
+    mPower = bloke->mPower;
   }
   else{
     log_message(ERROR, "Bomb placed by malformed actor");
   }
-
   return;
 }
 
@@ -53,27 +53,84 @@ void bomb::update(){
 
 void bomb::explode(){
   remove();
+
+  if(getType() == ACTOR_BIG_BOMB)
+    mPower = 100;
+
   if(_server){
-    /*Iterate over all actors and kill the ones if they are in the right (wrong) zone.*/
-    const std::list<std::shared_ptr<actor>> actor_list = _pScene->mActors;
-      for(auto i = actor_list.begin(); i != actor_list.end(); i++){
-        /* Do not kill this bomb*/
-        if(i->get() == this)
-          continue;
-        int bomb_square[] = {int(mPosition[0]), int(mPosition[1])};
-        int actor_square[] = {int((*i)->mPosition[0] + (*i)->mDimmension[0]/2), int((*i)->mPosition[1] + (*i)->mDimmension[1]/2)};
-       /* Check we are in the blast zone - if so set dead to true */
-        for(int j = 0; j < 2; j++){
-          if(bomb_square[j] == actor_square[j] && std::abs(bomb_square[!j] - actor_square[!j]) <= mPower+1){
-            (*i)->handleCommand("+kill");
-            break;
+    /*Iterate over all the sqares the bomb can reach and kill the ones if they are in the right (wrong) zone.*/
+
+    int bomb_square[] = {int(mPosition[0]), int(mPosition[1])};
+
+    for(unsigned int i = 0; i < 2; i++){
+      for(unsigned int j = 1; j <= mPower; j++){
+        std::shared_ptr<actor> square;
+
+        if(i==0)
+          square = std::make_shared<actor>(bomb_square[0] + j, bomb_square[1], 1, 1, false);
+        else if(i==1)
+          square = std::make_shared<actor>(bomb_square[0], bomb_square[1] + j, 1, 1, false);
+
+        std::list<std::shared_ptr<actor>> actor_list = _pScene->ActorsCollidingWith(square.get());
+        bool stopped = false;
+        for(std::shared_ptr<actor> pActor : actor_list){
+          if(pActor.get() == this)
+            continue;
+          else{
+            pActor->handleCommand("+kill");
+            switch(pActor->getType()){
+            case ACTOR_WOODEN_CRATE:
+            case ACTOR_BLOKE:
+            case ACTOR_BOMB:
+              stopped = true;
+              break;
+            default: break;
+            }
           }
         }
+        if(stopped)
+          break;
       }
+      for(unsigned int j = 0; j <= mPower; j++){
+        std::shared_ptr<actor> square;
+
+        if(i==0)
+          square = std::make_shared<actor>(bomb_square[0] - j, bomb_square[1], 1, 1, false);
+        else if(i==1)
+          square = std::make_shared<actor>(bomb_square[0], bomb_square[1] - j, 1, 1, false);
+
+        std::list<std::shared_ptr<actor>> actor_list = _pScene->ActorsCollidingWith(square.get());
+        bool stopped = false;
+        for(std::shared_ptr<actor> pActor : actor_list){
+          if(pActor.get() == this)
+            continue;
+          else{
+            pActor->handleCommand("+kill");
+            switch(pActor->getType()){
+            case ACTOR_WOODEN_CRATE:
+            case ACTOR_BLOKE:
+            case ACTOR_BOMB:
+              stopped = true;
+              break;
+            default:
+              stopped = false;
+              break;
+            }
+          }
+        }
+        if(stopped)
+          break;
+      }
+    }
+
     /*Cast to a bloke pointer.*/
     std::shared_ptr<bloke> placed_by = std::dynamic_pointer_cast<bloke>(_pScene->GetActor(mPlacedById));
-    if(placed_by && _server)
+    if(placed_by && _server){
       placed_by->mBombs--;
+      if(getType() == ACTOR_BIG_BOMB){
+        placed_by->mBigBombPlaced = false;
+      }
+    }
 
     /* Create an explosion particle on all clients */
     std::shared_ptr<AbstractSpriteHandler> explosion = std::make_shared<Explosion>(int(mPosition[0]), int(mPosition[1]), 1, 1);

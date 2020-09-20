@@ -16,13 +16,31 @@
 #include "FollowCamera.hpp"
 #include "woodenCrate.hpp"
 #include "bloke.hpp"
+#include "EndRoundHudGroup.hpp"
 #include "PauseMenuHudGroup.hpp"
+#include "Soundtrack.hpp"
 
 const std::string BACKGROUND_TILE_PREFIX = "background_tile_";
 const int N_BACKGROUND_TILES = 10;
 
 const int PAUSE_BLUR_SIZE = 10;
 const int PAUSE_BRIGHTNESS = -30;
+
+
+void BomberBlokeScene::setBigBomb(){
+  std::shared_ptr<AbstractHudElement> observe = mBombIcons[0].lock();
+  mHudElements.remove(observe);
+  std::shared_ptr<SpriteHudElement> hudElement = std::make_shared<SpriteHudElement>("bigredbomb.png", 9 + 0 * 34, 91, 32, 32);
+  hudElement->setGlowAmount(100);
+  mBombIcons[0] = hudElement;
+  mHudElements.push_back(hudElement);
+}
+
+BomberBlokeScene::~BomberBlokeScene() {
+  mNewGame = false;
+  if (mSoundtrack)
+    mSoundtrack->stop();
+}
 
 void BomberBlokeScene::draw(){
   // Reset the frame buffer
@@ -88,6 +106,9 @@ void BomberBlokeScene::update() {
 }
 
 void BomberBlokeScene::logicUpdate(){
+  if(!_server)
+    return;
+
   // count blokes
   if(mState == PAUSED || mState == STOPPED)
     return;
@@ -110,9 +131,20 @@ void BomberBlokeScene::logicUpdate(){
     default:
       break;
     }
+    if(mNewGame){
+      /*Send end command*/
+      auto winner_iter = std::find_if(_player_list.begin(), _player_list.end(), [&](std::shared_ptr<AbstractPlayer> p) -> bool {return p->getCharacter() != nullptr;});
+      std::unique_ptr<AbstractEvent> c_event(new CommandEvent("end nobody"));
+      if(winner_iter!=_player_list.end())
+        c_event = std::unique_ptr<AbstractEvent>(new CommandEvent("end " + (*winner_iter)->mNickname));
+      _net_server.broadcastEvent(c_event);
+    }
   }
-  if(mNewGame && _player_list.size()>1 && _server)
-    _pScene = std::make_shared<BomberBlokeScene>(10, 10);
+
+  if (mSoundtrack) {
+    double intensity = 1 - ((double) number_of_blokes) / ((double) _player_list.size());
+    mSoundtrack->setIntensity(intensity);
+  }
 }
 
 BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_y){
@@ -223,6 +255,11 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
   mHudElements.push_back(pCountdown);
   mCountdownHud = pCountdown;
 
+  std::shared_ptr<EndRoundHudGroup> endRoundHud = std::make_shared<EndRoundHudGroup>();
+  endRoundHud->setIsVisible(false);
+  mHudElements.push_back(endRoundHud);
+  mEndRoundHud = endRoundHud;
+
   // Speed HUD demo
   for(int i = 0; i < 10; i++) {
     std::shared_ptr<SpriteHudElement> hudElement = std::make_shared<SpriteHudElement>("lightning.png", 9 + i * 34, 9, 32, 32);
@@ -254,7 +291,7 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
   showEntireScene();
 
   if(_server)
-    startCountdown(3);
+    startCountdown(5);
   return;
 }
 
@@ -336,10 +373,46 @@ void BomberBlokeScene::onCountdownFinished() {
   if(_server){
     _net_server.syncPlayers();
   }
+  if (mSoundtrack)
+    mSoundtrack->play();
 }
 
 void BomberBlokeScene::handleCommand(std::string str){
-  if(str == "start"){
-    startCountdown(3);
+  auto tokens = split_to_tokens(str);
+  if (str == "start"){
+    /*  reset big bomb sprite */
+    std::shared_ptr<AbstractHudElement> observe = mBombIcons[0].lock();
+    mHudElements.remove(observe);
+    std::shared_ptr<SpriteHudElement> hudElement = std::make_shared<SpriteHudElement>("bomb_pickup.png", 9 + 0 * 34, 91, 32, 32);
+    hudElement->setGlowAmount(100);
+    mBombIcons[0] = hudElement;
+    if (mSoundtrack)
+      mSoundtrack->stop();
+
+    // TODO: make this work for more than two tracks
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::bernoulli_distribution dist;
+    if (dist(gen)) {
+      mSoundtrack = std::make_shared<Soundtrack1>();
+    } else {
+      mSoundtrack = std::make_shared<Soundtrack2>();
+    }
+    mSoundtrack->playIdle();
+
+    std::shared_ptr<EndRoundHudGroup> endRoundHud = mEndRoundHud.lock();
+    endRoundHud->setIsVisible(false);
+
+    startCountdown(5);
+  } else if(tokens.front() == "end") {
+    if (mSoundtrack)
+      mSoundtrack->playIdle();
+
+    std::string winning_name = tokens.back();
+    std::shared_ptr<EndRoundHudGroup> endRoundHud = mEndRoundHud.lock();
+    endRoundHud->updateScores(winning_name, _player_list);
+    endRoundHud->setIsVisible(true);
   }
+  if(str == "bigbomb")
+    setBigBomb();
 }

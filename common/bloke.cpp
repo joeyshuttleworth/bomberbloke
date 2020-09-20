@@ -1,6 +1,7 @@
 #include "bomberbloke.h"
 #include "CommandEvent.hpp"
 #include "bloke.hpp"
+#include "BigBomb.hpp"
 #include "bomb.hpp"
 #include <sstream>
 #include <cereal/archives/json.hpp>
@@ -16,6 +17,7 @@ bloke::bloke(double x, double y, bool collides)
   mpSpriteHandler = std::make_shared<PlaceHolderSprite>(mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]);
   mProperties = std::make_shared<GamePlayerProperties>();
   mPlaceBombSound = soundManager.createSound(PLACE_BOMB_SOUND_NAME);
+  mPlaceBombSound->mGroup = SOUND_FX;
 }
 
 void bloke :: accelerate(){
@@ -114,6 +116,10 @@ void bloke :: update(){
 void bloke :: place_bomb(){
   if(mBombs<mMaxBombs+1){
     std::shared_ptr<bomb> new_bomb = std::make_shared<bomb>(this);
+    if(mBigBomb && !mBigBombPlaced){
+      new_bomb = std::make_shared<BigBomb>(this);
+      mBigBombPlaced = true;
+    }
     new_bomb->init(this);
     _pScene->addActor(new_bomb);
     mBombs++;

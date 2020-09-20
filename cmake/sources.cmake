@@ -29,8 +29,12 @@ engine/camera/FollowCamera.cpp
 common/SpeedPickup.cpp
 common/BombPickup.cpp
 common/PowerPickup.cpp
+common/BigBombPickup.cpp
 common/GamePlayerProperties.cpp
 engine/hud/OptionsMenuHudGroup.cpp
 engine/hud/CountdownHudGroup.cpp
 common/AbstractPickup.cpp
 engine/hud/InputField.cpp
+engine/hud/JoinMenuHudGroup.cpp
+engine/sound/Soundtrack.cpp
+engine/hud/EndRoundHudGroup.cpp

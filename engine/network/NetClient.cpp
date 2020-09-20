@@ -152,11 +152,7 @@ bool NetClient::joinBlokeServer(std::string address, int port, std::string nickn
 }
 
 void NetClient::handleServerCommand(std::string str){
-  if(str == "start"){
-    _pScene->handleCommand("start");
-  }
-  else if(str == "stop"){
-  }
+  _pScene->handleCommand(str);
   return;
 }
 
@@ -205,6 +201,12 @@ void NetClient::pollServer(){
            if((*i)->getPlayerId() == player_id)
              _local_player_list.back().setCharacter(*i);
          }
+       }
+       auto p_list = s_event->getPlayers();
+       _player_list = {};
+       for(auto i = p_list.begin(); i != p_list.end(); i++){
+         std::shared_ptr<AbstractPlayer> p = std::make_shared<serverPlayer>(*i);
+         _player_list.push_back(p);
        }
        log_message(DEBUG, "synced with server");
        break;
