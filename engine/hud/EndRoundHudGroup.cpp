@@ -19,7 +19,7 @@ EndRoundHudGroup::EndRoundHudGroup()
   winnerLabelText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
   winnerLabelText->setTextColour({255, 255, 255});
   winnerLabelText->setTextScale(1.5);
-  std::shared_ptr<TextHudElement> winnerLabelElement = std::make_shared<TextHudElement>(winnerLabelText, 0, -200, 100, 50, ALIGN_CENTER, ALIGN_CENTER);
+  std::shared_ptr<TextHudElement> winnerLabelElement = std::make_shared<TextHudElement>(winnerLabelText, 0, -200, 300, 50, ALIGN_CENTER, ALIGN_CENTER);
   addElement(winnerLabelElement);
 
   // Create round winner text
