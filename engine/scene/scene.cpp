@@ -280,6 +280,7 @@ void scene::onInput(SDL_Event *event) {
 void scene::onResize(){
     if(mpCamera)
       mpCamera->onResize();
+    updateHudPositions();
     refreshSprites();
     return;
 }

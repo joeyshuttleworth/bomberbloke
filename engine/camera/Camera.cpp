@@ -26,27 +26,19 @@ void Camera::setBrightness(int brightness) {
 }
 
 void Camera::onResize() {
-    // Get window size
-    int width, height;
-    if (_window)
-        SDL_GetWindowSize(_window, &width, &height);
-    else {
-        width = DEFAULT_WINDOW_HEIGHT;
-        height = DEFAULT_WINDOW_WIDTH;
-    }
+    mScreenRectangle.w = _window_size[0];
+    mScreenRectangle.h = _window_size[1];
 
-    mScreenRectangle.w = width;
-    mScreenRectangle.h = height;
-
-    // Clear frame buffer
+    // Clear frame buffers
     if (mpFrameBuffer)
         SDL_DestroyTexture(mpFrameBuffer);
-    mpFrameBuffer = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, width, height);
-
-    if(mpScene){
-      mpScene->updateHudPositions();
-      mpScene->refreshSprites();
-    }
+    if (mpNoProcessingBuffer)
+        SDL_DestroyTexture(mpNoProcessingBuffer);
+    if (mpBloomBuffer)
+        SDL_DestroyTexture(mpBloomBuffer);
+    mpFrameBuffer = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, mScreenRectangle.w, mScreenRectangle.h);
+    mpNoProcessingBuffer = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, mScreenRectangle.w, mScreenRectangle.h);
+    mpBloomBuffer = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, mScreenRectangle.w, mScreenRectangle.h);
 
     return;
 }
