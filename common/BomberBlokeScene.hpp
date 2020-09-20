@@ -9,6 +9,7 @@
 class FollowCamera;
 class PauseMenuHudGroup;
 class CountdownHudGroup;
+class EndRoundHudGroup;
 class TextHudElement;
 class actor;
 class Soundtrack;
@@ -34,8 +35,10 @@ protected:
   // Weak pointer to the pause menu HUD group (contained in mHudElements).
   std::weak_ptr<PauseMenuHudGroup> mPauseMenuHud;
 
-  // Weak pointer to the options menu.
   std::weak_ptr<CountdownHudGroup> mCountdownHud;
+
+  // Weak pointer to the options menu.
+  std::weak_ptr<EndRoundHudGroup> mEndRoundHud;
 
   // Soundtrack object.
   std::shared_ptr<Soundtrack> mSoundtrack;
