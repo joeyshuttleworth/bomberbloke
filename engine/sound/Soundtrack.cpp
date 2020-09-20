@@ -63,19 +63,17 @@ Soundtrack::Soundtrack(std::list<std::string> clipNames, std::list<std::list<dou
 }
 
 void Soundtrack::playIdle() {
-  if (mIsIdle && mIsPlaying) {
-    return;
-  }
-
   if (!mIsIdle && mIsPlaying) {
     auto iter = mClipSounds.begin();
     std::advance(iter, mCurrentIndex);
-    (*iter)->fadeOut(FADE_OUT_MS);
+    mIsIdle = true;
+    mIsPlaying = true;
+    (*iter)->stop();
+  } else if (!mIsPlaying) {
+    mIsIdle = true;
+    mIsPlaying = true;
+    soundManager.playSound(mClipSounds.front());
   }
-
-  mIsIdle = true;
-  mIsPlaying = true;
-  soundManager.playSound(mClipSounds.front());
 }
 
 void Soundtrack::play() {
