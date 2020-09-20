@@ -105,7 +105,18 @@ public:
    */
   void onCountdownFinished();
 
+  /**
+   * Handles server command.
+   *
+   * @param str Server command to handle.
+   */
   void handleCommand(std::string str) override;
+
+  /**  onResize
+   *
+   *  Update the camera to reflect the new window size.
+   */
+  void onResize() override;
 
   template<class Archive>
   void serialize(Archive &archive){

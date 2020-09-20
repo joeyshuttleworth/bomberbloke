@@ -412,3 +412,11 @@ void BomberBlokeScene::handleCommand(std::string str){
   if(str == "bigbomb")
     setBigBomb();
 }
+
+void BomberBlokeScene::onResize() {
+  if(mSceneCamera)
+    mSceneCamera->onResize();
+  if(mBlokeCamera)
+    mBlokeCamera->onResize();
+  scene::onResize();
+}
