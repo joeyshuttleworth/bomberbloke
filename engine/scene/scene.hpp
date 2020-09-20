@@ -17,7 +17,6 @@ class scene{
   friend NetClient;
   friend NetServer;
 protected:
-  bool mNewGame = false;
   /*name and description are information about this scene*/
   std::string mName;
   std::string mDescription;
@@ -31,8 +30,7 @@ protected:
   std::shared_ptr<Camera> mpCamera;
 
 public:
-
-  bool getNewGame(){return mNewGame;}
+  bool mNewGame = false;
 
   virtual void handleCommand(std::string str){}
 

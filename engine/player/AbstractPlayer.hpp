@@ -56,7 +56,7 @@ public:
   /*Used by cereal to serialize the event for it to be sent/received*/
   template<class Archive>
   void serialize(Archive &archive){
-    archive(cereal::make_nvp("nickname", mNickname));
+    archive(cereal::make_nvp("nickname", mNickname), mWins, mId);
   }
 
   virtual int getPing(){return 0;}
