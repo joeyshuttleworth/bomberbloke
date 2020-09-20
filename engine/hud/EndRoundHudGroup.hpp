@@ -26,6 +26,7 @@ public:
    */
   void updateScores(std::shared_ptr<AbstractPlayer> roundWinner, std::list<std::shared_ptr<AbstractPlayer>> playerList);
 
+  void updateScores(std::string roundWinner, std::list<std::shared_ptr<AbstractPlayer>> playerList);
 protected:
   // Weak pointer containing nickname of round winner.
   std::weak_ptr<TextHudElement> mWinnerText;
