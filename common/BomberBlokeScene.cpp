@@ -26,6 +26,7 @@ const int N_BACKGROUND_TILES = 10;
 const int PAUSE_BLUR_SIZE = 10;
 const int PAUSE_BRIGHTNESS = -30;
 
+const int ROUND_END_WAIT_SECS = 5;
 
 void BomberBlokeScene::setBigBomb(){
   std::shared_ptr<AbstractHudElement> observe = mBombIcons[0].lock();
@@ -114,30 +115,21 @@ void BomberBlokeScene::logicUpdate(){
     return;
 
   int number_of_blokes = std::count_if(mActors.begin(), mActors.end(), [](std::shared_ptr<actor> i) -> bool {return i->getType() == ACTOR_BLOKE;});
-  bool new_game = false;
-  if(!mNewGame){
-    switch(number_of_blokes){
-    case 0:{
-      log_message(INFO, "All blokes are dead.");
-      mNewGame = true;
-      mState = STOPPED;
-      break;
-    }
-    case 1:{
-      log_message(INFO, "Someone has won");
-      mNewGame = true;
-      break;
-    }
-    default:
-      break;
-    }
-    if(mNewGame){
+  if(!mIsRoundEnd && !mNewGame){
+    if(number_of_blokes <= 1){
       /*Send end command*/
+      mIsRoundEnd = true;
+      mRoundEndTicks = 0;
       auto winner_iter = std::find_if(_player_list.begin(), _player_list.end(), [&](std::shared_ptr<AbstractPlayer> p) -> bool {return p->getCharacter() != nullptr;});
       std::unique_ptr<AbstractEvent> c_event(new CommandEvent("end nobody"));
       if(winner_iter!=_player_list.end())
         c_event = std::unique_ptr<AbstractEvent>(new CommandEvent("end " + (*winner_iter)->mNickname));
       _net_server.broadcastEvent(c_event);
+    }
+  } else if (mIsRoundEnd) {
+    mRoundEndTicks++;
+    if (mRoundEndTicks > ROUND_END_WAIT_SECS * TICK_RATE) {
+      mNewGame = true;
     }
   }
 
@@ -405,6 +397,10 @@ void BomberBlokeScene::handleCommand(std::string str){
 
     startCountdown(5);
   } else if(tokens.front() == "end") {
+    mIsRoundEnd = true;
+    mRoundEndTicks = 0;
+    mState = STOPPED;
+
     if (mSoundtrack)
       mSoundtrack->playIdle();
 
