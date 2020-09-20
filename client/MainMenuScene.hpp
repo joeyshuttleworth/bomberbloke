@@ -10,6 +10,9 @@ public:
 
   // Destructor for MainMenuScene.
   ~MainMenuScene() {};
+
+  // Called when window is resized.
+  void onResize() override;
 };
 
 #endif
