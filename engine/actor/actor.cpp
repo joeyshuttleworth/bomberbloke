@@ -66,7 +66,7 @@ int actor :: move(double x, double y){
   mPosition[1] = tmp_pos[1];
 
   /*Create a MoveEvent and send it*/
-  if(_server){
+  if(_server & mMoved){
     std::unique_ptr<AbstractEvent> e(new MoveEvent(this));
     _net_server.broadcastEvent(e);
   }

@@ -28,9 +28,11 @@ public:
     void handleServerCommand(std::string);
 
     std::vector<serverPlayer> mPlayers;
-    
+
     std::string mServerAddress;
     enet_uint16 mPort;
+
+    ENetPeer *getENetServer(){return mENetServer;}
 
 protected:
   /* And ENet representation of the address of the server */
