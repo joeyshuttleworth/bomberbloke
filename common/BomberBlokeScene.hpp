@@ -37,6 +37,8 @@ protected:
 
   std::weak_ptr<CountdownHudGroup> mCountdownHud;
 
+  bool mIsRoundEnd = false;
+  int mRoundEndTicks = 0;
   // Weak pointer to the options menu.
   std::weak_ptr<EndRoundHudGroup> mEndRoundHud;
 
