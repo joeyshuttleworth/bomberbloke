@@ -34,12 +34,10 @@ EndRoundHudGroup::EndRoundHudGroup()
   setIsPostProcessed(true);
 }
 
-void EndRoundHudGroup::updateScores(std::shared_ptr<AbstractPlayer> roundWinner, std::list<std::shared_ptr<AbstractPlayer>> playerList) {
+void EndRoundHudGroup::updateScores(std::string roundWinner, std::list<std::shared_ptr<AbstractPlayer>> playerList) {
   std::shared_ptr<TextHudElement> winnerText = mWinnerText.lock();
-  if (roundWinner)
-    winnerText->setText(roundWinner->mNickname);
-  else
-    winnerText->setText("NOBODY");
+
+  winnerText->setText(roundWinner);
 
   std::list<std::shared_ptr<AbstractPlayer>> sortedPlayerList = playerList;
   sortedPlayerList.sort(comparePlayers);
