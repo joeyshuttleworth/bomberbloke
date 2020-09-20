@@ -37,9 +37,10 @@ void server_loop(){
       _net_server.syncPlayers();
     handle_input();
     }
-    if(_pScene->getNewGame() && _player_list.size() > 1)
+    if(_pScene->mNewGame) {
+      _pScene->mNewGame = false;
       new_game("");
+    }
   }
   return;
 }
-

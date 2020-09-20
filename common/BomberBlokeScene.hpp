@@ -35,6 +35,7 @@ protected:
   // Weak pointer to the pause menu HUD group (contained in mHudElements).
   std::weak_ptr<PauseMenuHudGroup> mPauseMenuHud;
 
+  bool mIsCountdown = false;
   std::weak_ptr<CountdownHudGroup> mCountdownHud;
 
   // Weak pointer to the options menu.
@@ -42,6 +43,10 @@ protected:
 
   // Soundtrack object.
   std::shared_ptr<Soundtrack> mSoundtrack;
+
+  // Number of ticks in end round state.
+  bool mIsEndRound = false;
+  int mEndRoundTicks = 0;
 
   /**
    * Configures the camera such that it follows a bloke.

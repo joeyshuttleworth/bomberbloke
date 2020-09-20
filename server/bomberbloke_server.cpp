@@ -50,4 +50,6 @@ void new_game(std::string){
       (*i)->resetPlayerProperties(std::make_shared<GamePlayerProperties>());
     (*i)->resetPlayerProperties();
   }
+  
+  _net_server.syncPlayers();
 }
