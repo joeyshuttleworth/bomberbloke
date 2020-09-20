@@ -7,6 +7,7 @@
 #include "TextButton.hpp"
 #include "Sound.hpp"
 #include "engine.hpp"
+#include "InputField.hpp"
 
 OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
   : AbstractHudGroup(0, 0) {
@@ -121,6 +122,60 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
   increaseMusicElement->setOnClickOffset(-1, 2);
   addElement(increaseMusicElement);
 
+  /* Window mode setting */
+  // Create window mode label
+  std::shared_ptr<Text> windowLabelText = textManager.createText("Aileron-Black", "WINDOW MODE:");
+  windowLabelText->setTextAlignment(TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER);
+  windowLabelText->setTextColour({255, 255, 255});
+  windowLabelText->setTextScale(1.);
+  std::shared_ptr<TextHudElement> windowLabelElement = std::make_shared<TextHudElement>(windowLabelText, -105, 100, 200, 50, ALIGN_CENTER, ALIGN_CENTER);
+  windowLabelElement->setIsPostProcessed(false);
+  addElement(windowLabelElement);
+
+  // Create window mode button
+  std::string buttonString = "";
+  if (SDL_GetWindowFlags(_window) & SDL_WINDOW_FULLSCREEN_DESKTOP) {
+    buttonString = "FULLSCREEN";
+  } else {
+    buttonString = "WINDOWED";
+  }
+  std::shared_ptr<Text> windowModeText = textManager.createText("Aileron-Black", buttonString);
+  windowModeText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
+  windowModeText->setTextColour({255, 255, 255});
+  windowModeText->setTextScale(1.);
+  auto windowModeFn = std::bind(&OptionsMenuHudGroup::toggleWindowMode, this);
+  std::shared_ptr<TextButton> windowModeButton = std::make_shared<TextButton>(windowModeText, 55, 100, 100, 50, windowModeFn, ALIGN_CENTER, ALIGN_CENTER);
+  windowModeButton->setMouseOverColour({200, 200, 200});
+  windowModeButton->setOnClickOffset(-1, 2);
+  addElement(windowModeButton);
+  mWindowModeButton = windowModeButton;
+
+  /* debug console */
+  // Create debug console text
+  std::shared_ptr<Text> consoleText = textManager.createText("Aileron-Black", "CONSOLE");
+  consoleText->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
+  consoleText->setTextColour({255, 255, 255, 128});
+  consoleText->setBackgroundColour({63, 63, 63, 191});
+  consoleText->setTextOffset(6, 0);
+  consoleText->setTextScale(1.);
+  // Create console input field
+  std::shared_ptr<InputField> consoleField = std::make_shared<InputField>(consoleText, -25, 150, 400, 30, ALIGN_CENTER, ALIGN_CENTER);
+  consoleField->setInputColour({255, 255, 255});
+  addElement(consoleField);
+  mConsoleField = consoleField;
+
+  // Create debug console enter button
+  std::shared_ptr<Text> consoleEnterText = textManager.createText("Aileron-Black", "->");
+  consoleEnterText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
+  consoleEnterText->setTextColour({255, 255, 255});
+  consoleEnterText->setTextScale(1.);
+  // Create go back button element
+  auto consoleEnterFn = std::bind(&OptionsMenuHudGroup::handleConsoleInput, this);
+  std::shared_ptr<TextButton> consoleEnterButton = std::make_shared<TextButton>(consoleEnterText, 190, 150, 20, 50, consoleEnterFn, ALIGN_CENTER, ALIGN_CENTER);
+  consoleEnterButton->setMouseOverColour({200, 200, 200});
+  consoleEnterButton->setOnClickOffset(-1, 2);
+  addElement(consoleEnterButton);
+
   // Make group interactive
   mIsInteractive = true;
 
@@ -182,4 +237,26 @@ void OptionsMenuHudGroup::increaseMusicVolume() {
   // Set new volume label
   std::shared_ptr<TextHudElement> label = mMusicVolumeLabel.lock();
   label->setText(std::to_string(newVolumeLabel));
+}
+
+void OptionsMenuHudGroup::toggleWindowMode() {
+  std::shared_ptr<TextButton> windowModeButton = mWindowModeButton.lock();
+  if (SDL_GetWindowFlags(_window) & SDL_WINDOW_FULLSCREEN_DESKTOP) {
+    // Window is full screen, make it windowed
+    SDL_SetWindowFullscreen(_window, 0);
+    windowModeButton->setText("WINDOWED");
+  } else {
+    // Window is not full screen, make it full screen
+    SDL_SetWindowFullscreen(_window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+    int w, h;
+    SDL_GetWindowSize(_window, &w, &h);
+    handle_system_command({"resize", std::to_string(w), std::to_string(h)});
+    windowModeButton->setText("FULLSCREEN");
+  }
+}
+
+void OptionsMenuHudGroup::handleConsoleInput() {
+  std::shared_ptr<InputField> consoleField = mConsoleField.lock();
+  std::string command = consoleField->mText->getText();
+  handle_system_command(split_to_tokens(command));
 }
