@@ -72,6 +72,13 @@ public:
     if (!mIsVisible)
       return;
 
+    if (mPropertiesUpdated) {
+      for (auto i = mHudElements.begin(); i != mHudElements.end(); i++) {
+        (*i)->updatePosition(camera);
+      }
+      mPropertiesUpdated = false;
+    }
+
     for (auto i = mHudElements.begin(); i != mHudElements.end(); i++) {
       (*i)->draw(camera);
     }

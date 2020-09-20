@@ -47,7 +47,7 @@ public:
    *  Update the camera to reflect the new window size.
    */
 
-  void onResize();
+  virtual void onResize();
 
   /* Spawnpoints is a collection of coordinates where players can be spawned */
   std::vector<int*> mSpawnPoints;
