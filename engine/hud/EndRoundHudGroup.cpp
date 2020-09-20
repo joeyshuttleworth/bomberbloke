@@ -59,7 +59,7 @@ void EndRoundHudGroup::updateScores(std::string roundWinner, std::list<std::shar
       scoreText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
       scoreText->setTextColour({255, 255, 255});
       scoreText->setTextScale(1.5);
-      std::shared_ptr<TextHudElement> scoreElement = std::make_shared<TextHudElement>(scoreText, -300, i * 50 + 25, 0, 50, ALIGN_CENTER, ALIGN_CENTER);
+      std::shared_ptr<TextHudElement> scoreElement = std::make_shared<TextHudElement>(scoreText, -300, i * 50 + 25, 50, 50, ALIGN_CENTER, ALIGN_CENTER);
       addElement(scoreElement);
 
       mScoreTexts.push_back(std::make_pair(playerElement, scoreElement));
