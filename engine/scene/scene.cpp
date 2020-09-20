@@ -277,7 +277,7 @@ void scene::onInput(SDL_Event *event) {
     }
 }
 
-void scene::onResize(){
+void scene::onResize() {
     if(mpCamera)
       mpCamera->onResize();
     updateHudPositions();
