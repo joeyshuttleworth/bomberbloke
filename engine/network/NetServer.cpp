@@ -17,7 +17,7 @@
 #include <curl/curl.h>
 #include <string>
 #include <sstream>
-#include "cereal/archives/json.hpp"
+#include "cereal/archives/portable_binary.hpp"
 
 NetServer::NetServer() {
     // init_enet();
@@ -166,13 +166,13 @@ void NetServer::poll() {
       // handle packet here enet_uint32
 
       std::stringstream data_in;
-      data_in << event.packet->data;
+      data_in.write((char*)event.packet->data, event.packet->dataLength);
 
-      log_message(DEBUG, "data received " + data_in.str());
+      // log_message(DEBUG, "data received " + data_in.str());
 
       std::unique_ptr<AbstractEvent> receive_event;
       {
-        cereal::JSONInputArchive inArchive(data_in);
+        cereal::PortableBinaryInputArchive inArchive(data_in);
         inArchive(receive_event);
       }
 
@@ -271,8 +271,6 @@ void NetServer::sendStringMessage(std::string message, ENetPeer *to){
   ENetPacket *packet = enet_packet_create(message.c_str(), strlen(message.c_str())+1, ENET_PACKET_FLAG_RELIABLE);
   enet_peer_send(to, 0, packet);
 
-  enet_host_flush(mENetServer);
-
   log_message(DEBUG,  "Sent Message" + message + "to " + std::to_string(to->address.host) + ":" + std::to_string(to->address.port));
 
   return;
@@ -281,12 +279,11 @@ void NetServer::sendStringMessage(std::string message, ENetPeer *to){
 void NetServer::sendEvent(std::unique_ptr<AbstractEvent> &event, ENetPeer *to){
   std::stringstream blob;
   {
-    cereal::JSONOutputArchive oArchive(blob);
+    cereal::PortableBinaryOutputArchive oArchive(blob);
     oArchive(event);
   }
 
-  sendStringMessage(blob.str(), to);
-  log_message(DEBUG, "Sending" + blob.str());
+  // log_message(DEBUG, "Sending" + blob.str());
   bool reliable = false;
   switch(event->getType()){
   case EVENT_SYNC:
@@ -298,6 +295,8 @@ void NetServer::sendEvent(std::unique_ptr<AbstractEvent> &event, ENetPeer *to){
   case EVENT_COMMAND:
   case EVENT_PROPERTIES:
   case EVENT_KICK:
+  case EVENT_ACCEPT:
+  case EVENT_ERROR:
     reliable = true;
   default:
     break;
@@ -306,12 +305,11 @@ void NetServer::sendEvent(std::unique_ptr<AbstractEvent> &event, ENetPeer *to){
   ENetPacket *packet;
   std::string message = blob.str();
   if(reliable)
-    packet = enet_packet_create(message.c_str(), strlen(message.c_str())+1, ENET_PACKET_FLAG_RELIABLE);
+    packet = enet_packet_create(message.c_str(), message.size(), ENET_PACKET_FLAG_RELIABLE);
   else
-    packet = enet_packet_create(message.c_str(), strlen(message.c_str())+1, 0);
+    packet = enet_packet_create(message.c_str(), message.size(), 0);
   enet_peer_send(to, 0, packet);
-  /*  TODO flush every tick instead */
-  // enet_host_flush(mENetServer);
+
   return;
 }
 
