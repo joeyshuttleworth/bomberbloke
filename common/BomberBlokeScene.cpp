@@ -380,6 +380,12 @@ void BomberBlokeScene::onCountdownFinished() {
 void BomberBlokeScene::handleCommand(std::string str){
   auto tokens = split_to_tokens(str);
   if (str == "start"){
+    /*  reset big bomb sprite */
+    std::shared_ptr<AbstractHudElement> observe = mBombIcons[0].lock();
+    mHudElements.remove(observe);
+    std::shared_ptr<SpriteHudElement> hudElement = std::make_shared<SpriteHudElement>("bomb_pickup.png", 9 + 0 * 34, 91, 32, 32);
+    hudElement->setGlowAmount(100);
+    mBombIcons[0] = hudElement;
     if (mSoundtrack)
       mSoundtrack->stop();
 

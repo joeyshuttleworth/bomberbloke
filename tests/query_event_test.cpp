@@ -1,7 +1,6 @@
 #include "bomberbloke.h"
 #include <SDL2/SDL.h>
 #include "cereal/archives/portable_binary.hpp"
-#include "cereal/archives/json.hpp"
 #include "bloke.hpp"
 #include "bomb.hpp"
 #include "NetClient.hpp"
@@ -30,12 +29,12 @@ int main() {
 
     /*  Braces necessary for cereal */
     {
-      cereal::JSONOutputArchive outArchive(data_blob);
+      cereal::PortableBinaryOutputArchive outArchive(data_blob);
       outArchive(q_event);
     }
 
 
-    cereal::JSONInputArchive  inArchive(data_blob);
+    cereal::PortableBinaryInputArchive inArchive(data_blob);
 
     inArchive(test_in_event);
 
@@ -46,13 +45,14 @@ int main() {
     std::thread server_thread(&NetServer::pollLoop, &net_server);
 
     if (net_client.connectClient("127.0.0.1", 8888)) {
-      net_client.sendStringMessage(data_blob.str());
+      net_client.sendEvent(test_in_event);
       SDL_Delay(900);
     }
 
     else {
       rc = -1;
     }
+
     _halt = true;
     SDL_Delay(900);
     server_thread.join();
