@@ -22,7 +22,7 @@
 #include "AbstractEvent.hpp"
 #include "QueryEvent.hpp"
 #include <memory>
-
+#include <cereal/archives/portable_binary.hpp>
 
 NetClient::NetClient(){
     if (enet_initialize() != 0) {
@@ -63,14 +63,14 @@ bool NetClient::connectClient(std::string serverAddress, enet_uint16 port) {
         event.type == ENET_EVENT_TYPE_CONNECT) {
         std::stringstream msg;
         msg << "Connection to " << serverAddress << ":" <<  port << " succeeded";
-        log_message(INFO, msg.str());
+        // log_message(INFO, msg.str());
         return true;
 
     } else {
         enet_peer_reset(mENetServer);
         std::stringstream msg;
         msg << "Connection to " << mServerAddress << ":" <<  port << " failed";
-        log_message(INFO, msg.str());
+        // log_message(INFO, msg.str());
         return false;
     }
 }
@@ -89,11 +89,10 @@ bool NetClient::joinBlokeServer(std::string address, int port, std::string nickn
     // event occured
     std::unique_ptr<AbstractEvent> receive_event;
     std::stringstream data_in;
-    data_in << event.packet->data;
-    {cereal::JSONInputArchive inArchive(data_in);
-    // cereal::JSONInputArchive inArchive(data_in);
-    log_message(DEBUG, "received message: " + data_in.str());
+    data_in.write((char*)event.packet->data, event.packet->dataLength);
+    {cereal::PortableBinaryInputArchive inArchive(data_in);
     inArchive(receive_event);
+    // log_message(INFO, data_in.str());
     }
     if(receive_event->getType() != EVENT_INFO){
     /* Make the pointer shared so we can handle it elsewhere */
@@ -119,19 +118,17 @@ bool NetClient::joinBlokeServer(std::string address, int port, std::string nickn
       }
 
       std::unique_ptr<AbstractEvent> join_event(new JoinEvent(nickname, info_event->mMagicNumber));
-
       sendEvent(join_event);
 
       /*  now poll the server again (10 seconds)*/
       while(enet_host_service(mENetHost, &event, 10000) > 0){
         std::unique_ptr<AbstractEvent> receive_event;
         std::stringstream data_in;
-        data_in << event.packet->data;
-
+        data_in.write((char*) event.packet->data, event.packet->dataLength);
         {
-          cereal::JSONInputArchive inArchive(data_in);
-          log_message(DEBUG, "received message: " + data_in.str());
+          cereal::PortableBinaryInputArchive inArchive(data_in);
           inArchive(receive_event);
+          log_message(INFO, "data waiting for join " + data_in.str());
         }
         switch(receive_event->getType()){
         case EVENT_ERROR:{
@@ -150,6 +147,7 @@ bool NetClient::joinBlokeServer(std::string address, int port, std::string nickn
       }
     }
   }
+  log_message(ERROR, "timed out");
   return false;
 }
 
@@ -166,11 +164,12 @@ void NetClient::pollServer(){
    if (event.type == ENET_EVENT_TYPE_RECEIVE) {
      // event occured
      std::stringstream data_in;
-     data_in << event.packet->data;
+     data_in.write((char*) event.packet->data, event.packet->dataLength);
      std::unique_ptr<AbstractEvent> receive_event;
      try{
-       cereal::JSONInputArchive inArchive(data_in);
+       cereal::PortableBinaryInputArchive inArchive(data_in);
        inArchive(receive_event);
+       // log_message(INFO, "received " + data_in.str());
      }
      catch(std::exception &ex){
        log_message(ERROR, "Tried parsing " + data_in.str());
@@ -202,6 +201,12 @@ void NetClient::pollServer(){
            if((*i)->getPlayerId() == player_id)
              _local_player_list.back().setCharacter(*i);
          }
+       }
+       auto p_list = s_event->getPlayers();
+       _player_list = {};
+       for(auto i = p_list.begin(); i != p_list.end(); i++){
+         std::shared_ptr<AbstractPlayer> p = std::make_shared<serverPlayer>(*i);
+         _player_list.push_back(p);
        }
        log_message(DEBUG, "synced with server");
        break;
@@ -303,13 +308,33 @@ void NetClient::sendStringMessage(std::string message) {
 
 void NetClient::sendEvent(std::unique_ptr<AbstractEvent> &event){
   std::stringstream blob;
+  bool reliable;
+  switch(event->getType()){
+  case EVENT_QUERY:
+  case EVENT_JOIN:
+  case EVENT_COMMAND:
+    reliable = true;
+    break;
+  default:
+    reliable = false;
+  }
+
   {
-    cereal::JSONOutputArchive oArchive(blob);
+    cereal::PortableBinaryOutputArchive oArchive(blob);
     oArchive(event);
   }
-  sendStringMessage(blob.str());
+  ENetPacket *packet;
+  std::string message = blob.str();
 
-  log_message(DEBUG, "Sending" + blob.str());
+  reliable = true;
+
+  if(reliable)
+    packet = enet_packet_create(message.c_str(), message.size(), ENET_PACKET_FLAG_RELIABLE);
+  else
+    packet = enet_packet_create(message.c_str(), message.size(), 0);
+
+  enet_peer_send(mENetServer, 0, packet);
+
   return;
 }
 
