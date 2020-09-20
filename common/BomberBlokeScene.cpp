@@ -26,7 +26,7 @@ const int N_BACKGROUND_TILES = 10;
 const int PAUSE_BLUR_SIZE = 10;
 const int PAUSE_BRIGHTNESS = -30;
 
-const int END_ROUND_SECS = 5;
+const int ROUND_END_WAIT_SECS = 5;
 
 void BomberBlokeScene::setBigBomb(){
   std::shared_ptr<AbstractHudElement> observe = mBombIcons[0].lock();
@@ -116,19 +116,27 @@ void BomberBlokeScene::logicUpdate(){
     return;
 
   // count blokes
-  if(mState == STOPPED) {
-    if (mIsEndRound) {
-      mEndRoundTicks++;
-      if (mEndRoundTicks > TICK_RATE * END_ROUND_SECS && _player_list.size() > 1) {
-        mNewGame = true;
-      }
-    } else if (!mIsCountdown && _player_list.size() > 1) {
-      mIsCountdown = true;
-      std::unique_ptr<AbstractEvent> c_event(new CommandEvent("start_countdown"));
+  if(mState == PAUSED || mState == STOPPED)
+    return;
+
+  int number_of_blokes = std::count_if(mActors.begin(), mActors.end(), [](std::shared_ptr<actor> i) -> bool {return i->getType() == ACTOR_BLOKE;});
+  if(!mIsRoundEnd && !mNewGame){
+    if(number_of_blokes <= 1){
+      /*Send end command*/
+      mIsRoundEnd = true;
+      mRoundEndTicks = 0;
+      auto winner_iter = std::find_if(_player_list.begin(), _player_list.end(), [&](std::shared_ptr<AbstractPlayer> p) -> bool {return p->getCharacter() != nullptr;});
+      std::unique_ptr<AbstractEvent> c_event(new CommandEvent("end nobody"));
+      if(winner_iter!=_player_list.end())
+        c_event = std::unique_ptr<AbstractEvent>(new CommandEvent("end " + (*winner_iter)->mNickname));
       _net_server.broadcastEvent(c_event);
       startCountdown(5);
     }
-    return;
+  } else if (mIsRoundEnd) {
+    mRoundEndTicks++;
+    if (mRoundEndTicks > ROUND_END_WAIT_SECS * TICK_RATE) {
+      mNewGame = true;
+    }
   }
 
   int number_of_blokes = std::count_if(mActors.begin(), mActors.end(), [](std::shared_ptr<actor> i) -> bool {return i->getType() == ACTOR_BLOKE;});
@@ -373,7 +381,13 @@ void BomberBlokeScene::onCountdownFinished() {
 
 void BomberBlokeScene::handleCommand(std::string str){
   auto tokens = split_to_tokens(str);
-  if (str == "start_countdown"){
+  if (str == "start"){
+    /*  reset big bomb sprite */
+    std::shared_ptr<AbstractHudElement> observe = mBombIcons[0].lock();
+    mHudElements.remove(observe);
+    std::shared_ptr<SpriteHudElement> hudElement = std::make_shared<SpriteHudElement>("bomb_pickup.png", 9 + 0 * 34, 91, 32, 32);
+    hudElement->setGlowAmount(100);
+    mBombIcons[0] = hudElement;
     if (mSoundtrack)
       mSoundtrack->stop();
     // TODO: make this work for more than two tracks
@@ -398,9 +412,10 @@ void BomberBlokeScene::handleCommand(std::string str){
     if (mSoundtrack)
       mSoundtrack->play();
   } else if(tokens.front() == "end") {
+    mIsRoundEnd = true;
+    mRoundEndTicks = 0;
     mState = STOPPED;
-    mIsEndRound = true;
-    mEndRoundTicks = 0;
+
     if (mSoundtrack)
       mSoundtrack->playIdle();
 

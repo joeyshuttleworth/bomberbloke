@@ -135,7 +135,7 @@ void Text::updateTexture(Camera *camera) {
     // Crop the texture according to the dimensions of the text box and the
     // displacement
     mSrcRect.w = fmin(width - mSrcRect.x, mDimensions[0] / mTextScale[0]);
-    mSrcRect.h = fmin(height - mSrcRect.y, mDimensions[1] / mTextScale[1]);;
+    mSrcRect.h = fmin(height - mSrcRect.y, mDimensions[1] / mTextScale[1]);
 
     // If displacement is positive, change the start position of the
     // destination rectangle
