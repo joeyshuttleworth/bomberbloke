@@ -37,6 +37,7 @@ void BomberBlokeScene::setBigBomb(){
 }
 
 BomberBlokeScene::~BomberBlokeScene() {
+  mNewGame = false;
   if (mSoundtrack)
     mSoundtrack->stop();
 }
@@ -132,13 +133,13 @@ void BomberBlokeScene::logicUpdate(){
     }
     if(mNewGame){
       /*Send end command*/
-      std::unique_ptr<AbstractEvent> c_event(new CommandEvent("end"));
+      auto winner_iter = std::find_if(_player_list.begin(), _player_list.end(), [&](std::shared_ptr<AbstractPlayer> p) -> bool {return p->getCharacter() != nullptr;});
+      std::unique_ptr<AbstractEvent> c_event(new CommandEvent("end nobody"));
+      if(winner_iter!=_player_list.end())
+        c_event = std::unique_ptr<AbstractEvent>(new CommandEvent("end " + (*winner_iter)->mNickname));
       _net_server.broadcastEvent(c_event);
     }
   }
-
-  if(mNewGame && _player_list.size()>1 && _server)
-    _pScene = std::make_shared<BomberBlokeScene>(10, 10);
 
   if (mSoundtrack) {
     double intensity = 1 - ((double) number_of_blokes) / ((double) _player_list.size());
@@ -377,6 +378,7 @@ void BomberBlokeScene::onCountdownFinished() {
 }
 
 void BomberBlokeScene::handleCommand(std::string str){
+  auto tokens = split_to_tokens(str);
   if (str == "start"){
     if (mSoundtrack)
       mSoundtrack->stop();
@@ -396,20 +398,13 @@ void BomberBlokeScene::handleCommand(std::string str){
     endRoundHud->setIsVisible(false);
 
     startCountdown(5);
-  } else if (str == "end") {
+  } else if(tokens.front() == "end") {
     if (mSoundtrack)
       mSoundtrack->playIdle();
 
-    /*  add a win to the last remaining player */
-    auto last_bloke_iter = std::find_if(mActors.begin(), mActors.end(), [](std::shared_ptr<actor> i) -> bool {return i->getType() == ACTOR_BLOKE;});
-    std::shared_ptr<AbstractPlayer> winning_player = nullptr;
-    if(last_bloke_iter != mActors.end()) {
-      winning_player = (*last_bloke_iter)->getPlayer();
-      winning_player->addWin();
-    }
-
+    std::string winning_name = tokens.back();
     std::shared_ptr<EndRoundHudGroup> endRoundHud = mEndRoundHud.lock();
-    endRoundHud->updateScores(winning_player, _player_list);
+    endRoundHud->updateScores(winning_name, _player_list);
     endRoundHud->setIsVisible(true);
   }
   if(str == "bigbomb")
