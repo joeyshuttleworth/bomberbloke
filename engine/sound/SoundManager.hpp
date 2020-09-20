@@ -19,13 +19,13 @@ extern const int SOUND_CHUNKSIZE;
 class SoundManager {
 private:
     // Volume applied to all channels.
-    int mMasterVolume = 128;
+    int mMasterVolume = 176;
 
     // Volume applied to FX sound group.
-    int mFxVolume = 128;
+    int mFxVolume = 176;
 
     // Volume applied to music sound group.
-    int mMusicVolume = 128;
+    int mMusicVolume = 176;
 
     /**
      * Map object containing Mix_Chunk object (sound files). Indexed by sound

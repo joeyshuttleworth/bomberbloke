@@ -201,8 +201,8 @@ void OptionsMenuHudGroup::increaseMasterVolume() {
   // Increase volume by 128 / 8
   int currentVolume = soundManager.getVolume(SOUND_MASTER);
   int newVolumeLabel = currentVolume * 8 / 128 + 1;
-  if (newVolumeLabel > 8) {
-    newVolumeLabel = 8;
+  if (newVolumeLabel > 11) {
+    newVolumeLabel = 11;
   }
   soundManager.setVolume(newVolumeLabel * 128 / 8, SOUND_MASTER);
 
@@ -229,8 +229,8 @@ void OptionsMenuHudGroup::increaseMusicVolume() {
   // Increase volume by 128 / 8
   int currentVolume = soundManager.getVolume(SOUND_MUSIC);
   int newVolumeLabel = currentVolume * 8 / 128 + 1;
-  if (newVolumeLabel > 8) {
-    newVolumeLabel = 8;
+  if (newVolumeLabel > 11) {
+    newVolumeLabel = 11;
   }
   soundManager.setVolume(newVolumeLabel * 128 / 8, SOUND_MUSIC);
 
