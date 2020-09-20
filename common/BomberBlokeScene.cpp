@@ -26,6 +26,7 @@ const int N_BACKGROUND_TILES = 10;
 const int PAUSE_BLUR_SIZE = 10;
 const int PAUSE_BRIGHTNESS = -30;
 
+const int END_ROUND_SECS = 5;
 
 void BomberBlokeScene::setBigBomb(){
   std::shared_ptr<AbstractHudElement> observe = mBombIcons[0].lock();
@@ -37,7 +38,6 @@ void BomberBlokeScene::setBigBomb(){
 }
 
 BomberBlokeScene::~BomberBlokeScene() {
-  mNewGame = false;
   if (mSoundtrack)
     mSoundtrack->stop();
 }
@@ -101,6 +101,12 @@ void BomberBlokeScene::update() {
     }
   }
 
+  if (mSoundtrack) {
+    int number_of_blokes = std::count_if(_player_list.begin(), _player_list.end(), [&](std::shared_ptr<AbstractPlayer> p) -> bool {return p->getCharacter() != nullptr;});
+    double intensity = 1 - ((double) number_of_blokes) / ((double) _player_list.size());
+    mSoundtrack->setIntensity(intensity);
+  }
+
   // Update scene
   scene::update();
 }
@@ -110,40 +116,33 @@ void BomberBlokeScene::logicUpdate(){
     return;
 
   // count blokes
-  if(mState == PAUSED || mState == STOPPED)
-    return;
-
-  int number_of_blokes = std::count_if(mActors.begin(), mActors.end(), [](std::shared_ptr<actor> i) -> bool {return i->getType() == ACTOR_BLOKE;});
-  bool new_game = false;
-  if(!mNewGame){
-    switch(number_of_blokes){
-    case 0:{
-      log_message(INFO, "All blokes are dead.");
-      mNewGame = true;
-      mState = STOPPED;
-      break;
-    }
-    case 1:{
-      log_message(INFO, "Someone has won");
-      mNewGame = true;
-      break;
-    }
-    default:
-      break;
-    }
-    if(mNewGame){
-      /*Send end command*/
-      auto winner_iter = std::find_if(_player_list.begin(), _player_list.end(), [&](std::shared_ptr<AbstractPlayer> p) -> bool {return p->getCharacter() != nullptr;});
-      std::unique_ptr<AbstractEvent> c_event(new CommandEvent("end nobody"));
-      if(winner_iter!=_player_list.end())
-        c_event = std::unique_ptr<AbstractEvent>(new CommandEvent("end " + (*winner_iter)->mNickname));
+  if(mState == STOPPED) {
+    if (mIsEndRound) {
+      mEndRoundTicks++;
+      if (mEndRoundTicks > TICK_RATE * END_ROUND_SECS && _player_list.size() > 1) {
+        mNewGame = true;
+      }
+    } else if (!mIsCountdown && _player_list.size() > 1) {
+      mIsCountdown = true;
+      std::unique_ptr<AbstractEvent> c_event(new CommandEvent("start_countdown"));
       _net_server.broadcastEvent(c_event);
+      startCountdown(5);
     }
+    return;
   }
 
-  if (mSoundtrack) {
-    double intensity = 1 - ((double) number_of_blokes) / ((double) _player_list.size());
-    mSoundtrack->setIntensity(intensity);
+  int number_of_blokes = std::count_if(mActors.begin(), mActors.end(), [](std::shared_ptr<actor> i) -> bool {return i->getType() == ACTOR_BLOKE;});
+
+  if(number_of_blokes <= 1) {
+    mState = STOPPED;
+    mIsEndRound = true;
+    mEndRoundTicks = 0;
+    /*Send end command*/
+    auto winner_iter = std::find_if(_player_list.begin(), _player_list.end(), [&](std::shared_ptr<AbstractPlayer> p) -> bool {return p->getCharacter() != nullptr;});
+    std::unique_ptr<AbstractEvent> c_event(new CommandEvent("end nobody"));
+    if(winner_iter!=_player_list.end())
+      c_event = std::unique_ptr<AbstractEvent>(new CommandEvent("end " + (*winner_iter)->mNickname));
+    _net_server.broadcastEvent(c_event);
   }
 }
 
@@ -290,8 +289,6 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
 
   showEntireScene();
 
-  if(_server)
-    startCountdown(5);
   return;
 }
 
@@ -362,27 +359,23 @@ void BomberBlokeScene::togglePause() {
 void BomberBlokeScene::startCountdown(int nSecs) {
   std::shared_ptr<CountdownHudGroup> countdown = mCountdownHud.lock();
   countdown->start(nSecs);
-  if(_server){
-    std::unique_ptr<AbstractEvent> c_event(new CommandEvent("start"));
-    _net_server.broadcastEvent(c_event);
-  }
 }
 
 void BomberBlokeScene::onCountdownFinished() {
-  mState = PLAYING;
   if(_server){
+    mIsCountdown = false;
+    mState = PLAYING;
+    std::unique_ptr<AbstractEvent> c_event(new CommandEvent("start"));
+    _net_server.broadcastEvent(c_event);
     _net_server.syncPlayers();
   }
-  if (mSoundtrack)
-    mSoundtrack->play();
 }
 
 void BomberBlokeScene::handleCommand(std::string str){
   auto tokens = split_to_tokens(str);
-  if (str == "start"){
+  if (str == "start_countdown"){
     if (mSoundtrack)
       mSoundtrack->stop();
-
     // TODO: make this work for more than two tracks
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -397,8 +390,17 @@ void BomberBlokeScene::handleCommand(std::string str){
     std::shared_ptr<EndRoundHudGroup> endRoundHud = mEndRoundHud.lock();
     endRoundHud->setIsVisible(false);
 
+    mIsCountdown = true;
     startCountdown(5);
+  } else if (str == "start") {
+    mIsCountdown = false;
+    mState = PLAYING;
+    if (mSoundtrack)
+      mSoundtrack->play();
   } else if(tokens.front() == "end") {
+    mState = STOPPED;
+    mIsEndRound = true;
+    mEndRoundTicks = 0;
     if (mSoundtrack)
       mSoundtrack->playIdle();
 
@@ -407,6 +409,7 @@ void BomberBlokeScene::handleCommand(std::string str){
     endRoundHud->updateScores(winning_name, _player_list);
     endRoundHud->setIsVisible(true);
   }
+
   if(str == "bigbomb")
     setBigBomb();
 }
