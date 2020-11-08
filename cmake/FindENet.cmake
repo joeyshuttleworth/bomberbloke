@@ -12,7 +12,15 @@ endif(ENET_INCLUDE_DIR)
 
 find_path(ENET_INCLUDE_DIR enet/enet.h)
 
+IF(_WIN32)
+	message("Finding enet for WIN32")
+	set(ENET_LIBRARY ${PROJECT_SOURCE_DIR}/windows_libraries/libenet.a)
+  set(ENET_FOUND TRUE)
+  set(ENET_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/windows_libraries)
+ELSE()
 find_library(ENET_LIBRARY NAMES enet enet_static libenet libenet_static)
+ENDIF(_WIN32)
+
 
 # Handle the QUIETLY and REQUIRED arguments and set ENET_FOUND to TRUE if
 # all listed variables are TRUE.

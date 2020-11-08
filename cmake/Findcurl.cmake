@@ -11,8 +11,13 @@ if(CURL_INCLUDE_DIR)
 endif(CURL_INCLUDE_DIR)
 
 find_path(CURL_INCLUDE_DIR curl/curl.h)
-
 find_library(CURL_LIBRARY NAMES curl curl_static libcurl libcurl_static)
+
+if(_WIN32)
+	set(CURL_INCLUDE_DIR /usr/include/curl)
+	set(CURL_LIBRARY ${PROJECT_SOURCE_DIR}/windows_libraries/libcurl.a)
+	set(CURL_FOUND TRUE)
+endif(_WIN32)
 
 # Handle the QUIETLY and REQUIRED arguments and set CURL_FOUND to TRUE if
 # all listed variables are TRUE.
