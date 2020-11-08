@@ -221,6 +221,17 @@ endif()
 set(SDL2_LIBRARIES ${SDL2_LIBRARY} ${SDL2MAIN_LIBRARY} ${SDL2_IMAGE} ${SDL2_MIXER} ${SDL2_TTF})
 set(SDL2_INCLUDE_DIRS ${SDL2_INCLUDE_DIR})
 
+# Bodge fix for bomberbloke crosscompile
+if(_WIN32)
+    set(SDL2_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/windows_libraries/include/SDL2)
+	set(SDL2_LIBRARIES ${PROJECT_SOURCE_DIR}/windows_libraries/sdl/libSDL2.a
+    ${PROJECT_SOURCE_DIR}/windows_libraries/sdl/libSDL2main.a
+    ${PROJECT_SOURCE_DIR}/windows_libraries/sdl/libSDL2_mixer.a
+    ${PROJECT_SOURCE_DIR}/windows_libraries/sdl/libSDL2_ttf.a
+    ${PROJECT_SOURCE_DIR}/windows_libraries/sdl/libSDL2_image.a
+    )
+endif(_WIN32)
+
 include(FindPackageHandleStandardArgs)
 
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(SDL
