@@ -16,6 +16,12 @@ message(STATUS "CMAKE_CXX_COMPILER_VERSION = ${CMAKE_CXX_COMPILER_VERSION}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
 
+if(_WIN32)
+set(CMAKE_FIND_LIBRARY_PATH ${PROJECT_SOURCE_DIR}/windows_libraries)
+include_directories(${PROJECT_SOURCE_DIR}/windows_libraries/include)
+include_directories(/usr/x86_64-w64-mingw32/include)
+endif(_WIN32)
+
 find_package(ENet REQUIRED)
 include_directories(${ENET_INCLUDE_DIR})
 
