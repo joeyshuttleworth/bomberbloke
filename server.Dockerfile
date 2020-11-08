@@ -24,4 +24,5 @@ RUN cmake ..
 RUN make
 
 EXPOSE 8888
-CMD ["./bomberbloke_server"]
+WORKDIR /bloke
+CMD ["./build/bomberbloke_server"]
