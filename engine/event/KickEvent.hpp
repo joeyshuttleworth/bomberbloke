@@ -6,6 +6,10 @@
 #ifndef KICKEVENT_HPP
 #define KICKEVENT_HPP
 
+#include <cereal/archives/json.hpp>
+#include <cereal/archives/portable_binary.hpp>
+#include <cereal/types/polymorphic.hpp>
+
 extern unsigned int _state;
 
 
@@ -37,7 +41,7 @@ public:
   }
 };
 
-CEREAL_REGISTER_TYPE(KickEvent)
+// CEREAL_REGISTER_TYPE(KickEvent)
 
 #endif
 

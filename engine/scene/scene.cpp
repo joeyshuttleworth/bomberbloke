@@ -1,7 +1,7 @@
 #include "engine.hpp"
-#include "Camera.hpp"
-#include "CreateEvent.hpp"
+#include "CreationEvent.hpp"
 #include "AbstractHudElement.hpp"
+#include "Camera.hpp"
 
 extern std::list<std::shared_ptr<AbstractSpriteHandler>> _particle_list;
 
@@ -58,7 +58,7 @@ void scene :: addActorWithId(std::shared_ptr<actor> a){
   /* Check the id hasn't been taken*/
     for(auto i = mActors.begin(); i != mActors.end(); i++){
       if((*i)->getId() == a->getId()){
-        log_message(ERROR, "Tried to add actor with id " + std::to_string(a->getId()) + " but an actor with this id already exists!");
+        log_message(ERR, "Tried to add actor with id " + std::to_string(a->getId()) + " but an actor with this id already exists!");
         return;
       }
     }
@@ -82,13 +82,13 @@ void scene :: addActor(std::shared_ptr<actor> a){
       mActors.push_back(a);
       if(_server){
         /* Broadcast a EVENT_CREATE event */
-        std::unique_ptr<AbstractEvent> c_event(new CreateEvent(a));
+        std::unique_ptr<AbstractEvent> c_event(new CreationEvent(a));
         _net_server.broadcastEvent(c_event);
       }
       return;
     }
   }
-  log_message(ERROR, "Failed to add actor - too many actors in mActors");
+  log_message(ERR, "Failed to add actor - too many actors in mActors");
 }
 
 static bool collides(AbstractCollider* a, AbstractCollider* b){
@@ -178,7 +178,7 @@ void scene::draw(){
 
 void scene::drawHud(){
   if(!mpCamera){
-    log_message(ERROR, "Attempted to draw with null camera object!");
+    log_message(ERR, "Attempted to draw with null camera object!");
     return;
   }
 
@@ -191,7 +191,7 @@ void scene::drawHud(){
 
 void scene::drawParticles(){
   if(!mpCamera){
-    log_message(ERROR, "Attempted to draw with null camera object!");
+    log_message(ERR, "Attempted to draw with null camera object!");
     return;
   }
 
@@ -204,7 +204,7 @@ void scene::drawParticles(){
 
 void scene::drawActors(){
   if(!mpCamera){
-    log_message(ERROR, "Attempted to draw with null camera object!");
+    log_message(ERR, "Attempted to draw with null camera object!");
     return;
   }
 

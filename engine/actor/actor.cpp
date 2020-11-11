@@ -1,16 +1,12 @@
 #include "engine.hpp"
 #include "MoveEvent.hpp"
-#include "RemoveEvent.hpp"
-#include <cereal/archives/json.hpp>
-#include <fstream>
-#include <string>
-#include <iostream>
+#include "RemovalEvent.hpp"
 
 void actor :: remove(){
   mRemove = true;
   /*Send remove event*/
   if(_server){
-    std::unique_ptr<AbstractEvent> r_event(new RemoveEvent(this));
+    std::unique_ptr<AbstractEvent> r_event(new RemovalEvent(this));
     _net_server.broadcastEvent(r_event);
   }
 }

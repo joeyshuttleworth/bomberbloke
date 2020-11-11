@@ -181,7 +181,7 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
         }
       }
       if(!set){
-        log_message(ERROR, "failed to generate spawn points");
+        log_message(ERR, "failed to generate spawn points");
       }
     }
 

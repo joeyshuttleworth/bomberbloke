@@ -39,7 +39,7 @@ public:
     mVelocity[1]  = Actor->mVelocity[1];
     mTick = _tick;
     return;
-  };
+  }
 
   template<class Archive>
   /*Used by cereal to serialize the event for it to be sent/received*/
@@ -48,7 +48,7 @@ public:
   }
 };
 
-CEREAL_REGISTER_TYPE(MoveEvent)
+// CEREAL_REGISTER_TYPE(MoveEvent)
 
 #endif
 

@@ -4,8 +4,8 @@
 
 #include "engine.hpp"
 #include "KickEvent.hpp"
-#include "CreateEvent.hpp"
-#include "RemoveEvent.hpp"
+#include "CreationEvent.hpp"
+#include "RemovalEvent.hpp"
 #include "NetClient.hpp"
 #include "CommandEvent.hpp"
 #include "ServerInfoEvent.hpp"
@@ -235,7 +235,7 @@ void NetClient::pollServer(){
      }
 
      case EVENT_CREATE:{
-       std::shared_ptr<CreateEvent> c_event = std::dynamic_pointer_cast<CreateEvent>(sp_to_handle);
+       std::shared_ptr<CreationEvent> c_event = std::dynamic_pointer_cast<CreationEvent>(sp_to_handle);
        if(c_event->getActor())
          _pScene->addActorWithId(c_event->getActor());
        else if(c_event->getParticle())
@@ -246,7 +246,7 @@ void NetClient::pollServer(){
        break;
      }
      case EVENT_REMOVE:{
-       std::shared_ptr<RemoveEvent> r_event = std::dynamic_pointer_cast<RemoveEvent>(sp_to_handle);
+       std::shared_ptr<RemovalEvent> r_event = std::dynamic_pointer_cast<RemovalEvent>(sp_to_handle);
        std::shared_ptr<actor> a = _pScene->GetActor(r_event->getId());
        if(!a)
          log_message(ERROR, "Couldn't find requested actor to remove");

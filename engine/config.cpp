@@ -4,12 +4,12 @@
 bool ExecFile(std::string fname){
   std::ifstream config_file(fname);
   std::string tmp_line;
-  
+
   int line_no = 0;
   while(std::getline(config_file, tmp_line)){
     line_no++;
     if(handle_system_command(split_to_tokens(tmp_line))){
-      log_message(ERROR, "error executing file at " + fname + ":" + std::to_string(line_no) + ". The rest of the file was not read." );
+      log_message(ERR, "error executing file at " + fname + ":" + std::to_string(line_no) + ". The rest of the file was not read." );
       return false;
     };
   }

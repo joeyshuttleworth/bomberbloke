@@ -12,6 +12,7 @@
 #include "AbstractEvent.hpp"
 #include <cereal/types/vector.hpp>
 #include <algorithm>
+#include <cereal/types/polymorphic.hpp>
 
 class ServerInfoEvent : public AbstractEvent{
 public:std::string mCommand;
