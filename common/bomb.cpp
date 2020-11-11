@@ -1,4 +1,4 @@
-#include "CreateEvent.hpp"
+#include "CreationEvent.hpp"
 #include "bomberbloke.h"
 #include "bloke.hpp"
 #include "bomb.hpp"
@@ -15,7 +15,7 @@ void bomb::init(bloke *bloke){
     mPower = bloke->mPower;
   }
   else{
-    log_message(ERROR, "Bomb placed by malformed actor");
+    log_message(ERR, "Bomb placed by malformed actor");
   }
   return;
 }
@@ -134,7 +134,7 @@ void bomb::explode(){
 
     /* Create an explosion particle on all clients */
     std::shared_ptr<AbstractSpriteHandler> explosion = std::make_shared<Explosion>(int(mPosition[0]), int(mPosition[1]), 1, 1);
-    std::unique_ptr<AbstractEvent> c_event(new CreateEvent(explosion));
+    std::unique_ptr<AbstractEvent> c_event(new CreationEvent(explosion));
     _net_server.broadcastEvent(c_event);
   }
 

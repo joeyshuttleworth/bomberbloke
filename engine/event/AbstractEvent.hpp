@@ -2,9 +2,9 @@
 
 #include <cereal/types/base_class.hpp>
 #include <cereal/types/vector.hpp>
+#include <cereal/types/polymorphic.hpp>
 
 #ifndef ABSTRACTEVENT_HPP
-
 #define ABSTRACTEVENT_HPP
 
 

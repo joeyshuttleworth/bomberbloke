@@ -4,6 +4,11 @@ set(CMAKE_BUILD_TYPE Debug)
 
 enable_testing()
 
+if (CMAKE_COMPILER_IS_MINGW)
+  add_definitions(-DWC_NO_BEST_FIT_CHARS=0x400)   # Note - removed -DPOCO_WIN32_UTF8
+  add_definitions(-D_WIN32 -DMINGW32 -DWINVER=0x500 -DODBCVER=0x0300 -DPOCO_THREAD_STACK_SIZE)
+  add_compile_options(-Wa,-mbig-obj)   # Note: new - fixes "file too big"
+endif (CMAKE_COMPILER_IS_MINGW)
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
   include(CTest)
@@ -32,7 +37,11 @@ find_package(curl REQUIRED)
 include_directories(${CURL_INCLUDE_DIR})
 
 #Include directories
+if(_WIN32)
+
+else()
 include_directories(BEFORE SYSTEM ${PROJECT_SOURCE_DIR}/cereal/include)
+endif()
 include_directories(${PROJECT_SOURCE_DIR}/engine/event)
 include_directories(${PROJECT_SOURCE_DIR}/engine/file)
 include_directories(${PROJECT_SOURCE_DIR}/engine/scene)

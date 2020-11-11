@@ -1,7 +1,6 @@
 #ifndef LOCALPLAYER_HPP
 #define LOCALPLAYER_HPP
 #include "AbstractPlayer.hpp"
-#include <cereal/types/polymorphic.hpp>
 
 class LocalPlayer : public AbstractPlayer{
  public:
@@ -30,7 +29,5 @@ class LocalPlayer : public AbstractPlayer{
   }
 
 };
-
-CEREAL_REGISTER_TYPE(LocalPlayer)
 
 #endif

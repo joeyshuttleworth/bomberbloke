@@ -57,7 +57,7 @@ public:
 
 };
 
-CEREAL_REGISTER_TYPE(syncEvent)
+// CEREAL_REGISTER_TYPE(syncEvent)
 
 #endif
 

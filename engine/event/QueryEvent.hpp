@@ -8,6 +8,7 @@ Event used to request information from a server
 #include <cereal/types/vector.hpp>
 #include "AbstractEvent.hpp"
 #include <cereal/types/base_class.hpp>
+#include <cereal/types/polymorphic.hpp>
 
 class QueryEvent :  public  AbstractEvent{
 private:

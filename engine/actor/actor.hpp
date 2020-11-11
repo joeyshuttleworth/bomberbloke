@@ -7,6 +7,7 @@
 #include "Interpolator.hpp"
 #include "KinematicCollider.hpp"
 #include "Camera.hpp"
+#include <cereal/types/polymorphic.hpp>
 
 class AbstractPlayer; class AbstractSpriteHandler;
 
@@ -62,7 +63,7 @@ public:
 
   /*Returns an enum defined by the game identifying what type of actor this is
     e.g block, bloke.*/
-  virtual int getType() const {return -1;};
+  virtual int getType() const {return -1;}
 
 
   /*Returns a pointer to the player object.
@@ -85,7 +86,7 @@ public:
     return;
   }
 
-  bool toRemove(){return mRemove;};
+  bool toRemove(){return mRemove;}
 
   void remove();
 
@@ -94,14 +95,14 @@ public:
   bool isMoving();
   int init(double, double);
   dvector getMidpoint();
-  virtual void update(){};
+  virtual void update(){}
 
   void updateSprite(){
     if(mpSpriteHandler)
       mpSpriteHandler->update(mPosition);
   }
 
-  virtual void handleCommand(std::string){};
+  virtual void handleCommand(std::string){}
 
   /*Serialise this class using cereal.
     NB: We don't send the size of the actor (dimmension) as this should
@@ -113,8 +114,8 @@ public:
   void serialize(Archive &archive){
     archive(cereal::make_nvp("actorId", mId), mPlayerId, mPosition[0], mPosition[1], mVelocity[0], mVelocity[1]);
   }
-
 };
 
-CEREAL_REGISTER_TYPE(actor)
+// CEREAL_REGISTER_TYPE(actor)
+
 #endif

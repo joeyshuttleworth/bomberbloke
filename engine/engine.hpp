@@ -16,8 +16,6 @@
 #include <signal.h>
 #include <SDL_joystick.h>
 #include <thread>
-#include <cereal/archives/json.hpp>
-#include <cereal/archives/portable_binary.hpp>
 #include <mutex>
 
 #define DEFAULT_ZOOM  50
@@ -100,7 +98,7 @@ enum LOG_SCENE{
   DEBUG = 0,
   INFO,
   WARNING,
-  ERROR,
+  ERR,
   CRITICAL,
   ALL
 };
@@ -149,7 +147,7 @@ extern NetServer _net_server;
 /* Define the path seperator based on the operating system*/
 const std::string PATHSEPARATOR =
 #ifdef _WIN32
-  "\\";
+"\\";
 #else
 "/";
 #endif

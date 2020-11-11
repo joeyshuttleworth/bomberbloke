@@ -100,4 +100,5 @@ private:
   std::string masterServerAddress = "http://ptsv2.com/t/faryp-1591787919/post";
 
 };
+
 #endif

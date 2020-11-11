@@ -13,6 +13,7 @@
 #define JOINEVENT_HPP
 #include "AbstractEvent.hpp"
 #include <cereal/types/vector.hpp>
+#include <cereal/types/polymorphic.hpp>
 
 class JoinEvent : public AbstractEvent{
 private:

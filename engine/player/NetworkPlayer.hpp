@@ -1,8 +1,6 @@
 #ifndef NETWORKPLAYER_HPP
 #define NETWORKPLAYER_HPP
 
-#include <cereal/types/base_class.hpp>
-#include <cereal/types/polymorphic.hpp>
 #include "AbstractPlayer.hpp"
 #include <enet/enet.h>
 

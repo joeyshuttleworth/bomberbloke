@@ -80,7 +80,9 @@ void exit_engine(int signum) {
     _halt = true;
     std::cout  << "\nNow exiting the BLOKE engine. Hope you had fun. Wherever you are, we at the BLOKE project hope we have made your day just a little bit brighter. See you next time around! :)\n";
     signal(SIGINT, NULL);
+    #ifndef _WIN32
     std::cout << "Received signal " << strsignal(signum) << ".\nExiting...\n";
+    #endif
     SDL_Quit();
     return;
 }
@@ -323,7 +325,7 @@ bool handle_system_command(std::list<std::string> tokens){
 
     if(_server && command == "kick"){
       if(tokens.size() != 3){
-        log_message(ERROR, "kick command requires 3 arguments kick <playername> <\"reason\">");
+        log_message(ERR, "kick command requires 3 arguments kick <playername> <\"reason\">");
         return false;
       }
       auto iter = tokens.begin();
@@ -344,7 +346,7 @@ bool handle_system_command(std::list<std::string> tokens){
 
     else if(command == "nickname" && !_server){
         if(tokens.size()!=2)
-            log_message(ERROR, "nickname requires exactly one argument");
+            log_message(ERR, "nickname requires exactly one argument");
         else{
             _nickname = tokens.back();
             log_message(INFO, "nickname is now " + _nickname);
@@ -369,13 +371,13 @@ bool handle_system_command(std::list<std::string> tokens){
                 set_draw(false);
             }
             else{
-                log_message(ERROR, "Couldn't parse command - " + command + tokens.back() + " the options for 'draw' are 'on' and 'off'");
+                log_message(ERR, "Couldn't parse command - " + command + tokens.back() + " the options for 'draw' are 'on' and 'off'");
                 return false;
             }
         }
 
         else{
-            log_message(ERROR, "draw command requires one argument");
+            log_message(ERR, "draw command requires one argument");
             return false;
         }
     }
@@ -398,7 +400,7 @@ bool handle_system_command(std::list<std::string> tokens){
             else if(iter->substr(delim_pos+1).find(':')!=std::string::npos){
                 std::stringstream msg;
                 msg << "Couldn't parse address, " << *iter;
-                log_message(ERROR, msg.str());
+                log_message(ERR, msg.str());
                 return false;
             }
             else{
@@ -410,7 +412,7 @@ bool handle_system_command(std::list<std::string> tokens){
                     port = std::stoi(iter->substr(delim_pos+1).c_str());
                 }
                 catch(std::exception &e){
-                    log_message(ERROR, "Failed to parse port number");
+                    log_message(ERR, "Failed to parse port number");
                     return false;
                 }
             }
@@ -425,7 +427,7 @@ bool handle_system_command(std::list<std::string> tokens){
         }
         else{
             /* TODO allow port number as a separate argument? */
-            log_message(ERROR, "Incorrect number of elements for connect");
+            log_message(ERR, "Incorrect number of elements for connect");
         }
     }
 
@@ -437,7 +439,7 @@ bool handle_system_command(std::list<std::string> tokens){
 
     else if(command == "log_level"){
         if(tokens.size()!=2){
-            log_message(ERROR, "Command: loglevel requires exactly one argument.");
+            log_message(ERR, "Command: loglevel requires exactly one argument.");
             return false;
         }
         else{
@@ -469,7 +471,7 @@ bool handle_system_command(std::list<std::string> tokens){
             GenerateConfig(fname);
         }
         else{
-            log_message(ERROR, "To many arguments supplied to generate_config");
+            log_message(ERR, "To many arguments supplied to generate_config");
         }
     }
 
@@ -486,7 +488,7 @@ bool handle_system_command(std::list<std::string> tokens){
             resize_window(x,y);
         }
         else{
-            log_message(ERROR, "Incorrect number of arguments for resize");
+            log_message(ERR, "Incorrect number of arguments for resize");
         }
     }
 
@@ -557,7 +559,7 @@ std::list <std::string> split_to_tokens(std::string str) {
     else if(ch == '\"'){
       if(i > 1){
         if(!std::isspace(clean_str[i-1])){
-            log_message(ERROR, "Syntax error");
+            log_message(ERR, "Syntax error");
             return {};
           }
       }
@@ -566,7 +568,7 @@ std::list <std::string> split_to_tokens(std::string str) {
         if(clean_str[i] == '\"'){
           if(i + 1 < clean_str.length()){
             if(!std::isspace(clean_str[i+1])){
-              log_message(ERROR, "Syntax error");
+              log_message(ERR, "Syntax error");
               return {};
             }
           }
@@ -575,7 +577,7 @@ std::list <std::string> split_to_tokens(std::string str) {
         i++;
       }
       if(i == clean_str.length()){
-        log_message(ERROR, "Syntax error");
+        log_message(ERR, "Syntax error");
         return{};
       }
       else
@@ -641,7 +643,7 @@ static void load_assets(){
 SDL_Texture *get_sprite(std::string asset_name){
     auto iter = std::find_if(_sprite_list.begin(), _sprite_list.end(), [&](std::pair<std::string, SDL_Texture*> entry) -> bool{return entry.first==asset_name;});
     if(iter == _sprite_list.end()){
-        log_message(ERROR, "Requested sprite, " + asset_name + " does not exist.");
+        log_message(ERR, "Requested sprite, " + asset_name + " does not exist.");
         return nullptr;
     }
     else
@@ -657,5 +659,5 @@ void add_player(std::shared_ptr<AbstractPlayer> a_player){
             return;
         }
     }
-    log_message(ERROR, "Couldn't add player! No free id");
+    log_message(ERR, "Couldn't add player! No free id");
 }

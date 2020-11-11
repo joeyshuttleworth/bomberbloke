@@ -46,7 +46,7 @@ class Camera{
     if(mpFrameBuffer && !_halt){
       SDL_DestroyTexture(mpFrameBuffer);
     }
-  };
+  }
 
   /**
    * Returns frame buffer for drawing to camera.
@@ -190,4 +190,6 @@ protected:
   // Controls how bright or dark the image is - ranges from -255 to 255.
   int mBrightness = 0;
 };
+
+
 #endif

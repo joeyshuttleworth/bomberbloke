@@ -1,8 +1,6 @@
 #ifndef SERVERPLAYER_HPP
 #define SERVERPLAYER_HPP
 
-#include <cereal/types/base_class.hpp>
-#include <cereal/types/polymorphic.hpp>
 #include "AbstractPlayer.hpp"
 #include <enet/enet.h>
 
@@ -37,10 +35,6 @@ public:
     archive(cereal::make_nvp("nickname", mNickname), cereal::make_nvp("isLocal", mLocal), cereal::make_nvp("ID", mId));
   }
 };
-
-/*Polymorphic types have to be registered for cereal*/
-CEREAL_REGISTER_TYPE(serverPlayer)
-
 
 #endif
 
