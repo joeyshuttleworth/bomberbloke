@@ -9,13 +9,7 @@ AbstractPlayer::AbstractPlayer(std::string _nickname){
 }
 
 void AbstractPlayer::setCharacter(std::shared_ptr<actor> a){
-  if(!a){
-    log_message(WARNING, "Tried setting the player character to a null actor");
-    return;
-  }
   mpCharacter = a;
-  mpCharacter->setPlayerId(mId);
-  return;
 }
 
 void AbstractPlayer::setId(int id){

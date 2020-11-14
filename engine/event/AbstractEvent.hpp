@@ -22,7 +22,7 @@ enum EventType{
   EVENT_COMMAND,
   EVENT_ERROR,
   EVENT_ACCEPT,
-  EVENT_KICK
+  EVENT_KICK,
 };
 
 

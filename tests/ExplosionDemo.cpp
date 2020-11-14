@@ -3,6 +3,7 @@
 #include <SDL2/SDL.h>
 #include "bloke.hpp"
 #include "bomb.hpp"
+#include "BomberBlokeScene.hpp"
 #include "Explosion.hpp"
 
 int main (){
@@ -20,6 +21,8 @@ int main (){
 
   SDL_Init(SDL_INIT_EVERYTHING);
   init_engine();
+
+  _pScene = std::make_shared<BomberBlokeScene>();
 
   _pScene->mActors.push_back(std::shared_ptr<bloke>(new bloke(5,5,true)));
   cereal::JSONOutputArchive oArchive(std::cout);

@@ -90,18 +90,23 @@ bool NetClient::joinBlokeServer(std::string address, int port, std::string nickn
     std::unique_ptr<AbstractEvent> receive_event;
     std::stringstream data_in;
     data_in.write((char*)event.packet->data, event.packet->dataLength);
-    {cereal::PortableBinaryInputArchive inArchive(data_in);
-    inArchive(receive_event);
-    // log_message(INFO, data_in.str());
+
+    try{cereal::PortableBinaryInputArchive inArchive(data_in);
+      inArchive(receive_event);
+      if(receive_event->getType() != EVENT_INFO){
+        /* Make the pointer shared so we can handle it elsewhere */
+        std::shared_ptr<AbstractEvent> sp_to_handle = std::move(receive_event);
+      }
     }
-    if(receive_event->getType() != EVENT_INFO){
-    /* Make the pointer shared so we can handle it elsewhere */
-    std::shared_ptr<AbstractEvent> sp_to_handle = std::move(receive_event);
+    catch(std::exception e){
+      std::stringstream strstream;
+      strstream << "Received malformed network event.\n" << e.what();
+      log_message(ERR, strstream.str());
     }
-    else{
-      /*The event is a ServerInfoEvent*/
-      std::shared_ptr<AbstractEvent> tmp_event(std::move(receive_event));
-      std::shared_ptr<ServerInfoEvent> info_event = std::dynamic_pointer_cast<ServerInfoEvent>(tmp_event);
+
+    /*The event is a ServerInfoEvent*/
+    std::shared_ptr<AbstractEvent> tmp_event(std::move(receive_event));
+    std::shared_ptr<ServerInfoEvent> info_event = std::dynamic_pointer_cast<ServerInfoEvent>(tmp_event);
       info_event->output();
 
       /* Check we're allowed our nickname */
@@ -119,7 +124,6 @@ bool NetClient::joinBlokeServer(std::string address, int port, std::string nickn
 
       std::unique_ptr<AbstractEvent> join_event(new JoinEvent(nickname, info_event->mMagicNumber));
       sendEvent(join_event);
-
       /*  now poll the server again (10 seconds)*/
       while(enet_host_service(mENetHost, &event, 10000) > 0){
         std::unique_ptr<AbstractEvent> receive_event;
@@ -145,9 +149,8 @@ bool NetClient::joinBlokeServer(std::string address, int port, std::string nickn
           break;
         }
       }
-    }
   }
-  log_message(ERROR, "timed out");
+  log_message(ERR, "timed out");
   return false;
 }
 
@@ -169,11 +172,12 @@ void NetClient::pollServer(){
      try{
        cereal::PortableBinaryInputArchive inArchive(data_in);
        inArchive(receive_event);
-       // log_message(INFO, "received " + data_in.str());
      }
      catch(std::exception &ex){
-       log_message(ERROR, "Tried parsing " + data_in.str());
-       std::cout << ex.what() << "\n";
+       std::stringstream strstream;
+       strstream << "Received malformed network event\n" << ex.what();
+       log_message(ERR, strstream.str());
+       break;
      }
 
      /* Make the pointer shared so we can handle it elsewhere */
@@ -187,23 +191,23 @@ void NetClient::pollServer(){
        auto iter = std::find_if(mPlayers.begin(), mPlayers.end(), [](serverPlayer sp) -> bool{return sp.isLocal();});
        if(iter != mPlayers.end()){
          if(iter->mNickname != _nickname){
-           log_message(ERROR, "sync player list had wrong nickname for the local player");
+           log_message(ERR, "sync player list had wrong nickname for the local player");
            break;
          }
+         /*  Reset player list */
+         _player_list = {};
          if(_local_player_list.size()==0)
-           _local_player_list.push_back(_nickname);
+           _local_player_list.push_back(LocalPlayer(iter->getNickname(), iter->getId()));
          _local_player_list.back().setId(iter->getId());
-         unsigned int player_id = _local_player_list.back().getId();
-         if(player_id != iter->getId()){
-           log_message(INFO, "player id changed");
-         }
+         int player_id = iter->getId();
          for(auto i = _pScene->mActors.begin(); i != _pScene->mActors.end(); i++){
+           if(!*i)
+             continue;
            if((*i)->getPlayerId() == player_id)
-             _local_player_list.back().setCharacter(*i);
+             _pScene->linkActorToPlayer((*i), player_id);
          }
        }
        auto p_list = s_event->getPlayers();
-       _player_list = {};
        for(auto i = p_list.begin(); i != p_list.end(); i++){
          std::shared_ptr<AbstractPlayer> p = std::make_shared<serverPlayer>(*i);
          _player_list.push_back(p);
@@ -223,7 +227,7 @@ void NetClient::pollServer(){
        std::shared_ptr<actor> p_actor = _pScene->GetActor(m_event->mActorId);
 
        if(!p_actor){
-         log_message(ERROR, "Error couldn't find actor with id " + std::to_string(m_event->mActorId));
+         log_message(ERR, "Error couldn't find actor with id " + std::to_string(m_event->mActorId));
          break;
        }
        else{
@@ -241,7 +245,7 @@ void NetClient::pollServer(){
        else if(c_event->getParticle())
          _pScene->mParticleList.push_back(c_event->getParticle());
        else{
-         log_message(ERROR, "Received malformed create event");
+         log_message(ERR, "Received malformed create event");
        }
        break;
      }
@@ -249,7 +253,7 @@ void NetClient::pollServer(){
        std::shared_ptr<RemovalEvent> r_event = std::dynamic_pointer_cast<RemovalEvent>(sp_to_handle);
        std::shared_ptr<actor> a = _pScene->GetActor(r_event->getId());
        if(!a)
-         log_message(ERROR, "Couldn't find requested actor to remove");
+         log_message(ERR, "Couldn't find requested actor to remove");
        else
          a->remove();
        break;
@@ -317,11 +321,16 @@ void NetClient::sendEvent(std::unique_ptr<AbstractEvent> &event){
     break;
   default:
     reliable = false;
+    break;
   }
 
-  {
+  try{
     cereal::PortableBinaryOutputArchive oArchive(blob);
     oArchive(event);
+  }
+  catch(std::exception ex){
+    log_message(ERR, "Failed to send event");
+    return;
   }
   ENetPacket *packet;
   std::string message = blob.str();
@@ -334,7 +343,6 @@ void NetClient::sendEvent(std::unique_ptr<AbstractEvent> &event){
     packet = enet_packet_create(message.c_str(), message.size(), 0);
 
   enet_peer_send(mENetServer, 0, packet);
-
   return;
 }
 

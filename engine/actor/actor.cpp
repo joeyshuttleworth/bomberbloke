@@ -9,6 +9,10 @@ void actor :: remove(){
     std::unique_ptr<AbstractEvent> r_event(new RemovalEvent(this));
     _net_server.broadcastEvent(r_event);
   }
+  auto player = getPlayer();
+  if(player){
+    player->detachActor();
+  }
 }
 
 int actor :: move(double x, double y){
@@ -127,5 +131,4 @@ std::shared_ptr<AbstractPlayer> actor::getPlayer(){
     return *iterator;
   }
 }
-
 

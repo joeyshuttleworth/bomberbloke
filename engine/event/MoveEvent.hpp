@@ -48,7 +48,7 @@ public:
   }
 };
 
-// CEREAL_REGISTER_TYPE(MoveEvent)
+CEREAL_REGISTER_TYPE(MoveEvent)
 
 #endif
 

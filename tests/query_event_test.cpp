@@ -9,6 +9,8 @@
 #include <thread>
 #include <assert.h>
 
+CEREAL_REGISTER_DYNAMIC_INIT(actor)
+
 int main() {
     // Don't display any graphics for this test, or even create a window
     _draw = false;

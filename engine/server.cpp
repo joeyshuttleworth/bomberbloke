@@ -20,7 +20,7 @@ void server_loop(){
     do{
       SDL_Delay(0);
       if(clock_gettime(CLOCK_REALTIME, &t2)==-1)
-        log_message(ERROR, "Failed to get time");
+        log_message(ERR, "Failed to get time");
     }while(t2.tv_nsec - t1.tv_nsec + (float)(BILLION * (t2.tv_sec - t1.tv_sec))  < (float)BILLION/(float)TICK_RATE);
     _net_server.update();
     if(_tick % (5 * TICK_RATE) == 0){

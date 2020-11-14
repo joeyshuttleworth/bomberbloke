@@ -34,6 +34,10 @@ std::shared_ptr<Text> TextManager::createText(std::string fontId, std::string te
     // Obtain font
     TTF_Font *font = mFontBank[fontId];
 
+    if(!font){
+      log_message(ERROR, "Font not found!");
+    }
+
     // Create a new Text object
     std::shared_ptr<Text> newText = std::make_shared<Text>(
         font, text, posX, posY, xDim, yDim, xTextAlign, yTextAlign

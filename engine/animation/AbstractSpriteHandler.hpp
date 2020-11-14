@@ -3,6 +3,7 @@
 #include <SDL2/SDL.h>
 #include <array>
 #include <cereal/cereal.hpp>
+#include <cereal/types/polymorphic.hpp>
 
 enum SpriteType{
                 SPRITE_PLACEHOLDER=1,
@@ -92,4 +93,5 @@ protected:
   bool mRemove;
 };
 
+CEREAL_REGISTER_TYPE(AbstractSpriteHandler)
 #endif

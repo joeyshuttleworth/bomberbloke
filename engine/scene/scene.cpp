@@ -2,6 +2,7 @@
 #include "CreationEvent.hpp"
 #include "AbstractHudElement.hpp"
 #include "Camera.hpp"
+#include "actor.hpp"
 
 extern std::list<std::shared_ptr<AbstractSpriteHandler>> _particle_list;
 
@@ -283,4 +284,46 @@ void scene::onResize() {
     updateHudPositions();
     refreshSprites();
     return;
+}
+
+bool scene::linkActorToPlayer(std::shared_ptr<actor> &act, int player_id){
+  if(!act){
+    auto iter_player = std::find_if(_player_list.begin(), _player_list.end(), [&](std::shared_ptr<AbstractPlayer>p)->bool{return player_id == p->getId();});
+    (*iter_player)->setCharacter(nullptr);
+    auto iter_l_player = std::find_if(_local_player_list.begin(), _local_player_list.end(), [&](LocalPlayer p)->bool{return player_id == p.getId();});
+    iter_l_player->setCharacter(nullptr);
+    return true;
+  }
+
+  bool linked = false;
+
+  auto iter_actors = std::find_if(mActors.begin(), mActors.end(), [&](std::shared_ptr<actor> a) -> bool{return a == act;});
+
+  if(iter_actors == mActors.end()){
+    log_message(ERR, "scene::linkActorToPlayer - actor was part of the scene!");
+    return false;
+  }
+
+  act->setPlayerId(player_id);
+
+  for(auto i = _player_list.begin(); i != _player_list.end(); i++){
+    if((*i)->getId() == player_id){
+      (*i)->setCharacter(act);
+      linked = true;
+    }
+    else if((*i)->getCharacter() == act)
+      (*i)->setCharacter(nullptr);
+  }
+
+  for(auto i = _local_player_list.begin(); i != _local_player_list.end(); i++){
+    if(i->getId() == player_id){
+      std::cout << i->getId() << " " << player_id << "\n";
+      i->setCharacter(act);
+      linked = true;
+    }
+    else if(i->getCharacter() == act)
+      i->setCharacter(nullptr);
+  }
+
+  return linked;
 }

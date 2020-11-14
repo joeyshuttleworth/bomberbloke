@@ -18,8 +18,12 @@
 #include "GamePlayerProperties.hpp"
 
 class actor;
+class scene;
+class NetClient;
 
 class AbstractPlayer{
+  friend scene;
+  friend NetClient;
 public:
   AbstractPlayer(std::string);
   AbstractPlayer(){
@@ -36,13 +40,11 @@ public:
     mWins++;
   }
 
-  int getWins() {
-    return mWins;
-  }
+  int getWins(){return mWins;}
 
-  int getId(){
-    return mId;
-  }
+  int getId(){return mId;}
+
+  std::string getNickname(){return mNickname;}
 
   /** Get a pointer the ENetAddress of the player.
       this is only non-null for NetworkPlayers
@@ -50,7 +52,6 @@ public:
 
   virtual ENetPeer *getPeer(){return nullptr;}
 
-  void setCharacter(std::shared_ptr<actor>);
   std::shared_ptr<actor> getCharacter(){return mpCharacter;}
 
   /*Used by cereal to serialize the event for it to be sent/received*/
@@ -73,12 +74,18 @@ public:
     return mpProperties;
   }
 
+  void detachActor(){
+    mpCharacter = nullptr;
+  }
+
 protected:
+  void setCharacter(std::shared_ptr<actor>);
   std::shared_ptr<GamePlayerProperties> mpProperties;
   std::shared_ptr<actor> mpCharacter;
   virtual void ping(){}
   int mId;
   unsigned int mWins = 0;
+
 };
 
 #endif

@@ -9,7 +9,7 @@
 const bool EXPLOSION_INTRO = false;
 
 /* Register our actors with cereal */
-CEREAL_REGISTER_DYNAMIC_INIT(actors)
+CEREAL_REGISTER_DYNAMIC_INIT(actor)
 
 int main (){
   _default_bindings =

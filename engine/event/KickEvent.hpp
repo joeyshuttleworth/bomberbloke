@@ -41,7 +41,7 @@ public:
   }
 };
 
-// CEREAL_REGISTER_TYPE(KickEvent)
+CEREAL_REGISTER_TYPE(KickEvent)
 
 #endif
 

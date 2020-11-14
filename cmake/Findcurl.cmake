@@ -17,6 +17,7 @@ if(_WIN32)
 	set(CURL_INCLUDE_DIR /usr/include/curl)
 	set(CURL_LIBRARY ${PROJECT_SOURCE_DIR}/windows_libraries/libcurl.a)
 	set(CURL_FOUND TRUE)
+  add_definitions(-DCURL_STATICLIB)
 endif(_WIN32)
 
 # Handle the QUIETLY and REQUIRED arguments and set CURL_FOUND to TRUE if
@@ -27,6 +28,7 @@ find_package_handle_standard_args(CURL DEFAULT_MSG
 
 if(CURL_FOUND)
   set(CURL_LIBRARIES ${CURL_LIBRARY})
+  message("Found curl library" ${CURL_LIBRARY})
 else(CURL_FOUND)
   set(CURL_LIBRARIES)
 endif(CURL_FOUND)

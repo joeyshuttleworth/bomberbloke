@@ -11,6 +11,7 @@
 #include "errorEvent.hpp"
 #include "syncEvent.hpp"
 #include "KickEvent.hpp"
+#include "MessageEvent.hpp"
 #include "PlayerPropertiesEvent.hpp"
 #include "engine.hpp"
 #include <enet/enet.h>
@@ -52,42 +53,64 @@ void NetServer::handleJoinEvent(std::shared_ptr<JoinEvent> event, ENetPeer *from
     return;
   }
 
+  /* Add the player to _player_list */
+  bool added = addPlayer(std::make_shared<NetworkPlayer>(nickname, from));
+
+  /* Send an acceptEvent */
+  if(added){
+    std::unique_ptr<AbstractEvent> accept_event(new acceptEvent());
+    sendEvent(accept_event, from);
+    /*  Set the timeout for the new peer */
+    enet_peer_timeout(from, 5000, 0, 0);
+    /* Now sync send the entire gamestate to the client */
+    std::unique_ptr<AbstractEvent> s_event(new syncEvent());
+    sendEvent(s_event, from);
+  }
+
+  else{
+    log_message(ERR, "Failed to add player");
+  }
+
+  return;
+}
+
+bool NetServer::addPlayer(std::shared_ptr<AbstractPlayer> p_player){
   /* Finally check that there is no connected player with the same ENetAddress */
+  ENetPeer *from = p_player->getPeer();
   for(auto i = _player_list.begin(); i != _player_list.end(); i++){
     ENetPeer* tmp_peer = (*i)->getPeer();
-
     if(!tmp_peer)
       continue;
-
     if(tmp_peer == from){
       log_message(INFO, "a player at from " + std::to_string(from->address.host) + ":" + std::to_string(from->address.port) + "is already connected");
       std::unique_ptr<AbstractEvent> e_event(new errorEvent("Player from host already connected"));
       sendEvent(e_event, from);
+      return false;
     }
   }
 
-  /* Send an acceptEvent */
-  {
-    std::unique_ptr<AbstractEvent> accept_event(new acceptEvent());
-    sendEvent(accept_event, from);
+  for(int j = 1; j < BLOKE_MAX_ID; j++){
+      /* True if no actor has id j */
+      bool set = true;
+      for(auto i = _player_list.begin(); i != _player_list.end(); i++){
+        if((*i)->getId() == j){
+          set = false;
+          break;
+        }
+      }
+      if(set){
+        p_player->setId(j);
+        _player_list.push_back(p_player);
+        return true;
+      }
   }
-
-  /* Add the player to _player_list */
-  _player_list.push_back(std::shared_ptr<NetworkPlayer>(new NetworkPlayer(nickname, from)));
-
-  /*  Set the timeout for the new peer */
-  enet_peer_timeout(from, 5000, 0, 0);
-
-  /* Now sync send the entire gamestate to the client */
-  std::unique_ptr<AbstractEvent> s_event(new syncEvent());
-  sendEvent(s_event, from);
-  return;
+  return false;
 }
 
 
 void NetServer::handleEvent(std::shared_ptr<AbstractEvent> pEvent, ENetPeer *from){
   if(!pEvent.get()){
-    log_message(ERROR, "tried to handle a null event");
+    log_message(ERR, "tried to handle a null event");
     return;
   }
 
@@ -159,27 +182,23 @@ void NetServer::poll() {
         log_message(0,"Sent Packet to Peer");
         enet_host_flush(mENetServer);
       }
-      std::stringstream message;
-      message << "A packet of length " << event.packet->dataLength << " was received from '";
-      message << event.peer->data << "' on channel: " << event.channelID;
-      log_message(0, message.str());
-      // handle packet here enet_uint32
-
       std::stringstream data_in;
       data_in.write((char*)event.packet->data, event.packet->dataLength);
 
-      // log_message(DEBUG, "data received " + data_in.str());
-
-      std::unique_ptr<AbstractEvent> receive_event;
-      {
+      try{
+        std::unique_ptr<AbstractEvent> receive_event;
         cereal::PortableBinaryInputArchive inArchive(data_in);
         inArchive(receive_event);
+        std::shared_ptr<AbstractEvent> sp_to_handle(std::move(receive_event));
+
+        /* Make the pointer shared so we can handle it elsewhere */
+        handleEvent(sp_to_handle, event.peer);
       }
-
-      std::shared_ptr<AbstractEvent> sp_to_handle(std::move(receive_event));
-
-      /* Make the pointer shared so we can handle it elsewhere */
-      handleEvent(sp_to_handle, event.peer);
+      catch(std::exception e){
+        std::stringstream strstream;
+        strstream << "Received malformed network event.\n" << e.what();
+        log_message(ERR, strstream.str());
+      }
 
       /* Clean up the packet now that we're done using it. */
       enet_packet_destroy(event.packet);
@@ -197,12 +216,16 @@ void NetServer::poll() {
       /* Reset the peer's client information. */
       event.peer->data = NULL;
       /* Remove peer/player from all lists */
-      _player_list.remove_if([&](std::shared_ptr<AbstractPlayer> p) -> bool{return (p->getPeer()!= nullptr) && (p->getPeer() == event.peer);});
+      auto p_iter = std::find_if(_player_list.begin(), _player_list.end(), [&](std::shared_ptr<AbstractPlayer> p) -> bool{return (p->getPeer()!= nullptr) && (p->getPeer() == event.peer);});
+      for(; p_iter!=_player_list.end();p_iter++){
+        handlePlayerLeave(*p_iter);
+      }
     }
     default:
       break;
     }
   }
+  return;
 }
 
 //! Initialise ENet, and create server instance.
@@ -220,7 +243,7 @@ bool NetServer::init_enet() {
     mENetServer = enet_host_create(&mENetAddress, 100, 2, 0, 0);
 
     if (mENetServer == NULL) {
-      log_message(ERROR, "Could not start server. Is the port already in use?");
+      log_message(ERR, "Could not start server. Is the port already in use?");
       return 0;
     }
     else
@@ -335,7 +358,7 @@ void NetServer::syncPlayers(){
         sendEvent(p_event, peer);
       }
       else{
-        log_message(ERROR, "Failed to sync properties - null properties");
+        log_message(ERR, "Failed to sync properties - null properties");
       }
       sendEvent(s_event, peer);
     }
@@ -356,7 +379,7 @@ void NetServer::syncPlayerProperties(std::shared_ptr<AbstractPlayer> player){
 
 void NetServer::broadcastPacket(ENetPacket *packet, enet_uint8 channel) {
     if (clientCount() == 0) {
-        log_message(0, "ERROR: No Clients Connected, Could not Broadcast Message!");
+        log_message(ERR, "No Clients Connected, Could not Broadcast Message!");
     }
     else {
         enet_host_broadcast(mENetServer, channel, packet);
@@ -403,19 +426,21 @@ void NetServer::printPlayers(){
   log_message(INFO, "there are " + std::to_string(_player_list.size()) + " players connected");
 }
 
-void NetServer::disconnectPlayer(std::shared_ptr<AbstractPlayer> p_player, std::string reason){
+ void NetServer::disconnectPlayer(std::shared_ptr<AbstractPlayer> p_player, std::string reason, bool pause){
   ENetPeer* peer = p_player->getPeer();
   if(peer){
     /*First send a kick event*/
     std::unique_ptr<AbstractEvent> k_event(new KickEvent(reason));
     sendEvent(k_event, peer);
-    SDL_Delay(500);
+    if(pause)
+      SDL_Delay(500);
     /* Now disconnect the peer */
     enet_peer_disconnect(peer, 0);
     SDL_Delay(1000);
     enet_peer_reset(peer);
   }
   _player_list.remove_if([&](std::shared_ptr<AbstractPlayer> p) -> bool {return p_player == p;});
+  return;
 }
 
 void NetServer::disconnectPlayer(std::string player_name, std::string reason){
@@ -425,5 +450,15 @@ void NetServer::disconnectPlayer(std::string player_name, std::string reason){
       return;
     }
  }
-  log_message(ERROR, "Unable to kick player, \"" + player_name + "\"; no matching players");
+  log_message(ERR, "Unable to kick player, \"" + player_name + "\"; no matching players");
+  return;
+}
+
+void NetServer::handlePlayerLeave(std::shared_ptr<AbstractPlayer> p){
+  std::stringstream msg;
+  msg << "Player \"" << p->getNickname() << "\" left the server!";
+  log_message(INFO, msg.str());
+  std::unique_ptr<AbstractEvent> c_event(new MessageEvent(msg.str()));
+  broadcastEvent(c_event);
+  return;
 }
