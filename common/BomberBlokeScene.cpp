@@ -1,4 +1,5 @@
 #include "BomberBlokeScene.hpp"
+#include "bomberbloke.h"
 #include <random>
 #include <memory>
 #include <algorithm>
@@ -7,7 +8,6 @@
 #include "CommandEvent.hpp"
 #include "engine.hpp"
 #include "scene.hpp"
-#include "bomberbloke.h"
 #include "ClickableHudElement.hpp"
 #include "CountdownHudGroup.hpp"
 #include "TextHudElement.hpp"
@@ -19,6 +19,7 @@
 #include "EndRoundHudGroup.hpp"
 #include "PauseMenuHudGroup.hpp"
 #include "Soundtrack.hpp"
+#include "syncEvent.hpp"
 
 const std::string BACKGROUND_TILE_PREFIX = "background_tile_";
 const int N_BACKGROUND_TILES = 10;
@@ -120,11 +121,19 @@ void BomberBlokeScene::logicUpdate(){
       /*Send end command*/
       mIsRoundEnd = true;
       mRoundEndTicks = 0;
+      /* Find the last player left alive that is, the winner of this round.
+         winner_iter == _player_list.end() if no winner exists.
+       */
       auto winner_iter = std::find_if(_player_list.begin(), _player_list.end(), [&](std::shared_ptr<AbstractPlayer> p) -> bool {return p->getCharacter() != nullptr;});
       std::unique_ptr<AbstractEvent> c_event(new CommandEvent("end nobody"));
       if(winner_iter!=_player_list.end())
         c_event = std::unique_ptr<AbstractEvent>(new CommandEvent("end " + (*winner_iter)->mNickname));
-      _net_server.broadcastEvent(c_event);
+      {
+        std::unique_ptr<syncEvent> s_event(new syncEvent());
+        cereal::JSONOutputArchive outArchive(std::cout);
+        outArchive(s_event);
+      }
+        _net_server.broadcastEvent(c_event);
     }
   } else if (mIsRoundEnd) {
     mRoundEndTicks++;
@@ -201,8 +210,8 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
     for(unsigned int i = 0; i < 5; i++){
       if(iter == _player_list.end())
         break;
-      addActor(std::shared_ptr<bloke>(new bloke(spawn_points[i][0], spawn_points[i][1], true)));
-      (*iter)->setCharacter(mActors.back());
+      addActor(std::make_shared<bloke>(spawn_points[i][0], spawn_points[i][1], true));
+      linkActorToPlayer(mActors.back(), (*iter)->getId());
       iter++;
     }
   }

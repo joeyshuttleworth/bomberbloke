@@ -3,7 +3,13 @@
 
 #include <map>
 #include <cmath>
+#define SDL_MAIN_HANDLED
 #include <SDL.h>
+#include <SDL_joystick.h>
+#include <SDL_main.h>
+#include <cereal/types/polymorphic.hpp>
+#include <cereal/archives/json.hpp>
+#include <cereal/archives/portable_binary.hpp>
 #include <iostream>
 #include <algorithm>
 #include <list>
@@ -14,7 +20,6 @@
 #include <algorithm>
 #include <ctime>
 #include <signal.h>
-#include <SDL_joystick.h>
 #include <thread>
 #include <mutex>
 
@@ -24,6 +29,11 @@
 #define DEFAULT_WINDOW_HEIGHT 700
 #define MIN_VELOCITY 1e-8
 #define TICK_RATE 64
+
+// Pretty arbitrary constant to set a reasonable limit for id searches doesn't
+// really matter as long as it's greater than the mamximum number of players and
+// actors.
+#define BLOKE_MAX_ID 10000
 
 
 /* ENUM to track what the client/server is doing */
@@ -151,6 +161,9 @@ const std::string PATHSEPARATOR =
 #else
 "/";
 #endif
+
+#include <cereal/archives/json.hpp>
+#include <cereal/archives/portable_binary.hpp>
 
 #include "AbstractSpriteHandler.hpp"
 #include "NetworkPlayer.hpp"

@@ -17,6 +17,7 @@ public:
     mNickname = player->mNickname;
     mLocal = local;
     mId = player->getId();
+    mWins = player->getWins();
     return;
   }
 
@@ -32,7 +33,7 @@ public:
 
   template<class Archive>
   void serialize(Archive &archive){
-    archive(cereal::make_nvp("nickname", mNickname), cereal::make_nvp("isLocal", mLocal), cereal::make_nvp("ID", mId));
+    archive(cereal::make_nvp("nickname", mNickname), cereal::make_nvp("isLocal", mLocal), cereal::make_nvp("ID", mId), cereal::make_nvp("wins", mWins));
   }
 };
 

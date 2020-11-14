@@ -43,6 +43,7 @@ enum block_types{
 #include "bomb.hpp"
 #include "bloke.hpp"
 #include "woodenCrate.hpp"
+
 #include "BomberBlokeScene.hpp"
 
 #endif

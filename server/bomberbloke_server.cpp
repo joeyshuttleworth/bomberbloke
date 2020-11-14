@@ -1,4 +1,5 @@
 #include <cereal/archives/json.hpp>
+#include <cereal/archives/portable_binary.hpp>
 #include "bomberbloke.h"
 #include "ServerInfo.hpp"
 #include "ServerInfoEvent.hpp"
@@ -6,11 +7,6 @@
 #include <random>
 #include <array>
 #include <memory>
-#include "woodenCrate.hpp"
-#include "BomberBlokeScene.hpp"
-
-/* Register our actors with cereal */
-CEREAL_REGISTER_DYNAMIC_INIT(actors)
 
 int    _default_bomb_time = DEFAULT_BOMB_TIMER;
 double _bloke_size[2]     = {DEFAULT_BLOKE_SIZE, DEFAULT_BLOKE_SIZE};

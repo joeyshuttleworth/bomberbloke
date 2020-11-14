@@ -23,15 +23,13 @@ int main (){
   _local_player_list.push_back(LocalPlayer(std::string("big_beef")));
   SDL_Init(SDL_INIT_EVERYTHING);
 
+  _draw=true;
   init_engine();
+
   _pScene = std::make_shared<BomberBlokeScene>(10,10);
-
-  set_draw(true);
-
   _pScene->addActor(std::shared_ptr<actor>(std::make_shared<bloke>(1,2,true)));
-  _local_player_list.back().setCharacter(_pScene->mActors.back());
   _pScene->addActor(std::shared_ptr<actor>(std::make_shared<bloke>(3,3)));
-
+  _pScene->linkActorToPlayer(_pScene->mActors.back(), _local_player_list.back().getId());
 
   server_loop();
 

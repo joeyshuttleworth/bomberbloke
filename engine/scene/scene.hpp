@@ -172,6 +172,10 @@ public:
    * Used primarily to update interactive HUD elements.
    */
   virtual void onInput(SDL_Event *event);
+
+  /*   */
+
+  bool linkActorToPlayer(std::shared_ptr<actor>&, int);
 };
 
 #endif

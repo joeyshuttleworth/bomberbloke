@@ -13,6 +13,9 @@ class AbstractPlayer; class AbstractSpriteHandler;
 
 class actor: public KinematicCollider {
   friend class MoveEvent;
+  friend class NetClient;
+  friend class NetServer;
+  friend class scene;
 protected:
 
   /*Flag to indicate removal when next updated*/
@@ -32,6 +35,8 @@ protected:
   */
   int    mPlayerId = 0;
 
+  void setPlayerId(int id){mPlayerId = id;}
+
   /*The id of this actor. Used by  scene::mActors*/
   unsigned int mId;
 
@@ -42,6 +47,7 @@ public:
   void setId(int id){mId = id;}
 
   void interpolate();
+
 
   /* TODO replace this */
   dvector mDimmension;
@@ -74,8 +80,6 @@ public:
   unsigned int getPlayerId(){
     return mPlayerId;
   }
-
-  void setPlayerId(int id){mPlayerId = id;}
 
   /*Do we collide with other actors*/
   bool mCollides;
@@ -112,10 +116,10 @@ public:
 
   template<class Archive>
   void serialize(Archive &archive){
-    archive(cereal::make_nvp("actorId", mId), mPlayerId, mPosition[0], mPosition[1], mVelocity[0], mVelocity[1]);
+    archive(cereal::make_nvp("actorId", mId), cereal::make_nvp("playerId", mPlayerId), mPosition[0], mPosition[1], mVelocity[0], mVelocity[1]);
   }
 };
 
-// CEREAL_REGISTER_TYPE(actor)
+CEREAL_REGISTER_TYPE(actor)
 
 #endif

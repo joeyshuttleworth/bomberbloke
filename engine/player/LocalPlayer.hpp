@@ -8,10 +8,11 @@ class LocalPlayer : public AbstractPlayer{
 
   ~LocalPlayer(){};
 
-  LocalPlayer(std::string nickname = "player") : AbstractPlayer(){
+  LocalPlayer(std::string nickname = "player", int id=1) : AbstractPlayer(){
     for(unsigned int i = 0; i < _default_bindings.size(); i++)
       mControlScheme.push_back(_default_bindings[i]);
     mNickname = nickname;
+    mId = id;
     return;
   }
 

@@ -6,9 +6,9 @@
 #include "BomberBlokeScene.hpp"
 
 /* Register our actors with cereal */
-CEREAL_REGISTER_DYNAMIC_INIT(actors)
+CEREAL_REGISTER_DYNAMIC_INIT(actor)
 
-int main (){
+int main (int argc, char **argv){
   _draw=false;
 
   SDL_Init(SDL_INIT_EVERYTHING);

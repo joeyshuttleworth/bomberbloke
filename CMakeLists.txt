@@ -6,7 +6,7 @@ enable_testing()
 
 if (CMAKE_COMPILER_IS_MINGW)
   add_definitions(-DWC_NO_BEST_FIT_CHARS=0x400)   # Note - removed -DPOCO_WIN32_UTF8
-  add_definitions(-D_WIN32 -DMINGW32 -DWINVER=0x500 -DODBCVER=0x0300 -DPOCO_THREAD_STACK_SIZE)
+  add_definitions(-D_WIN32 -DMINGW32 -DWIN32_LEAN_AND_MEAN -DWINVER=0x500 -DODBCVER=0x0300 -DPOCO_THREAD_STACK_SIZE)
   add_compile_options(-Wa,-mbig-obj)   # Note: new - fixes "file too big"
 endif (CMAKE_COMPILER_IS_MINGW)
 
@@ -25,6 +25,7 @@ if(_WIN32)
 set(CMAKE_FIND_LIBRARY_PATH ${PROJECT_SOURCE_DIR}/windows_libraries)
 include_directories(${PROJECT_SOURCE_DIR}/windows_libraries/include)
 include_directories(/usr/x86_64-w64-mingw32/include)
+set(CMAKE_CXX_STANDARD_LIBRARIES "${CMAKE_CXX_STANDARD_LIBRARIES} -static-libgcc -static-libstdc++ -lwsock32 -lws2_32 -lwinmm -lwldap32 -lhid -lsetupapi -lole32 -loleaut32 -limm32 -lversion -mwindows")
 endif(_WIN32)
 
 find_package(ENet REQUIRED)
@@ -37,11 +38,8 @@ find_package(curl REQUIRED)
 include_directories(${CURL_INCLUDE_DIR})
 
 #Include directories
-if(_WIN32)
-
-else()
 include_directories(BEFORE SYSTEM ${PROJECT_SOURCE_DIR}/cereal/include)
-endif()
+
 include_directories(${PROJECT_SOURCE_DIR}/engine/event)
 include_directories(${PROJECT_SOURCE_DIR}/engine/file)
 include_directories(${PROJECT_SOURCE_DIR}/engine/scene)
@@ -74,6 +72,9 @@ add_test(RUN_AND_CLOSE run_and_close COMMAND)
 #query_event_test
 add_executable(query_event_test "tests/query_event_test.cpp")
 target_link_libraries(query_event_test CLIENT ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES})
+if(_WIN32)
+  target_link_libraries(query_event_test ws2_32)
+endif(_WIN32)
 add_test(QUERY_TEST query_event_test COMMAND)
 
 #local_server_connect test

@@ -39,6 +39,8 @@ public:
 
 };
 
+CEREAL_REGISTER_TYPE(ServerPropertiesEvent)
+
 #endif
 
 

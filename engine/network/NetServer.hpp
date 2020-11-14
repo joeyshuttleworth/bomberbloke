@@ -8,6 +8,7 @@
 #include <enet/enet.h>
 #include <string>
 #include "ServerInfo.hpp"
+#include "AbstractPlayer.hpp"
 
 class AbstractEvent;
 class JoinEvent;
@@ -63,9 +64,11 @@ public:
 
     void printPlayers();
 
-    void disconnectPlayer(std::shared_ptr<AbstractPlayer>, std::string="");
+    void disconnectPlayer(std::shared_ptr<AbstractPlayer>, std::string="", bool=false);
 
     void disconnectPlayer(std::string player_name, std::string reason="");
+
+    void handlePlayerLeave(std::shared_ptr<AbstractPlayer>);
 private:
 
   /** A list containing information about every player connected to the server
@@ -86,6 +89,11 @@ private:
     std::string mMasterServerAddress;
     void sendStringMessage(std::string, ENetPeer*);
     void handleJoinEvent();
+
+    /* Gives the player a unique id and adds them to the player list provided that
+     * no other player has the same address.
+     */
+  bool addPlayer(std::shared_ptr<AbstractPlayer>);
 
     ServerInfo mServerInfo;
 
