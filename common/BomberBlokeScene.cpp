@@ -126,8 +126,10 @@ void BomberBlokeScene::logicUpdate(){
        */
       auto winner_iter = std::find_if(_player_list.begin(), _player_list.end(), [&](std::shared_ptr<AbstractPlayer> p) -> bool {return p->getCharacter() != nullptr;});
       std::unique_ptr<AbstractEvent> c_event(new CommandEvent("end nobody"));
-      if(winner_iter!=_player_list.end())
+      if(winner_iter!=_player_list.end()){
         c_event = std::unique_ptr<AbstractEvent>(new CommandEvent("end " + (*winner_iter)->mNickname));
+        (*winner_iter)->addWin();
+      }
       {
         std::unique_ptr<syncEvent> s_event(new syncEvent());
         cereal::JSONOutputArchive outArchive(std::cout);
@@ -414,6 +416,9 @@ void BomberBlokeScene::handleCommand(std::string str){
       mSoundtrack->playIdle();
 
     std::string winning_name = tokens.back();
+    auto winner = std::find_if(_player_list.begin(), _player_list.end(), [&](std::shared_ptr<AbstractPlayer> p) -> bool {return p->getNickname() == winning_name;});
+    if(winner!=_player_list.end())
+      (*winner)->addWin();
     std::shared_ptr<EndRoundHudGroup> endRoundHud = mEndRoundHud.lock();
     endRoundHud->updateScores(winning_name, _player_list);
     endRoundHud->setIsVisible(true);

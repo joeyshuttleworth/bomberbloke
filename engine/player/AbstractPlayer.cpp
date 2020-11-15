@@ -30,3 +30,9 @@ void AbstractPlayer::resetPlayerProperties(std::shared_ptr<AbstractPlayerPropert
    else
      mpProperties = std::make_shared<GamePlayerProperties>();
 }
+
+std::string AbstractPlayer::getInfoString(){
+  std::stringstream msg;
+  msg << mId << " " << mNickname << " " << mpCharacter.get() << " " << mWins;
+  return msg.str();
+}
