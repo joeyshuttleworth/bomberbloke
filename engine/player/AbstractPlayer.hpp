@@ -36,9 +36,7 @@ public:
 
   std::string mNickname;
 
-  void addWin(){
-    mWins++;
-  }
+  void addWin(){mWins++;}
 
   int getWins(){return mWins;}
 
@@ -77,6 +75,8 @@ public:
   void detachActor(){
     mpCharacter = nullptr;
   }
+
+  std::string getInfoString();
 
 protected:
   void setCharacter(std::shared_ptr<actor>);

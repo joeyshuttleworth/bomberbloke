@@ -39,13 +39,13 @@ void EndRoundHudGroup::updateScores(std::string roundWinner, std::list<std::shar
 
   winnerText->setText(roundWinner);
 
-  std::cout << playerList.size() << " update scores " << mScoreTexts.size() << std::endl;
+  // std::cout << playerList.size() << " update scores " << mScoreTexts.size() << std::endl;
 
   std::list<std::shared_ptr<AbstractPlayer>> sortedPlayerList = playerList;
   sortedPlayerList.sort(comparePlayers);
   auto playerIter = sortedPlayerList.begin();
   auto textIter = mScoreTexts.begin();
-    std::cout << sortedPlayerList.size() << " ff scores " << mScoreTexts.size() << std::endl;
+  // std::cout << sortedPlayerList.size() << " ff scores " << mScoreTexts.size() << std::endl;
   for (int i = 0; i < sortedPlayerList.size(); i++) {
     if (i >= mScoreTexts.size()) {
       std::shared_ptr<Text> playerText = textManager.createText("Aileron-Black", (*playerIter)->mNickname);

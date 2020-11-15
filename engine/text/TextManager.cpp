@@ -1,4 +1,5 @@
 #include "TextManager.hpp"
+#include "engine.hpp"
 
 #include <SDL2/SDL.h>
 #include <iostream>
@@ -35,7 +36,7 @@ std::shared_ptr<Text> TextManager::createText(std::string fontId, std::string te
     TTF_Font *font = mFontBank[fontId];
 
     if(!font){
-      log_message(ERROR, "Font not found!");
+      log_message(ERR, "Font not found!");
     }
 
     // Create a new Text object

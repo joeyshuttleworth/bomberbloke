@@ -214,11 +214,10 @@ void handle_input() {
                             if(!_server){
                                 std::unique_ptr<AbstractEvent> c_event(new CommandEvent(command_to_send));
                                 _net_client.sendEvent(c_event);
-                                std::cout << "sending command\n";
                             }
                         }
                         else{
-                            log_message(INFO, "No character connected to player!");
+                            log_message(DEBUG, "Input received but no character connected to player!");
                         }
                     }
                 }

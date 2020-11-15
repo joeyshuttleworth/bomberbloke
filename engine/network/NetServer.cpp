@@ -60,8 +60,8 @@ void NetServer::handleJoinEvent(std::shared_ptr<JoinEvent> event, ENetPeer *from
   if(added){
     std::unique_ptr<AbstractEvent> accept_event(new acceptEvent());
     sendEvent(accept_event, from);
-    /*  Set the timeout for the new peer */
-    enet_peer_timeout(from, 5000, 0, 0);
+    /*  Set the timeout for the new peer (in ms)*/
+    enet_peer_timeout(from, 1000, 0, 0);
     /* Now sync send the entire gamestate to the client */
     std::unique_ptr<AbstractEvent> s_event(new syncEvent());
     sendEvent(s_event, from);
@@ -240,7 +240,7 @@ bool NetServer::init_enet() {
 
     //Config for defaults can be defined later
     //const ENetAddress *address, size_t peerCount, size_t channelLimit, enet_uint32 incomingBandwidth, enet_uint32 outgoingBandwidth)
-    mENetServer = enet_host_create(&mENetAddress, 100, 2, 0, 0);
+    mENetServer = enet_host_create(&mENetAddress, 124, 10, 0, 0);
 
     if (mENetServer == NULL) {
       log_message(ERR, "Could not start server. Is the port already in use?");
@@ -422,8 +422,13 @@ void NetServer::update(){
 }
 
 void NetServer::printPlayers(){
-  /*  TODO include more info */
-  log_message(INFO, "there are " + std::to_string(_player_list.size()) + " players connected");
+  /*  TODO include ping*/
+  std::stringstream msg;
+  msg << "there are " << _player_list.size()  << " players connected\n\n";
+  for(auto i = _player_list.begin(); i!=_player_list.end(); i++){
+    msg << (*i)->getInfoString() << "\n";
+  }
+  log_message(INFO, msg.str());
 }
 
  void NetServer::disconnectPlayer(std::shared_ptr<AbstractPlayer> p_player, std::string reason, bool pause){
@@ -458,7 +463,8 @@ void NetServer::handlePlayerLeave(std::shared_ptr<AbstractPlayer> p){
   std::stringstream msg;
   msg << "Player \"" << p->getNickname() << "\" left the server!";
   log_message(INFO, msg.str());
-  std::unique_ptr<AbstractEvent> c_event(new MessageEvent(msg.str()));
-  broadcastEvent(c_event);
+  std::unique_ptr<AbstractEvent> m_event(new MessageEvent(msg.str()));
+  broadcastEvent(m_event);
+  _player_list.remove(p);
   return;
 }
