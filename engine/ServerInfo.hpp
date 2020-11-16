@@ -17,7 +17,7 @@ public:
   void SetMaxPlayers(int max){
     mMaxPlayers = max;
   }
-  ServerInfo(std::string title= "Bomberbloke server", std::string description = "A server for the game multiplayer game, bomberbloke - enjoy!!", int max = 2){
+  ServerInfo(std::string title= "Bomberbloke server", std::string description = "A server for the game multiplayer game, bomberbloke - enjoy!!", int max = 5){
     mDescription = description;
     mMaxPlayers = max;
     mTitle = title;
