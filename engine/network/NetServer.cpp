@@ -153,7 +153,7 @@ void NetServer::handleEvent(std::shared_ptr<AbstractEvent> pEvent, ENetPeer *fro
       return;
     }
     std::string command = c_event->getCommand();
-    log_message(DEBUG, "received command " + command + " from player " + std::to_string(p_player->getId()) +  ".");
+    // log_message(DEBUG, "received command " + command + " from player " + std::to_string(p_player->getId()) +  ".");
     if(command != ""){
       character->handleCommand(command);
     }
@@ -216,9 +216,12 @@ void NetServer::poll() {
       /* Reset the peer's client information. */
       event.peer->data = NULL;
       /* Remove peer/player from all lists */
-      auto p_iter = std::find_if(_player_list.begin(), _player_list.end(), [&](std::shared_ptr<AbstractPlayer> p) -> bool{return (p->getPeer()!= nullptr) && (p->getPeer() == event.peer);});
-      for(; p_iter!=_player_list.end();p_iter++){
-        handlePlayerLeave(*p_iter);
+      while(true){
+        auto p_iter = std::find_if(_player_list.begin(), _player_list.end(), [&](std::shared_ptr<AbstractPlayer> p) -> bool{return (p->getPeer()!= nullptr) && (p->getPeer() == event.peer);});
+        if(p_iter!= _player_list.end())
+          handlePlayerLeave(*p_iter);
+        else
+          break;
       }
     }
     default:
@@ -444,7 +447,7 @@ void NetServer::printPlayers(){
     SDL_Delay(1000);
     enet_peer_reset(peer);
   }
-  _player_list.remove_if([&](std::shared_ptr<AbstractPlayer> p) -> bool {return p_player == p;});
+  handlePlayerLeave(p_player);
   return;
 }
 
@@ -460,11 +463,18 @@ void NetServer::disconnectPlayer(std::string player_name, std::string reason){
 }
 
 void NetServer::handlePlayerLeave(std::shared_ptr<AbstractPlayer> p){
+  if(!p)
+    return;
   std::stringstream msg;
   msg << "Player \"" << p->getNickname() << "\" left the server!";
   log_message(INFO, msg.str());
   std::unique_ptr<AbstractEvent> m_event(new MessageEvent(msg.str()));
   broadcastEvent(m_event);
+  for(auto act = _pScene->mActors.begin(); act!=_pScene->mActors.end(); act++){
+    if((*act)->getPlayerId() == p->getId())
+      (*act)->remove();
+  }
+
   _player_list.remove(p);
   return;
 }

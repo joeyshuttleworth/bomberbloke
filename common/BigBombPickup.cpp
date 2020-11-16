@@ -2,7 +2,7 @@
 #include "bloke.hpp"
 
 void BigBombPickup::pickup(std::shared_ptr<bloke> b){
-  log_message(INFO, "Picked up extra bomb");
+  log_message(DEBUG, "Picked up big bomb");
   if(_server){
     if(!b->mBigBomb){
       b->mBigBomb = true;

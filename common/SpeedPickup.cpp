@@ -2,7 +2,7 @@
 #include "bloke.hpp"
 
 void SpeedPickup::pickup(std::shared_ptr<bloke> b){
-  log_message(INFO, "Picked up extra speed");
+  log_message(DEBUG, "Picked up extra speed");
   if(_server){
     if(b->mMaxSpeed < 9){
       b->mMaxSpeed++;

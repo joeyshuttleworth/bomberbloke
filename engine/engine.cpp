@@ -8,6 +8,7 @@
 #include "AbstractSpriteHandler.hpp"
 #include "NetClient.hpp"
 #include "NetServer.hpp"
+#include "MainMenuScene.hpp"
 #include <cereal/archives/json.hpp>
 #include <fstream>
 #include <exception>
@@ -359,6 +360,7 @@ bool handle_system_command(std::list<std::string> tokens){
         }
         else{
             _net_client.disconnectClient();
+            _pScene = std::make_shared<MainMenuScene>(15, 15);
         }
     }
 
@@ -409,11 +411,13 @@ bool handle_system_command(std::list<std::string> tokens){
                         we're going to have an error
                 */
                 try{
-                    port = std::stoi(iter->substr(delim_pos+1).c_str());
+                    port = std::stoi(iter->substr(delim_pos+1));
                 }
                 catch(std::exception &e){
-                    log_message(ERR, "Failed to parse port number");
-                    return false;
+                    std::stringstream msg;
+                    msg << "Failed to parse port number \n" << e.what() << "defaulting to 8888";
+                    log_message(ERR, msg.str());
+                    port = 8888;
                 }
             }
             /* We now have an address and port number to connect with
