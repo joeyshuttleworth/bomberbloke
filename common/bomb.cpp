@@ -36,19 +36,21 @@ void bomb::update(){
     if(mCollides == false){
       std::shared_ptr<actor> placed_by = _pScene->GetActor(mPlacedById);
       /*TODO this is wrong. Use a corner or midpoint here*/
+      if(placed_by){
         if(std::abs(mPosition[0]-placed_by->mPosition[0]) > 0.5*(mDimmension[0]+placed_by->mDimmension[0])){
-        mCollides=true;
-      }
-      else if(std::abs(mPosition[1]-placed_by->mPosition[1]) > 0.5*(mDimmension[1]+placed_by->mDimmension[1])){
-        mCollides = true;
+          mCollides=true;
+        }
+        else if(std::abs(mPosition[1]-placed_by->mPosition[1]) > 0.5*(mDimmension[1]+placed_by->mDimmension[1])){
+          mCollides = true;
+        }
       }
     }
   }
-    if(mTimer==0)
-      explode();
-    else
-      mTimer--;
-    return;
+  if(mTimer==0)
+    explode();
+  else
+    mTimer--;
+  return;
 }
 
 void bomb::explode(){
