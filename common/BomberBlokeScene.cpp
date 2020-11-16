@@ -130,10 +130,11 @@ void BomberBlokeScene::logicUpdate(){
         c_event = std::unique_ptr<AbstractEvent>(new CommandEvent("end " + (*winner_iter)->mNickname));
         (*winner_iter)->addWin();
       }
+
       {
-        std::unique_ptr<syncEvent> s_event(new syncEvent());
-        cereal::JSONOutputArchive outArchive(std::cout);
-        outArchive(s_event);
+        // std::unique_ptr<syncEvent> s_event(new syncEvent());
+        // cereal::JSONOutputArchive outArchive(std::cout);
+        // outArchive(s_event);
       }
         _net_server.broadcastEvent(c_event);
     }

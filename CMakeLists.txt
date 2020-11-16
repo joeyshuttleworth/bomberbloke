@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 3.10)
 project(BOMBERBLOKE)
-set(CMAKE_BUILD_TYPE Debug)
+
+if(NOT CMAKE_BUILD_TYPE)
+  set( CMAKE_BUILD_TYPE Debug CACHE STRING
+       "Choose the type of build, options are: None Debug Release RelWithDebInfo
+MinSizeRel."
+       FORCE )
+endif()
 
 enable_testing()
 

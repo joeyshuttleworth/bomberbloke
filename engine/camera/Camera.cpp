@@ -58,7 +58,7 @@ void Camera::draw() {
     // Apply blur to mpFrameBuffer and draw to window
     blurTexture(mpFrameBuffer, mBlurSize, mBlurPasses);
     SDL_SetRenderTarget(_renderer, nullptr);
-    SDL_RenderCopy(_renderer, mpFrameBuffer, nullptr, nullptr);
+    SDL_RenderCopy(_renderer, mpFrameBuffer, nullptr, &mScreenRectangle);
 
     // Apply brightness effect to window
     if (mBrightness != 0) {
@@ -70,7 +70,7 @@ void Camera::draw() {
             SDL_SetRenderDrawColor(_renderer, 255, 255, 255, mBrightness);
             SDL_RenderFillRect(_renderer, nullptr);
         } else {
-            // If brightness is negative draw semi-transparent black box
+            // If brightness is negative draw semi-transparent blac box
             SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
             SDL_SetRenderDrawColor(_renderer, 0, 0, 0, std::abs(mBrightness));
             SDL_RenderFillRect(_renderer, nullptr);
@@ -86,7 +86,7 @@ void Camera::resetFrameBuffer() {
     // Set background colour
     SDL_SetRenderTarget(_renderer, mpFrameBuffer);
     SDL_SetRenderDrawColor(_renderer, 0x00, 0x10, 0xff, 0xff);
-    SDL_RenderFillRect(_renderer, nullptr);
+    SDL_RenderFillRect(_renderer, nullptr); 
 
     // Clear bloom buffer
     SDL_SetRenderTarget(_renderer, mpBloomBuffer);

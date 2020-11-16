@@ -2,7 +2,7 @@
 #include "bloke.hpp"
 
 void PowerPickup::pickup(std::shared_ptr<bloke> b){
-  log_message(INFO, "Picked up extra power");
+  log_message(DEBUG, "Picked up extra power");
   if(_server){
     if(b->mPower < 9){
       b->mPower++;

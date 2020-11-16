@@ -59,9 +59,8 @@ public:
   double mDimmension[2];
 
   /*
-   * mActors holds each object in our scene.
-   * Cereal will only work if we use smart pointers
-   * here but we should probably be using them anyway *?
+   * mActors holds each object in the scene. For example, the player object,
+   * obstacles, enemies and pickups.
    *
    */
   std::list<std::shared_ptr<actor>> mActors;
