@@ -162,12 +162,12 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y) : scene(size_x, size_
     /*  Initialisation for random number generation */
     std::uniform_int_distribution<> distrib(0, 9);
     std::vector<std::array<int, 2>> spawn_points;
-    spawn_points.reserve(5);
+    spawn_points.reserve(16);
 
     int blocks[size_x][size_y];
     memset(blocks, 0, sizeof(int)*size_x*size_y);
 
-    for(unsigned int i = 0; i < 5; i++){
+    for(unsigned int i = 0; i < 16; i++){
       bool set = false;
       for(int j = 0; j<10000; j++){
         int xpos = distrib(gen);
