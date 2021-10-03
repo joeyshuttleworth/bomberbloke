@@ -325,6 +325,7 @@ scene::onInput(SDL_Event* event)
 void
 scene::onResize()
 {
+  std::lock_guard<std::mutex> guard{mMutex};
   if (mpCamera)
     mpCamera->onResize();
   updateHudPositions();

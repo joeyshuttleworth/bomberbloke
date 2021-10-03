@@ -7,6 +7,7 @@
 #include <string>
 #include <enet/enet.h>
 #include <string>
+#include <list>
 #include "ServerInfo.hpp"
 #include "AbstractPlayer.hpp"
 

@@ -17,7 +17,7 @@ public:
     // Subject that is followed by the camera
     std::weak_ptr<actor> mSubject;
 
-     FollowCamera(scene* scn) : Camera(scn){}
+  using Camera::Camera;
 
     ~FollowCamera(){
       /* We will get a double free if we destroy the texture after SDL_Quit is called */

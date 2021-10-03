@@ -3,6 +3,7 @@
 #include "engine.hpp"
 #include "scene.hpp"
 #include "bomberbloke.h"
+#include "ShowAllCamera.hpp"
 
 #include <memory>
 
@@ -24,7 +25,7 @@ protected:
   SDL_Texture *mBackgroundTexture;
 
   // Camera that captures entire scene.
-  std::shared_ptr<Camera> mSceneCamera;
+  std::shared_ptr<ShowAllCamera> mSceneCamera;
   // Camera that follows blokes.
   std::shared_ptr<FollowCamera> mBlokeCamera;
   // Boolean that is true when the camera is following a bloke.
