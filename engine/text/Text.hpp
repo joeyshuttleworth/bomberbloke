@@ -40,7 +40,7 @@ public:
      * @param yAlign    Horizontal alignment of the text. Accepts TEXT_ALIGN_TOP,
      *                  TEXT_ALIGN_BOTTOM and TEXT_ALIGN_CENTER (default).
      */
-    Text(TTF_Font *font, std::string text="", int posX=0, int posY=0,
+    Text(TTF_Font *font=nullptr, std::string text="", int posX=0, int posY=0,
             int xDim = 0, int yDim=0, TextAlignFlag xAlign=TEXT_ALIGN_LEFT,
             TextAlignFlag yAlign=TEXT_ALIGN_TOP) {
         mFont = font;
@@ -275,7 +275,7 @@ protected:
 
     // Texture containing rendered text. Updated only when mPropertiesUpdated
     // is set to True (see draw).
-    SDL_Texture *mTextTexture;
+    SDL_Texture *mTextTexture = nullptr;
     // Source rectangle.
     SDL_Rect mSrcRect;
     // Destination rectangle - corresponds to the text box in screen coordinates.

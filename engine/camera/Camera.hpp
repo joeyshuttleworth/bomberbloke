@@ -3,8 +3,9 @@
 
 #include <SDL2/SDL.h>
 #include <memory>
+#include <algorithm>
+#include <mutex>
 #include "scene.hpp"
-#include "engine.hpp"
 
 extern int _window_size[];
 
@@ -15,9 +16,9 @@ extern SDL_Window   *_window;
 class Camera{
   public:
   double mZoom = 0.1;
-  std::array<double, 2> mPosition = {{ 0, 0 }};
+    std::array<double, 2> mPosition = {{ 0, 0 }};
 
-  Camera(scene *lvl){
+  Camera(scene *lvl=nullptr){
     mpScene = lvl;
 
     /* Call this to get screen dimensions */
@@ -37,12 +38,22 @@ class Camera{
     mpBloomBuffer = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, mScreenRectangle.w, mScreenRectangle.h);
 
     mpScene->updateHudPositions();
+
+    init();
     return;
   }
 
+    virtual void init(){}
+
+  Camera(std::shared_ptr<scene> scn){
+      Camera(scn.get());
+  }
+
+
+
   virtual ~Camera(){
     /* We will get a double free if we destroy the texture after SDL_Quit is called */
-    return;
+      std::lock_guard<std::mutex> guard{mMutex};
     if(mpFrameBuffer && !_halt){
       SDL_DestroyTexture(mpFrameBuffer);
     }
@@ -100,12 +111,14 @@ class Camera{
     return mZoom;
   }
 
+  void SetZoom(double);
+
   scene* GetScene(){
     return mpScene;
   }
 
   /**
-   * Called by the engine when the window is resized.
+   * Called by the engine when the window is resized or if mZoom if changed.
    */
   void onResize();
 
@@ -159,7 +172,12 @@ class Camera{
   SDL_Rect getScreenRect(double x, double y, double w, double h);
 
 protected:
+  std::mutex mMutex;
+
   scene *mpScene;
+
+  const double mMinZoom = 0.01;
+  const double mMaxZoom = 50;
 
   SDL_Texture *mpFrameBuffer = nullptr;
   SDL_Texture *mpNoProcessingBuffer = nullptr;

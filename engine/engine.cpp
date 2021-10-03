@@ -9,6 +9,8 @@
 #include "ServerInfo.hpp"
 #include "scene.hpp"
 #include "syncEvent.hpp"
+#include "ShowAllCamera.hpp"
+#include "FollowCamera.hpp"
 #include <SDL2/SDL_image.h>
 #include <cereal/archives/json.hpp>
 #include <dirent.h>
@@ -21,7 +23,6 @@ int _log_message_level = 0;
 bool _bind_next_key = false;
 std::string _next_bind_command;
 int _window_size[] = { DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT };
-double _zoom = DEFAULT_ZOOM;
 SDL_Window* _window;
 bool _halt = false;
 std::list<LocalPlayer> _local_player_list;
@@ -233,12 +234,16 @@ handle_input()
         if (kb_state[j->scancode] !=
             _kb_state[j->scancode]) { // ensure that current keymap is different
                                       // to old
+
           // We will prepend "+" or "-" to the command depending on keystate
           std::string command_to_send =
             kb_state[j->scancode] ? "+" + j->command : "-" + j->command;
+
+          log_message(DEBUG, j->command);
+
           if (std::find(_system_commands.begin(),
                         _system_commands.end(),
-                        j->command) != _system_commands.end()) {
+                        split_to_tokens(j->command).front()) != _system_commands.end()) {
             handle_system_command(
               split_to_tokens(command_to_send)); // process system command
           } else {
@@ -370,6 +375,11 @@ handle_system_command(std::list<std::string> tokens)
 
   std::string command = tokens.front();
 
+  bool key_down = !(command[0] == '-');
+
+  command = (command[0] == '+') ? command.substr(1) : command;
+  command = command[0] == '-' ? command.substr(1) : command;
+
   if (_server && command == "kick") {
     if (tokens.size() != 3) {
       log_message(
@@ -391,6 +401,58 @@ handle_system_command(std::list<std::string> tokens)
     log_message(INFO, "starting new game");
     new_game("");
     _net_server.syncPlayers();
+  }
+
+  else if (command == "zoom" && !_server && !key_down){
+      if (tokens.size() == 2){
+          std::string arg = tokens.back();
+
+          auto camera = _pScene->getCamera();
+          double zoom = DOUBLE_UNSET;
+
+          if(camera)
+              zoom = camera->GetZoom();
+
+          double val = DOUBLE_UNSET;
+
+          if (arg == "all"){
+              _pScene->handleCommand(arg);
+          }
+
+          else if(arg == "follow"){
+              _pScene->handleCommand(arg);
+          }
+
+          else {
+              if (arg[0] == '*'){
+              try{
+                  val = std::stod(arg.substr(1));
+              }
+              catch(std::exception &exc){}
+              std::cout << zoom << " " << val << "\n";
+              zoom = zoom * val;
+          }
+
+          else {
+              try{
+                  val = std::stod(arg);
+              }
+              catch(std::exception &exc){
+              }
+              zoom = val;
+          }
+          if(camera){
+              log_message(DEBUG, "setting zoom to " + std::to_string(zoom));
+              camera->SetZoom(zoom);
+          }
+          else{
+              // TODO
+          }
+          }
+      }
+      else{
+          log_message(ERR, "zoom requires exactly one argument");
+      }
   }
 
   else if (command == "nickname" && !_server) {

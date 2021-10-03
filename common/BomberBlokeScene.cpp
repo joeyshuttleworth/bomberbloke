@@ -332,8 +332,8 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y)
   }
 
   // Create bloke camera
-  mSceneCamera = mpCamera;
   mBlokeCamera = std::make_shared<FollowCamera>(this);
+  mSceneCamera = std::make_shared<ShowAllCamera>(this);
 
   showEntireScene();
 
@@ -363,7 +363,6 @@ void
 BomberBlokeScene::followBloke(std::shared_ptr<actor> subject)
 {
   mBlokeCamera->mSubject = subject;
-  mBlokeCamera->mZoom = 0.1;
 
   mpCamera = mBlokeCamera;
   mIsFollowingBloke = true;
@@ -440,7 +439,13 @@ void
 BomberBlokeScene::handleCommand(std::string str)
 {
   auto tokens = split_to_tokens(str);
-  if (str == "start") {
+  if (str == "all")
+    mpCamera = mSceneCamera;
+
+  else if (str == "follow")
+    mpCamera = mBlokeCamera;
+
+  else if (str == "start") {
     /*  reset big bomb sprite */
     std::shared_ptr<AbstractHudElement> observe = mBombIcons[0].lock();
     mHudElements.remove(observe);
