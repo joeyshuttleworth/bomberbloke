@@ -115,6 +115,8 @@ target_link_libraries(bomberbloke_server SERVER ${ENET_LIBRARIES} ${SDL2_LIBRARI
 
 # Format in clang
 file(GLOB_RECURSE all_sources *.h *.cpp *.c *. hpp)
+list(FILTER all_sources EXCLUDE REGEX "windows_libraries")
+list(FILTER all_sources EXCLUDE REGEX "cereal")
 
 # Adding clang-format target if executable is found
 find_program(CLANG_FORMAT "clang-format" "/usr/bin/clang-format")
@@ -124,4 +126,4 @@ add_custom_target(clang-format COMMAND ${CLANG_FORMAT} -style=Mozilla -i ${all_s
 add_custom_target(clang-tidy COMMAND ${CLANG_TIDY} --format-style=Mozilla  ${all_sources})
 
 # Warning messages are treated as errors
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror -Wpedantic -Wfatal-errors")
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror -Wpedantic -Wfatal-errors")
