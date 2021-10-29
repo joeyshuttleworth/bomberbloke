@@ -363,8 +363,6 @@ void
 BomberBlokeScene::followBloke(std::shared_ptr<actor> subject)
 {
   mBlokeCamera->mSubject = subject;
-
-  mpCamera = mBlokeCamera;
   mIsFollowingBloke = true;
 }
 
@@ -440,10 +438,31 @@ BomberBlokeScene::handleCommand(std::string str)
 {
   auto tokens = split_to_tokens(str);
   if (str == "all")
-    mpCamera = mSceneCamera;
+    SetCamera(mSceneCamera);
 
-  else if (str == "follow")
-    mpCamera = mBlokeCamera;
+  else if (str == "follow"){
+      if (tokens.size()==1)
+        SetCamera(mBlokeCamera);
+    else if (tokens.size() == 2){
+        // Get players bloke
+        auto b = _local_player_list.back().getCharacter();
+
+        if(!b){
+            // Move to next target
+            auto subject = mBlokeCamera->mSubject.lock();
+            // Get actor list
+            std::list<int>::iterator findIter = std::find(mActors.begin(), mActors.end(), subject);
+            findIter++;
+            if(findIter == mActors.end())
+                findIter=mActors.begin();
+            mBlokeCamera->mSubject = *findIter;
+            SetCamera(mBlokeCamera);
+        }
+    }
+    else{
+        log_message(ERR, "Follow takes at most 1 argument");
+    }
+  }
 
   else if (str == "start") {
     /*  reset big bomb sprite */
