@@ -61,7 +61,7 @@ ClickableHudElement::onInput(SDL_Event* event)
 }
 
 void
-ClickableHudElement::onClick(int x, int y)
+ClickableHudElement::onClick(int, int)
 {
   if (mOnClickFn != nullptr)
     mOnClickFn();

@@ -67,7 +67,7 @@ BomberBlokeScene::draw()
   /* Set the HUD icons to be visible based on our player properties */
 
   // Power
-  for (unsigned int i = 0; i < 10; i++) {
+  for (int i = 0; i < 10; i++) {
     if (auto observe = mPowerIcons[i].lock()) {
       if (i < _local_player_list.back().getPlayerProperties()->mPower)
         observe->setIsVisible(true);
@@ -77,7 +77,7 @@ BomberBlokeScene::draw()
   }
 
   // Speed
-  for (unsigned int i = 0; i < 10; i++) {
+  for (int i = 0; i < 10; i++) {
     if (auto observe = mSpeedIcons[i].lock()) {
       if (i < _local_player_list.back().getPlayerProperties()->mSpeed)
         observe->setIsVisible(true);
@@ -87,7 +87,7 @@ BomberBlokeScene::draw()
   }
 
   // Bombs
-  for (unsigned int i = 0; i < 10; i++) {
+  for (int i = 0; i < 10; i++) {
     if (auto observe = mBombIcons[i].lock()) {
       if (i < _local_player_list.back().getPlayerProperties()->mMaxBombs)
         observe->setIsVisible(true);
@@ -174,7 +174,7 @@ BomberBlokeScene::logicUpdate()
   }
 }
 
-BomberBlokeScene::BomberBlokeScene(int size_x, int size_y)
+BomberBlokeScene::BomberBlokeScene(unsigned int size_x, unsigned int size_y)
   : scene(size_x, size_y)
 {
   mState = STOPPED;
@@ -185,17 +185,16 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y)
   if (_server) {
     /*  Initialisation for random number generation */
     std::uniform_int_distribution<> distrib(0, 9);
-    std::vector<std::array<int, 2>> spawn_points;
+    std::vector<std::array<unsigned int, 2>> spawn_points;
     spawn_points.reserve(16);
 
-    int blocks[size_x][size_y];
-    memset(blocks, 0, sizeof(int) * size_x * size_y);
+    std::vector<std::vector<int>> blocks{ size_x, std::vector<int>(size_y, 0) };
 
     for (unsigned int i = 0; i < 16; i++) {
       bool set = false;
       for (int j = 0; j < 10000; j++) {
-        int xpos = distrib(gen);
-        int ypos = distrib(gen);
+        unsigned int xpos = distrib(gen);
+        unsigned int ypos = distrib(gen);
         if (blocks[xpos][ypos] != SPAWN_POINT) {
           blocks[xpos][ypos] = SPAWN_POINT;
           spawn_points.push_back({ xpos, ypos });
@@ -203,13 +202,13 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y)
           if (xpos + 1 < size_x) {
             blocks[xpos + 1][ypos] = RESERVED;
           }
-          if (xpos - 1 >= 0) {
+          if (xpos >= 1) {
             blocks[xpos - 1][ypos] = RESERVED;
           }
           if (ypos + 1 < size_y) {
             blocks[xpos][ypos + 1] = RESERVED;
           }
-          if (ypos - 1 >= 0) {
+          if (ypos >= 1) {
             blocks[xpos][ypos - 1] = RESERVED;
           }
           set = true;
@@ -258,8 +257,8 @@ BomberBlokeScene::BomberBlokeScene(int size_x, int size_y)
   SDL_Rect tileRect({ 0, 0, 64, 64 });
   std::uniform_int_distribution<> tileDistribution(0, N_BACKGROUND_TILES - 1);
   std::uniform_int_distribution<> flipDistribution(0, 1);
-  for (int i = 0; i < size_x; i++) {
-    for (int j = 0; j < size_y; j++) {
+  for (unsigned int i = 0; i < size_x; i++) {
+    for (unsigned int j = 0; j < size_y; j++) {
       tileRect.x = i * 64;
       tileRect.y = j * 64;
       // Randomly choose tile
@@ -440,27 +439,26 @@ BomberBlokeScene::handleCommand(std::string str)
   if (str == "all")
     SetCamera(mSceneCamera);
 
-  else if (str == "follow"){
-      if (tokens.size()==1)
-        SetCamera(mBlokeCamera);
-    else if (tokens.size() == 2){
-        // Get players bloke
-        auto b = _local_player_list.back().getCharacter();
+  else if (str == "follow") {
+    if (tokens.size() == 1)
+      SetCamera(mBlokeCamera);
+    else if (tokens.size() == 2) {
+      // Get players bloke
+      auto b = _local_player_list.back().getCharacter();
 
-        if(!b){
-            // Move to next target
-            auto subject = mBlokeCamera->mSubject.lock();
-            // Get actor list
-            std::list<int>::iterator findIter = std::find(mActors.begin(), mActors.end(), subject);
-            findIter++;
-            if(findIter == mActors.end())
-                findIter=mActors.begin();
-            mBlokeCamera->mSubject = *findIter;
-            SetCamera(mBlokeCamera);
-        }
-    }
-    else{
-        log_message(ERR, "Follow takes at most 1 argument");
+      if (!b) {
+        // Move to next target
+        auto subject = mBlokeCamera->mSubject.lock();
+        // Get actor list
+        auto findIter = std::find(mActors.begin(), mActors.end(), subject);
+        findIter++;
+        if (findIter == mActors.end())
+          findIter = mActors.begin();
+        mBlokeCamera->mSubject = *findIter;
+        SetCamera(mBlokeCamera);
+      }
+    } else {
+      log_message(ERR, "Follow takes at most 1 argument");
     }
   }
 

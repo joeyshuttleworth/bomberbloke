@@ -61,7 +61,7 @@ protected:
 public:
   void setBigBomb();
 
-  BomberBlokeScene(int size_x = 10, int size_y = 10);
+  BomberBlokeScene(unsigned int size_x = 10, unsigned int size_y = 10);
   ~BomberBlokeScene();
 
   /**

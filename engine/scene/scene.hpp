@@ -35,7 +35,7 @@ public:
 
   bool getNewGame(){return mNewGame;}
 
-  virtual void handleCommand(std::string str){}
+  virtual void handleCommand(std::string){}
 
   std::shared_ptr<Camera> getCamera(){
     return mpCamera;
@@ -182,7 +182,7 @@ public:
 
   /*   */
 
-  bool linkActorToPlayer(std::shared_ptr<actor>&, int);
+  bool linkActorToPlayer(std::shared_ptr<actor>&, unsigned int);
 
 
     std::mutex mMutex;

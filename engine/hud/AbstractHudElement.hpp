@@ -153,7 +153,7 @@ public:
      *
      * @param event Input event that is handled by HUD element.
      */
-    virtual void onInput(SDL_Event *event) {};
+    virtual void onInput(SDL_Event*) {};
 
 protected:
     // Flag to indicate whether the object should be drawn to screen or not.

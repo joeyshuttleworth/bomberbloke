@@ -21,7 +21,7 @@ CountdownHudGroup::CountdownHudGroup(std::function<void()> onFinished,
   // Create countdown text
   std::shared_ptr<Text> text = textManager.createText("Aileron-Black", "");
   text->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-  text->setTextColour({ 255, 255, 255 });
+  text->setTextColour({ 255, 255, 255, 255 });
   text->setTextScale(4.);
   std::shared_ptr<TextHudElement> countdownText =
     std::make_shared<TextHudElement>(
