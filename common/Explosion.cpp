@@ -19,8 +19,6 @@ void
 Explosion::draw(Camera* cam)
 {
 
-  double zoom = cam->GetZoom();
-
   if (!mStarted && _tick < mStartTick) {
     return;
   }

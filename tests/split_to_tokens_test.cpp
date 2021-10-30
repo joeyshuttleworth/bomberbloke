@@ -48,7 +48,7 @@ main()
 {
   assert(test_strings.size() == answer_list.size());
 
-  for (int i = 0; i < test_strings.size(); i++) {
+  for (unsigned int i = 0; i < test_strings.size(); i++) {
     std::list<std::string> answer = split_to_tokens(test_strings[i]);
     assert(compare_tokens(answer, answer_list[i]));
   }

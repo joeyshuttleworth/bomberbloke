@@ -325,6 +325,7 @@ scene::onInput(SDL_Event* event)
 void
 scene::onResize()
 {
+  std::lock_guard<std::mutex> guard{ mMutex };
   if (mpCamera)
     mpCamera->onResize();
   updateHudPositions();
@@ -333,7 +334,7 @@ scene::onResize()
 }
 
 bool
-scene::linkActorToPlayer(std::shared_ptr<actor>& act, int player_id)
+scene::linkActorToPlayer(std::shared_ptr<actor>& act, unsigned int player_id)
 {
   if (!act) {
     auto iter_player =

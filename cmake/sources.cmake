@@ -38,3 +38,5 @@ engine/hud/InputField.cpp
 engine/hud/JoinMenuHudGroup.cpp
 engine/sound/Soundtrack.cpp
 engine/hud/EndRoundHudGroup.cpp
+engine/ServerInfo.cpp
+engine/event/ServerInfoEvent.cpp

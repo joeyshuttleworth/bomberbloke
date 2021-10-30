@@ -81,7 +81,7 @@ public:
   }
 
 protected:
-  bool mInitialised;
+  bool mInitialised = false;
 
 protected:
   double mPosition[2];

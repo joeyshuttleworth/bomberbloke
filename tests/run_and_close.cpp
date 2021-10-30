@@ -9,7 +9,7 @@
 CEREAL_REGISTER_DYNAMIC_INIT(actor)
 
 int
-main(int argc, char** argv)
+main(int, char**)
 {
   _draw = false;
 

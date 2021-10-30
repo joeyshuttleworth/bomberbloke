@@ -21,6 +21,7 @@
 #include <ctime>
 #include <signal.h>
 #include <thread>
+#include <limits>
 #include <mutex>
 
 #define DEFAULT_ZOOM  50
@@ -29,6 +30,7 @@
 #define DEFAULT_WINDOW_HEIGHT 700
 #define MIN_VELOCITY 1e-8
 #define TICK_RATE 64
+#define DOUBLE_UNSET std::numeric_limits<double>::quiet_NaN()
 
 // Pretty arbitrary constant to set a reasonable limit for id searches doesn't
 // really matter as long as it's greater than the mamximum number of players and
@@ -141,7 +143,7 @@ extern unsigned int _tick;
 extern std::vector<CommandBinding> _default_bindings;
 extern std::list<LocalPlayer> _local_player_list;
 
-const std::array<std::string, 2> _system_commands  = {{"bind", "set"}};
+const std::array<std::string, 3> _system_commands  = {{"bind", "set", "zoom"}};
 
 /*  A function defined by the game / test called each tick */
 void gameUpdate();

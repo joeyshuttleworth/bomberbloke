@@ -105,7 +105,7 @@ NetServer::addPlayer(std::shared_ptr<AbstractPlayer> p_player)
     }
   }
 
-  for (int j = 1; j < BLOKE_MAX_ID; j++) {
+  for (unsigned int j = 1; j < BLOKE_MAX_ID; j++) {
     /* True if no actor has id j */
     bool set = true;
     for (auto i = _player_list.begin(); i != _player_list.end(); i++) {
@@ -219,7 +219,7 @@ NetServer::poll()
 
           /* Make the pointer shared so we can handle it elsewhere */
           handleEvent(sp_to_handle, event.peer);
-        } catch (std::exception e) {
+        } catch (std::exception& e) {
           std::stringstream strstream;
           strstream << "Received malformed network event.\n" << e.what();
           log_message(ERR, strstream.str());
