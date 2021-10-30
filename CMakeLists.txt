@@ -126,4 +126,4 @@ add_custom_target(clang-format COMMAND ${CLANG_FORMAT} -style=Mozilla -i ${all_s
 add_custom_target(clang-tidy COMMAND ${CLANG_TIDY} --format-style=Mozilla  ${all_sources})
 
 # Warning messages are treated as errors
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror -Wpedantic -Wfatal-errors")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror -Wpedantic -Wfatal-errors")
