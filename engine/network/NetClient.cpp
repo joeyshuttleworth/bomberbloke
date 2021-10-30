@@ -104,7 +104,7 @@ NetClient::joinBlokeServer(std::string address, int port, std::string nickname)
         /* Make the pointer shared so we can handle it elsewhere */
         std::shared_ptr<AbstractEvent> sp_to_handle = std::move(receive_event);
       }
-    } catch (std::exception e) {
+    } catch (std::exception& e) {
       std::stringstream strstream;
       strstream << "Received malformed network event.\n" << e.what();
       log_message(ERR, strstream.str());
@@ -221,7 +221,7 @@ NetClient::pollServer()
               _local_player_list.push_back(
                 LocalPlayer(iter->getNickname(), iter->getId()));
             _local_player_list.back().setId(iter->getId());
-            int player_id = iter->getId();
+            unsigned int player_id = iter->getId();
             for (auto i = _pScene->mActors.begin(); i != _pScene->mActors.end();
                  i++) {
               if (!*i)
@@ -366,7 +366,7 @@ NetClient::sendEvent(std::unique_ptr<AbstractEvent>& event)
   try {
     cereal::PortableBinaryOutputArchive oArchive(blob);
     oArchive(event);
-  } catch (std::exception ex) {
+  } catch (std::exception&) {
     log_message(ERR, "Failed to send event");
     return;
   }

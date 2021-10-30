@@ -26,7 +26,7 @@ JoinMenuHudGroup::JoinMenuHudGroup(std::function<void()> goBackFn)
   // Create nickname input field
   std::shared_ptr<InputField> nicknameField = std::make_shared<InputField>(
     nicknameFieldText, 0, -60, 300, 50, ALIGN_CENTER, ALIGN_CENTER);
-  nicknameField->setInputColour({ 255, 255, 255 });
+  nicknameField->setInputColour({ 255, 255, 255, 255 });
   nicknameField->setInputText(_nickname);
   addElement(nicknameField);
   mNicknameField = nicknameField;
@@ -44,7 +44,7 @@ JoinMenuHudGroup::JoinMenuHudGroup(std::function<void()> goBackFn)
   // Create address input field
   std::shared_ptr<InputField> addressField = std::make_shared<InputField>(
     addressFieldText, 0, 0, 300, 50, ALIGN_CENTER, ALIGN_CENTER);
-  addressField->setInputColour({ 255, 255, 255 });
+  addressField->setInputColour({ 255, 255, 255, 255 });
   addressField->setInputText(_net_client.mServerAddress);
   addElement(addressField);
   mAddressField = addressField;
@@ -54,14 +54,14 @@ JoinMenuHudGroup::JoinMenuHudGroup(std::function<void()> goBackFn)
     textManager.createText("Aileron-Black", "JOIN");
   if (joinText) {
     joinText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-    joinText->setTextColour({ 255, 255, 255 });
+    joinText->setTextColour({ 255, 255, 255, 255 });
     joinText->setTextScale(1.5);
   }
   // Create join button
   auto joinFn = std::bind(&JoinMenuHudGroup::joinServer, this);
   std::shared_ptr<TextButton> joinElement = std::make_shared<TextButton>(
     joinText, 0, 60, 100, 50, joinFn, ALIGN_CENTER, ALIGN_CENTER);
-  joinElement->setMouseOverColour({ 200, 200, 200 });
+  joinElement->setMouseOverColour({ 200, 200, 200, 255 });
   joinElement->setOnClickOffset(-1, 2);
   addElement(joinElement);
 
@@ -70,13 +70,13 @@ JoinMenuHudGroup::JoinMenuHudGroup(std::function<void()> goBackFn)
     textManager.createText("Aileron-Black", "BACK");
   if (backText) {
     backText->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM);
-    backText->setTextColour({ 255, 255, 255 });
+    backText->setTextColour({ 255, 255, 255, 255 });
     backText->setTextScale(1.5);
   }
   // Create go back button element
   std::shared_ptr<TextButton> backElement = std::make_shared<TextButton>(
     backText, 50, -50, 200, 30, goBackFn, ALIGN_LEFT, ALIGN_BOTTOM);
-  backElement->setMouseOverColour({ 200, 200, 200 });
+  backElement->setMouseOverColour({ 200, 200, 200, 255 });
   backElement->setOnClickOffset(-1, 2);
   addElement(backElement);
 
@@ -85,7 +85,7 @@ JoinMenuHudGroup::JoinMenuHudGroup(std::function<void()> goBackFn)
     textManager.createText("Aileron-Black", "LOADING...");
   if (loadingText) {
     loadingText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-    loadingText->setTextColour({ 255, 255, 255 });
+    loadingText->setTextColour({ 255, 255, 255, 255 });
     loadingText->setTextScale(3.);
   }
 

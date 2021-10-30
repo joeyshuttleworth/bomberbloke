@@ -44,12 +44,12 @@ PauseMenuHudGroup::PauseMenuHudGroup()
   std::shared_ptr<Text> resumeText =
     textManager.createText("Aileron-Black", "RESUME GAME");
   resumeText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-  resumeText->setTextColour({ 255, 255, 255 });
+  resumeText->setTextColour({ 255, 255, 255, 255 });
   resumeText->setTextScale(1.5);
   // Create resume button element
   std::shared_ptr<TextButton> resumeElement = std::make_shared<TextButton>(
     resumeText, 0, -40, 200, 30, resumeFn, ALIGN_CENTER, ALIGN_CENTER);
-  resumeElement->setMouseOverColour({ 200, 200, 200 });
+  resumeElement->setMouseOverColour({ 200, 200, 200, 255 });
   resumeElement->setOnClickOffset(-1, 2);
   addElement(resumeElement);
 
@@ -57,12 +57,12 @@ PauseMenuHudGroup::PauseMenuHudGroup()
   std::shared_ptr<Text> leaveText =
     textManager.createText("Aileron-Black", "LEAVE GAME");
   leaveText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-  leaveText->setTextColour({ 255, 255, 255 });
+  leaveText->setTextColour({ 255, 255, 255, 255 });
   leaveText->setTextScale(1.5);
   // Create leave button element
   std::shared_ptr<TextButton> leaveElement = std::make_shared<TextButton>(
     leaveText, 0, 0, 200, 30, disconnectFn, ALIGN_CENTER, ALIGN_CENTER);
-  leaveElement->setMouseOverColour({ 200, 200, 200 });
+  leaveElement->setMouseOverColour({ 200, 200, 200, 255 });
   leaveElement->setOnClickOffset(-1, 2);
   addElement(leaveElement);
 
@@ -70,13 +70,13 @@ PauseMenuHudGroup::PauseMenuHudGroup()
   std::shared_ptr<Text> optionsText =
     textManager.createText("Aileron-Black", "OPTIONS");
   optionsText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-  optionsText->setTextColour({ 255, 255, 255 });
+  optionsText->setTextColour({ 255, 255, 255, 255 });
   optionsText->setTextScale(1.5);
   // Create options button element
   auto optionsFunction = std::bind(&PauseMenuHudGroup::openOptionsMenu, this);
   std::shared_ptr<TextButton> optionsElement = std::make_shared<TextButton>(
     optionsText, 0, 40, 200, 30, optionsFunction, ALIGN_CENTER, ALIGN_CENTER);
-  optionsElement->setMouseOverColour({ 200, 200, 200 });
+  optionsElement->setMouseOverColour({ 200, 200, 200, 255 });
   optionsElement->setOnClickOffset(-1, 2);
   addElement(optionsElement);
 

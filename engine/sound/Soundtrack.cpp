@@ -122,7 +122,7 @@ Soundtrack::onClipFinished()
     double cumProb = 0;
     auto transitionProbs = currentProbs->begin();
     auto intenseTransitionProbs = currentProbs->begin();
-    for (int i = 0; i < currentProbs->size(); i++) {
+    for (unsigned int i = 0; i < currentProbs->size(); i++) {
       cumProb += (*transitionProbs) * (1 - mIntensity) +
                  (*intenseTransitionProbs) * mIntensity;
       if (cumProb >= probValue) {
@@ -142,7 +142,9 @@ Soundtrack::onClipFinished()
 }
 
 Soundtrack1::Soundtrack1()
-  : Soundtrack(OST1_CLIP_NAMES, OST1_TRANSITIONS, OST1_INTENSE_TRANSITIONS){};
+  : Soundtrack(OST1_CLIP_NAMES, OST1_TRANSITIONS, OST1_INTENSE_TRANSITIONS)
+{}
 
 Soundtrack2::Soundtrack2()
-  : Soundtrack(OST2_CLIP_NAMES, OST2_TRANSITIONS, OST2_INTENSE_TRANSITIONS){};
+  : Soundtrack(OST2_CLIP_NAMES, OST2_TRANSITIONS, OST2_INTENSE_TRANSITIONS)
+{}

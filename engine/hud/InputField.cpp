@@ -15,8 +15,8 @@ InputField::InputField(std::shared_ptr<Text> text,
                        AlignFlag xAlignFlag,
                        AlignFlag yAlignFlag)
   : AbstractHudElement(xPos, yPos, xDim, yDim, xAlignFlag, yAlignFlag)
-  , TextHudElement(text, xPos, yPos, xDim, yDim, xAlignFlag, yAlignFlag)
   , ClickableHudElement(xPos, yPos, xDim, yDim, nullptr, xAlignFlag, yAlignFlag)
+  , TextHudElement(text, xPos, yPos, xDim, yDim, xAlignFlag, yAlignFlag)
 {
   // Use text colour as default colour.
   if (text)
@@ -91,11 +91,11 @@ InputField::onInput(SDL_Event* event)
 }
 
 void
-InputField::onClick(int x, int y)
+InputField::onClick(int x, int)
 {
   mHasFocus = true;
   mPropertiesUpdated = true;
-
+  
   // Set cursor position
   if (mTextInput != "") {
     mCursorIndex = mText->getCursorIndex(x);

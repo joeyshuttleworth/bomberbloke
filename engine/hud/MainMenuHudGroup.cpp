@@ -16,7 +16,7 @@
 void
 quitFn()
 {
-  bool retVal = handle_system_command({ "quit" });
+  handle_system_command({ "quit" });
 }
 
 MainMenuHudGroup::MainMenuHudGroup()
@@ -27,7 +27,7 @@ MainMenuHudGroup::MainMenuHudGroup()
     textManager.createText("Aileron-Black", "BOMBERBLOKE");
   if (titleText) {
     titleText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-    titleText->setTextColour({ 255, 255, 255 });
+    titleText->setTextColour({ 255, 255, 255, 255 });
     titleText->setTextScale(4.);
   }
 
@@ -43,14 +43,14 @@ MainMenuHudGroup::MainMenuHudGroup()
     textManager.createText("Aileron-Black", "JOIN GAME");
   if (startText) {
     startText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-    startText->setTextColour({ 255, 255, 255 });
+    startText->setTextColour({ 255, 255, 255, 255 });
     startText->setTextScale(1.5);
   }
   // Create start game button element
   auto startGameFunction = std::bind(&MainMenuHudGroup::showJoinMenu, this);
   std::shared_ptr<TextButton> startElement = std::make_shared<TextButton>(
     startText, 0, -20, 200, 30, startGameFunction, ALIGN_CENTER, ALIGN_CENTER);
-  startElement->setMouseOverColour({ 200, 200, 200 });
+  startElement->setMouseOverColour({ 200, 200, 200, 255 });
   startElement->setOnClickOffset(-1, 2);
   addElement(startElement);
 
@@ -59,14 +59,14 @@ MainMenuHudGroup::MainMenuHudGroup()
     textManager.createText("Aileron-Black", "OPTIONS");
   if (optionsText) {
     optionsText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-    optionsText->setTextColour({ 255, 255, 255 });
+    optionsText->setTextColour({ 255, 255, 255, 255 });
     optionsText->setTextScale(1.5);
   }
   // Create options button element
   auto optionsFunction = std::bind(&MainMenuHudGroup::showOptionsMenu, this);
   std::shared_ptr<TextButton> optionsElement = std::make_shared<TextButton>(
     optionsText, 0, 20, 200, 30, optionsFunction, ALIGN_CENTER, ALIGN_CENTER);
-  optionsElement->setMouseOverColour({ 200, 200, 200 });
+  optionsElement->setMouseOverColour({ 200, 200, 200, 255 });
   optionsElement->setOnClickOffset(-1, 2);
   addElement(optionsElement);
 
@@ -75,13 +75,13 @@ MainMenuHudGroup::MainMenuHudGroup()
     textManager.createText("Aileron-Black", "QUIT");
   if (quitText) {
     quitText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-    quitText->setTextColour({ 255, 255, 255 });
+    quitText->setTextColour({ 255, 255, 255, 255 });
     quitText->setTextScale(1.5);
   }
   // Create exit button element
   std::shared_ptr<TextButton> quitElement = std::make_shared<TextButton>(
     quitText, 0, 60, 200, 30, quitFn, ALIGN_CENTER, ALIGN_CENTER);
-  quitElement->setMouseOverColour({ 200, 200, 200 });
+  quitElement->setMouseOverColour({ 200, 200, 200, 255 });
   quitElement->setOnClickOffset(-1, 2);
   addElement(quitElement);
 

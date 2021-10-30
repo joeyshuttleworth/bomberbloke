@@ -1,16 +1,16 @@
 #include "engine.hpp"
 #include "AbstractSpriteHandler.hpp"
 #include "CommandEvent.hpp"
+#include "FollowCamera.hpp"
 #include "MainMenuScene.hpp"
 #include "MoveEvent.hpp"
 #include "NetClient.hpp"
 #include "NetServer.hpp"
 #include "QueryEvent.hpp"
 #include "ServerInfo.hpp"
+#include "ShowAllCamera.hpp"
 #include "scene.hpp"
 #include "syncEvent.hpp"
-#include "ShowAllCamera.hpp"
-#include "FollowCamera.hpp"
 #include <SDL2/SDL_image.h>
 #include <cereal/archives/json.hpp>
 #include <dirent.h>
@@ -243,7 +243,8 @@ handle_input()
 
           if (std::find(_system_commands.begin(),
                         _system_commands.end(),
-                        split_to_tokens(j->command).front()) != _system_commands.end()) {
+                        split_to_tokens(j->command).front()) !=
+              _system_commands.end()) {
             handle_system_command(
               split_to_tokens(command_to_send)); // process system command
           } else {
@@ -403,56 +404,53 @@ handle_system_command(std::list<std::string> tokens)
     _net_server.syncPlayers();
   }
 
-  else if (command == "zoom" && !_server && !key_down){
-      if (tokens.size() == 2){
-          std::string arg = tokens.back();
+  else if (command == "zoom" && !_server && !key_down) {
+    if (tokens.size() == 2) {
+      std::string arg = tokens.back();
 
-          auto camera = _pScene->getCamera();
-          double zoom = DOUBLE_UNSET;
+      auto camera = _pScene->getCamera();
+      double zoom = DOUBLE_UNSET;
 
-          if(camera)
-              zoom = camera->GetZoom();
+      if (camera)
+        zoom = camera->GetZoom();
 
-          double val = DOUBLE_UNSET;
+      double val = DOUBLE_UNSET;
 
-          if (arg == "all"){
-              _pScene->handleCommand(arg);
-          }
-
-          else if(arg == "follow"){
-              _pScene->handleCommand(arg);
-          }
-
-          else {
-              if (arg[0] == '*'){
-              try{
-                  val = std::stod(arg.substr(1));
-              }
-              catch(std::exception &exc){}
-              std::cout << zoom << " " << val << "\n";
-              zoom = zoom * val;
-          }
-
-          else {
-              try{
-                  val = std::stod(arg);
-              }
-              catch(std::exception &exc){
-              }
-              zoom = val;
-          }
-          if(camera){
-              log_message(DEBUG, "setting zoom to " + std::to_string(zoom));
-              camera->SetZoom(zoom);
-          }
-          else{
-              // TODO
-          }
-          }
+      if (arg == "all") {
+        _pScene->handleCommand(arg);
       }
-      else{
-          log_message(ERR, "zoom requires exactly one argument");
+
+      else if (arg == "follow") {
+        _pScene->handleCommand(arg);
       }
+
+      else {
+        if (arg[0] == '*') {
+          try {
+            val = std::stod(arg.substr(1));
+          } catch (std::exception& exc) {
+          }
+          std::cout << zoom << " " << val << "\n";
+          zoom = zoom * val;
+        }
+
+        else {
+          try {
+            val = std::stod(arg);
+          } catch (std::exception& exc) {
+          }
+          zoom = val;
+        }
+        if (camera) {
+          log_message(DEBUG, "setting zoom to " + std::to_string(zoom));
+          camera->SetZoom(zoom);
+        } else {
+          // TODO
+        }
+      }
+    } else {
+      log_message(ERR, "zoom requires exactly one argument");
+    }
   }
 
   else if (command == "nickname" && !_server) {
@@ -653,7 +651,7 @@ split_to_tokens(std::string str)
   std::list<std::string> tokens;
 
   int last_space = -1;
-  for (int i = 0; i < clean_str.length(); i++) {
+  for (int i = 0; i < (int)clean_str.length(); i++) {
     char ch = clean_str[i];
     if (std::isspace(ch)) {
       assert(i - last_space - 1 >= 0);
@@ -667,9 +665,9 @@ split_to_tokens(std::string str)
         }
       }
       i++;
-      while (i < clean_str.length()) {
+      while (i < (int)clean_str.length()) {
         if (clean_str[i] == '\"') {
-          if (i + 1 < clean_str.length()) {
+          if (i + 1 < (int)clean_str.length()) {
             if (!std::isspace(clean_str[i + 1])) {
               log_message(ERR, "Syntax error");
               return {};
@@ -679,7 +677,7 @@ split_to_tokens(std::string str)
         }
         i++;
       }
-      if (i == clean_str.length()) {
+      if (i == (int)clean_str.length()) {
         log_message(ERR, "Syntax error");
         return {};
       } else
@@ -688,7 +686,7 @@ split_to_tokens(std::string str)
       last_space = i;
     }
   }
-  if (last_space + 1 <= clean_str.length() - 1)
+  if (last_space + 1 <= (int)clean_str.length() - 1)
     tokens.push_back(clean_str.substr(last_space + 1));
   return tokens;
 }
@@ -769,7 +767,7 @@ get_sprite(std::string asset_name)
 void
 add_player(std::shared_ptr<AbstractPlayer> a_player)
 {
-  int id = _player_list.back()->getId();
+  unsigned int id = _player_list.back()->getId();
   for (int i = 0; i < 1000; i++) {
     if (find_if(_player_list.begin(),
                 _player_list.end(),

@@ -80,7 +80,7 @@ protected:
     bool mHasFocus = false;
 
     // Cursor index
-    int mCursorIndex = 0;
+    unsigned int mCursorIndex = 0;
 
     /**
      * Function that is called on click.
