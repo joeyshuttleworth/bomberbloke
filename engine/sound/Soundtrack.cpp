@@ -9,47 +9,40 @@
 
 const int FADE_OUT_MS = 1000;
 
-const std::list<std::string> OST1_CLIP_NAMES = {"ost1_idle", "ost1_a_first", "ost1_b_first_neptune",
-  "ost1_a_main_neptune", "ost1_b_main_neptune", "ost1_final_neptune"};
+const std::list<std::string> OST1_CLIP_NAMES = {
+  "ost1_idle",           "ost1_a_first",        "ost1_b_first_neptune",
+  "ost1_a_main_neptune", "ost1_b_main_neptune", "ost1_final_neptune"
+};
 const std::list<std::list<double>> OST1_TRANSITIONS = {
-  { 0,    1,    0,    0,    0,    0     },
-  { 0,    0,    1,    0,    0,    0     },
-  { 0,    0.2,  0,    0.8,  0,    0     },
-  { 0,    0,    0.3,  0,    0.7,  0     },
-  { 0,    0.2,  0,    0.8,  0,    0     },
-  { 0,    0,    0,    1,    0,    0     }
+  { 0, 1, 0, 0, 0, 0 },     { 0, 0, 1, 0, 0, 0 },     { 0, 0.2, 0, 0.8, 0, 0 },
+  { 0, 0, 0.3, 0, 0.7, 0 }, { 0, 0.2, 0, 0.8, 0, 0 }, { 0, 0, 0, 1, 0, 0 }
 };
 const std::list<std::list<double>> OST1_INTENSE_TRANSITIONS = {
-  { 0,    0,    0,    1,    0,    0     },
-  { 0,    0,    0,    0,    1,    0     },
-  { 0,    0,    0,    0.5,  0,    0.5   },
-  { 0,    0,    0,    0,    1,    0     },
-  { 0,    0,    0,    0.5,  0,    0.5   },
-  { 0,    0,    0,    1,    0,    0     }
+  { 0, 0, 0, 1, 0, 0 }, { 0, 0, 0, 0, 1, 0 },     { 0, 0, 0, 0.5, 0, 0.5 },
+  { 0, 0, 0, 0, 1, 0 }, { 0, 0, 0, 0.5, 0, 0.5 }, { 0, 0, 0, 1, 0, 0 }
 };
 
-const std::list<std::string> OST2_CLIP_NAMES = {"ost2_idle", "ost2_intro", "ost2_first",
-  "ost2_main1", "ost2_main2", "ost2_solo", "ost2_pads"};
+const std::list<std::string> OST2_CLIP_NAMES = { "ost2_idle",  "ost2_intro",
+                                                 "ost2_first", "ost2_main1",
+                                                 "ost2_main2", "ost2_solo",
+                                                 "ost2_pads" };
 const std::list<std::list<double>> OST2_TRANSITIONS = {
-  { 0,    0.7,  0.3,  0,    0,    0,    0   },
-  { 0,    0,    0.9,  0,    0,    0,    0.1 },
-  { 0,    0,    0,    0.5,  0.5,  0,    0   },
-  { 0,    0,    0,    0.1,  0.7,  0.15, 0.05},
-  { 0,    0,    0,    0.7,  0.1,  0.15, 0.05},
-  { 0,    0,    0,    0.4,  0.4,  0,    0.2 },
-  { 0,    0,    0,    0.45, 0.45, 0,    0.1 }
+  { 0, 0.7, 0.3, 0, 0, 0, 0 },       { 0, 0, 0.9, 0, 0, 0, 0.1 },
+  { 0, 0, 0, 0.5, 0.5, 0, 0 },       { 0, 0, 0, 0.1, 0.7, 0.15, 0.05 },
+  { 0, 0, 0, 0.7, 0.1, 0.15, 0.05 }, { 0, 0, 0, 0.4, 0.4, 0, 0.2 },
+  { 0, 0, 0, 0.45, 0.45, 0, 0.1 }
 };
 const std::list<std::list<double>> OST2_INTENSE_TRANSITIONS = {
-  { 0,    0.7,  0.3,  0,    0,    0,    0   },
-  { 0,    0,    0.9,  0,    0,    0,    0.1 },
-  { 0,    0,    0,    0.5,  0.5,  0,    0   },
-  { 0,    0,    0,    0.05, 0.4,  0.5,  0.05},
-  { 0,    0,    0,    0.4,  0.05, 0.5,  0.05},
-  { 0,    0,    0,    0.4,  0.4,  0,    0.2 },
-  { 0,    0,    0,    0.45, 0.45, 0,    0.1 }
+  { 0, 0.7, 0.3, 0, 0, 0, 0 },       { 0, 0, 0.9, 0, 0, 0, 0.1 },
+  { 0, 0, 0, 0.5, 0.5, 0, 0 },       { 0, 0, 0, 0.05, 0.4, 0.5, 0.05 },
+  { 0, 0, 0, 0.4, 0.05, 0.5, 0.05 }, { 0, 0, 0, 0.4, 0.4, 0, 0.2 },
+  { 0, 0, 0, 0.45, 0.45, 0, 0.1 }
 };
 
-Soundtrack::Soundtrack(std::list<std::string> clipNames, std::list<std::list<double>> transitions, std::list<std::list<double>> intenseTransitions) {
+Soundtrack::Soundtrack(std::list<std::string> clipNames,
+                       std::list<std::list<double>> transitions,
+                       std::list<std::list<double>> intenseTransitions)
+{
   mTransitions = transitions;
   mIntenseTransitions = intenseTransitions;
 
@@ -62,7 +55,9 @@ Soundtrack::Soundtrack(std::list<std::string> clipNames, std::list<std::list<dou
   }
 }
 
-void Soundtrack::playIdle() {
+void
+Soundtrack::playIdle()
+{
   if (!mIsIdle && mIsPlaying) {
     auto iter = mClipSounds.begin();
     std::advance(iter, mCurrentIndex);
@@ -76,7 +71,9 @@ void Soundtrack::playIdle() {
   }
 }
 
-void Soundtrack::play() {
+void
+Soundtrack::play()
+{
   if (mIsIdle && mIsPlaying) {
     mIsIdle = false;
     mClipSounds.front()->stop();
@@ -92,14 +89,18 @@ void Soundtrack::play() {
   }
 }
 
-void Soundtrack::stop() {
+void
+Soundtrack::stop()
+{
   mIsPlaying = false;
   for (auto iter = mClipSounds.begin(); iter != mClipSounds.end(); iter++) {
     (*iter)->stop();
   }
 }
 
-void Soundtrack::onClipFinished() {
+void
+Soundtrack::onClipFinished()
+{
   if (mIsIdle && mIsPlaying) {
     // If idle, continue playing idle clip
     mIsPlaying = true;
@@ -122,7 +123,8 @@ void Soundtrack::onClipFinished() {
     auto transitionProbs = currentProbs->begin();
     auto intenseTransitionProbs = currentProbs->begin();
     for (int i = 0; i < currentProbs->size(); i++) {
-      cumProb += (*transitionProbs) * (1 - mIntensity) + (*intenseTransitionProbs) * mIntensity;
+      cumProb += (*transitionProbs) * (1 - mIntensity) +
+                 (*intenseTransitionProbs) * mIntensity;
       if (cumProb >= probValue) {
         mCurrentIndex = i;
         break;
@@ -140,7 +142,7 @@ void Soundtrack::onClipFinished() {
 }
 
 Soundtrack1::Soundtrack1()
-  : Soundtrack(OST1_CLIP_NAMES, OST1_TRANSITIONS, OST1_INTENSE_TRANSITIONS) {};
+  : Soundtrack(OST1_CLIP_NAMES, OST1_TRANSITIONS, OST1_INTENSE_TRANSITIONS){};
 
 Soundtrack2::Soundtrack2()
-  : Soundtrack(OST2_CLIP_NAMES, OST2_TRANSITIONS, OST2_INTENSE_TRANSITIONS) {};
+  : Soundtrack(OST2_CLIP_NAMES, OST2_TRANSITIONS, OST2_INTENSE_TRANSITIONS){};
