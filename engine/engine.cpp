@@ -1,12 +1,14 @@
 #include "engine.hpp"
 #include "AbstractSpriteHandler.hpp"
 #include "CommandEvent.hpp"
+#include "FollowCamera.hpp"
 #include "MainMenuScene.hpp"
 #include "MoveEvent.hpp"
 #include "NetClient.hpp"
 #include "NetServer.hpp"
 #include "QueryEvent.hpp"
 #include "ServerInfo.hpp"
+#include "ShowAllCamera.hpp"
 #include "scene.hpp"
 #include "syncEvent.hpp"
 #include <SDL2/SDL_image.h>
@@ -21,7 +23,6 @@ int _log_message_level = 0;
 bool _bind_next_key = false;
 std::string _next_bind_command;
 int _window_size[] = { DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT };
-double _zoom = DEFAULT_ZOOM;
 SDL_Window* _window;
 bool _halt = false;
 std::list<LocalPlayer> _local_player_list;
@@ -236,9 +237,12 @@ handle_input()
           // We will prepend "+" or "-" to the command depending on keystate
           std::string command_to_send =
             kb_state[j->scancode] ? "+" + j->command : "-" + j->command;
+
+          log_message(DEBUG, j->command);
+
           if (std::find(_system_commands.begin(),
                         _system_commands.end(),
-                        j->command) != _system_commands.end()) {
+                        split_to_tokens(j->command).front()) != _system_commands.end()) {
             handle_system_command(
               split_to_tokens(command_to_send)); // process system command
           } else {
@@ -278,6 +282,7 @@ handle_input()
           }
         }
       }
+
     }
   }
 
@@ -370,6 +375,11 @@ handle_system_command(std::list<std::string> tokens)
 
   std::string command = tokens.front();
 
+  bool key_down = !(command[0] == '-');
+
+  command = (command[0] == '+') ? command.substr(1) : command;
+  command = command[0] == '-' ? command.substr(1) : command;
+
   if (_server && command == "kick") {
     if (tokens.size() != 3) {
       log_message(
@@ -391,6 +401,55 @@ handle_system_command(std::list<std::string> tokens)
     log_message(INFO, "starting new game");
     new_game("");
     _net_server.syncPlayers();
+  }
+
+  else if (command == "zoom" && !_server && !key_down) {
+    if (tokens.size() == 2) {
+      std::string arg = tokens.back();
+
+      auto camera = _pScene->getCamera();
+      double zoom = DOUBLE_UNSET;
+
+      if (camera)
+        zoom = camera->GetZoom();
+
+      double val = DOUBLE_UNSET;
+
+      if (arg == "all") {
+        _pScene->handleCommand(arg);
+      }
+
+      else if (arg == "follow") {
+        _pScene->handleCommand(arg);
+      }
+
+      else {
+        if (arg[0] == '*') {
+          try {
+            val = std::stod(arg.substr(1));
+          } catch (std::exception& exc) {
+          }
+          std::cout << zoom << " " << val << "\n";
+          zoom = zoom * val;
+        }
+
+        else {
+          try {
+            val = std::stod(arg);
+          } catch (std::exception& exc) {
+          }
+          zoom = val;
+        }
+        if (camera) {
+          log_message(DEBUG, "setting zoom to " + std::to_string(zoom));
+          camera->SetZoom(zoom);
+        } else {
+          // TODO
+        }
+      }
+    } else {
+      log_message(ERR, "zoom requires exactly one argument");
+    }
   }
 
   else if (command == "nickname" && !_server) {
@@ -431,56 +490,56 @@ handle_system_command(std::list<std::string> tokens)
     }
   }
 
-  else if (!_server && command == "open") {
-    if (tokens.size() == 2) {
-      auto iter = tokens.begin();
-      iter++; // Select the first token
-      int port;
+    else if (!_server && command == "open") {
+      if (tokens.size() == 2) {
+        auto iter = tokens.begin();
+        iter++; // Select the first token
+        int port;
 
-      /*  Attempt to parse the first argument as address:port.
-              If no ':' is present, the port number defaults to 8888.
-       */
-      long unsigned int delim_pos = iter->find(':');
-      std::string address;
-      if (delim_pos == std::string::npos) {
-        port = 8888;
-        address = *iter;
-      } else if (iter->substr(delim_pos + 1).find(':') != std::string::npos) {
-        std::stringstream msg;
-        msg << "Couldn't parse address, " << *iter;
-        log_message(ERR, msg.str());
-        return false;
-      } else {
-        address = iter->substr(0, delim_pos);
-        /*  TODO replace try-catch with something less lazy to check if
-                we're going to have an error
+        /*  Attempt to parse the first argument as address:port.
+            If no ':' is present, the port number defaults to 8888.
         */
-        try {
-          port = std::stoi(iter->substr(delim_pos + 1));
-        } catch (std::exception& e) {
-          std::stringstream msg;
-          msg << "Failed to parse port number \n"
-              << e.what() << "defaulting to 8888";
-          log_message(ERR, msg.str());
+        long unsigned int delim_pos = iter->find(':');
+        std::string address;
+        if (delim_pos == std::string::npos) {
           port = 8888;
+          address = *iter;
+        } else if (iter->substr(delim_pos + 1).find(':') != std::string::npos) {
+          std::stringstream msg;
+          msg << "Couldn't parse address, " << *iter;
+          log_message(ERR, msg.str());
+          return false;
+        } else {
+          address = iter->substr(0, delim_pos);
+          /*  TODO replace try-catch with something less lazy to check if
+              we're going to have an error
+          */
+          try {
+            port = std::stoi(iter->substr(delim_pos + 1));
+          } catch (std::exception& e) {
+            std::stringstream msg;
+            msg << "Failed to parse port number \n"
+                << e.what() << "defaulting to 8888";
+            log_message(ERR, msg.str());
+            port = 8888;
+          }
         }
-      }
-      /* We now have an address and port number to connect with
+        /* We now have an address and port number to connect with
            NetClient::connectClient returns true of false. Return
            this value
-       */
-      if (!_net_client.joinBlokeServer(address, port, _nickname)) {
-        log_message(INFO, "failed to connect to server");
-        return false;
+        */
+        if (!_net_client.joinBlokeServer(address, port, _nickname)) {
+          log_message(INFO, "failed to connect to server");
+          return false;
+        }
+      } else {
+        /* TODO allow port number as a separate argument? */
+        log_message(ERR, "Incorrect number of elements for connect");
       }
-    } else {
-      /* TODO allow port number as a separate argument? */
-      log_message(ERR, "Incorrect number of elements for connect");
     }
-  }
 
-  else if (command == "info") {
-    QueryEvent e("big_beef");
+    else if (command == "info") {
+      QueryEvent e("big_beef");
     cereal::JSONOutputArchive oArchive(std::cout);
     oArchive(e);
   }
@@ -591,7 +650,7 @@ split_to_tokens(std::string str)
   std::list<std::string> tokens;
 
   int last_space = -1;
-  for (int i = 0; i < clean_str.length(); i++) {
+  for (int i = 0; i < (int)clean_str.length(); i++) {
     char ch = clean_str[i];
     if (std::isspace(ch)) {
       assert(i - last_space - 1 >= 0);
@@ -605,9 +664,9 @@ split_to_tokens(std::string str)
         }
       }
       i++;
-      while (i < clean_str.length()) {
+      while (i < (int)clean_str.length()) {
         if (clean_str[i] == '\"') {
-          if (i + 1 < clean_str.length()) {
+          if (i + 1 < (int)clean_str.length()) {
             if (!std::isspace(clean_str[i + 1])) {
               log_message(ERR, "Syntax error");
               return {};
@@ -617,7 +676,7 @@ split_to_tokens(std::string str)
         }
         i++;
       }
-      if (i == clean_str.length()) {
+      if (i == (int)clean_str.length()) {
         log_message(ERR, "Syntax error");
         return {};
       } else
@@ -626,7 +685,7 @@ split_to_tokens(std::string str)
       last_space = i;
     }
   }
-  if (last_space + 1 <= clean_str.length() - 1)
+  if (last_space + 1 <= (int)clean_str.length() - 1)
     tokens.push_back(clean_str.substr(last_space + 1));
   return tokens;
 }
@@ -707,7 +766,7 @@ get_sprite(std::string asset_name)
 void
 add_player(std::shared_ptr<AbstractPlayer> a_player)
 {
-  int id = _player_list.back()->getId();
+  unsigned int id = _player_list.back()->getId();
   for (int i = 0; i < 1000; i++) {
     if (find_if(_player_list.begin(),
                 _player_list.end(),

@@ -22,7 +22,7 @@ EndRoundHudGroup::EndRoundHudGroup()
   std::shared_ptr<Text> winnerLabelText =
     textManager.createText("Aileron-Black", "ROUND WINNER");
   winnerLabelText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-  winnerLabelText->setTextColour({ 255, 255, 255 });
+  winnerLabelText->setTextColour({ 255, 255, 255, 255 });
   winnerLabelText->setTextScale(1.5);
   std::shared_ptr<TextHudElement> winnerLabelElement =
     std::make_shared<TextHudElement>(
@@ -33,7 +33,7 @@ EndRoundHudGroup::EndRoundHudGroup()
   std::shared_ptr<Text> winnerText =
     textManager.createText("Aileron-Black", "");
   winnerText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-  winnerText->setTextColour({ 255, 255, 255 });
+  winnerText->setTextColour({ 255, 255, 255, 255 });
   winnerText->setTextScale(4.);
   std::shared_ptr<TextHudElement> winnerElement =
     std::make_shared<TextHudElement>(
@@ -62,12 +62,12 @@ EndRoundHudGroup::updateScores(
   auto textIter = mScoreTexts.begin();
   // std::cout << sortedPlayerList.size() << " ff scores " << mScoreTexts.size()
   // << std::endl;
-  for (int i = 0; i < sortedPlayerList.size(); i++) {
+  for (unsigned int i = 0; i < sortedPlayerList.size(); i++) {
     if (i >= mScoreTexts.size()) {
       std::shared_ptr<Text> playerText =
         textManager.createText("Aileron-Black", (*playerIter)->mNickname);
       playerText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-      playerText->setTextColour({ 255, 255, 255 });
+      playerText->setTextColour({ 255, 255, 255, 255 });
       playerText->setTextScale(1.5);
       std::shared_ptr<TextHudElement> playerElement =
         std::make_shared<TextHudElement>(
@@ -77,7 +77,7 @@ EndRoundHudGroup::updateScores(
       std::shared_ptr<Text> scoreText = textManager.createText(
         "Aileron-Black", std::to_string((*playerIter)->getWins()));
       scoreText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-      scoreText->setTextColour({ 255, 255, 255 });
+      scoreText->setTextColour({ 255, 255, 255, 255 });
       scoreText->setTextScale(1.5);
       std::shared_ptr<TextHudElement> scoreElement =
         std::make_shared<TextHudElement>(

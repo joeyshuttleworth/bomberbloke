@@ -40,7 +40,7 @@ public:
 
   int getWins(){return mWins;}
 
-  int getId(){return mId;}
+  unsigned int getId(){return mId;}
 
   std::string getNickname(){return mNickname;}
 
@@ -83,7 +83,7 @@ protected:
   std::shared_ptr<GamePlayerProperties> mpProperties;
   std::shared_ptr<actor> mpCharacter;
   virtual void ping(){}
-  int mId;
+  unsigned int mId;
   unsigned int mWins = 0;
 
 };

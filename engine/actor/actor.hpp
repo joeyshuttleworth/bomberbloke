@@ -33,7 +33,7 @@ protected:
     to a unique id of a player in _player_list. 0 corresponds
     to the server.
   */
-  int    mPlayerId = 0;
+  unsigned int mPlayerId = 0;
 
   void setPlayerId(int id){mPlayerId = id;}
 

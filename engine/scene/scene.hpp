@@ -2,6 +2,7 @@
 #define SCENE_HPP
 #include <list>
 #include <string>
+#include <mutex>
 #include <SDL2/SDL.h>
 #include <cereal/types/list.hpp>
 #include <memory>
@@ -12,7 +13,7 @@ extern double _zoom;
 
 class actor; class Camera; class AbstractHudElement; class NetServer; class NetClient;
 
-/* Actor which stores information about the scene including the actors present and methods for updating and drawing the scene */
+/* Class which stores information about the scene including the actors present and methods for updating and drawing the scene */
 class scene{
   friend NetClient;
   friend NetServer;
@@ -34,11 +35,15 @@ public:
 
   bool getNewGame(){return mNewGame;}
 
-  virtual void handleCommand(std::string str){}
+  virtual void handleCommand(std::string){}
 
   std::shared_ptr<Camera> getCamera(){
     return mpCamera;
   }
+
+    void SetCamera(std::shared_ptr<Camera> c){
+        mpCamera = c;
+    }
 
   int getState(){return mState;}
 
@@ -55,6 +60,7 @@ public:
   void addActorWithId(std::shared_ptr<actor> a);
 
   void addActor(std::shared_ptr<actor> a);
+
   /* dim_x and dim_y are the size of our scene in the x and y axis respectively */
   double mDimmension[2];
 
@@ -101,7 +107,9 @@ public:
 
   scene(const scene &lvl);
 
-  virtual ~scene(){}
+  virtual ~scene(){
+      std::lock_guard<std::mutex> guard{mMutex};
+  }
 
   std::shared_ptr<actor> GetActor(int id);
 
@@ -174,7 +182,10 @@ public:
 
   /*   */
 
-  bool linkActorToPlayer(std::shared_ptr<actor>&, int);
+  bool linkActorToPlayer(std::shared_ptr<actor>&, unsigned int);
+
+
+    std::mutex mMutex;
 };
 
 #endif

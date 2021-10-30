@@ -17,7 +17,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
     textManager.createText("Aileron-Black", "OPTIONS");
   if (titleText) {
     titleText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-    titleText->setTextColour({ 255, 255, 255 });
+    titleText->setTextColour({ 255, 255, 255, 255 });
     titleText->setTextScale(2.);
   }
 
@@ -32,7 +32,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
     textManager.createText("Aileron-Black", "BACK");
   if (backText) {
     backText->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM);
-    backText->setTextColour({ 255, 255, 255 });
+    backText->setTextColour({ 255, 255, 255, 255 });
     backText->setTextScale(1.5);
   }
 
@@ -40,7 +40,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
   std::shared_ptr<TextButton> backElement = std::make_shared<TextButton>(
     backText, 50, -50, 200, 30, goBackFn, ALIGN_LEFT, ALIGN_BOTTOM);
   if (backElement) {
-    backElement->setMouseOverColour({ 200, 200, 200 });
+    backElement->setMouseOverColour({ 200, 200, 200, 255 });
     backElement->setOnClickOffset(-1, 2);
     addElement(backElement);
   }
@@ -51,7 +51,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
     textManager.createText("Aileron-Black", "MASTER VOLUME:");
   if (volumeTitleText) {
     volumeTitleText->setTextAlignment(TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER);
-    volumeTitleText->setTextColour({ 255, 255, 255 });
+    volumeTitleText->setTextColour({ 255, 255, 255, 255 });
     volumeTitleText->setTextScale(1.);
   }
   std::shared_ptr<TextHudElement> volumeTitleElement =
@@ -65,7 +65,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
     textManager.createText("Aileron-Black", "-");
   if (reduceVolumeText) {
     reduceVolumeText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-    reduceVolumeText->setTextColour({ 255, 255, 255 });
+    reduceVolumeText->setTextColour({ 255, 255, 255, 255 });
     reduceVolumeText->setTextScale(1.);
   }
   // Create reduce volume element
@@ -80,7 +80,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
                                  reduceVolumeFn,
                                  ALIGN_CENTER,
                                  ALIGN_CENTER);
-  reduceVolumeElement->setMouseOverColour({ 200, 200, 200 });
+  reduceVolumeElement->setMouseOverColour({ 200, 200, 200, 255 });
   reduceVolumeElement->setOnClickOffset(-1, 2);
   addElement(reduceVolumeElement);
 
@@ -90,7 +90,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
     textManager.createText("Aileron-Black", std::to_string(currentVolumeLabel));
   if (volumeLabelText) {
     volumeLabelText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-    volumeLabelText->setTextColour({ 255, 255, 255 });
+    volumeLabelText->setTextColour({ 255, 255, 255, 255 });
     volumeLabelText->setTextScale(1.);
   }
   std::shared_ptr<TextHudElement> volumeLabelElement =
@@ -105,7 +105,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
     textManager.createText("Aileron-Black", "+");
   if (increaseVolumeText) {
     increaseVolumeText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-    increaseVolumeText->setTextColour({ 255, 255, 255 });
+    increaseVolumeText->setTextColour({ 255, 255, 255, 255 });
     increaseVolumeText->setTextScale(1.);
   }
   // Create go back button element
@@ -120,7 +120,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
                                  increaseVolumeFn,
                                  ALIGN_CENTER,
                                  ALIGN_CENTER);
-  increaseVolumeElement->setMouseOverColour({ 200, 200, 200 });
+  increaseVolumeElement->setMouseOverColour({ 200, 200, 200, 255 });
   increaseVolumeElement->setOnClickOffset(-1, 2);
   addElement(increaseVolumeElement);
 
@@ -130,7 +130,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
     textManager.createText("Aileron-Black", "MUSIC VOLUME:");
   if (musicTitleText) {
     musicTitleText->setTextAlignment(TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER);
-    musicTitleText->setTextColour({ 255, 255, 255 });
+    musicTitleText->setTextColour({ 255, 255, 255, 255 });
     musicTitleText->setTextScale(1.);
   }
   std::shared_ptr<TextHudElement> musicTitleElement =
@@ -144,7 +144,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
     textManager.createText("Aileron-Black", "-");
   if (reduceMusicText) {
     reduceMusicText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-    reduceMusicText->setTextColour({ 255, 255, 255 });
+    reduceMusicText->setTextColour({ 255, 255, 255, 255 });
     reduceMusicText->setTextScale(1.);
   }
 
@@ -153,7 +153,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
   std::shared_ptr<TextButton> reduceMusicElement = std::make_shared<TextButton>(
     reduceMusicText, 15, 50, 20, 20, reduceMusicFn, ALIGN_CENTER, ALIGN_CENTER);
   if (reduceMusicElement) {
-    reduceMusicElement->setMouseOverColour({ 200, 200, 200 });
+    reduceMusicElement->setMouseOverColour({ 200, 200, 200, 255 });
     reduceMusicElement->setOnClickOffset(-1, 2);
     addElement(reduceMusicElement);
   }
@@ -164,7 +164,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
     textManager.createText("Aileron-Black", std::to_string(currentMusicLabel));
   if (musicLabelText) {
     musicLabelText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-    musicLabelText->setTextColour({ 255, 255, 255 });
+    musicLabelText->setTextColour({ 255, 255, 255, 255 });
     musicLabelText->setTextScale(1.);
     std::shared_ptr<TextHudElement> musicLabelElement =
       std::make_shared<TextHudElement>(
@@ -179,7 +179,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
     textManager.createText("Aileron-Black", "+");
   if (increaseMusicText) {
     increaseMusicText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-    increaseMusicText->setTextColour({ 255, 255, 255 });
+    increaseMusicText->setTextColour({ 255, 255, 255, 255 });
     increaseMusicText->setTextScale(1.);
   }
   // Create go back button element
@@ -194,7 +194,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
                                  increaseMusicFn,
                                  ALIGN_CENTER,
                                  ALIGN_CENTER);
-  increaseMusicElement->setMouseOverColour({ 200, 200, 200 });
+  increaseMusicElement->setMouseOverColour({ 200, 200, 200, 255 });
   increaseMusicElement->setOnClickOffset(-1, 2);
   addElement(increaseMusicElement);
 
@@ -204,7 +204,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
     textManager.createText("Aileron-Black", "WINDOW MODE:");
   if (windowLabelText) {
     windowLabelText->setTextAlignment(TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER);
-    windowLabelText->setTextColour({ 255, 255, 255 });
+    windowLabelText->setTextColour({ 255, 255, 255, 255 });
     windowLabelText->setTextScale(1.);
   }
   std::shared_ptr<TextHudElement> windowLabelElement =
@@ -224,13 +224,13 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
     textManager.createText("Aileron-Black", buttonString);
   if (windowModeText) {
     windowModeText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-    windowModeText->setTextColour({ 255, 255, 255 });
+    windowModeText->setTextColour({ 255, 255, 255, 255 });
     windowModeText->setTextScale(1.);
   }
   auto windowModeFn = std::bind(&OptionsMenuHudGroup::toggleWindowMode, this);
   std::shared_ptr<TextButton> windowModeButton = std::make_shared<TextButton>(
     windowModeText, 55, 100, 100, 50, windowModeFn, ALIGN_CENTER, ALIGN_CENTER);
-  windowModeButton->setMouseOverColour({ 200, 200, 200 });
+  windowModeButton->setMouseOverColour({ 200, 200, 200, 255 });
   windowModeButton->setOnClickOffset(-1, 2);
   addElement(windowModeButton);
   mWindowModeButton = windowModeButton;
@@ -249,7 +249,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
   // Create console input field
   std::shared_ptr<InputField> consoleField = std::make_shared<InputField>(
     consoleText, -25, 150, 400, 30, ALIGN_CENTER, ALIGN_CENTER);
-  consoleField->setInputColour({ 255, 255, 255 });
+  consoleField->setInputColour({ 255, 255, 255, 255 });
   addElement(consoleField);
   mConsoleField = consoleField;
 
@@ -258,7 +258,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
     textManager.createText("Aileron-Black", "->");
   if (consoleEnterText) {
     consoleEnterText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-    consoleEnterText->setTextColour({ 255, 255, 255 });
+    consoleEnterText->setTextColour({ 255, 255, 255, 255 });
     consoleEnterText->setTextScale(1.);
   }
   // Create go back button element
@@ -273,7 +273,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
                                  consoleEnterFn,
                                  ALIGN_CENTER,
                                  ALIGN_CENTER);
-  consoleEnterButton->setMouseOverColour({ 200, 200, 200 });
+  consoleEnterButton->setMouseOverColour({ 200, 200, 200, 255 });
   consoleEnterButton->setOnClickOffset(-1, 2);
   addElement(consoleEnterButton);
 

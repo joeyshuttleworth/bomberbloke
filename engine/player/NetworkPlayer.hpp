@@ -24,11 +24,6 @@ public:
     return;
   }
 
-  void ping(){
-    int mLastPingElapsedTime = 0;
-    return;
-  }
-
   bool synced = false;
 };
 #endif
