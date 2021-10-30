@@ -483,7 +483,6 @@ handle_system_command(std::list<std::string> tokens)
         return false;
       }
     }
-  }
 
     else {
       log_message(ERR, "draw command requires one argument");
@@ -491,57 +490,56 @@ handle_system_command(std::list<std::string> tokens)
     }
   }
 
-  else if (!_server && command == "open") {
-    if (tokens.size() == 2) {
-      auto iter = tokens.begin();
-      iter++; // Select the first token
-      int port;
+    else if (!_server && command == "open") {
+      if (tokens.size() == 2) {
+        auto iter = tokens.begin();
+        iter++; // Select the first token
+        int port;
 
-      /*  Attempt to parse the first argument as address:port.
-              If no ':' is present, the port number defaults to 8888.
-       */
-      long unsigned int delim_pos = iter->find(':');
-      std::string address;
-      if (delim_pos == std::string::npos) {
-        port = 8888;
-        address = *iter;
-      } else if (iter->substr(delim_pos + 1).find(':') != std::string::npos) {
-        std::stringstream msg;
-        msg << "Couldn't parse address, " << *iter;
-        log_message(ERR, msg.str());
-        return false;
-      } else {
-        address = iter->substr(0, delim_pos);
-        /*  TODO replace try-catch with something less lazy to check if
-                we're going to have an error
+        /*  Attempt to parse the first argument as address:port.
+            If no ':' is present, the port number defaults to 8888.
         */
-        try {
-          port = std::stoi(iter->substr(delim_pos + 1));
-        } catch (std::exception& e) {
-          std::stringstream msg;
-          msg << "Failed to parse port number \n"
-              << e.what() << "defaulting to 8888";
-          log_message(ERR, msg.str());
+        long unsigned int delim_pos = iter->find(':');
+        std::string address;
+        if (delim_pos == std::string::npos) {
           port = 8888;
+          address = *iter;
+        } else if (iter->substr(delim_pos + 1).find(':') != std::string::npos) {
+          std::stringstream msg;
+          msg << "Couldn't parse address, " << *iter;
+          log_message(ERR, msg.str());
+          return false;
+        } else {
+          address = iter->substr(0, delim_pos);
+          /*  TODO replace try-catch with something less lazy to check if
+              we're going to have an error
+          */
+          try {
+            port = std::stoi(iter->substr(delim_pos + 1));
+          } catch (std::exception& e) {
+            std::stringstream msg;
+            msg << "Failed to parse port number \n"
+                << e.what() << "defaulting to 8888";
+            log_message(ERR, msg.str());
+            port = 8888;
+          }
         }
-      }
-      /* We now have an address and port number to connect with
+        /* We now have an address and port number to connect with
            NetClient::connectClient returns true of false. Return
            this value
-       */
-      if (!_net_client.joinBlokeServer(address, port, _nickname)) {
-        log_message(INFO, "failed to connect to server");
-        return false;
+        */
+        if (!_net_client.joinBlokeServer(address, port, _nickname)) {
+          log_message(INFO, "failed to connect to server");
+          return false;
+        }
+      } else {
+        /* TODO allow port number as a separate argument? */
+        log_message(ERR, "Incorrect number of elements for connect");
       }
-    } else {
-      /* TODO allow port number as a separate argument? */
-      log_message(ERR, "Incorrect number of elements for connect");
     }
-  }
 
-
-  else if (command == "info") {
-    QueryEvent e("big_beef");
+    else if (command == "info") {
+      QueryEvent e("big_beef");
     cereal::JSONOutputArchive oArchive(std::cout);
     oArchive(e);
   }
