@@ -38,6 +38,7 @@ Text::updateTexture(Camera* camera)
   if(!mFont)
     return;
 
+
   if (mCursorVisible) {
     // Render text to texture
     std::string textBefore = mTextString.substr(0, mCursorIndex);
@@ -50,12 +51,15 @@ Text::updateTexture(Camera* camera)
 
     std::string textAfter = mTextString.substr(mCursorIndex);
     SDL_Surface* textAfterSurface = mFont ?       TTF_RenderText_Solid(mFont, textAfter.c_str(), mColour) : nullptr;
+
     if (textAfterSurface) {
       width += textAfterSurface->w;
       height = std::max(textAfterSurface->h, height);
     }
 
-    SDL_Surface* textCursorSurface = mFont ? TTF_RenderText_Solid(mFont, CURSOR_CHAR.c_str(), mColour) : nullptr;
+    SDL_Surface* textCursorSurface =
+      TTF_RenderText_Solid(mFont, CURSOR_CHAR.c_str(), mColour);
+
     if (textCursorSurface) {
       height = std::max(textCursorSurface->h, height);
       width += textCursorSurface->w;
@@ -100,7 +104,10 @@ Text::updateTexture(Camera* camera)
     SDL_FreeSurface(fullSurface);
   } else {
     // Render text to texture
-    SDL_Surface* mTextSurface = mFont ? TTF_RenderText_Solid(mFont, mTextString.c_str(), mColour) : nullptr;
+
+    SDL_Surface* mTextSurface =
+      TTF_RenderText_Solid(mFont, mTextString.c_str(), mColour);
+
     if (mTextSurface) {
       mTextTexture = SDL_CreateTextureFromSurface(_renderer, mTextSurface);
       width = mTextSurface->w;
@@ -177,8 +184,9 @@ Text::getCursorIndex(int x)
   for (std::string::size_type i = 0; i < mTextString.size(); i++) {
     // Render character and add width to toal
     renderText += mTextString[i];
-    SDL_Surface* substrSurface = mFont ?
-      TTF_RenderText_Solid(mFont, renderText.c_str(), mColour) : nullptr;
+
+    SDL_Surface* substrSurface =
+      TTF_RenderText_Solid(mFont, renderText.c_str(), mColour);
     if (substrSurface && substrSurface->w > targetX) {
       // Check if the cursor is closer to the right or left of the new character
       if (2 * (substrSurface->w - targetX) < (substrSurface->w - lastWidth)) {
