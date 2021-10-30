@@ -112,18 +112,18 @@ add_executable(bomberbloke_server ${server_src})
 set_target_properties(bomberbloke_server PROPERTIES PUBLIC_HEADER "engine/server.h")
 target_link_libraries(bomberbloke_server SERVER ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES})
 
+# Adding clang-format target if executable is found
+find_program(CLANG_FORMAT "clang-format")
+find_program(CLANG_TIDY "clang-tidy")
+
+add_custom_target(clang-format COMMAND ${CLANG_FORMAT} -style=Mozilla -i ${all_sources})
+add_custom_target(clang-tidy COMMAND ${CLANG_TIDY} --format-style=Mozilla  ${all_sources})
+
+# Warning messages are treated as errors
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror -Wpedantic -Wfatal-errors")
 
 # Format in clang
 file(GLOB_RECURSE all_sources *.h *.cpp *.c *. hpp)
 list(FILTER all_sources EXCLUDE REGEX "windows_libraries")
 list(FILTER all_sources EXCLUDE REGEX "cereal")
 
-# Adding clang-format target if executable is found
-find_program(CLANG_FORMAT "clang-format" "/usr/bin/clang-format")
-find_program(CLANG_TIDY "clang-tidy" "/usr/bin/clang-tidy")
-
-add_custom_target(clang-format COMMAND ${CLANG_FORMAT} -style=Mozilla -i ${all_sources})
-add_custom_target(clang-tidy COMMAND ${CLANG_TIDY} --format-style=Mozilla  ${all_sources})
-
-# Warning messages are treated as errors
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror -Wpedantic -Wfatal-errors")
