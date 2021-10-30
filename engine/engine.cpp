@@ -234,7 +234,6 @@ handle_input()
         if (kb_state[j->scancode] !=
             _kb_state[j->scancode]) { // ensure that current keymap is different
                                       // to old
-
           // We will prepend "+" or "-" to the command depending on keystate
           std::string command_to_send =
             kb_state[j->scancode] ? "+" + j->command : "-" + j->command;
@@ -243,8 +242,7 @@ handle_input()
 
           if (std::find(_system_commands.begin(),
                         _system_commands.end(),
-                        split_to_tokens(j->command).front()) !=
-              _system_commands.end()) {
+                        split_to_tokens(j->command).front()) != _system_commands.end()) {
             handle_system_command(
               split_to_tokens(command_to_send)); // process system command
           } else {
@@ -284,6 +282,7 @@ handle_input()
           }
         }
       }
+
     }
   }
 
@@ -484,6 +483,7 @@ handle_system_command(std::list<std::string> tokens)
         return false;
       }
     }
+  }
 
     else {
       log_message(ERR, "draw command requires one argument");
@@ -538,6 +538,7 @@ handle_system_command(std::list<std::string> tokens)
       log_message(ERR, "Incorrect number of elements for connect");
     }
   }
+
 
   else if (command == "info") {
     QueryEvent e("big_beef");

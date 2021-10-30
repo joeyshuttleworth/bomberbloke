@@ -38,6 +38,7 @@ Text::updateTexture(Camera*)
   if (!mFont)
     return;
 
+
   if (mCursorVisible) {
     // Render text to texture
     std::string textBefore = mTextString.substr(0, mCursorIndex);

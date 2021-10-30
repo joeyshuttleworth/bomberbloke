@@ -36,7 +36,7 @@ Camera::setBrightness(int brightness)
 void
 Camera::onResize()
 {
-  std::lock_guard<std::mutex> guard{ mMutex };
+  std::lock_guard<std::mutex> guard{mMutex};
   mScreenRectangle.w = _window_size[0];
   mScreenRectangle.h = _window_size[1];
 
@@ -69,7 +69,8 @@ Camera::onResize()
 void
 Camera::draw()
 {
-  std::lock_guard<std::mutex> guard{ mMutex };
+  std::lock_guard<std::mutex> guard{mMutex};
+
   // Update the screen rectangle for applying the rumble effect
   mScreenRectangle.x = mRumbleOffset[0];
   mScreenRectangle.y = mRumbleOffset[1];
@@ -112,7 +113,8 @@ Camera::draw()
 void
 Camera::resetFrameBuffer()
 {
-  std::lock_guard<std::mutex> guard{ mMutex };
+  std::lock_guard<std::mutex> guard{mMutex};
+
   // Set background colour
   SDL_SetRenderTarget(_renderer, mpFrameBuffer);
   SDL_SetRenderDrawColor(_renderer, 0x00, 0x10, 0xff, 0xff);
@@ -158,6 +160,7 @@ Camera::blurTexture(SDL_Texture* texture, double size, int passes)
 
   if (!texture)
     return;
+
 
   // Get width and height of texture
   int width, height;
@@ -233,8 +236,8 @@ Camera::renderCopy(SDL_Texture* texture,
                    bool isPostProcessed,
                    int bloomAmount)
 {
+  std::lock_guard<std::mutex> guard{mMutex};
 
-  std::lock_guard<std::mutex> guard{ mMutex };
   // Copy the texture onto the appropriate frame buffer
   SDL_SetRenderTarget(_renderer, getFrameBuffer(isPostProcessed));
   SDL_RenderCopy(_renderer, texture, srcRect, dstRect);
@@ -293,7 +296,7 @@ Camera::renderFillRect(SDL_Rect* dstRect,
       SDL_SetRenderDrawColor(_renderer, 0, 0, 0, colour.a);
       SDL_RenderFillRect(_renderer, dstRect);
     }
-
+    
     SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
   }
 }
