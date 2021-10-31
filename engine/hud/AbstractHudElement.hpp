@@ -61,6 +61,8 @@ public:
         mPropertiesUpdated = true;
     }
 
+    virtual ~AbstractHudElement(){}
+
     /**
      * Sets the (relative) screen position of the bounding box.
      *

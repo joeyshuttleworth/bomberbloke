@@ -29,9 +29,11 @@ public:
     return;
   }
 
+  virtual ~AbstractSpriteHandler(){}
+
   /**
    *  Draw the sprite to the framebuffer of the Camera
-   *  @param the camera we are drawing to.
+   *  @param camera: the camera we are drawing to.
    */
   virtual void draw(Camera*)= 0;
 

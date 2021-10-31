@@ -25,6 +25,8 @@ public:
    * or a nullptr in which case the default constructor of the derived class will be used
    */
   virtual void reset(std::shared_ptr<AbstractPlayerProperties> p_properties = nullptr) = 0;
+
+  virtual ~AbstractPlayerProperties(){}
 };
 
 #endif
