@@ -413,6 +413,7 @@ BomberBlokeScene::togglePause()
 void
 BomberBlokeScene::startCountdown(int nSecs)
 {
+  mState = PLAYING;
   std::shared_ptr<CountdownHudGroup> countdown = mCountdownHud.lock();
   countdown->start(nSecs);
   if (_server) {
@@ -492,7 +493,6 @@ BomberBlokeScene::handleCommand(std::string str)
   } else if (tokens.front() == "end") {
     mIsRoundEnd = true;
     mRoundEndTicks = 0;
-    mState = STOPPED;
 
     if (mSoundtrack)
       mSoundtrack->playIdle();

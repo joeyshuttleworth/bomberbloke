@@ -1,5 +1,6 @@
 #ifndef SCENE_HPP
 #define SCENE_HPP
+
 #include <list>
 #include <string>
 #include <mutex>
@@ -104,8 +105,6 @@ public:
   }
 
   scene(double x=10, double y=10);
-
-  scene(const scene &lvl);
 
   virtual ~scene(){
       std::lock_guard<std::mutex> guard{mMutex};

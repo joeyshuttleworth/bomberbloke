@@ -6,11 +6,12 @@
 
 extern std::list<std::shared_ptr<AbstractSpriteHandler>> _particle_list;
 
-scene ::scene(double x, double y)
+scene::scene(double x, double y)
 {
   mDimmension[0] = x;
   mDimmension[1] = y;
   mpCamera = std::make_shared<Camera>(this);
+  mState = STOPPED;
   return;
 }
 
