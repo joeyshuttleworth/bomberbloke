@@ -14,5 +14,5 @@ before_script:
   - cmake .
 
 script:
-  - cmake --build .
+  - cmake -DCMAKE_BUILD_TYPE=Debug --build . 
   - ctest --verbose
