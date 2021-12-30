@@ -43,9 +43,11 @@ PauseMenuHudGroup::PauseMenuHudGroup()
   // Create resume button text
   std::shared_ptr<Text> resumeText =
     textManager.createText("Aileron-Black", "RESUME GAME");
-  resumeText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-  resumeText->setTextColour({ 255, 255, 255, 255 });
-  resumeText->setTextScale(1.5);
+  if(resumeText){
+    resumeText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
+    resumeText->setTextColour({ 255, 255, 255, 255 });
+    resumeText->setTextScale(1.5);
+  }
   // Create resume button element
   std::shared_ptr<TextButton> resumeElement = std::make_shared<TextButton>(
     resumeText, 0, -40, 200, 30, resumeFn, ALIGN_CENTER, ALIGN_CENTER);

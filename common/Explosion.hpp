@@ -41,6 +41,8 @@ public:
 
   void draw(Camera*);
 
+  virtual ~Explosion(){}
+
   template<class Archive>
   void serialize(Archive &archive){
     archive(cereal::base_class<AbstractSpriteHandler>(this), mSound, mRumble);

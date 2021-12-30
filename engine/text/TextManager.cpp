@@ -48,7 +48,8 @@ TextManager::createText(std::string fontId,
 
   if (!font) {
     log_message(ERR, "Font not found!");
-    return nullptr;
+    // If font is not found just create an empty text object
+    // return nullptr;
   }
 
   // Create a new Text object

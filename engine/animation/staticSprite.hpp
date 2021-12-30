@@ -25,7 +25,8 @@ public:
       return;
     }
 
-    ~staticSprite(){return;}
+    virtual ~staticSprite(){}
+
 protected:
     SDL_Texture *mpSprite;
   };
