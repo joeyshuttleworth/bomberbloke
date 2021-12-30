@@ -18,6 +18,7 @@ public:
    */
   PauseMenuHudGroup();
 
+  virtual ~PauseMenuHudGroup(){}
 private:
   // Weak pointer to the options menu HUD group stored in mHudElements.
   std::weak_ptr<OptionsMenuHudGroup> mOptionsMenu;

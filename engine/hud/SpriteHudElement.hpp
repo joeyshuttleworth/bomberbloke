@@ -46,6 +46,8 @@ public:
         mPropertiesUpdated = true;
     }
 
+  virtual ~SpriteHudElement(){}
+
 protected:
     // Sprite rendered onto HUD bounding box.
     SDL_Texture *mSprite;

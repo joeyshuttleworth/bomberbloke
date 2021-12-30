@@ -43,6 +43,8 @@ public:
    */
   CountdownHudGroup(std::function<void()> onFinished, int maxGlowAmount=0);
 
+  virtual ~CountdownHudGroup(){}
+
   /**
    * Starts the countdown.
    *
