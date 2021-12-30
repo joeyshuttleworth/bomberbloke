@@ -11,6 +11,8 @@ language: cpp
 
 before_install:
   - sudo apt-get install -qq libsdl2-dev libenet-dev libcurl4-openssl-dev libsdl2-image-dev libsdl2-image-2.0-0 libsdl2-mixer-dev libsdl2-ttf-dev
+  - bash <(curl -s -L https://gist.githubusercontent.com/petrabarus/dfd524ece9561ae3647e822aafa9acef/raw/install-sonar-scanner.sh)
+
 
 before_script:
   - cmake .
