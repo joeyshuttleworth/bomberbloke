@@ -1,12 +1,14 @@
   #Used by travis CI for testing
+addons:
+  sonarcloud:
+    organization: "kkkjjihgghyhhujjkk"
+    token:
+      secure: "VO4R5hIBf3QQAxW7A/0nGC/lTsVWcQWlsKs5tMkueTkccfutmcNMF4+w97pC/M5cDLbf6IvlDhSxXWSOGK28ghuUaet2+DumOWswn1+u+8G/abL450sW/aRZz/1pZecz+UiYvnMeatqGzTt/2pYRVZdjspuhuaJz/wxtiSsapB5430UYnS4WjVqzzhT2EXVYUMDRZAOmSXfVB5SYGjRH6wzT/xOZtYKjHHhjIzvyzR4I5gl8ptDewnT/FcHDrHoRjIGkaYXMxPvFDDEGb3Mixac/Im7q613oJAfLW8egajoA/+Mpmn65wxnqWqbvX85fssTHZQpWwDDy/gD8FhbEpBI9Yp1nL6az4Qtv0VD6yvv7zja0jTmQdt3cRaOWTSCuDHtBm60zdgFDqr6Ptxvx/FFCmbN3uglujCWcKUE2P2OJLIpyGfFbqsoZYxJg452nxmyxPrBg8GKRuumOvUJEdW/bsQtzYUzy3aVODuC/YwuEvpYnx6gCe9BqU84AYUR/B2N0+3Kumx8YXzmt63+jbddwAeDraHUIivOR7RWZqa7eXYeMfVDXwnaYjifyrp6InlEnsrjSPeda3atmgrAUFEh7Ivno3EsXSB8e6SW6PaodUIG1ewFFX5qHcXcu1UwIzG6bQk7UvwGNvshWmNA6yrIaj9t6RICqVkMo3a985uY="
+
 dist: bionic
 
 language: cpp
 
-compiler:
-  - gcc
-  - clang
-  
 before_install:
   - sudo apt-get install -qq libsdl2-dev libenet-dev libcurl4-openssl-dev libsdl2-image-dev libsdl2-image-2.0-0 libsdl2-mixer-dev libsdl2-ttf-dev
 
@@ -17,10 +19,4 @@ script:
   - build-wrapper-linux-x86-64 --out-dir bw-output cmake --build .
   - ctest --verbose
   - sonar-scanner -Dsonar.cfamily.build-wrapper-output=bw-output
-
-addons:
-  sonarcloud:
-    organization: "kkkjjihgghyhhujjkk"
-    token:
-      secure: "VO4R5hIBf3QQAxW7A/0nGC/lTsVWcQWlsKs5tMkueTkccfutmcNMF4+w97pC/M5cDLbf6IvlDhSxXWSOGK28ghuUaet2+DumOWswn1+u+8G/abL450sW/aRZz/1pZecz+UiYvnMeatqGzTt/2pYRVZdjspuhuaJz/wxtiSsapB5430UYnS4WjVqzzhT2EXVYUMDRZAOmSXfVB5SYGjRH6wzT/xOZtYKjHHhjIzvyzR4I5gl8ptDewnT/FcHDrHoRjIGkaYXMxPvFDDEGb3Mixac/Im7q613oJAfLW8egajoA/+Mpmn65wxnqWqbvX85fssTHZQpWwDDy/gD8FhbEpBI9Yp1nL6az4Qtv0VD6yvv7zja0jTmQdt3cRaOWTSCuDHtBm60zdgFDqr6Ptxvx/FFCmbN3uglujCWcKUE2P2OJLIpyGfFbqsoZYxJg452nxmyxPrBg8GKRuumOvUJEdW/bsQtzYUzy3aVODuC/YwuEvpYnx6gCe9BqU84AYUR/B2N0+3Kumx8YXzmt63+jbddwAeDraHUIivOR7RWZqa7eXYeMfVDXwnaYjifyrp6InlEnsrjSPeda3atmgrAUFEh7Ivno3EsXSB8e6SW6PaodUIG1ewFFX5qHcXcu1UwIzG6bQk7UvwGNvshWmNA6yrIaj9t6RICqVkMo3a985uY="
 
