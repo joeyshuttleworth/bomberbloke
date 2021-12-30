@@ -12,5 +12,7 @@ public:
   }
   using AbstractSpriteHandler :: AbstractSpriteHandler;
   void draw(Camera *cam);
+
+  virtual ~PlaceHolderSprite(){}
 };
 #endif
