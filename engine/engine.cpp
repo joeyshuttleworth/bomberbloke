@@ -83,6 +83,9 @@ set_draw(bool on)
 void
 exit_engine(int signum)
 {
+  SDL_JoystickClose(_controller);
+  _controller = nullptr;
+
   set_draw(false);
   SDL_Delay(500);
   SDL_Quit();
@@ -170,7 +173,10 @@ init_engine()
 
   /* Initialise the controller if it exists */
   _controller = handle_input_controller();
-  _controller_connected = _controller != nullptr ? true : false;
+  if (_controller == nullptr){
+    log_message(DEBUG, "Warning: Unable to open game controller! SDL Error: " + std::string(SDL_GetError()));
+  }
+  _controller_connected = _controller != nullptr;
 
   _kb_state = (Uint8*)malloc(sizeof(Uint8) * SDL_SCANCODE_APP2); // max scancode
   memset((void*)_kb_state, 0, sizeof(Uint8) * SDL_SCANCODE_APP2);
@@ -225,11 +231,13 @@ handle_input()
   kb_state = (Uint8*)SDL_GetKeyboardState(NULL);
 
   /*Iterate over local players */
-  for (auto i = _local_player_list.begin(); i != _local_player_list.end();
-       i++) {
+  for (auto & i : _local_player_list) {
     /*Iterate over key bindings */
     if (event.type != SDL_JOYAXISMOTION) {
-      for (auto j = i->mControlScheme.begin(); j != i->mControlScheme.end();
+      if (SDL_JoystickGetAttached(_controller) == true){
+        log_message(DEBUG, "Controller still attached");
+      }
+      for (auto j = i.mControlScheme.begin(); j != i.mControlScheme.end();
            j++) {
         if (kb_state[j->scancode] !=
             _kb_state[j->scancode]) { // ensure that current keymap is different
@@ -246,7 +254,7 @@ handle_input()
             handle_system_command(
               split_to_tokens(command_to_send)); // process system command
           } else {
-            std::shared_ptr<actor> character = i->getCharacter();
+            std::shared_ptr<actor> character = i.getCharacter();
             if (character) {
               character->handleCommand(
                 command_to_send); // handle normal command
@@ -263,22 +271,26 @@ handle_input()
         }
       }
     } else {
-      if (i->getCharacter() && event.jaxis.which == 0) {
+      if (event.type == SDL_JOYAXISMOTION){
+          log_message(DEBUG, "Controller oof");
+        }
+      if (i.getCharacter()){
+        log_message(DEBUG, "Controller did something");
         if (event.jaxis.axis == 0) { // x axis
           if (event.jaxis.value < -DEADZONE) {
-            i->getCharacter()->handleCommand("left" + dX);
+            i.getCharacter()->handleCommand("+left");
           } else if (event.jaxis.value > DEADZONE) {
-            i->getCharacter()->handleCommand("+right" + dX);
+            i.getCharacter()->handleCommand("+right");
           } else {
-            i->getCharacter()->handleCommand("-XAxis" + dX);
+            i.getCharacter()->handleCommand("-XAxis" + dX);
           }
         } else if (event.jaxis.axis == 1) {
           if (event.jaxis.value < -DEADZONE) {
-            i->getCharacter()->handleCommand("+up" + dX);
+            i.getCharacter()->handleCommand("+up");
           } else if (event.jaxis.value > DEADZONE) {
-            i->getCharacter()->handleCommand("+down" + dX);
+            i.getCharacter()->handleCommand("+down");
           } else {
-            i->getCharacter()->handleCommand("-YAxis" + dX);
+            i.getCharacter()->handleCommand("-YAxis" + dX);
           }
         }
       }
@@ -288,7 +300,6 @@ handle_input()
 
   // old key state, new key state
   memcpy(_kb_state, kb_state, sizeof(Uint8) * SDL_SCANCODE_APP2);
-  return;
 }
 
 SDL_Joystick*
@@ -296,10 +307,10 @@ handle_input_controller()
 {
   SDL_Init(SDL_INIT_JOYSTICK);
   if (SDL_NumJoysticks() > 0) {
-    std::cout << "Controlled connected\n ";
-    return SDL_JoystickOpen(0); // return joystick identifier
+    std::cout << "Controllor connected\n ";
+    return SDL_JoystickOpen(0); // return first joystick identifier
   } else
-    return NULL; // no joystick found
+    return nullptr; // no joystick found
 }
 
 void
