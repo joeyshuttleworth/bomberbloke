@@ -17,6 +17,7 @@
 #include <exception>
 #include <fstream>
 #include <utility>
+#include "input/Gamepad.h"
 
 /*  TODO: reduce number of globals */
 int _log_message_level = 0;
@@ -28,7 +29,6 @@ bool _halt = false;
 std::list<LocalPlayer> _local_player_list;
 SDL_Renderer* _renderer = NULL;
 SDL_Joystick* _controller = nullptr;
-bool _controller_connected = false;
 int DEADZONE = 9000;
 std::string dX = "0.1";
 Uint8* _kb_state = NULL;
@@ -42,6 +42,8 @@ std::list<std::shared_ptr<AbstractSpriteHandler>> _particle_list;
 std::vector<CommandBinding> _default_bindings;
 std::list<std::shared_ptr<AbstractPlayer>> _player_list;
 std::mutex _scene_mutex;
+
+Gamepad controller;
 
 NetClient _net_client;
 NetServer _net_server;
@@ -171,13 +173,6 @@ init_engine()
       refresh_sprites();
   }
 
-  /* Initialise the controller if it exists */
-  _controller = handle_input_controller();
-  if (_controller == nullptr){
-    log_message(DEBUG, "Warning: Unable to open game controller! SDL Error: " + std::string(SDL_GetError()));
-  }
-  _controller_connected = _controller != nullptr;
-
   _kb_state = (Uint8*)malloc(sizeof(Uint8) * SDL_SCANCODE_APP2); // max scancode
   memset((void*)_kb_state, 0, sizeof(Uint8) * SDL_SCANCODE_APP2);
   std::thread console(console_loop);
@@ -186,8 +181,6 @@ init_engine()
   _console_log_file.open("/tmp/bloke.log");
 
   load_assets();
-
-  return;
 }
 
 void
@@ -199,12 +192,15 @@ handle_input()
   while (SDL_PollEvent(&event)) {
     _pScene->onInput(&event);
 
+
+
     switch (event.type) {
       case SDL_QUIT: {
         _halt = true;
         break;
       }
       case SDL_KEYDOWN: {
+        controller.rumble(0.75, 500);
         if (!_bind_next_key)
           break;
         /*We only look at keyboard events here in order to bind keys*/
@@ -231,70 +227,44 @@ handle_input()
   kb_state = (Uint8*)SDL_GetKeyboardState(NULL);
 
   /*Iterate over local players */
-  for (auto & i : _local_player_list) {
+  for (auto& i : _local_player_list) {
     /*Iterate over key bindings */
-    if (event.type != SDL_JOYAXISMOTION) {
-      if (SDL_JoystickGetAttached(_controller) == true){
-        log_message(DEBUG, "Controller still attached");
-      }
-      for (auto j = i.mControlScheme.begin(); j != i.mControlScheme.end();
-           j++) {
-        if (kb_state[j->scancode] !=
-            _kb_state[j->scancode]) { // ensure that current keymap is different
-                                      // to old
-          // We will prepend "+" or "-" to the command depending on keystate
-          std::string command_to_send =
-            kb_state[j->scancode] ? "+" + j->command : "-" + j->command;
+//    if (SDL_JoystickGetAttached(_controller) == true) {
+//      log_message(DEBUG, "Controller still attached");
+//    }
+    for (auto j = i.mControlScheme.begin(); j != i.mControlScheme.end(); j++) {
+      if (kb_state[j->scancode] !=
+          _kb_state[j->scancode]) { // ensure that current keymap is different
+                                    // to old
 
-          log_message(DEBUG, j->command);
+        // We will prepend "+" or "-" to the command depending on keystate
+        std::string command_to_send =
+          kb_state[j->scancode] ? "+" + j->command : "-" + j->command;
 
-          if (std::find(_system_commands.begin(),
-                        _system_commands.end(),
-                        split_to_tokens(j->command).front()) != _system_commands.end()) {
-            handle_system_command(
-              split_to_tokens(command_to_send)); // process system command
-          } else {
-            std::shared_ptr<actor> character = i.getCharacter();
-            if (character) {
-              character->handleCommand(
-                command_to_send); // handle normal command
-              if (!_server) {
-                std::unique_ptr<AbstractEvent> c_event(
-                  new CommandEvent(command_to_send));
-                _net_client.sendEvent(c_event);
-              }
-            } else {
-              log_message(
-                DEBUG, "Input received but no character connected to player!");
+
+        log_message(DEBUG, j->command);
+
+        if (std::find(_system_commands.begin(),
+                      _system_commands.end(),
+                      split_to_tokens(j->command).front()) !=
+            _system_commands.end()) {
+          handle_system_command(
+            split_to_tokens(command_to_send)); // process system command
+        } else {
+          std::shared_ptr<actor> character = i.getCharacter();
+          if (character) {
+            character->handleCommand(command_to_send); // handle normal command
+            if (!_server) {
+              std::unique_ptr<AbstractEvent> c_event(
+                new CommandEvent(command_to_send));
+              _net_client.sendEvent(c_event);
             }
+          } else {
+            log_message(DEBUG,
+                        "Input received but no character connected to player!");
           }
         }
       }
-    } else {
-      if (event.type == SDL_JOYAXISMOTION){
-          log_message(DEBUG, "Controller oof");
-        }
-      if (i.getCharacter()){
-        log_message(DEBUG, "Controller did something");
-        if (event.jaxis.axis == 0) { // x axis
-          if (event.jaxis.value < -DEADZONE) {
-            i.getCharacter()->handleCommand("+left");
-          } else if (event.jaxis.value > DEADZONE) {
-            i.getCharacter()->handleCommand("+right");
-          } else {
-            i.getCharacter()->handleCommand("-XAxis" + dX);
-          }
-        } else if (event.jaxis.axis == 1) {
-          if (event.jaxis.value < -DEADZONE) {
-            i.getCharacter()->handleCommand("+up");
-          } else if (event.jaxis.value > DEADZONE) {
-            i.getCharacter()->handleCommand("+down");
-          } else {
-            i.getCharacter()->handleCommand("-YAxis" + dX);
-          }
-        }
-      }
-
     }
   }
 
@@ -302,16 +272,6 @@ handle_input()
   memcpy(_kb_state, kb_state, sizeof(Uint8) * SDL_SCANCODE_APP2);
 }
 
-SDL_Joystick*
-handle_input_controller()
-{
-  SDL_Init(SDL_INIT_JOYSTICK);
-  if (SDL_NumJoysticks() > 0) {
-    std::cout << "Controllor connected\n ";
-    return SDL_JoystickOpen(0); // return first joystick identifier
-  } else
-    return nullptr; // no joystick found
-}
 
 void
 draw_screen()

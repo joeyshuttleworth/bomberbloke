@@ -63,12 +63,14 @@ include_directories(${PROJECT_SOURCE_DIR}/engine/camera)
 include_directories(${PROJECT_SOURCE_DIR}/engine/sound)
 include_directories(${PROJECT_SOURCE_DIR}/engine/text)
 include_directories(${PROJECT_SOURCE_DIR}/engine/hud)
+include_directories(${PROJECT_SOURCE_DIR}/engine/input)
+
 
 file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/sources.cmake SHARED_SOURCES)
 
 # file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/tests.cmake TEST_SOURCES)
 
-add_library(${LIB_TARGET_NAME} CLIENT ${SHARED_SOURCES} "engine/client.cpp" "engine/network/NetClient.cpp")
+add_library(${LIB_TARGET_NAME} CLIENT ${SHARED_SOURCES} "engine/client.cpp" "engine/network/NetClient.cpp" "engine/input/Gamepad.cpp")
 
 # run_and_close test
 add_executable(run_and_close "tests/run_and_close.cpp" "engine/client.cpp")
