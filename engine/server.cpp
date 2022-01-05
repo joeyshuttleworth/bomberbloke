@@ -20,12 +20,21 @@ server_loop()
   while (!_halt) {
     t1 = t2;
     do {
-      SDL_Delay(0);
+      // Time to sleep until next tick (in nanoseconds)
+      double time_to_sleep = (1e9/TICK_RATE - (t2.tv_nsec - t1.tv_nsec + 1e9 * (t2.tv_sec - t1.tv_sec)))*1e-6;
+
+      // If we're not playing, sleep for longer
+      if(_pScene){
+        if(_pScene->getState() == STOPPED)
+          time_to_sleep = 1000;
+      }
+
+      // SDL_Delay might take too long so only sleep for half the time
+      SDL_Delay(time_to_sleep*.75);
       if (clock_gettime(CLOCK_REALTIME, &t2) == -1)
         log_message(ERR, "Failed to get time");
     } while (t2.tv_nsec - t1.tv_nsec +
-               (float)(BILLION * (t2.tv_sec - t1.tv_sec)) <
-             (float)BILLION / (float)TICK_RATE);
+               1e9 * (t2.tv_sec - t1.tv_sec) < 1e9 / TICK_RATE);
     _net_server.update();
     if (_tick % (5 * TICK_RATE) == 0) {
       _ping_time = _tick;

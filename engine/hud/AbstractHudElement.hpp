@@ -19,6 +19,9 @@ enum AlignFlag {
  */
 class AbstractHudElement {
 public:
+
+  virtual ~AbstractHudElement(){}
+
     /**
      * If set to false, onInput will not be called by scene.
      */
