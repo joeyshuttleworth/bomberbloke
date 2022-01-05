@@ -52,6 +52,8 @@ public:
     archive(cereal::make_nvp("speed", mSpeed), cereal::make_nvp("power", mPower), cereal::make_nvp("Max bombs", mMaxBombs), cereal::make_nvp("bomb kick", mBombKick), cereal::make_nvp("satellite", mSatellite), cereal::make_nvp("bigbomb", mBigBomb));
   }
 
+  virtual ~GamePlayerProperties(){}
+
 };
 
 

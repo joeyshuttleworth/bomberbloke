@@ -7,8 +7,6 @@
 #include "Sound.hpp"
 #include "engine.hpp"
 
-const int FADE_OUT_MS = 1000;
-
 const std::list<std::string> OST1_CLIP_NAMES = {
   "ost1_idle",           "ost1_a_first",        "ost1_b_first_neptune",
   "ost1_a_main_neptune", "ost1_b_main_neptune", "ost1_final_neptune"
