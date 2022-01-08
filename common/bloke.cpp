@@ -12,11 +12,13 @@ const std::string PLACE_BOMB_SOUND_NAME = "place_bomb";
 bloke::bloke(double x, double y, bool collides)
   : actor(x, y, DEFAULT_BLOKE_SIZE, DEFAULT_BLOKE_SIZE, true)
 {
+
+  mColour = SDL_Color({ 0, 0xa0, 0xff, 0xff });
   mCollides = collides;
   mPosition[0] = x;
   mPosition[1] = y;
   mpSpriteHandler = std::make_shared<PlaceHolderSprite>(
-    mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]);
+    mColour, mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]);
   mProperties = std::make_shared<GamePlayerProperties>();
   mPlaceBombSound = soundManager.createSound(PLACE_BOMB_SOUND_NAME);
   mPlaceBombSound->mGroup = SOUND_FX;
