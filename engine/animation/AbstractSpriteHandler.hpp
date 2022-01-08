@@ -16,6 +16,7 @@ extern unsigned int _tick;
 
 class AbstractSpriteHandler{
 public:
+  // TODO: move all flashing stuff to a subclass
   AbstractSpriteHandler(double x_pos=0, double y_pos=0, double x_dim=0, double y_dim=0, int speed = 300, int timeout = 0, int delay = 0){
     mPosition[0] = x_pos;
     mPosition[1] = y_pos;

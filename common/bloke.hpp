@@ -51,6 +51,8 @@ protected:
   double mAcceleration[2] = {0,0};
   std::shared_ptr<Sound> mPlaceBombSound;
 
+  SDL_Color mColour;
+
 public:
   bloke(double x=1, double y=1, bool collides=true);
 
