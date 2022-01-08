@@ -9,17 +9,13 @@
 
 const std::string PLACE_BOMB_SOUND_NAME = "place_bomb";
 
-bloke::bloke(double x, double y, bool collides)
+bloke::bloke(double x, double y, bool collides, uint64_t colour)
   : actor(x, y, DEFAULT_BLOKE_SIZE, DEFAULT_BLOKE_SIZE, true)
 {
   mCollides = collides;
+  mColour = colour;
   mPosition[0] = x;
   mPosition[1] = y;
-  mpSpriteHandler = std::make_shared<PlaceHolderSprite>(
-    mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]);
-  mProperties = std::make_shared<GamePlayerProperties>();
-  mPlaceBombSound = soundManager.createSound(PLACE_BOMB_SOUND_NAME);
-  mPlaceBombSound->mGroup = SOUND_FX;
 }
 
 void
@@ -123,6 +119,29 @@ bloke ::update()
 {
   accelerate();
   return;
+}
+
+void bloke ::init(){
+  auto sprite = std::make_shared<PlaceHolderSprite>(
+                                                    mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]);
+
+  auto p_player = getPlayer();
+
+  if(p_player != nullptr)
+    mColour = p_player->getColour();
+
+  // Set colour
+  sprite->setColour(mColour);
+
+  mpSpriteHandler = sprite;
+
+  std::stringstream sstream;
+  sstream << "colour of bloke is " << std::hex << mColour;
+  log_message(DEBUG, sstream.str());
+
+  mProperties = std::make_shared<GamePlayerProperties>();
+  mPlaceBombSound = soundManager.createSound(PLACE_BOMB_SOUND_NAME);
+  mPlaceBombSound->mGroup = SOUND_FX;
 }
 
 void

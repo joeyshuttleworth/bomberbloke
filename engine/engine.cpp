@@ -250,6 +250,7 @@ handle_input()
             if (character) {
               character->handleCommand(
                 command_to_send); // handle normal command
+
               if (!_server) {
                 std::unique_ptr<AbstractEvent> c_event(
                   new CommandEvent(command_to_send));
@@ -539,7 +540,7 @@ handle_system_command(std::list<std::string> tokens)
     }
 
     else if (command == "info") {
-      QueryEvent e("big_beef");
+      QueryEvent e(_nickname);
     cereal::JSONOutputArchive oArchive(std::cout);
     oArchive(e);
   }
@@ -602,6 +603,7 @@ handle_system_command(std::list<std::string> tokens)
       i++;
       /*TODO: try catch*/
       new_command.scancode = SDL_Scancode(std::stoi(*i));
+
       _local_player_list.front().mControlScheme.push_back(new_command);
       log_message(INFO,
                   "Successfully bound command " + new_command.command + " to " +
@@ -613,6 +615,21 @@ handle_system_command(std::list<std::string> tokens)
       _next_bind_command = *i;
       log_message(INFO,
                   "binding next keypress to command: " + _next_bind_command);
+    }
+  }
+
+  // Colour command: request to change the players colour
+  else if (!_server && command == "colour"){
+    // Player has requested to change colour
+    if(tokens.size()!=2)
+      log_message(ERR, "colour command requires exactly one argument");
+    else{
+      // Send request
+      std::string command_to_send = command + " " + tokens.back();
+      std::unique_ptr<AbstractEvent> c_event(new CommandEvent(command_to_send));
+      _net_client.sendEvent(c_event);
+      log_message(INFO, "Requesting to change player colour to " + tokens.back());
+      log_message(DEBUG, "Sending command \"" + command_to_send + "\"");
     }
   }
   return true;

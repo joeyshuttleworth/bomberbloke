@@ -10,9 +10,17 @@ public:
   int getType() const{
     return SPRITE_PLACEHOLDER;
   }
+
+  void setColour(uint32_t colour);
+
   using AbstractSpriteHandler :: AbstractSpriteHandler;
+
   void draw(Camera *cam);
 
   virtual ~PlaceHolderSprite(){}
+
+protected:
+  SDL_Color mColour = {0, 0xa0, 0xff, 0xff};
+
 };
 #endif

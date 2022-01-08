@@ -54,7 +54,6 @@ public:
   void serialize(Archive &archive){
     archive(cereal::base_class<AbstractEvent>(this), cereal::make_nvp("state", mState), cereal::make_nvp("mActors", _pScene->mActors), cereal::make_nvp("players", mPlayers));
   }
-
 };
 
 CEREAL_REGISTER_TYPE(syncEvent)

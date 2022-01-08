@@ -170,15 +170,38 @@ NetServer::handleEvent(std::shared_ptr<AbstractEvent> pEvent, ENetPeer* from)
         log_message(INFO, "Command event received from non-connected player");
         return;
       }
-      auto character = p_player->getCharacter();
-      if (!character) {
-        log_message(INFO, "Command received from player without character");
-        return;
-      }
-      std::string command = c_event->getCommand();
-      // log_message(DEBUG, "received command " + command + " from player " +
-      // std::to_string(p_player->getId()) +  ".");
+     std::string command = c_event->getCommand();
+      log_message(DEBUG, "received command " + command + " from player " +
+      std::to_string(p_player->getId()) +  ".");
+
       if (command != "") {
+        auto tokens = split_to_tokens(command);
+
+        if(tokens.front() == "colour"){
+          // Player has requested to change colour
+          if(tokens.size()!=2)
+            log_message(INFO, "colour command requires exactly one argument");
+          else{
+            // Read in colour as hex
+            std::stringstream colour_stream;
+            colour_stream << std::hex << tokens.back();
+            uint32_t colour;
+            colour_stream >> colour;
+            colour |= 0xFF;
+            // Change the colour as requested
+            p_player->setColour(colour);
+            log_message(DEBUG,
+                        "Setting player " + std::to_string(p_player->getId()) + " to " + std::to_string(colour));
+
+          }
+        }
+
+        auto character = p_player->getCharacter();
+        if (!character) {
+          log_message(INFO, "Command received from player without character");
+          return;
+        }
+        // Send command to players character
         character->handleCommand(command);
       }
       break;

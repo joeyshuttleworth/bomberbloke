@@ -236,9 +236,13 @@ BomberBlokeScene::BomberBlokeScene(unsigned int size_x, unsigned int size_y)
     for (unsigned int i = 0; i < 5; i++) {
       if (iter == _player_list.end())
         break;
+      uint64_t colour = (*iter)->getColour();
+      log_message(DEBUG, "Colour of bloke is " + std::to_string(colour));
       addActor(
-        std::make_shared<bloke>(spawn_points[i][0], spawn_points[i][1], true));
+               std::make_shared<bloke>(spawn_points[i][0], spawn_points[i][1], true, colour));
+
       linkActorToPlayer(mActors.back(), (*iter)->getId());
+
       iter++;
     }
   }
