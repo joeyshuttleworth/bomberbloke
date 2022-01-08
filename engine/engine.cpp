@@ -539,7 +539,7 @@ handle_system_command(std::list<std::string> tokens)
     }
 
     else if (command == "info") {
-      QueryEvent e("big_beef");
+      QueryEvent e(_nickname);
     cereal::JSONOutputArchive oArchive(std::cout);
     oArchive(e);
   }
@@ -614,6 +614,8 @@ handle_system_command(std::list<std::string> tokens)
       log_message(INFO,
                   "binding next keypress to command: " + _next_bind_command);
     }
+  } else {
+    log_message(ERR, "Unknown command");
   }
   return true;
 }
