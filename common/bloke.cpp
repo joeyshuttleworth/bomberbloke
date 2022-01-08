@@ -64,6 +64,8 @@ bloke ::accelerate()
 void
 bloke ::handleCommand(std::string command)
 {
+  std::list<std::string> tokens = split_to_tokens(command);
+
   if (_server) {
     /*True if the key is pressed down- false if it is up*/
     bool key_down = (command[0] == '+');
