@@ -65,10 +65,10 @@ include_directories(${PROJECT_SOURCE_DIR}/engine/text)
 include_directories(${PROJECT_SOURCE_DIR}/engine/hud)
 
 # Format in clang
-set(CMAKE_CXX_CLANG_TIDY
-  clang-tidy;
-  -format-style="mozilla"
-  -checks=*;)
+# set(CMAKE_CXX_CLANG_TIDY
+#   clang-tidy;
+#   -format-style="mozilla"
+#   -checks=*;)
 
 file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/sources.cmake SHARED_SOURCES)
 
