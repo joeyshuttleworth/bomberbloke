@@ -7,6 +7,8 @@ extern unsigned int _tick;
 
 class PlaceHolderSprite : public AbstractSpriteHandler{
 public:
+  SDL_Color mColour;
+
   int getType() const{
     return SPRITE_PLACEHOLDER;
   }
