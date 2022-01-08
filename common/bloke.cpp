@@ -67,10 +67,6 @@ bloke ::handleCommand(std::string command)
   if (_server) {
     /*True if the key is pressed down- false if it is up*/
     bool key_down = (command[0] == '+');
-    if (command == "kill" || command == "+kill") {
-      remove();
-      return;
-    }
 
     /*Handle movement commands*/
     const std::string direction_strings[4] = { "up", "right", "down", "left" };
@@ -92,17 +88,20 @@ bloke ::handleCommand(std::string command)
             }
           }
         }
+        break;
       }
     }
 
-    if (command == "+bomb") {
+    if (command == "kill" || command == "+kill") {
+      remove();
+      return;
+    }
+
+    else if (command == "+bomb") {
       place_bomb();
     }
 
-    /*Command(s) that take parameters go here*/
-    std::list<std::string> tokens = split_to_tokens(command);
-
-    if (tokens.back() == "accel" && tokens.size() == 3) {
+    else if (tokens.back() == "accel" && tokens.size() == 3) {
       auto counter = tokens.begin();
       double x_accel = std::stod(*counter);
       counter++;
