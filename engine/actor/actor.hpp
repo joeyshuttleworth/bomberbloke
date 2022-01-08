@@ -24,16 +24,13 @@ protected:
   bool mMoved=false;
   std::shared_ptr<AbstractSpriteHandler> mpSpriteHandler;
 
-  /* GetPlayer uses mPlayerId to return a pointer to the controlling player (if it exists)
-     A value of 0 indicates that the actor is not controlled by any player.
-  */
-
-
   /*Who does is this actor controlled by? This corresponds
     to a unique id of a player in _player_list. 0 corresponds
     to the server.
   */
   unsigned int mPlayerId = 0;
+
+  virtual void init(){};
 
   void setPlayerId(int id){mPlayerId = id;}
 
@@ -97,7 +94,6 @@ public:
   void draw();
   int move(double x, double y);
   bool isMoving();
-  int init(double, double);
   dvector getMidpoint();
   virtual void update(){}
 

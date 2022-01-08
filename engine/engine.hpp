@@ -106,7 +106,7 @@ typedef struct{
   std::string command;
 } CommandBinding;
 
-enum LOG_SCENE{
+enum LOG_LEVEL{
   DEBUG = 0,
   INFO,
   WARNING,
@@ -143,7 +143,17 @@ extern unsigned int _tick;
 extern std::vector<CommandBinding> _default_bindings;
 extern std::list<LocalPlayer> _local_player_list;
 
-const std::array<std::string, 3> _system_commands  = {{"bind", "set", "zoom"}};
+const std::array<std::string, 10> _system_commands  =
+  {{"bind",
+    "zoom",
+    "draw",
+    "log_level",
+    "draw",
+    "colour",
+    "generate_config",
+    "info",
+    "quit",
+    "resize"}};
 
 /*  A function defined by the game / test called each tick */
 void gameUpdate();

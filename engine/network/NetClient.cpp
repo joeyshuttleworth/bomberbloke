@@ -230,6 +230,7 @@ NetClient::pollServer()
                 _pScene->linkActorToPlayer((*i), player_id);
             }
           }
+          _pScene->init();
           auto p_list = s_event->getPlayers();
           for (auto i = p_list.begin(); i != p_list.end(); i++) {
             std::shared_ptr<AbstractPlayer> p =
@@ -370,6 +371,7 @@ NetClient::sendEvent(std::unique_ptr<AbstractEvent>& event)
     log_message(ERR, "Failed to send event");
     return;
   }
+
   ENetPacket* packet;
   std::string message = blob.str();
 

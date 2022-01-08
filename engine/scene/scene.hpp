@@ -104,6 +104,8 @@ public:
     return ret;
   }
 
+  virtual void init();
+
   scene(double x=10, double y=10);
 
   virtual ~scene(){
