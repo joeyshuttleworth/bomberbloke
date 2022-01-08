@@ -478,10 +478,8 @@ handle_system_command(std::list<std::string> tokens)
 
       // set colour locally
       std::shared_ptr<actor> character = _local_player_list.back().getCharacter();
-      log_message(DEBUG, "about to set colour locally");
       if (character)
         character->handleCommand(full_command);
-      log_message(DEBUG, "set colour locally");
 
       // send colour command to server
       std::unique_ptr<AbstractEvent> c_event(new CommandEvent(full_command));
@@ -644,7 +642,7 @@ handle_system_command(std::list<std::string> tokens)
                   "binding next keypress to command: " + _next_bind_command);
     }
   } else {
-    log_message(ERR, "Unknown command");
+    log_message(ERR, "unknown command");
   }
   return true;
 }
