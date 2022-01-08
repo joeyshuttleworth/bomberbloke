@@ -12,6 +12,8 @@ const std::string PLACE_BOMB_SOUND_NAME = "place_bomb";
 bloke::bloke(double x, double y, bool collides, uint64_t colour)
   : actor(x, y, DEFAULT_BLOKE_SIZE, DEFAULT_BLOKE_SIZE, true)
 {
+
+  mColour = SDL_Color({ 0, 0xa0, 0xff, 0xff });
   mCollides = collides;
   mColour = colour;
   mPosition[0] = x;
@@ -58,13 +60,11 @@ bloke ::accelerate()
 void
 bloke ::handleCommand(std::string command)
 {
+  std::list<std::string> tokens = split_to_tokens(command);
+
   if (_server) {
     /*True if the key is pressed down- false if it is up*/
     bool key_down = (command[0] == '+');
-    if (command == "kill" || command == "+kill") {
-      remove();
-      return;
-    }
 
     /*Handle movement commands*/
     const std::string direction_strings[4] = { "up", "right", "down", "left" };
@@ -86,17 +86,20 @@ bloke ::handleCommand(std::string command)
             }
           }
         }
+        break;
       }
     }
 
-    if (command == "+bomb") {
+    if (command == "kill" || command == "+kill") {
+      remove();
+      return;
+    }
+
+    else if (command == "+bomb") {
       place_bomb();
     }
 
-    /*Command(s) that take parameters go here*/
-    std::list<std::string> tokens = split_to_tokens(command);
-
-    if (tokens.back() == "accel" && tokens.size() == 3) {
+    else if (tokens.back() == "accel" && tokens.size() == 3) {
       auto counter = tokens.begin();
       double x_accel = std::stod(*counter);
       counter++;
@@ -111,6 +114,21 @@ bloke ::handleCommand(std::string command)
       soundManager.playSound(mPlaceBombSound);
     }
   }
+
+  if (tokens.front() == "colour" && tokens.size() == 4) {
+    auto i = tokens.begin();
+    i++;
+    Uint8 r = (Uint8) std::stoi(*i) ;
+    i++;
+    Uint8 g = (Uint8) std::stoi(*i);
+    i++;
+    Uint8 b = (Uint8) std::stoi(*i);
+
+    mColour = SDL_Color({ r, g, b, 255 });
+    mpSpriteHandler = std::make_shared<PlaceHolderSprite>(
+      mColour, mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]);
+  }
+
   return;
 }
 
