@@ -461,6 +461,35 @@ handle_system_command(std::list<std::string> tokens)
     }
   }
 
+  else if (command == "colour" && !_server) {
+    if (tokens.size() != 4)
+      log_message(ERR, "colour requires exactly three arguments");
+    else {
+      // recover full command
+      std::string full_command = "colour ";
+      auto i = tokens.begin();
+      i++;
+      full_command += (*i) + " ";
+      i++;
+      full_command += (*i) + " ";
+      i++;
+      full_command += (*i);
+      log_message(DEBUG, full_command);
+
+      // set colour locally
+      std::shared_ptr<actor> character = _local_player_list.back().getCharacter();
+      log_message(DEBUG, "about to set colour locally");
+      if (character)
+        character->handleCommand(full_command);
+      log_message(DEBUG, "set colour locally");
+
+      // send colour command to server
+      std::unique_ptr<AbstractEvent> c_event(new CommandEvent(full_command));
+      _net_client.sendEvent(c_event);
+      log_message(INFO, "set colour");
+    }
+  }
+
   else if (command == "disconnect") {
     /*TODO:*/ if (_server) {
 

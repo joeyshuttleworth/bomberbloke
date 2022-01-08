@@ -116,6 +116,21 @@ bloke ::handleCommand(std::string command)
       soundManager.playSound(mPlaceBombSound);
     }
   }
+
+  if (tokens.front() == "colour" && tokens.size() == 4) {
+    auto i = tokens.begin();
+    i++;
+    Uint8 r = (Uint8) std::stoi(*i) ;
+    i++;
+    Uint8 g = (Uint8) std::stoi(*i);
+    i++;
+    Uint8 b = (Uint8) std::stoi(*i);
+
+    mColour = SDL_Color({ r, g, b, 255 });
+    mpSpriteHandler = std::make_shared<PlaceHolderSprite>(
+      mColour, mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]);
+  }
+
   return;
 }
 
