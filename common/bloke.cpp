@@ -112,20 +112,6 @@ bloke ::handleCommand(std::string command)
       soundManager.playSound(mPlaceBombSound);
     }
   }
-
-  if (tokens.front() == "colour" && tokens.size() == 2) {
-    std::stringstream colour_stream;
-    colour_stream << std::hex << tokens.back();
-    uint32_t colour;
-    colour_stream >> colour;
-
-    // Set alpha to full
-    colour |= 0xFF;
-
-    mpSpriteHandler = std::make_shared<PlaceHolderSprite>(
-      mColour, mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]);
-  }
-
   return;
 }
 
