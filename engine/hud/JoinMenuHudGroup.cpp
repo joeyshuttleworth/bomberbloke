@@ -31,6 +31,69 @@ JoinMenuHudGroup::JoinMenuHudGroup(std::function<void()> goBackFn)
   addElement(nicknameField);
   mNicknameField = nicknameField;
 
+  // Create red text
+  std::shared_ptr<Text> redFieldText =
+    textManager.createText("Aileron-Black", "R");
+  if (redFieldText) {
+    redFieldText->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
+    redFieldText->setTextColour({ 255, 255, 255, 128 });
+    redFieldText->setBackgroundColour({ 63, 63, 63, 191 });
+    redFieldText->setTextOffset(10, 0);
+    redFieldText->setTextScale(1.5);
+  }
+  // Create red input field
+  std::shared_ptr<InputField> redField = std::make_shared<InputField>(
+    redFieldText, -(66+12)/2*3, 0, 66, 50, ALIGN_CENTER, ALIGN_CENTER);
+  redField->setInputColour({ 255, 255, 255, 255 });
+  addElement(redField);
+  mRedField = redField;
+
+  // Create green text
+  std::shared_ptr<Text> greenFieldText =
+    textManager.createText("Aileron-Black", "G");
+  if (greenFieldText) {
+    greenFieldText->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
+    greenFieldText->setTextColour({ 255, 255, 255, 128 });
+    greenFieldText->setBackgroundColour({ 63, 63, 63, 191 });
+    greenFieldText->setTextOffset(10, 0);
+    greenFieldText->setTextScale(1.5);
+  }
+  // Create green input field
+  std::shared_ptr<InputField> greenField = std::make_shared<InputField>(
+    greenFieldText, -(66+12)/2, 0, 66, 50, ALIGN_CENTER, ALIGN_CENTER);
+  greenField->setInputColour({ 255, 255, 255, 255 });
+  addElement(greenField);
+  mGreenField = greenField;
+
+  // Create blue text
+  std::shared_ptr<Text> blueFieldText =
+    textManager.createText("Aileron-Black", "B");
+  if (blueFieldText) {
+    blueFieldText->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
+    blueFieldText->setTextColour({ 255, 255, 255, 128 });
+    blueFieldText->setBackgroundColour({ 63, 63, 63, 191 });
+    blueFieldText->setTextOffset(10, 0);
+    blueFieldText->setTextScale(1.5);
+  }
+  // Create blue input field
+  std::shared_ptr<InputField> blueField = std::make_shared<InputField>(
+    blueFieldText, (66+12)/2, 0, 66, 50, ALIGN_CENTER, ALIGN_CENTER);
+  blueField->setInputColour({ 255, 255, 255, 255 });
+  addElement(blueField);
+  mBlueField = blueField;
+
+  // Create colour button text
+  std::shared_ptr<Text> colourText = textManager.createText("Aileron-Black", "");
+  if (colourText) {
+    colourText->setBackgroundColour({ 255, 255, 255, 255 });
+  }
+  // Create colour button element
+  auto randomColourFunction = std::bind(&JoinMenuHudGroup::pickRandomColour, this);
+  std::shared_ptr<TextButton> colourButton = std::make_shared<TextButton>(
+    colourText, (66+12)/2*3, 0, 66, 50, randomColourFunction, ALIGN_CENTER, ALIGN_CENTER);
+  addElement(colourButton);
+  mColourButton = colourButton;
+
   // Create address text
   std::shared_ptr<Text> addressFieldText =
     textManager.createText("Aileron-Black", "ADDRESS");
@@ -43,7 +106,7 @@ JoinMenuHudGroup::JoinMenuHudGroup(std::function<void()> goBackFn)
   }
   // Create address input field
   std::shared_ptr<InputField> addressField = std::make_shared<InputField>(
-    addressFieldText, 0, 0, 300, 50, ALIGN_CENTER, ALIGN_CENTER);
+    addressFieldText, 0, 60, 300, 50, ALIGN_CENTER, ALIGN_CENTER);
   addressField->setInputColour({ 255, 255, 255, 255 });
   addressField->setInputText(_net_client.mServerAddress);
   addElement(addressField);
@@ -60,7 +123,7 @@ JoinMenuHudGroup::JoinMenuHudGroup(std::function<void()> goBackFn)
   // Create join button
   auto joinFn = std::bind(&JoinMenuHudGroup::joinServer, this);
   std::shared_ptr<TextButton> joinElement = std::make_shared<TextButton>(
-    joinText, 0, 60, 100, 50, joinFn, ALIGN_CENTER, ALIGN_CENTER);
+    joinText, 0, 120, 100, 50, joinFn, ALIGN_CENTER, ALIGN_CENTER);
   joinElement->setMouseOverColour({ 200, 200, 200, 255 });
   joinElement->setOnClickOffset(-1, 2);
   addElement(joinElement);
@@ -109,6 +172,18 @@ JoinMenuHudGroup::update()
     std::shared_ptr<InputField> nicknameField = mNicknameField.lock();
     std::string nickname = nicknameField->mText->getText();
 
+    // Get red value in text field
+    std::shared_ptr<InputField> redField = mRedField.lock();
+    std::string redString = redField->mText->getText();
+
+    // Get green in text field
+    std::shared_ptr<InputField> greenField = mGreenField.lock();
+    std::string greenString = greenField->mText->getText();
+
+    // Get blue value in text field
+    std::shared_ptr<InputField> blueField = mBlueField.lock();
+    std::string blueString = blueField->mText->getText();
+
     // Get address in text field
     std::shared_ptr<InputField> addressField = mAddressField.lock();
     std::string address = addressField->mText->getText();
@@ -122,6 +197,20 @@ JoinMenuHudGroup::update()
     if (retVal) {
       // If successful move to bomberbloke scene
       _pNewScene = std::make_shared<BomberBlokeScene>(10, 10);
+
+      Uint8 redValue, greenValue, blueValue;
+      try {
+        redValue = (Uint8) std::stoi(redString);
+        greenValue = (Uint8) std::stoi(greenString);
+        blueValue = (Uint8) std::stoi(blueString);
+      } catch (std::invalid_argument &e) {
+        return;
+      }
+
+      // Set colour
+      Uint32 colour = (redValue << 24) + (greenValue << 16) + (blueValue << 8);
+      colour |= 0xFF;
+      handle_system_command({ "colour", std::to_string(colour) });
     } else {
       // If failed go back to main menu
       showJoinMenu();

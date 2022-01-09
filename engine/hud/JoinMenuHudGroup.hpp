@@ -9,6 +9,7 @@
 class TextManager;
 class InputField;
 class TextHudElement;
+class TextButton;
 class NetClient;
 
 extern bool handle_system_command(std::list<std::string>);
@@ -35,6 +36,9 @@ protected:
   // Weak pointer to input fields.
   std::weak_ptr<InputField> mNicknameField;
   std::weak_ptr<InputField> mAddressField;
+  std::weak_ptr<InputField> mRedField;
+  std::weak_ptr<InputField> mBlueField;
+  std::weak_ptr<InputField> mGreenField;
 
   // Weak pointer to loading text.
   std::weak_ptr<TextHudElement> mLoadingText;
