@@ -205,6 +205,9 @@ JoinMenuHudGroup::update()
     bool retVal = handle_system_command({ "open", address });
 
     if (retVal) {
+      // If successful move to bomberbloke scene
+      _pNewScene = std::make_shared<BomberBlokeScene>(10, 10);
+
       Uint8 redValue, greenValue, blueValue;
       try {
         redValue = (Uint8) std::stoi(redString);
@@ -221,9 +224,6 @@ JoinMenuHudGroup::update()
       std::stringstream colour_stream;
       colour_stream << std::hex << colour;
       handle_system_command({ "colour", colour_stream.str() });
-
-      // Move to bomberbloke scene
-      _pNewScene = std::make_shared<BomberBlokeScene>(10, 10);
     } else {
       // If failed go back to main menu
       showJoinMenu();
