@@ -42,18 +42,18 @@ public:
     /**
      * Initialisation: must be called before loading sounds
      */
-    void init(void (*finishedCallback)(int));
+    static void init(void (*finishedCallback)(int));
 
     /**
      * Loads sound file into soundFileBank. Returns sound name to use when
      * creating Sound objects (see createSound).
      */
-    void loadFromPath(std::string path, std::string id);
+    void loadFromPath(const std::string& path, const std::string& id);
 
     /**
      * Create Sound object from sound name.
      */
-    std::shared_ptr<Sound> createSound(std::string soundName);
+    std::shared_ptr<Sound> createSound(const std::string& soundName);
 
     /**
      * Returns Mix_Chunk with a given name.
@@ -63,7 +63,7 @@ public:
     /**
      * Play sound object.
      */
-    void playSound(std::shared_ptr<Sound> sound);
+    void playSound(const std::shared_ptr<Sound>& sound);
 
     /**
      * Callback function when channel is finished
