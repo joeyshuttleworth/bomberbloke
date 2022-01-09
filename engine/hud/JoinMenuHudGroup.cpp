@@ -169,7 +169,7 @@ JoinMenuHudGroup::JoinMenuHudGroup(std::function<void()> goBackFn)
   mLoadingText = loadingElement;
   addElement(loadingElement);
 
-  updateColourButton();
+  pickRandomColour();
 }
 
 void
