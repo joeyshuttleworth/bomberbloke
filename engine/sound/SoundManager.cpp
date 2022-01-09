@@ -7,14 +7,12 @@ const Uint16 SOUND_FORMAT = AUDIO_S16SYS;
 const int SOUND_N_CHANNELS = 2;
 const int SOUND_CHUNKSIZE = 1024;
 
-SoundManager::SoundManager() {}
+SoundManager::SoundManager() = default;
 SoundManager::~SoundManager()
 {
   // Free mix chunks
-  for (std::map<std::string, Mix_Chunk*>::iterator iter = soundFileBank.begin();
-       iter != soundFileBank.end();
-       ++iter) {
-    Mix_FreeChunk(iter->second);
+  for (auto & iter : soundFileBank) {
+    Mix_FreeChunk(iter.second);
   }
 
   // Quit SDL mixer
@@ -35,10 +33,10 @@ SoundManager::init(void (*finishedCallback)(int))
 }
 
 void
-SoundManager::loadFromPath(std::string path, std::string id)
+SoundManager::loadFromPath(const std::string& path, const std::string& id)
 {
   Mix_Chunk* sound = Mix_LoadWAV(path.c_str());
-  if (sound == NULL)
+  if (sound == nullptr)
     std::cout << Mix_GetError() << std::endl;
 
   // Add file to sound file bank
@@ -46,7 +44,7 @@ SoundManager::loadFromPath(std::string path, std::string id)
 }
 
 std::shared_ptr<Sound>
-SoundManager::createSound(std::string soundName)
+SoundManager::createSound(const std::string& soundName)
 {
   std::shared_ptr<Sound> newSound =
     std::make_shared<Sound>(soundFileBank[soundName]);
@@ -54,7 +52,7 @@ SoundManager::createSound(std::string soundName)
 }
 
 void
-SoundManager::playSound(std::shared_ptr<Sound> sound)
+SoundManager::playSound(const std::shared_ptr<Sound>& sound)
 {
   // Don't play anything if it is a server
   if (!sound || _server)
@@ -137,8 +135,8 @@ SoundManager::setVolume(int volume, SoundGroup group)
   }
 
   // Adjust the volume of all channels
-  for (std::map<int, std::shared_ptr<Sound>>::iterator iter =
-         channelToSound.begin();
+  for (auto iter =
+    channelToSound.begin();
        iter != channelToSound.end();
        ++iter) {
     int soundChannel = iter->first;

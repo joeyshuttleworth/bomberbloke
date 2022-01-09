@@ -730,7 +730,7 @@ load_assets()
           SDL_Texture* sprite = IMG_LoadTexture(
             _renderer, ("assets" + PATHSEPARATOR + whole_filename).c_str());
           _sprite_list.push_back({ whole_filename, sprite });
-        } else if (file_extension == ".wav") {
+        } else if (file_extension == ".ogg") {
           // Found sound file
           soundManager.loadFromPath("assets" + PATHSEPARATOR + whole_filename,
                                     file_name);
