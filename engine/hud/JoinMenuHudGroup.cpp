@@ -201,30 +201,29 @@ JoinMenuHudGroup::update()
     // Set nickname
     handle_system_command({ "nickname", nickname });
 
-    // Attempt connection
-    bool retVal = handle_system_command({ "open", address });
+    // Convert colour to correct, proper format : 0xrrggbbaa
+    Uint8 redValue, greenValue, blueValue;
+    try {
+      redValue = (Uint8) std::stoi(redString);
+      greenValue = (Uint8) std::stoi(greenString);
+      blueValue = (Uint8) std::stoi(blueString);
+    } catch (std::invalid_argument &e) {
+      return;
+    }
 
-    if (retVal) {
-      // If successful move to bomberbloke scene
-      _pNewScene = std::make_shared<BomberBlokeScene>(10, 10);
+    // Set colour
+    Uint32 colour = (redValue << 24) + (greenValue << 16) + (blueValue << 8);
+    colour |= 0xFF;
+    std::stringstream colour_stream;
+    colour_stream << "colour " << std::hex << colour;
+    // handle_system_command({ "colour", colour_stream.str() });
 
-      Uint8 redValue, greenValue, blueValue;
-      try {
-        redValue = (Uint8) std::stoi(redString);
-        greenValue = (Uint8) std::stoi(greenString);
-        blueValue = (Uint8) std::stoi(blueString);
-      } catch (std::invalid_argument &e) {
-        return;
-      }
+    std::vector<std::string> commands = {colour_stream.str()};
 
-      // Set colour
-      // TODO : force joe to do this
-      Uint32 colour = (redValue << 24) + (greenValue << 16) + (blueValue << 8);
-      colour |= 0xFF;
-      std::stringstream colour_stream;
-      colour_stream << std::hex << colour;
-      handle_system_command({ "colour", colour_stream.str() });
-    } else {
+    if(_net_client.joinBlokeServer(address, _nickname, commands)){
+    // If successful move to bomberbloke scene
+    _pNewScene = std::make_shared<BomberBlokeScene>(10, 10);
+    } else{
       // If failed go back to main menu
       showJoinMenu();
       mJoinServer = false;
