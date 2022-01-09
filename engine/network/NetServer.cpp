@@ -63,7 +63,8 @@ NetServer::handleJoinEvent(std::shared_ptr<JoinEvent> event, ENetPeer* from)
   }
 
   /* Add the player to _player_list */
-  bool added = addPlayer(std::make_shared<NetworkPlayer>(nickname, from));
+  auto player = std::make_shared<NetworkPlayer>(nickname, from);
+  bool added = addPlayer(player);
 
   /* Send an acceptEvent */
   if (added) {
@@ -74,12 +75,16 @@ NetServer::handleJoinEvent(std::shared_ptr<JoinEvent> event, ENetPeer* from)
     /* Now sync send the entire gamestate to the client */
     std::unique_ptr<AbstractEvent> s_event(new syncEvent());
     sendEvent(s_event, from);
+
+    // Handle join commands e.g 'colour 0x0000ffff'
+    for(auto command : event->getCommands()){
+      handleCommandEvent(std::make_shared<CommandEvent>(command), player);
+    }
   }
 
   else {
     log_message(ERR, "Failed to add player");
   }
-
   return;
 }
 
@@ -164,8 +169,19 @@ NetServer::handleEvent(std::shared_ptr<AbstractEvent> pEvent, ENetPeer* from)
     }
 
     case EVENT_COMMAND: {
-      std::shared_ptr<CommandEvent> c_event =
+      std::shared_ptr<CommandEvent> p_command_event =
         std::dynamic_pointer_cast<CommandEvent>(pEvent);
+      handleCommandEvent(p_command_event, p_player);
+      break;
+    }
+    default:
+      break;
+  }
+
+  return;
+}
+
+void NetServer::handleCommandEvent(std::shared_ptr<CommandEvent> c_event, std::shared_ptr<AbstractPlayer> p_player){
       if (!p_player) {
         log_message(INFO, "Command event received from non-connected player");
         return;
@@ -204,13 +220,7 @@ NetServer::handleEvent(std::shared_ptr<AbstractEvent> pEvent, ENetPeer* from)
         // Send command to players character
         character->handleCommand(command);
       }
-      break;
-    }
-    default:
-      break;
-  }
-
-  return;
+      return;
 }
 
 void

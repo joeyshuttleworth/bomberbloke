@@ -80,12 +80,42 @@ NetClient::connectClient(std::string serverAddress, enet_uint16 port)
 }
 
 bool
-NetClient::joinBlokeServer(std::string address, int port, std::string nickname)
+NetClient::joinBlokeServer(std::string address, std::string nickname, std::vector<std::string> commands)
 {
   ENetEvent event;
+  int port;
+
+  /*  Attempt to parse the first argument as address:port.
+      If no ':' is present, the port number defaults to 8888.
+  */
+  long unsigned int delim_pos = address.find(':');
+  if (delim_pos == std::string::npos) {
+    port = 8888;
+  } else if (address.substr(delim_pos + 1).find(':') != std::string::npos) {
+    std::stringstream msg;
+    msg << "Couldn't parse address, " << address;
+    log_message(ERR, msg.str());
+    return false;
+  } else {
+    address = address.substr(0, delim_pos);
+    /*  TODO replace try-catch with something less lazy to check if
+        we're going to have an error
+    */
+    try {
+      port = std::stoi(address.substr(delim_pos + 1));
+    } catch (std::exception& e) {
+      std::stringstream msg;
+      msg << "Failed to parse port number \n"
+          << e.what() << "defaulting to 8888";
+      log_message(ERR, msg.str());
+      port = 8888;
+    }
+  }
+
   if (connectClient(address, port) == false) {
     return false;
   }
+
 
   /* Query the server to see if we're able to join */
   std::unique_ptr<AbstractEvent> q_event(new QueryEvent(nickname));
@@ -130,7 +160,7 @@ NetClient::joinBlokeServer(std::string address, int port, std::string nickname)
     }
 
     std::unique_ptr<AbstractEvent> join_event(
-      new JoinEvent(nickname, info_event->mMagicNumber));
+                                          new JoinEvent(nickname, info_event->mMagicNumber, commands));
     sendEvent(join_event);
     /*  now poll the server again (10 seconds)*/
     while (enet_host_service(mENetHost, &event, 10000) > 0) {
