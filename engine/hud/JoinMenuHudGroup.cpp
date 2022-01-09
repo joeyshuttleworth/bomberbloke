@@ -94,6 +94,13 @@ JoinMenuHudGroup::JoinMenuHudGroup(std::function<void()> goBackFn)
   addElement(colourButton);
   mColourButton = colourButton;
 
+  // Create detect click button
+  // TODO: find a better solution for detecting clicks
+  auto updateColourFunction = std::bind(&JoinMenuHudGroup::updateColourButton, this);
+  std::shared_ptr<ClickableHudElement> detectClickButton = std::make_shared<ClickableHudElement>(
+    0, 0, 500, 240, updateColourFunction, ALIGN_CENTER, ALIGN_CENTER);
+  addElement(detectClickButton);
+
   // Create address text
   std::shared_ptr<Text> addressFieldText =
     textManager.createText("Aileron-Black", "ADDRESS");
@@ -160,6 +167,8 @@ JoinMenuHudGroup::JoinMenuHudGroup(std::function<void()> goBackFn)
   loadingElement->setIsVisible(false);
   mLoadingText = loadingElement;
   addElement(loadingElement);
+
+  updateColourButton();
 }
 
 void
@@ -216,6 +225,52 @@ JoinMenuHudGroup::update()
       showJoinMenu();
       mJoinServer = false;
     }
+  }
+}
+
+void
+JoinMenuHudGroup::pickRandomColour()
+{
+  int redValue = std::rand() % 256;
+  int greenValue = std::rand() % 256;
+  int blueValue = std::rand() % 256;
+
+  std::shared_ptr<InputField> redField = mRedField.lock();
+  redField->setInputText(std::to_string(redValue));
+
+  std::shared_ptr<InputField> greenField = mGreenField.lock();
+  greenField->setInputText(std::to_string(greenValue));
+
+  std::shared_ptr<InputField> blueField = mBlueField.lock();
+  blueField->setInputText(std::to_string(blueValue));
+
+  updateColourButton();
+}
+
+void
+JoinMenuHudGroup::updateColourButton()
+{
+  std::shared_ptr<InputField> redField = mRedField.lock();
+  std::shared_ptr<InputField> greenField = mGreenField.lock();
+  std::shared_ptr<InputField> blueField = mBlueField.lock();
+
+  int redValue, greenValue, blueValue;
+
+  // TODO : find a better solution
+  try {
+    redValue = std::stoi(redField->mText->getText());
+    greenValue = std::stoi(greenField->mText->getText());
+    blueValue = std::stoi(blueField->mText->getText());
+  } catch (std::invalid_argument &e) {
+    return;
+  }
+
+  if (redValue < 256 && redValue >= 0
+      && greenValue < 256 && greenValue >= 0
+      && blueValue < 256 && blueValue >= 0) {
+    std::shared_ptr<TextButton> colourButton = mColourButton.lock();
+    SDL_Color colour({(Uint8) redValue, (Uint8) greenValue, (Uint8) blueValue, 255});
+    colourButton->mText->setBackgroundColour(colour);
   }
 }
 

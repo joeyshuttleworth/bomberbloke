@@ -23,6 +23,16 @@ public:
   JoinMenuHudGroup(std::function<void()> goBackFn);
 
   /**
+   * Callback function for colour button
+   */
+  void pickRandomColour();
+
+  /**
+   * Updates the colour of colour button
+   */
+  void updateColourButton();
+
+  /**
    * Joins server with parameters given in input fields.
    */
   void joinServer();
@@ -39,6 +49,7 @@ protected:
   std::weak_ptr<InputField> mRedField;
   std::weak_ptr<InputField> mBlueField;
   std::weak_ptr<InputField> mGreenField;
+  std::weak_ptr<TextButton> mColourButton;
 
   // Weak pointer to loading text.
   std::weak_ptr<TextHudElement> mLoadingText;
