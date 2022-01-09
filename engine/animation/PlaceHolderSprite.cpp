@@ -1,10 +1,9 @@
 #include "PlaceHolderSprite.hpp"
 #include "Camera.hpp"
 
-// TODO: remove flashing stuff from abstract class to clean this clean up
-PlaceHolderSprite::PlaceHolderSprite(SDL_Color colour, double x_pos=0, double y_pos=0, double x_dim=0, double y_dim=0)
+PlaceHolderSprite::PlaceHolderSprite(double x_pos, double y_pos, double x_dim, double y_dim, uint32_t colour)
 : AbstractSpriteHandler(x_pos, y_pos, x_dim, y_dim, 300, 0, 0) {
-  mColour = colour;
+  setColour(colour);
 }
 
 void
