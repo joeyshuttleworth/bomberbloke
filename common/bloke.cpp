@@ -12,8 +12,6 @@ const std::string PLACE_BOMB_SOUND_NAME = "place_bomb";
 bloke::bloke(double x, double y, bool collides, uint64_t colour)
   : actor(x, y, DEFAULT_BLOKE_SIZE, DEFAULT_BLOKE_SIZE, true)
 {
-
-  mColour = SDL_Color({ 0, 0xa0, 0xff, 0xff });
   mCollides = collides;
   mColour = colour;
   mPosition[0] = x;
@@ -115,16 +113,15 @@ bloke ::handleCommand(std::string command)
     }
   }
 
-  if (tokens.front() == "colour" && tokens.size() == 4) {
-    auto i = tokens.begin();
-    i++;
-    Uint8 r = (Uint8) std::stoi(*i) ;
-    i++;
-    Uint8 g = (Uint8) std::stoi(*i);
-    i++;
-    Uint8 b = (Uint8) std::stoi(*i);
+  if (tokens.front() == "colour" && tokens.size() == 2) {
+    std::stringstream colour_stream;
+    colour_stream << std::hex << tokens.back();
+    uint32_t colour;
+    colour_stream >> colour;
 
-    mColour = SDL_Color({ r, g, b, 255 });
+    // Set alpha to full
+    colour |= 0xFF;
+
     mpSpriteHandler = std::make_shared<PlaceHolderSprite>(
       mColour, mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]);
   }

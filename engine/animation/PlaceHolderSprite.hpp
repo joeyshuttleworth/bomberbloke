@@ -7,15 +7,13 @@ extern unsigned int _tick;
 
 class PlaceHolderSprite : public AbstractSpriteHandler{
 public:
-  SDL_Color mColour;
-
   int getType() const{
     return SPRITE_PLACEHOLDER;
   }
 
   void setColour(uint32_t colour);
 
-  using AbstractSpriteHandler :: AbstractSpriteHandler;
+  PlaceHolderSprite(double=0, double=0, double=0, double=0, uint32_t = 0x00a0ffff);
 
   void draw(Camera *cam);
 

@@ -54,8 +54,6 @@ protected:
 
   void init();
 
-  SDL_Color mColour;
-
 public:
   bloke(double x=1, double y=1, bool collides = true, uint64_t colour = 0xFF00FFFF);
 

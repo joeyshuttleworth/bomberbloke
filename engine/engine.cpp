@@ -462,33 +462,6 @@ handle_system_command(std::list<std::string> tokens)
     }
   }
 
-  else if (command == "colour" && !_server) {
-    if (tokens.size() != 4)
-      log_message(ERR, "colour requires exactly three arguments");
-    else {
-      // recover full command
-      std::string full_command = "colour ";
-      auto i = tokens.begin();
-      i++;
-      full_command += (*i) + " ";
-      i++;
-      full_command += (*i) + " ";
-      i++;
-      full_command += (*i);
-      log_message(DEBUG, full_command);
-
-      // set colour locally
-      std::shared_ptr<actor> character = _local_player_list.back().getCharacter();
-      if (character)
-        character->handleCommand(full_command);
-
-      // send colour command to server
-      std::unique_ptr<AbstractEvent> c_event(new CommandEvent(full_command));
-      _net_client.sendEvent(c_event);
-      log_message(INFO, "set colour");
-    }
-  }
-
   else if (command == "disconnect") {
     /*TODO:*/ if (_server) {
 
@@ -643,11 +616,7 @@ handle_system_command(std::list<std::string> tokens)
       log_message(INFO,
                   "binding next keypress to command: " + _next_bind_command);
     }
-  } else {
-    log_message(ERR, "unknown command");
-  }
-
-  // Colour command: request to change the players colour
+  }   // Colour command: request to change the players colour
   else if (!_server && command == "colour"){
     // Player has requested to change colour
     if(tokens.size()!=2)
@@ -660,6 +629,9 @@ handle_system_command(std::list<std::string> tokens)
       log_message(INFO, "Requesting to change player colour to " + tokens.back());
       log_message(DEBUG, "Sending command \"" + command_to_send + "\"");
     }
+  }
+  else {
+    log_message(ERR, "unknown command: " + command);
   }
   return true;
 }
