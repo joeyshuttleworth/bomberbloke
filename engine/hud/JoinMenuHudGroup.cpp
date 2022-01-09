@@ -9,6 +9,7 @@
 #include "TextButton.hpp"
 #include "TextManager.hpp"
 #include "engine.hpp"
+#include <sstream>
 
 JoinMenuHudGroup::JoinMenuHudGroup(std::function<void()> goBackFn)
   : AbstractHudGroup(0, 0)
@@ -204,9 +205,6 @@ JoinMenuHudGroup::update()
     bool retVal = handle_system_command({ "open", address });
 
     if (retVal) {
-      // If successful move to bomberbloke scene
-      _pNewScene = std::make_shared<BomberBlokeScene>(10, 10);
-
       Uint8 redValue, greenValue, blueValue;
       try {
         redValue = (Uint8) std::stoi(redString);
@@ -217,9 +215,15 @@ JoinMenuHudGroup::update()
       }
 
       // Set colour
+      // TODO : force joe to do this
       Uint32 colour = (redValue << 24) + (greenValue << 16) + (blueValue << 8);
       colour |= 0xFF;
-      handle_system_command({ "colour", std::to_string(colour) });
+      std::stringstream colour_stream;
+      colour_stream << std::hex << colour;
+      handle_system_command({ "colour", colour_stream.str() });
+
+      // Move to bomberbloke scene
+      _pNewScene = std::make_shared<BomberBlokeScene>(10, 10);
     } else {
       // If failed go back to main menu
       showJoinMenu();
