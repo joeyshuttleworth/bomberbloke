@@ -77,7 +77,7 @@ NetServer::handleJoinEvent(std::shared_ptr<JoinEvent> event, ENetPeer* from)
     sendEvent(s_event, from);
 
     // Handle join commands e.g 'colour 0x0000ffff'
-    for(auto command : event->getCommands()){
+    for(auto& command : event->getCommands()){
       handleCommandEvent(std::make_shared<CommandEvent>(command), player);
     }
   }

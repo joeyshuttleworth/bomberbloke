@@ -80,7 +80,7 @@ NetClient::connectClient(std::string serverAddress, enet_uint16 port)
 }
 
 bool
-NetClient::joinBlokeServer(std::string address, std::string nickname, std::vector<std::string> commands)
+NetClient::joinBlokeServer(std::string address, const std::string& nickname, const std::vector<std::string>& commands)
 {
   ENetEvent event;
   int port;
