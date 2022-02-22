@@ -9,6 +9,7 @@
 #include "TextButton.hpp"
 #include "TextManager.hpp"
 #include "engine.hpp"
+#include <sstream>
 
 JoinMenuHudGroup::JoinMenuHudGroup(std::function<void()> goBackFn)
   : AbstractHudGroup(0, 0)
@@ -31,6 +32,76 @@ JoinMenuHudGroup::JoinMenuHudGroup(std::function<void()> goBackFn)
   addElement(nicknameField);
   mNicknameField = nicknameField;
 
+  // Create red text
+  std::shared_ptr<Text> redFieldText =
+    textManager.createText("Aileron-Black", "R");
+  if (redFieldText) {
+    redFieldText->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
+    redFieldText->setTextColour({ 255, 255, 255, 128 });
+    redFieldText->setBackgroundColour({ 63, 63, 63, 191 });
+    redFieldText->setTextOffset(10, 0);
+    redFieldText->setTextScale(1.5);
+  }
+  // Create red input field
+  std::shared_ptr<InputField> redField = std::make_shared<InputField>(
+    redFieldText, -(66+12)/2*3, 0, 66, 50, ALIGN_CENTER, ALIGN_CENTER);
+  redField->setInputColour({ 255, 255, 255, 255 });
+  addElement(redField);
+  mRedField = redField;
+
+  // Create green text
+  std::shared_ptr<Text> greenFieldText =
+    textManager.createText("Aileron-Black", "G");
+  if (greenFieldText) {
+    greenFieldText->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
+    greenFieldText->setTextColour({ 255, 255, 255, 128 });
+    greenFieldText->setBackgroundColour({ 63, 63, 63, 191 });
+    greenFieldText->setTextOffset(10, 0);
+    greenFieldText->setTextScale(1.5);
+  }
+  // Create green input field
+  std::shared_ptr<InputField> greenField = std::make_shared<InputField>(
+    greenFieldText, -(66+12)/2, 0, 66, 50, ALIGN_CENTER, ALIGN_CENTER);
+  greenField->setInputColour({ 255, 255, 255, 255 });
+  addElement(greenField);
+  mGreenField = greenField;
+
+  // Create blue text
+  std::shared_ptr<Text> blueFieldText =
+    textManager.createText("Aileron-Black", "B");
+  if (blueFieldText) {
+    blueFieldText->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
+    blueFieldText->setTextColour({ 255, 255, 255, 128 });
+    blueFieldText->setBackgroundColour({ 63, 63, 63, 191 });
+    blueFieldText->setTextOffset(10, 0);
+    blueFieldText->setTextScale(1.5);
+  }
+  // Create blue input field
+  std::shared_ptr<InputField> blueField = std::make_shared<InputField>(
+    blueFieldText, (66+12)/2, 0, 66, 50, ALIGN_CENTER, ALIGN_CENTER);
+  blueField->setInputColour({ 255, 255, 255, 255 });
+  addElement(blueField);
+  mBlueField = blueField;
+
+  // Create colour button text
+  std::shared_ptr<Text> colourText = textManager.createText("Aileron-Black", "");
+  if (colourText) {
+    colourText->setBackgroundColour({ 255, 255, 255, 255 });
+  }
+  // Create colour button element
+  auto randomColourFunction = std::bind(&JoinMenuHudGroup::pickRandomColour, this);
+  std::shared_ptr<TextButton> colourButton = std::make_shared<TextButton>(
+    colourText, (66+12)/2*3, 0, 66, 50, randomColourFunction, ALIGN_CENTER, ALIGN_CENTER);
+  addElement(colourButton);
+  mColourButton = colourButton;
+
+  // Create detect click button
+  // TODO: find a better solution for detecting clicks
+  auto updateColourFunction = std::bind(&JoinMenuHudGroup::updateColourButton, this);
+  std::shared_ptr<ClickableHudElement> detectClickButton = std::make_shared<ClickableHudElement>(
+    0, 0, 500, 240, updateColourFunction, ALIGN_CENTER, ALIGN_CENTER);
+  addElement(detectClickButton);
+
   // Create address text
   std::shared_ptr<Text> addressFieldText =
     textManager.createText("Aileron-Black", "ADDRESS");
@@ -43,7 +114,7 @@ JoinMenuHudGroup::JoinMenuHudGroup(std::function<void()> goBackFn)
   }
   // Create address input field
   std::shared_ptr<InputField> addressField = std::make_shared<InputField>(
-    addressFieldText, 0, 0, 300, 50, ALIGN_CENTER, ALIGN_CENTER);
+    addressFieldText, 0, 60, 300, 50, ALIGN_CENTER, ALIGN_CENTER);
   addressField->setInputColour({ 255, 255, 255, 255 });
   addressField->setInputText(_net_client.mServerAddress);
   addElement(addressField);
@@ -60,7 +131,7 @@ JoinMenuHudGroup::JoinMenuHudGroup(std::function<void()> goBackFn)
   // Create join button
   auto joinFn = std::bind(&JoinMenuHudGroup::joinServer, this);
   std::shared_ptr<TextButton> joinElement = std::make_shared<TextButton>(
-    joinText, 0, 60, 100, 50, joinFn, ALIGN_CENTER, ALIGN_CENTER);
+    joinText, 0, 120, 100, 50, joinFn, ALIGN_CENTER, ALIGN_CENTER);
   joinElement->setMouseOverColour({ 200, 200, 200, 255 });
   joinElement->setOnClickOffset(-1, 2);
   addElement(joinElement);
@@ -97,6 +168,8 @@ JoinMenuHudGroup::JoinMenuHudGroup(std::function<void()> goBackFn)
   loadingElement->setIsVisible(false);
   mLoadingText = loadingElement;
   addElement(loadingElement);
+
+  pickRandomColour();
 }
 
 void
@@ -109,6 +182,18 @@ JoinMenuHudGroup::update()
     std::shared_ptr<InputField> nicknameField = mNicknameField.lock();
     std::string nickname = nicknameField->mText->getText();
 
+    // Get red value in text field
+    std::shared_ptr<InputField> redField = mRedField.lock();
+    std::string redString = redField->mText->getText();
+
+    // Get green in text field
+    std::shared_ptr<InputField> greenField = mGreenField.lock();
+    std::string greenString = greenField->mText->getText();
+
+    // Get blue value in text field
+    std::shared_ptr<InputField> blueField = mBlueField.lock();
+    std::string blueString = blueField->mText->getText();
+
     // Get address in text field
     std::shared_ptr<InputField> addressField = mAddressField.lock();
     std::string address = addressField->mText->getText();
@@ -116,17 +201,79 @@ JoinMenuHudGroup::update()
     // Set nickname
     handle_system_command({ "nickname", nickname });
 
-    // Attempt connection
-    bool retVal = handle_system_command({ "open", address });
+    // Convert colour to correct, proper format : 0xrrggbbaa
+    Uint8 redValue, greenValue, blueValue;
+    try {
+      redValue = (Uint8) std::stoi(redString);
+      greenValue = (Uint8) std::stoi(greenString);
+      blueValue = (Uint8) std::stoi(blueString);
+    } catch (std::invalid_argument &e) {
+      return;
+    }
 
-    if (retVal) {
-      // If successful move to bomberbloke scene
-      _pNewScene = std::make_shared<BomberBlokeScene>(10, 10);
-    } else {
+    // Set colour
+    Uint32 colour = (redValue << 24) + (greenValue << 16) + (blueValue << 8);
+    colour |= 0xFF;
+    std::stringstream colour_stream;
+    colour_stream << "colour " << std::hex << colour;
+    // handle_system_command({ "colour", colour_stream.str() });
+
+    std::vector<std::string> commands = {colour_stream.str()};
+
+    if(_net_client.joinBlokeServer(address, _nickname, commands)){
+    // If successful move to bomberbloke scene
+    _pNewScene = std::make_shared<BomberBlokeScene>(10, 10);
+    } else{
       // If failed go back to main menu
       showJoinMenu();
       mJoinServer = false;
     }
+  }
+}
+
+void
+JoinMenuHudGroup::pickRandomColour()
+{
+  int redValue = std::rand() % 256;
+  int greenValue = std::rand() % 256;
+  int blueValue = std::rand() % 256;
+
+  std::shared_ptr<InputField> redField = mRedField.lock();
+  redField->setInputText(std::to_string(redValue));
+
+  std::shared_ptr<InputField> greenField = mGreenField.lock();
+  greenField->setInputText(std::to_string(greenValue));
+
+  std::shared_ptr<InputField> blueField = mBlueField.lock();
+  blueField->setInputText(std::to_string(blueValue));
+
+  updateColourButton();
+}
+
+void
+JoinMenuHudGroup::updateColourButton()
+{
+  std::shared_ptr<InputField> redField = mRedField.lock();
+  std::shared_ptr<InputField> greenField = mGreenField.lock();
+  std::shared_ptr<InputField> blueField = mBlueField.lock();
+
+  int redValue, greenValue, blueValue;
+
+  // TODO : find a better solution
+  try {
+    redValue = std::stoi(redField->mText->getText());
+    greenValue = std::stoi(greenField->mText->getText());
+    blueValue = std::stoi(blueField->mText->getText());
+  } catch (std::invalid_argument &e) {
+    return;
+  }
+
+  if (redValue < 256 && redValue >= 0
+      && greenValue < 256 && greenValue >= 0
+      && blueValue < 256 && blueValue >= 0) {
+    std::shared_ptr<TextButton> colourButton = mColourButton.lock();
+    SDL_Color colour({(Uint8) redValue, (Uint8) greenValue, (Uint8) blueValue, 255});
+    colourButton->mText->setBackgroundColour(colour);
   }
 }
 

@@ -13,6 +13,7 @@
 
 class AbstractEvent;
 class JoinEvent;
+class CommandEvent;
 
 class NetServer {
 public:
@@ -49,6 +50,8 @@ public:
     bool init_enet();
 
     void handleJoinEvent(std::shared_ptr<JoinEvent> event, ENetPeer *from);
+
+    void handleCommandEvent(std::shared_ptr<CommandEvent>, std::shared_ptr<AbstractPlayer>);
 
     bool stop();
 

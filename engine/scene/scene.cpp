@@ -84,6 +84,7 @@ scene ::addActorWithId(std::shared_ptr<actor> a)
   }
 
   /* Now add the actor to the back of the list */
+  a->init();
   mActors.push_back(a);
 }
 
@@ -102,6 +103,7 @@ scene ::addActor(std::shared_ptr<actor> a)
       mLastActorId = j;
       a->setId(j);
       mActors.push_back(a);
+      a->init();
       if (_server) {
         /* Broadcast a EVENT_CREATE event */
         std::unique_ptr<AbstractEvent> c_event(new CreationEvent(a));
@@ -386,4 +388,10 @@ scene::linkActorToPlayer(std::shared_ptr<actor>& act, unsigned int player_id)
   }
 
   return linked;
+}
+
+void scene::init(){
+  for(auto p_actor : mActors)
+    p_actor->init();
+  return;
 }

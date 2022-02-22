@@ -55,7 +55,8 @@ public:
   /*Used by cereal to serialize the event for it to be sent/received*/
   template<class Archive>
   void serialize(Archive &archive){
-    archive(cereal::make_nvp("nickname", mNickname), mWins, mId);
+    archive(cereal::make_nvp("nickname", mNickname),
+            cereal::make_nvp("colour", mColour), mWins, mId);
   }
 
   virtual int getPing(){return 0;}
@@ -76,6 +77,14 @@ public:
     mpCharacter = nullptr;
   }
 
+  uint32_t getColour(){
+    return mColour;
+  }
+
+  void setColour(uint64_t colour){
+    mColour = colour;
+  }
+
   std::string getInfoString();
 
 protected:
@@ -86,6 +95,8 @@ protected:
   unsigned int mId;
   unsigned int mWins = 0;
 
+  // Default is blue
+  uint64_t mColour = 0x00a0FFFF;
 };
 
 #endif

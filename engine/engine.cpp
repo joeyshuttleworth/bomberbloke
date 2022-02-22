@@ -250,6 +250,7 @@ handle_input()
             if (character) {
               character->handleCommand(
                 command_to_send); // handle normal command
+
               if (!_server) {
                 std::unique_ptr<AbstractEvent> c_event(
                   new CommandEvent(command_to_send));
@@ -492,54 +493,23 @@ handle_system_command(std::list<std::string> tokens)
 
     else if (!_server && command == "open") {
       if (tokens.size() == 2) {
-        auto iter = tokens.begin();
-        iter++; // Select the first token
-        int port;
-
-        /*  Attempt to parse the first argument as address:port.
-            If no ':' is present, the port number defaults to 8888.
-        */
-        long unsigned int delim_pos = iter->find(':');
-        std::string address;
-        if (delim_pos == std::string::npos) {
-          port = 8888;
-          address = *iter;
-        } else if (iter->substr(delim_pos + 1).find(':') != std::string::npos) {
-          std::stringstream msg;
-          msg << "Couldn't parse address, " << *iter;
-          log_message(ERR, msg.str());
-          return false;
-        } else {
-          address = iter->substr(0, delim_pos);
-          /*  TODO replace try-catch with something less lazy to check if
-              we're going to have an error
-          */
-          try {
-            port = std::stoi(iter->substr(delim_pos + 1));
-          } catch (std::exception& e) {
-            std::stringstream msg;
-            msg << "Failed to parse port number \n"
-                << e.what() << "defaulting to 8888";
-            log_message(ERR, msg.str());
-            port = 8888;
-          }
-        }
-        /* We now have an address and port number to connect with
-           NetClient::connectClient returns true of false. Return
+        /**
+           NetClient::connectClient returns true or false. Return
            this value
         */
-        if (!_net_client.joinBlokeServer(address, port, _nickname)) {
+        std::string address = tokens.back();
+        if (!_net_client.joinBlokeServer(address, _nickname)) {
           log_message(INFO, "failed to connect to server");
           return false;
         }
       } else {
         /* TODO allow port number as a separate argument? */
-        log_message(ERR, "Incorrect number of elements for connect");
+        log_message(ERR, "Open requires exactly one argument");
       }
     }
 
     else if (command == "info") {
-      QueryEvent e("big_beef");
+      QueryEvent e(_nickname);
     cereal::JSONOutputArchive oArchive(std::cout);
     oArchive(e);
   }
@@ -602,6 +572,7 @@ handle_system_command(std::list<std::string> tokens)
       i++;
       /*TODO: try catch*/
       new_command.scancode = SDL_Scancode(std::stoi(*i));
+
       _local_player_list.front().mControlScheme.push_back(new_command);
       log_message(INFO,
                   "Successfully bound command " + new_command.command + " to " +
@@ -614,6 +585,22 @@ handle_system_command(std::list<std::string> tokens)
       log_message(INFO,
                   "binding next keypress to command: " + _next_bind_command);
     }
+  }   // Colour command: request to change the players colour
+  else if (!_server && command == "colour"){
+    // Player has requested to change colour
+    if(tokens.size()!=2)
+      log_message(ERR, "colour command requires exactly one argument");
+    else{
+      // Send request
+      std::string command_to_send = command + " " + tokens.back();
+      std::unique_ptr<AbstractEvent> c_event(new CommandEvent(command_to_send));
+      _net_client.sendEvent(c_event);
+      log_message(INFO, "Requesting to change player colour to " + tokens.back());
+      log_message(DEBUG, "Sending command \"" + command_to_send + "\"");
+    }
+  }
+  else {
+    log_message(ERR, "unknown command: " + command);
   }
   return true;
 }

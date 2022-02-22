@@ -18,6 +18,7 @@
 class JoinEvent : public AbstractEvent{
 private:
   int mMagicNumber;
+  std::vector<std::string> mCommands;
 
 public:
   std::string mNickname;
@@ -25,18 +26,23 @@ public:
     return EVENT_JOIN;
   }
 
-  JoinEvent(std::string nickname, int magic_number){
+  JoinEvent(std::string nickname, int magic_number, std::vector<std::string> commands = {}){
     mMagicNumber = magic_number;
     mNickname = nickname;
+    mCommands = commands;
     return;
   };
 
   JoinEvent(){};
 
+  std::vector<std::string> getCommands(){return mCommands;}
+
   template<class Archive>
   /*Used by cereal to serialize the event for it to be sent/received*/
   void serialize(Archive &archive){
-    archive(cereal::base_class<AbstractEvent>(this), cereal::make_nvp("Nickname", mNickname), cereal::make_nvp("magic number", mMagicNumber));
+    archive(cereal::base_class<AbstractEvent>(this), cereal::make_nvp("Nickname", mNickname),
+            cereal::make_nvp("magic number", mMagicNumber),
+            cereal::make_nvp("commands", mCommands));
   }
 
 };

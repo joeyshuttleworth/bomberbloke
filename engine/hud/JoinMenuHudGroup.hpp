@@ -9,6 +9,7 @@
 class TextManager;
 class InputField;
 class TextHudElement;
+class TextButton;
 class NetClient;
 
 extern bool handle_system_command(std::list<std::string>);
@@ -20,6 +21,16 @@ public:
    * Constructor for JoinMenuHudGroup.
    */
   JoinMenuHudGroup(std::function<void()> goBackFn);
+
+  /**
+   * Callback function for colour button
+   */
+  void pickRandomColour();
+
+  /**
+   * Updates the colour of colour button
+   */
+  void updateColourButton();
 
   /**
    * Joins server with parameters given in input fields.
@@ -35,6 +46,10 @@ protected:
   // Weak pointer to input fields.
   std::weak_ptr<InputField> mNicknameField;
   std::weak_ptr<InputField> mAddressField;
+  std::weak_ptr<InputField> mRedField;
+  std::weak_ptr<InputField> mBlueField;
+  std::weak_ptr<InputField> mGreenField;
+  std::weak_ptr<TextButton> mColourButton;
 
   // Weak pointer to loading text.
   std::weak_ptr<TextHudElement> mLoadingText;

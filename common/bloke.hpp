@@ -39,20 +39,23 @@ protected:
 
   void place_bomb();
 
-  int mMaxSpeed = 1;
+  int    mMaxSpeed = 1;
   int    mPower=1;
   int    mBombs=1;
   Uint8  mMaxBombs = 1;
-  bool mBigBomb = false;
-  bool mBigBombPlaced = false;
+  bool   mBigBomb = false;
+  bool   mBigBombPlaced = false;
   std::shared_ptr<GamePlayerProperties> mProperties;
   bool   mAccelerated;
   bool   mDirectionsHeld[4] = {false, false, false, false};
   double mAcceleration[2] = {0,0};
   std::shared_ptr<Sound> mPlaceBombSound;
+  uint32_t mColour;
+
+  void init();
 
 public:
-  bloke(double x=1, double y=1, bool collides=true);
+  bloke(double x=1, double y=1, bool collides = true, uint64_t colour = 0xFF00FFFF);
 
   int getType() const{
     return ACTOR_BLOKE;
@@ -76,11 +79,12 @@ public:
 
   template<class Archive>
   void serialize(Archive &archive){
-    archive(cereal::base_class<actor>(this));
+    archive(make_nvp("actor", cereal::base_class<actor>(this)), cereal::make_nvp("colour", mColour));
     return;
   }
 };
 
 /*This is requried by cereal for classes that use polymorphism*/
 CEREAL_REGISTER_TYPE(bloke)
+
 #endif

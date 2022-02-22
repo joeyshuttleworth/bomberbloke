@@ -296,7 +296,7 @@ Camera::renderFillRect(SDL_Rect* dstRect,
       SDL_SetRenderDrawColor(_renderer, 0, 0, 0, colour.a);
       SDL_RenderFillRect(_renderer, dstRect);
     }
-    
+
     SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
   }
 }

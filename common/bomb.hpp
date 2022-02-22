@@ -28,6 +28,9 @@ class bomb : public actor {
   }
 
   void init(bloke*);
+
+  void init(){}
+
   void explode();
   void update();
   void handleCommand(std::string command);

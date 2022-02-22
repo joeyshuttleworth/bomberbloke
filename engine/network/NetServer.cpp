@@ -63,7 +63,8 @@ NetServer::handleJoinEvent(std::shared_ptr<JoinEvent> event, ENetPeer* from)
   }
 
   /* Add the player to _player_list */
-  bool added = addPlayer(std::make_shared<NetworkPlayer>(nickname, from));
+  auto player = std::make_shared<NetworkPlayer>(nickname, from);
+  bool added = addPlayer(player);
 
   /* Send an acceptEvent */
   if (added) {
@@ -74,12 +75,16 @@ NetServer::handleJoinEvent(std::shared_ptr<JoinEvent> event, ENetPeer* from)
     /* Now sync send the entire gamestate to the client */
     std::unique_ptr<AbstractEvent> s_event(new syncEvent());
     sendEvent(s_event, from);
+
+    // Handle join commands e.g 'colour 0x0000ffff'
+    for(auto& command : event->getCommands()){
+      handleCommandEvent(std::make_shared<CommandEvent>(command), player);
+    }
   }
 
   else {
     log_message(ERR, "Failed to add player");
   }
-
   return;
 }
 
@@ -164,23 +169,9 @@ NetServer::handleEvent(std::shared_ptr<AbstractEvent> pEvent, ENetPeer* from)
     }
 
     case EVENT_COMMAND: {
-      std::shared_ptr<CommandEvent> c_event =
+      std::shared_ptr<CommandEvent> p_command_event =
         std::dynamic_pointer_cast<CommandEvent>(pEvent);
-      if (!p_player) {
-        log_message(INFO, "Command event received from non-connected player");
-        return;
-      }
-      auto character = p_player->getCharacter();
-      if (!character) {
-        log_message(INFO, "Command received from player without character");
-        return;
-      }
-      std::string command = c_event->getCommand();
-      // log_message(DEBUG, "received command " + command + " from player " +
-      // std::to_string(p_player->getId()) +  ".");
-      if (command != "") {
-        character->handleCommand(command);
-      }
+      handleCommandEvent(p_command_event, p_player);
       break;
     }
     default:
@@ -188,6 +179,48 @@ NetServer::handleEvent(std::shared_ptr<AbstractEvent> pEvent, ENetPeer* from)
   }
 
   return;
+}
+
+void NetServer::handleCommandEvent(std::shared_ptr<CommandEvent> c_event, std::shared_ptr<AbstractPlayer> p_player){
+      if (!p_player) {
+        log_message(INFO, "Command event received from non-connected player");
+        return;
+      }
+     std::string command = c_event->getCommand();
+      log_message(DEBUG, "received command " + command + " from player " +
+      std::to_string(p_player->getId()) +  ".");
+
+      if (command != "") {
+        auto tokens = split_to_tokens(command);
+
+        if(tokens.front() == "colour"){
+          // Player has requested to change colour
+          if(tokens.size()!=2)
+            log_message(INFO, "colour command requires exactly one argument");
+          else{
+            // Read in colour as hex
+            std::stringstream colour_stream;
+            colour_stream << std::hex << tokens.back();
+            uint32_t colour;
+            colour_stream >> colour;
+            colour |= 0xFF;
+            // Change the colour as requested
+            p_player->setColour(colour);
+            log_message(DEBUG,
+                        "Setting player " + std::to_string(p_player->getId()) + " to " + std::to_string(colour));
+
+          }
+        }
+
+        auto character = p_player->getCharacter();
+        if (!character) {
+          log_message(INFO, "Command received from player without character");
+          return;
+        }
+        // Send command to players character
+        character->handleCommand(command);
+      }
+      return;
 }
 
 void

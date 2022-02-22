@@ -23,7 +23,7 @@ public:
     void disconnectClient();
     bool isConnected();
     void pollServer();
-    bool joinBlokeServer(std::string address, int, std::string);
+    bool joinBlokeServer(std::string address, const std::string&, const std::vector<std::string>& = {});
     void sendEvent(std::unique_ptr<AbstractEvent>&);
     void handleServerCommand(std::string);
 
