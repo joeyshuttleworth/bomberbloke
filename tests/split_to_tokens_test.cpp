@@ -3,7 +3,7 @@
 #include "bomb.hpp"
 #include "bomberbloke.h"
 #include "cereal/archives/json.hpp"
-#include <SDL2/SDL.h>
+#include "SDL.h"
 
 bool
 compare_tokens(std::list<std::string> l1, std::list<std::string> l2)

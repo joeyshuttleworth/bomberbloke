@@ -11,7 +11,7 @@
 #include "ShowAllCamera.hpp"
 #include "scene.hpp"
 #include "syncEvent.hpp"
-#include <SDL2/SDL_image.h>
+#include "SDL_image.h"
 #include <cereal/archives/json.hpp>
 #include <dirent.h>
 #include <exception>

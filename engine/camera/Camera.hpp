@@ -1,7 +1,7 @@
 #ifndef CAMERA_HPP
 #define CAMERA_HPP
 
-#include <SDL2/SDL.h>
+#include "SDL.h"
 #include <memory>
 #include <algorithm>
 #include <mutex>

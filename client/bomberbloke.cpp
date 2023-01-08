@@ -3,7 +3,7 @@
 #include "MainMenuScene.hpp"
 #include "bloke.hpp"
 #include "bomb.hpp"
-#include <SDL2/SDL.h>
+#include "SDL.h"
 #include <network/NetClient.hpp>
 
 const bool EXPLOSION_INTRO = false;

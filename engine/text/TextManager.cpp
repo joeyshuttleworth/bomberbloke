@@ -1,7 +1,7 @@
 #include "TextManager.hpp"
 #include "engine.hpp"
 
-#include <SDL2/SDL.h>
+#include "SDL.h"
 #include <iostream>
 
 TextManager::TextManager()

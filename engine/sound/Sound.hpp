@@ -1,7 +1,7 @@
 #ifndef SOUND_HPP
 #define SOUND_HPP
 
-#include <SDL2/SDL_mixer.h>
+#include "SDL_mixer.h"
 #include <string>
 #include <functional>
 #include <map>

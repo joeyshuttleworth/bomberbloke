@@ -4,7 +4,7 @@
 #include "AbstractHudElement.hpp"
 
 #include <string>
-#include "SDL2/SDL_image.h"
+#include "SDL_image.h"
 
 class Camera;
 SDL_Texture* get_sprite(std::string);

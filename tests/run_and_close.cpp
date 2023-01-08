@@ -3,7 +3,7 @@
 #include "bomb.hpp"
 #include "bomberbloke.h"
 #include "cereal/archives/json.hpp"
-#include <SDL2/SDL.h>
+#include "SDL.h"
 
 /* Register our actors with cereal */
 CEREAL_REGISTER_DYNAMIC_INIT(actor)

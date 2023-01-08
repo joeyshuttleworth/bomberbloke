@@ -1,6 +1,6 @@
 #include "ClickableHudElement.hpp"
 
-#include <SDL2/SDL.h>
+#include "SDL.h"
 
 ClickableHudElement::ClickableHudElement(int xPos,
                                          int yPos,
