@@ -113,7 +113,7 @@ create_window()
   if (_renderer) {
     SDL_DestroyRenderer(_renderer);
   }
-  _renderer = SDL_CreateRenderer(_window, -1, 0);
+  _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_PRESENTVSYNC);
 
   return;
 }
@@ -336,8 +336,7 @@ log_message(int scene, std::string str)
     /*Ignore the message*/
     return;
   } else {
-    std::cout << _tick << "\t " << LOG_LEVEL_STRINGS[scene] << ": " << str
-              << std::endl;
+    SDL_Log("%d\t%s:%s\n", _tick, LOG_LEVEL_STRINGS[scene].c_str(), str.c_str());
     return;
   }
 }
