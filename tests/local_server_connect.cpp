@@ -20,7 +20,7 @@ main()
   NetClient net_client;
   NetServer net_server;
 
-  assert(net_server.init_enet());
+  SDL_assert(net_server.init_enet());
 
   /* Wait for a few moments */
   SDL_Delay(1000);

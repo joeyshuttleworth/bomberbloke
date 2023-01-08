@@ -4,7 +4,7 @@
 
 #ifndef INTERPOLATOR_HPP
 #define INTERPOLATOR_HPP
-#include<assert.h>
+#include"SDL_assert.h"
 #include<vector>
 #include<list>
 #include<array>
@@ -38,7 +38,7 @@ public:
   Interpolator(unsigned int buffer_size=10, unsigned int delay=5){
     mBufferSize = buffer_size;
     mDelay = delay;
-    assert((int)mBufferSize>=mDelay);
+    SDL_assert((int)mBufferSize>=mDelay);
   }
 
   /* Use this before calling getPos to see if the actor has actually moved

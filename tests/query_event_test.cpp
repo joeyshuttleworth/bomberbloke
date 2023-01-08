@@ -6,7 +6,7 @@
 #include "bomberbloke.h"
 #include "cereal/archives/portable_binary.hpp"
 #include "SDL.h"
-#include <assert.h>
+#include "SDL_assert.h"
 #include <thread>
 
 CEREAL_REGISTER_DYNAMIC_INIT(actor)
@@ -23,7 +23,7 @@ main()
   NetClient net_client;
   NetServer net_server;
 
-  assert(net_server.init_enet());
+  SDL_assert(net_server.init_enet());
 
   std::stringstream data_blob;
   std::stringstream receive_blob;

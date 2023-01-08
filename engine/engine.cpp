@@ -639,7 +639,7 @@ split_to_tokens(std::string str)
   for (int i = 0; i < (int)clean_str.length(); i++) {
     char ch = clean_str[i];
     if (std::isspace(ch)) {
-      assert(i - last_space - 1 >= 0);
+      SDL_assert(i - last_space - 1 >= 0);
       tokens.push_back(clean_str.substr(last_space + 1, i - last_space - 1));
       last_space = i;
     } else if (ch == '\"') {
