@@ -2,7 +2,7 @@
 #include "bloke.hpp"
 #include "bomb.hpp"
 #include "bomberbloke.h"
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 #include <network/NetClient.hpp>
 
 /* Register our actors with cereal */

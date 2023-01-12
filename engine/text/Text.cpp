@@ -1,6 +1,6 @@
 #include "Text.hpp"
 
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 #include <algorithm>
 
 #include "Camera.hpp"
@@ -66,8 +66,8 @@ Text::updateTexture(Camera*)
     }
 
     // Combine surfaces onto one text surface
-    SDL_Surface* fullSurface = SDL_CreateRGBSurface(
-      0, width, height, 32, 0xff000000, 0x00ff0000, 0x0000ff00, 0x000000ff);
+    SDL_Surface* fullSurface = SDL_CreateSurface(
+      width, height, SDL_PIXELFORMAT_RGBA8888);
     if (textBeforeSurface) {
       SDL_BlitSurface(textBeforeSurface, nullptr, fullSurface, nullptr);
     }
@@ -98,10 +98,10 @@ Text::updateTexture(Camera*)
     // Create texture from combined surface
     mTextTexture = SDL_CreateTextureFromSurface(_renderer, fullSurface);
 
-    SDL_FreeSurface(textBeforeSurface);
-    SDL_FreeSurface(textAfterSurface);
-    SDL_FreeSurface(textCursorSurface);
-    SDL_FreeSurface(fullSurface);
+    SDL_DestroySurface(textBeforeSurface);
+    SDL_DestroySurface(textAfterSurface);
+    SDL_DestroySurface(textCursorSurface);
+    SDL_DestroySurface(fullSurface);
   } else {
     // Render text to texture
     SDL_Surface* mTextSurface =
@@ -111,7 +111,7 @@ Text::updateTexture(Camera*)
       mTextTexture = SDL_CreateTextureFromSurface(_renderer, mTextSurface);
       width = mTextSurface->w;
       height = mTextSurface->h;
-      SDL_FreeSurface(mTextSurface);
+      SDL_DestroySurface(mTextSurface);
     } else {
       mTextTexture = nullptr;
       width = 0;

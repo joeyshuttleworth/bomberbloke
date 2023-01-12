@@ -37,8 +37,7 @@ endif(_WIN32)
 find_package(ENet REQUIRED)
 include_directories(${ENET_INCLUDE_DIR})
 
-find_package(SDL2 REQUIRED)
-include_directories(${SDL2_INCLUDE_DIRS})
+find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3)
 
 find_package(curl REQUIRED)
 include_directories(${CURL_INCLUDE_DIR})
@@ -78,12 +77,12 @@ add_library(${LIB_TARGET_NAME} CLIENT ${SHARED_SOURCES} "engine/client.cpp" "eng
 
 # run_and_close test
 add_executable(run_and_close "tests/run_and_close.cpp" "engine/client.cpp")
-target_link_libraries(run_and_close CLIENT ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES})
+target_link_libraries(run_and_close CLIENT ${ENET_LIBRARIES} SDL3::SDL3 ${CURL_LIBRARIES})
 add_test(RUN_AND_CLOSE run_and_close COMMAND)
 
 #query_event_test
 add_executable(query_event_test "tests/query_event_test.cpp")
-target_link_libraries(query_event_test CLIENT ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES})
+target_link_libraries(query_event_test CLIENT ${ENET_LIBRARIES} SDL3::SDL3 ${CURL_LIBRARIES} )
 if(_WIN32)
   target_link_libraries(query_event_test ws2_32)
 endif(_WIN32)
@@ -91,32 +90,32 @@ add_test(QUERY_TEST query_event_test COMMAND)
 
 #local_server_connect test
 add_executable(local_server_connect "tests/local_server_connect.cpp")
-target_link_libraries(local_server_connect CLIENT ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES})
+target_link_libraries(local_server_connect CLIENT ${ENET_LIBRARIES} SDL3::SDL3 ${CURL_LIBRARIES})
 add_test(LOCAL_SERVER_CONNECT local_server_connect COMMAND)
 
 #test split_to_tokens
 add_executable(tokens_test "tests/split_to_tokens_test.cpp")
-target_link_libraries(tokens_test CLIENT ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES})
+target_link_libraries(tokens_test CLIENT ${ENET_LIBRARIES} SDL3::SDL3 ${CURL_LIBRARIES})
 add_test(TEST_SPLIT_TO_TOKENS tokens_test COMMAND)
 
 # explosion demo
 add_executable(explosion_demo "tests/ExplosionDemo.cpp" "engine/client.cpp")
-target_link_libraries(explosion_demo CLIENT ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES})
+target_link_libraries(explosion_demo CLIENT ${ENET_LIBRARIES} SDL3::SDL3 ${CURL_LIBRARIES})
 
 add_executable(collision_sandbox "tests/collision_sandbox.cpp" "engine/server.cpp")
-target_link_libraries(collision_sandbox SERVER ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES})
+target_link_libraries(collision_sandbox SERVER ${ENET_LIBRARIES} SDL3::SDL3 ${CURL_LIBRARIES})
 
 # Client setup
 set(client_src "client/bomberbloke.cpp")
 add_executable(bomberbloke_client ${client_src} "engine/client.cpp")
-target_link_libraries(bomberbloke_client CLIENT ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES})
+target_link_libraries(bomberbloke_client CLIENT ${ENET_LIBRARIES} SDL3::SDL3 ${CURL_LIBRARIES})
 
 # Server setup
 add_library(${LIB_TARGET_NAME} SERVER ${SHARED_SOURCES} "engine/server.cpp" "engine/network/NetServer.cpp")
 set(server_src "server/bomberbloke_server.cpp" "engine/server.cpp" "engine/network/NetServer.cpp")
 add_executable(bomberbloke_server ${server_src})
 set_target_properties(bomberbloke_server PROPERTIES PUBLIC_HEADER "engine/server.h")
-target_link_libraries(bomberbloke_server SERVER ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES})
+target_link_libraries(bomberbloke_server SERVER ${ENET_LIBRARIES} SDL3::SDL3 ${CURL_LIBRARIES})
 
 # Adding clang-format target if executable is found
 find_program(CLANG_FORMAT "clang-format")

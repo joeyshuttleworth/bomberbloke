@@ -11,7 +11,7 @@
 #include "ShowAllCamera.hpp"
 #include "scene.hpp"
 #include "syncEvent.hpp"
-#include <SDL2/SDL_image.h>
+#include <SDL3/SDL_image.h>
 #include <cereal/archives/json.hpp>
 #include <dirent.h>
 #include <exception>
@@ -109,11 +109,11 @@ create_window()
                              SDL_WINDOWPOS_UNDEFINED,
                              _window_size[0],
                              _window_size[1],
-                             SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+                              SDL_WINDOW_RESIZABLE);
   if (_renderer) {
     SDL_DestroyRenderer(_renderer);
   }
-  _renderer = SDL_CreateRenderer(_window, -1, 0);
+  _renderer = SDL_CreateRenderer(_window, NULL, 0);
 
   return;
 }
@@ -212,13 +212,13 @@ handle_input()
                       std::to_string(new_binding.scancode));
         break;
       }
-      case SDL_WINDOWEVENT: {
-        if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
-          _window_size[0] = event.window.data1;
-          _window_size[1] = event.window.data2;
-          _pScene->onResize();
-        }
-      }
+      // case SDL_WINDOWEVENT: {
+      //   if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
+      //     _window_size[0] = event.window.data1;
+      //     _window_size[1] = event.window.data2;
+      //     _pScene->onResize();
+      //   }
+      // }
     }
   }
 
@@ -296,9 +296,11 @@ SDL_Joystick*
 handle_input_controller()
 {
   SDL_Init(SDL_INIT_JOYSTICK);
-  if (SDL_NumJoysticks() > 0) {
+  int joysticks;
+  SDL_GetJoysticks(&joysticks);
+  if (joysticks > 0) {
     std::cout << "Controlled connected\n ";
-    return SDL_JoystickOpen(0); // return joystick identifier
+    return SDL_OpenJoystick(0); // return joystick identifier
   } else
     return NULL; // no joystick found
 }

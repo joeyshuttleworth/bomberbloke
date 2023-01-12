@@ -1,6 +1,6 @@
 #ifndef ABSTRACTSPRITEHANDLER_HPP
 #define ABSTRACTSPRITEHANDLER_HPP
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 #include <array>
 #include <cereal/cereal.hpp>
 #include <cereal/types/polymorphic.hpp>

@@ -4,7 +4,7 @@
 #include "bomb.hpp"
 #include "bomberbloke.h"
 #include "cereal/archives/json.hpp"
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 int
 main()

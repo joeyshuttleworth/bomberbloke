@@ -1,7 +1,7 @@
 #ifndef SOUNDMANAGER_HPP
 #define SOUNDMANAGER_HPP
 
-#include <SDL2/SDL_mixer.h>
+#include <SDL3/SDL_mixer.h>
 #include <string>
 #include <map>
 #include <memory>

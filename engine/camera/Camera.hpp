@@ -1,7 +1,7 @@
 #ifndef CAMERA_HPP
 #define CAMERA_HPP
 
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 #include <memory>
 #include <algorithm>
 #include <mutex>
@@ -182,7 +182,7 @@ protected:
   SDL_Texture *mpFrameBuffer = nullptr;
   SDL_Texture *mpNoProcessingBuffer = nullptr;
   SDL_Texture *mpBloomBuffer = nullptr;
-  SDL_Rect mScreenRectangle;
+  SDL_FRect mScreenRectangle;
   std::array<double, 2> mFocusCoordinates = {{ 0, 0 }};
   std::shared_ptr<SDL_Renderer> mpRenderer;
   /*  Use mOffsets for animations on the camera object */

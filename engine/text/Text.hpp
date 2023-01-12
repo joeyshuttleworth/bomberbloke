@@ -3,7 +3,7 @@
 
 #include <string>
 #include <array>
-#include <SDL2/SDL_ttf.h>
+#include <SDL3/SDL_ttf.h>
 
 class Camera;
 extern SDL_Renderer *_renderer;

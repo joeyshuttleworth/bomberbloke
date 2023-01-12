@@ -4,7 +4,7 @@
 #include <list>
 #include <string>
 #include <mutex>
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 #include <cereal/types/list.hpp>
 #include <memory>
 #include "AbstractSpriteHandler.hpp"

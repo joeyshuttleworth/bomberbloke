@@ -272,7 +272,7 @@ BomberBlokeScene::BomberBlokeScene(unsigned int size_x, unsigned int size_y)
       // Randomly choose whether to flip the texture
       if (flipDistribution(gen) == 1)
         // Flip and rotate in such a way that the top-right corner is static
-        SDL_RenderCopyEx(_renderer,
+        SDL_RenderTextureRotated(_renderer,
                          tileTexture,
                          nullptr,
                          &tileRect,

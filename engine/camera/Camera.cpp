@@ -81,12 +81,12 @@ Camera::draw()
   SDL_SetRenderTarget(_renderer, mpFrameBuffer);
   SDL_SetTextureBlendMode(mpBloomBuffer, SDL_BLENDMODE_ADD);
   SDL_SetTextureAlphaMod(mpBloomBuffer, mBloomAlpha);
-  SDL_RenderCopy(_renderer, mpBloomBuffer, nullptr, nullptr);
+  SDL_RenderTexture(_renderer, mpBloomBuffer, nullptr, nullptr);
 
   // Apply blur to mpFrameBuffer and draw to window
   blurTexture(mpFrameBuffer, mBlurSize, mBlurPasses);
   SDL_SetRenderTarget(_renderer, nullptr);
-  SDL_RenderCopy(_renderer, mpFrameBuffer, nullptr, &mScreenRectangle);
+  SDL_RenderTexture(_renderer, mpFrameBuffer, nullptr, &mScreenRectangle);
 
   // Apply brightness effect to window
   if (mBrightness != 0) {
@@ -317,8 +317,8 @@ Camera::getScreenRect(double x, double y, double w, double h)
 void
 Camera::SetZoom(double zoom)
 {
-  zoom = std::max(zoom, mMinZoom);
-  zoom = std::min(zoom, mMaxZoom);
+  zoom = fmax(zoom, mMinZoom);
+  zoom = fmin(zoom, mMaxZoom);
   log_message(INFO, "setting zoom to " + std::to_string(zoom));
   if (!std::isfinite(zoom))
     zoom = 1;

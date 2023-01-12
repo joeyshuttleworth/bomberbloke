@@ -4,9 +4,9 @@
 #include <map>
 #include <cmath>
 #define SDL_MAIN_HANDLED
-#include <SDL.h>
-#include <SDL_joystick.h>
-#include <SDL_main.h>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_joystick.h>
+#include <SDL3/SDL_main.h>
 #include <cereal/types/polymorphic.hpp>
 #include <cereal/archives/json.hpp>
 #include <cereal/archives/portable_binary.hpp>

@@ -5,7 +5,7 @@
 #include "bomb.hpp"
 #include "bomberbloke.h"
 #include "cereal/archives/portable_binary.hpp"
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 #include <assert.h>
 #include <thread>
 

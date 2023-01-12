@@ -52,7 +52,7 @@ InputField::onInput(SDL_Event* event)
           mText->setCursorIndex(mCursorIndex);
         }
       } else if (event->key.keysym.sym == SDLK_v &&
-                 SDL_GetModState() & KMOD_CTRL) {
+                 SDL_GetModState() & SDL_KMOD_CTRL) {
         // Handle clipboard-paste
         std::string pasteText = SDL_GetClipboardText();
         mTextInput = mTextInput.substr(0, mCursorIndex) + pasteText +
@@ -76,7 +76,7 @@ InputField::onInput(SDL_Event* event)
       }
     } else if (event->type == SDL_TEXTINPUT) {
       // Handle generic text input
-      if (!(SDL_GetModState() & KMOD_CTRL &&
+      if (!(SDL_GetModState() & SDL_KMOD_CTRL &&
             (event->text.text[0] == 'v' || event->text.text[0] == 'V'))) {
         mTextInput = mTextInput.substr(0, mCursorIndex) + event->text.text +
                      mTextInput.substr(mCursorIndex);
