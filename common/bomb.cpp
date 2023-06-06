@@ -107,11 +107,19 @@ bomb::explode()
     mPower = 100;
 
   if (_server) {
+    std::vector<std::shared_ptr<Explosion>> explosionEffects;
+
     /*Iterate over all the squares the bomb can reach and kill the ones if they
      * are in the right (wrong) zone.*/
     std::vector<std::vector<BombSquare>> targets = identifyTargetSquares();
     for(const auto& stack : targets) {
       for(const auto& square : stack) {
+        explosionEffects.push_back(
+          std::make_shared<Explosion>(int(square->mPosition[0]),
+                                      int(square->mPosition[1]),
+                                      1, 1)
+        );
+
         std::list<std::shared_ptr<actor>> actor_list =
           _pScene->ActorsCollidingWith(square.get());
         bool stopped = false;
@@ -146,11 +154,11 @@ bomb::explode()
       }
     }
 
-    /* Create an explosion particle on all clients */
-    std::shared_ptr<AbstractSpriteHandler> explosion =
-      std::make_shared<Explosion>(int(mPosition[0]), int(mPosition[1]), 1, 1);
-    std::unique_ptr<AbstractEvent> c_event(new CreationEvent(explosion));
-    _net_server.broadcastEvent(c_event);
+    /* Create explosion particles on all clients */
+    for(auto expl : explosionEffects) {
+      std::unique_ptr<AbstractEvent> c_event(new CreationEvent(expl));
+      _net_server.broadcastEvent(c_event);
+    }
   }
 
   return;
