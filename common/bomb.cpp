@@ -1,5 +1,4 @@
 #include "bomb.hpp"
-#include "BigBomb.hpp"
 #include "CreationEvent.hpp"
 #include "Explosion.hpp"
 #include "actor.hpp"
@@ -59,11 +58,11 @@ bomb::update()
   return;
 }
 
-std::vector<std::vector<BombSquare>>
+std::vector<std::vector<TargetSquare>>
 bomb::identifyTargetSquares()
 {
   /** Create stacks of squares that can be iterated in a FIFO fashion **/
-  std::vector<std::vector<BombSquare>> targets;
+  std::vector<std::vector<TargetSquare>> targets;
   int i = int(mPosition[0]); int j = int(mPosition[1]);
 
   auto makeSquare = [](int a, int b){
@@ -74,16 +73,16 @@ bomb::identifyTargetSquares()
   targets.push_back({makeSquare(i, j)});
 
   // Horizontal
-  std::vector<BombSquare> left;
-  std::vector<BombSquare> right;
+  std::vector<TargetSquare> left;
+  std::vector<TargetSquare> right;
   for(int power = 1; power <= mPower; power++) {
     left.push_back(makeSquare(i - power, j));
     right.push_back(makeSquare(i + power, j));
   }
 
   // Vertical
-  std::vector<BombSquare> up;
-  std::vector<BombSquare> down;
+  std::vector<TargetSquare> up;
+  std::vector<TargetSquare> down;
   for(int power = 1; power <= mPower; power++) {
     up.push_back(makeSquare(i, j + power));
     down.push_back(makeSquare(i, j - power));
@@ -111,7 +110,7 @@ bomb::explode()
 
     /*Iterate over all the squares the bomb can reach and kill the ones if they
      * are in the right (wrong) zone.*/
-    std::vector<std::vector<BombSquare>> targets = identifyTargetSquares();
+    std::vector<std::vector<TargetSquare>> targets = identifyTargetSquares();
     for(const auto& stack : targets) {
       for(const auto& square : stack) {
         explosionEffects.push_back(

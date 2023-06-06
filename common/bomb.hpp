@@ -9,7 +9,7 @@
 #include "AbstractSpriteHandler.hpp"
 #include "Sound.hpp"
 
-typedef std::shared_ptr<actor> BombSquare;
+typedef std::shared_ptr<actor> TargetSquare;
 
 class bomb : public actor {
  protected:
