@@ -59,6 +59,45 @@ bomb::update()
   return;
 }
 
+std::vector<std::vector<BombSquare>>
+bomb::identifyTargetSquares()
+{
+  /** Create stacks of squares that can be iterated in a FIFO fashion **/
+  std::vector<std::vector<BombSquare>> targets;
+  int i = int(mPosition[0]); int j = int(mPosition[1]);
+
+  auto makeSquare = [](int a, int b){
+    return std::make_shared<actor>(a, b, 1, 1, false);
+  };
+
+  // Square bomb is sat on
+  targets.push_back({makeSquare(i, j)});
+
+  // Horizontal
+  std::vector<BombSquare> left;
+  std::vector<BombSquare> right;
+  for(int power = 1; power <= mPower; power++) {
+    left.push_back(makeSquare(i - power, j));
+    right.push_back(makeSquare(i + power, j));
+  }
+
+  // Vertical
+  std::vector<BombSquare> up;
+  std::vector<BombSquare> down;
+  for(int power = 1; power <= mPower; power++) {
+    up.push_back(makeSquare(i, j + power));
+    down.push_back(makeSquare(i, j - power));
+  }
+
+  targets.push_back(left);
+  targets.push_back(right);
+  targets.push_back(up);
+  targets.push_back(down);
+
+  return targets;
+}
+
+
 void
 bomb::explode()
 {
@@ -68,22 +107,11 @@ bomb::explode()
     mPower = 100;
 
   if (_server) {
-    /*Iterate over all the sqares the bomb can reach and kill the ones if they
+    /*Iterate over all the squares the bomb can reach and kill the ones if they
      * are in the right (wrong) zone.*/
-
-    int bomb_square[] = { int(mPosition[0]), int(mPosition[1]) };
-
-    for (unsigned int i = 0; i < 2; i++) {
-      for (unsigned int j = 1; j <= mPower; j++) {
-        std::shared_ptr<actor> square;
-
-        if (i == 0)
-          square = std::make_shared<actor>(
-            bomb_square[0] + j, bomb_square[1], 1, 1, false);
-        else if (i == 1)
-          square = std::make_shared<actor>(
-            bomb_square[0], bomb_square[1] + j, 1, 1, false);
-
+    std::vector<std::vector<BombSquare>> targets = identifyTargetSquares();
+    for(const auto& stack : targets) {
+      for(const auto& square : stack) {
         std::list<std::shared_ptr<actor>> actor_list =
           _pScene->ActorsCollidingWith(square.get());
         bool stopped = false;
@@ -99,39 +127,6 @@ bomb::explode()
                 stopped = true;
                 break;
               default:
-                break;
-            }
-          }
-        }
-        if (stopped)
-          break;
-      }
-      for (unsigned int j = 0; j <= mPower; j++) {
-        std::shared_ptr<actor> square;
-
-        if (i == 0)
-          square = std::make_shared<actor>(
-            bomb_square[0] - j, bomb_square[1], 1, 1, false);
-        else if (i == 1)
-          square = std::make_shared<actor>(
-            bomb_square[0], bomb_square[1] - j, 1, 1, false);
-
-        std::list<std::shared_ptr<actor>> actor_list =
-          _pScene->ActorsCollidingWith(square.get());
-        bool stopped = false;
-        for (std::shared_ptr<actor> pActor : actor_list) {
-          if (pActor.get() == this)
-            continue;
-          else {
-            pActor->handleCommand("+kill");
-            switch (pActor->getType()) {
-              case ACTOR_WOODEN_CRATE:
-              case ACTOR_BLOKE:
-              case ACTOR_BOMB:
-                stopped = true;
-                break;
-              default:
-                stopped = false;
                 break;
             }
           }
@@ -141,7 +136,7 @@ bomb::explode()
       }
     }
 
-    /*Cast to a bloke pointer.*/
+   /*Cast to a bloke pointer.*/
     std::shared_ptr<bloke> placed_by =
       std::dynamic_pointer_cast<bloke>(_pScene->GetActor(mPlacedById));
     if (placed_by && _server) {

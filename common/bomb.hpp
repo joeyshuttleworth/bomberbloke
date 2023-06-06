@@ -9,6 +9,8 @@
 #include "AbstractSpriteHandler.hpp"
 #include "Sound.hpp"
 
+typedef std::shared_ptr<actor> BombSquare;
+
 class bomb : public actor {
  protected:
   unsigned int mTimer = DEFAULT_BOMB_TIMER;
@@ -18,6 +20,7 @@ class bomb : public actor {
   bool mBigBomb;
   bool mSatellite;
   bool mInitialised = false;
+  std::vector<std::vector<BombSquare>> identifyTargetSquares();
 
  public:
   /*Cereal serialisation*/
