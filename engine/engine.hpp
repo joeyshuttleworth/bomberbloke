@@ -62,7 +62,7 @@ void new_game(std::string);
 void engine_new_game(std::string);
 void engine_start_game();
 void client_loop();
-void server_loop();
+void server_loop(bool debug);
 void log_message(int, std::string);
 bool handle_system_command(std::list<std::string>);
 void handle_input();
@@ -72,6 +72,7 @@ void console_loop();
 void draw_screen();
 void set_draw(bool);
 SDL_Joystick* handle_input_controller();
+void server_add_debug_player();
 void add_player(std::shared_ptr<AbstractPlayer>);
 
 

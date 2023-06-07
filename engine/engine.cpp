@@ -749,6 +749,16 @@ get_sprite(std::string asset_name)
 }
 
 void
+server_add_debug_player()
+{
+  auto player = std::make_shared<NetworkPlayer>("bloke", nullptr);
+  bool added = _net_server.addPlayer(player);
+  if(!added) {
+    log_message(ERR, "Requested debug player, but couldn't be added");
+  }
+}
+
+void
 add_player(std::shared_ptr<AbstractPlayer> a_player)
 {
   unsigned int id = _player_list.back()->getId();

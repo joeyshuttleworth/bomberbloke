@@ -7,6 +7,7 @@
 #include <cereal/archives/portable_binary.hpp>
 #include <memory>
 #include <random>
+#include <stdio.h>
 
 int _default_bomb_time = DEFAULT_BOMB_TIMER;
 double _bloke_size[2] = { DEFAULT_BLOKE_SIZE, DEFAULT_BLOKE_SIZE };
@@ -14,8 +15,13 @@ std::vector<int> _spawn_points = { 5, 5 };
 int colours[50][3];
 
 int
-main()
+main(int argc, char **argv)
 {
+  bool debug = false;
+  if(argc > 1 && strcmp(argv[1], "-debug") == 0) {
+    debug = true;
+    log_message(INFO, "DEBUG Mode: On");
+  }
 
   log_message(INFO, "Bomberbloke server starting...");
 
@@ -23,7 +29,7 @@ main()
 
   _pScene = std::make_shared<BomberBlokeScene>(10, 10);
 
-  server_loop();
+  server_loop(debug);
   SDL_Quit();
   SDL_Delay(1000);
   return 0;
