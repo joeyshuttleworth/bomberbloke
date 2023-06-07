@@ -1,7 +1,7 @@
 #include "ServerInfo.hpp"
 #include "ServerInfoEvent.hpp"
 #include "bomberbloke.h"
-#include <SDL2/SDL.h>
+#include "SDL.h"
 #include <array>
 #include <cereal/archives/json.hpp>
 #include <cereal/archives/portable_binary.hpp>

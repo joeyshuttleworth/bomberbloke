@@ -11,7 +11,7 @@
 #include "ShowAllCamera.hpp"
 #include "scene.hpp"
 #include "syncEvent.hpp"
-#include <SDL2/SDL_image.h>
+#include "SDL_image.h"
 #include <cereal/archives/json.hpp>
 #include <dirent.h>
 #include <exception>
@@ -113,7 +113,7 @@ create_window()
   if (_renderer) {
     SDL_DestroyRenderer(_renderer);
   }
-  _renderer = SDL_CreateRenderer(_window, -1, 0);
+  _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_PRESENTVSYNC);
 
   return;
 }
@@ -336,8 +336,7 @@ log_message(int scene, std::string str)
     /*Ignore the message*/
     return;
   } else {
-    std::cout << _tick << "\t " << LOG_LEVEL_STRINGS[scene] << ": " << str
-              << std::endl;
+    SDL_Log("%d\t%s:%s\n", _tick, LOG_LEVEL_STRINGS[scene].c_str(), str.c_str());
     return;
   }
 }
@@ -638,7 +637,7 @@ split_to_tokens(std::string str)
   for (int i = 0; i < (int)clean_str.length(); i++) {
     char ch = clean_str[i];
     if (std::isspace(ch)) {
-      assert(i - last_space - 1 >= 0);
+      SDL_assert(i - last_space - 1 >= 0);
       tokens.push_back(clean_str.substr(last_space + 1, i - last_space - 1));
       last_space = i;
     } else if (ch == '\"') {

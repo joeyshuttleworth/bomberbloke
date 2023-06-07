@@ -4,7 +4,7 @@
 #include "bomb.hpp"
 #include "bomberbloke.h"
 #include "cereal/archives/json.hpp"
-#include <SDL2/SDL.h>
+#include "SDL.h"
 #include <assert.h>
 #include <thread>
 
@@ -20,7 +20,7 @@ main()
   NetClient net_client;
   NetServer net_server;
 
-  assert(net_server.init_enet());
+  SDL_assert(net_server.init_enet());
 
   /* Wait for a few moments */
   SDL_Delay(1000);

@@ -3,7 +3,7 @@
 #include "bomb.hpp"
 #include "bomberbloke.h"
 #include "cereal/archives/json.hpp"
-#include <SDL2/SDL.h>
+#include "SDL.h"
 
 bool
 compare_tokens(std::list<std::string> l1, std::list<std::string> l2)
@@ -46,11 +46,11 @@ const std::vector<std::list<std::string>> answer_list = {
 int
 main()
 {
-  assert(test_strings.size() == answer_list.size());
+  SDL_assert(test_strings.size() == answer_list.size());
 
   for (unsigned int i = 0; i < test_strings.size(); i++) {
     std::list<std::string> answer = split_to_tokens(test_strings[i]);
-    assert(compare_tokens(answer, answer_list[i]));
+    SDL_assert(compare_tokens(answer, answer_list[i]));
   }
   return 0;
 }
