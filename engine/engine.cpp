@@ -347,7 +347,6 @@ load_config(std::string fname)
 {
   std::ifstream fin(fname, std::ifstream::in);
   char buf[32];
-  int player_id = 0;
   bool in_player = false;
   if (!fin.good())
     return;
@@ -358,7 +357,6 @@ load_config(std::string fname)
     if (in_player) {
       if (bind_string.find("end player")) {
         in_player = false;
-        player_id++;
       }
     } else {
       if (bind_string.find("start player")) {
