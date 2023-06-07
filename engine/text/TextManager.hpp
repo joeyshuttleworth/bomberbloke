@@ -26,12 +26,12 @@ public:
     /**
      * Loads .ttf font file.
      *
-     * @param path      String containing path to .ttf file.
+     * @param path      an SDL_RWops to provide a font file's data.
      * @param id        String that will be used to refer to the font when
      *                  creating Text objects.
      * @param ptSize    Point-size of font that is loaded.
      */
-    void loadFontFromPath(std::string path, std::string id, int ptSize=16);
+    void loadFontFromPath(SDL_RWops *src, std::string id, int ptSize=16);
 
     /**
      * Creates a text object given a specified font.

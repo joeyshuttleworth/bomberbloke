@@ -43,6 +43,51 @@ include_directories(${SDL2_INCLUDE_DIRS})
 find_package(curl REQUIRED)
 include_directories(${CURL_INCLUDE_DIR})
 
+include(CMakeRC)
+
+cmrc_add_resource_library(files ALIAS files::rc PREFIX files 
+  assets/bomb_1.ogg
+  assets/bomb_2.ogg
+  assets/click.ogg
+  assets/countdown_1.ogg
+  assets/countdown_2.ogg
+  assets/countdown_3.ogg
+  assets/countdown_commence.ogg
+  assets/explosion_intro.ogg
+  assets/ost1_a_first.ogg
+  assets/ost1_a_main_neptune.ogg
+  assets/ost1_b_first_neptune.ogg
+  assets/ost1_b_main_neptune.ogg
+  assets/ost1_final_neptune.ogg
+  assets/ost1_idle.ogg
+  assets/ost2_first.ogg
+  assets/ost2_idle.ogg
+  assets/ost2_intro.ogg
+  assets/ost2_main1.ogg
+  assets/ost2_main2.ogg
+  assets/ost2_pads.ogg
+  assets/ost2_solo.ogg
+  assets/place_bomb.ogg
+  assets/Aileron-Black.ttf
+  assets/background_tile_0.png
+  assets/background_tile_1.png
+  assets/background_tile_2.png
+  assets/background_tile_3.png
+  assets/background_tile_4.png
+  assets/background_tile_5.png
+  assets/background_tile_6.png
+  assets/background_tile_7.png
+  assets/background_tile_8.png
+  assets/background_tile_9.png
+  assets/bigredbomb.png
+  assets/bomb.png
+  assets/bomb_pickup.png
+  assets/crate.png
+  assets/crate.svg
+  assets/flames.png
+  assets/lightning.png
+)
+
 #Include directories
 include_directories(BEFORE SYSTEM ${PROJECT_SOURCE_DIR}/cereal/include)
 
@@ -75,6 +120,7 @@ file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/sources.cmake SHARED_SOURCES)
 # file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/tests.cmake TEST_SOURCES)
 
 add_library(${LIB_TARGET_NAME} CLIENT ${SHARED_SOURCES} "engine/client.cpp" "engine/network/NetClient.cpp")
+target_link_libraries(CLIENT PUBLIC files::rc)
 
 # run_and_close test
 add_executable(run_and_close "tests/run_and_close.cpp" "engine/client.cpp")
@@ -104,15 +150,17 @@ add_executable(explosion_demo "tests/ExplosionDemo.cpp" "engine/client.cpp")
 target_link_libraries(explosion_demo CLIENT ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES})
 
 add_executable(collision_sandbox "tests/collision_sandbox.cpp" "engine/server.cpp")
-target_link_libraries(collision_sandbox SERVER ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES})
+target_link_libraries(collision_sandbox PUBLIC files::rc SERVER ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES})
 
 # Client setup
 set(client_src "client/bomberbloke.cpp")
 add_executable(bomberbloke_client ${client_src} "engine/client.cpp")
-target_link_libraries(bomberbloke_client CLIENT ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES})
+target_link_libraries(bomberbloke_client PUBLIC files::rc CLIENT ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES}  )
 
 # Server setup
 add_library(${LIB_TARGET_NAME} SERVER ${SHARED_SOURCES} "engine/server.cpp" "engine/network/NetServer.cpp")
+target_link_libraries(SERVER PUBLIC files::rc)
+
 set(server_src "server/bomberbloke_server.cpp" "engine/server.cpp" "engine/network/NetServer.cpp")
 add_executable(bomberbloke_server ${server_src})
 set_target_properties(bomberbloke_server PROPERTIES PUBLIC_HEADER "engine/server.h")
