@@ -193,7 +193,7 @@ Camera::blurTexture(SDL_Texture* texture, double size, int passes)
   SDL_Rect dstRect({ 0, 0, width, height });
   for (int i = 0; i < passes; i++) {
     // Gradually reduce offset size
-    int offset = (int)fmax(size - i * size / passes, 1);
+    int offset = (int)std::max(size - i * size / passes, 1.0);
 
     // Alternate the direction of the offset to prevent the blur shifting
     // the image

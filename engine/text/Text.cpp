@@ -152,18 +152,18 @@ Text::updateTexture(Camera*)
   }
   // If displacement is negative, change the start position of the source
   // rectangle
-  mSrcRect.x = fmax(0, -xDisplacement) / mTextScale[0];
-  mSrcRect.y = fmax(0, -yDisplacement) / mTextScale[0];
+  mSrcRect.x = std::max(0, -xDisplacement) / mTextScale[0];
+  mSrcRect.y = std::max(0, -yDisplacement) / mTextScale[0];
 
   // Crop the texture according to the dimensions of the text box and the
   // displacement
-  mSrcRect.w = fmin(width - mSrcRect.x, mDimensions[0] / mTextScale[0]);
-  mSrcRect.h = fmin(height - mSrcRect.y, mDimensions[1] / mTextScale[1]);
+  mSrcRect.w = std::min(double(width) - mSrcRect.x, mDimensions[0] / mTextScale[0]);
+  mSrcRect.h = std::min(double(height) - mSrcRect.y, mDimensions[1] / mTextScale[1]);
 
   // If displacement is positive, change the start position of the
   // destination rectangle
-  mDstRect.x = mPosition[0] + fmax(0, xDisplacement);
-  mDstRect.y = mPosition[1] + fmax(0, yDisplacement);
+  mDstRect.x = mPosition[0] + std::max(0, xDisplacement);
+  mDstRect.y = mPosition[1] + std::max(0, yDisplacement);
 
   // Scale the source rectangle dimensions
   mDstRect.w = mSrcRect.w * mTextScale[0];

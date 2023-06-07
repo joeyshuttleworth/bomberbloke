@@ -40,7 +40,7 @@ KinematicCollider::registerCollision(std::shared_ptr<AbstractCollider> collider,
   // Compute required change in DeltaPosition
   double deltaDeltaPosition =
     translationProportion + vectorProduct(mDeltaPosition, mtv) / mtvSqrNorm;
-  deltaDeltaPosition = fmax(deltaDeltaPosition, 0);
+  deltaDeltaPosition = std::max(deltaDeltaPosition, 0.0);
   // Apply change in DeltaPosition
   mDeltaPosition[0] -= mtv[0] * deltaDeltaPosition;
   mDeltaPosition[1] -= mtv[1] * deltaDeltaPosition;

@@ -166,7 +166,6 @@ init_engine()
   signal(SIGINT, exit_engine);
   SDL_Init(SDL_INIT_EVERYTHING);
   soundManager.init(channelFinishedForwarder);
-  load_assets();
 
   if (_draw) {
     create_window();
@@ -180,12 +179,12 @@ init_engine()
 
   _kb_state = (Uint8*)malloc(sizeof(Uint8) * SDL_SCANCODE_APP2); // max scancode
   memset((void*)_kb_state, 0, sizeof(Uint8) * SDL_SCANCODE_APP2);
-
   std::thread console(console_loop);
   console.detach();
   /*  Open a log file  */
   _console_log_file.open("/tmp/bloke.log");
-
+  load_assets();
+  
   return;
 }
 
