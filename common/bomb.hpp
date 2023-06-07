@@ -20,7 +20,7 @@ class bomb : public actor {
   bool mBigBomb;
   bool mSatellite;
   bool mInitialised = false;
-  std::vector<std::vector<BombSquare>> identifyTargetSquares();
+  std::vector<std::vector<TargetSquare>> identifyTargetSquares();
 
  public:
   /*Cereal serialisation*/

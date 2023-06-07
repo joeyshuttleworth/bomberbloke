@@ -106,7 +106,7 @@ bomb::explode()
     mPower = 100;
 
   if (_server) {
-    std::vector<std::shared_ptr<Explosion>> explosionEffects;
+    std::vector<std::shared_ptr<AbstractSpriteHandler>> explosionEffects;
 
     /*Iterate over all the squares the bomb can reach and kill the ones if they
      * are in the right (wrong) zone.*/
@@ -116,7 +116,9 @@ bomb::explode()
         explosionEffects.push_back(
           std::make_shared<Explosion>(int(square->mPosition[0]),
                                       int(square->mPosition[1]),
-                                      1, 1)
+                                      1, 1, true
+                                      ,300, std::numeric_limits<int>::max(), 0, false, false, 0 // temporary stuff to make sure they appear
+                                      )
         );
 
         std::list<std::shared_ptr<actor>> actor_list =
