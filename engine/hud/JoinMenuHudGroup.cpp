@@ -197,6 +197,8 @@ JoinMenuHudGroup::update()
     // Get address in text field
     std::shared_ptr<InputField> addressField = mAddressField.lock();
     std::string address = addressField->mText->getText();
+    if(address == "ADDRESS")
+      address = "localhost";
 
     // Set nickname
     handle_system_command({ "nickname", nickname });

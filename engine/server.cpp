@@ -4,11 +4,15 @@
 
 bool _server = true;
 bool _draw = false;
+bool _debug_player = false;
 unsigned int _ping_time = 0;
 
 void
-server_loop()
+server_loop(bool debug)
 {
+  if(debug)
+    _debug_player = true;
+
   timespec t1, t2;
   t2.tv_nsec = 0;
   t2.tv_sec = 0;
@@ -49,6 +53,9 @@ server_loop()
       if (_tick % 1000 == 0)
         _net_server.syncPlayers();
       handle_input();
+    }
+    if(_debug_player && _player_list.size() == 0) { // If empty add a dummy player in debug mode
+      server_add_debug_player();
     }
     if (_pScene->getNewGame() && _player_list.size() > 1)
       new_game("");
