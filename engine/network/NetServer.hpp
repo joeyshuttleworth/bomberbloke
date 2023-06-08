@@ -73,6 +73,11 @@ public:
     void disconnectPlayer(std::string player_name, std::string reason="");
 
     void handlePlayerLeave(std::shared_ptr<AbstractPlayer>);
+
+    /* Gives the player a unique id and adds them to the player list provided that
+     * no other player has the same address.
+     */
+    bool addPlayer(std::shared_ptr<AbstractPlayer>);
 private:
 
   /** A list containing information about every player connected to the server
@@ -93,11 +98,6 @@ private:
     std::string mMasterServerAddress;
     void sendStringMessage(std::string, ENetPeer*);
     void handleJoinEvent();
-
-    /* Gives the player a unique id and adds them to the player list provided that
-     * no other player has the same address.
-     */
-  bool addPlayer(std::shared_ptr<AbstractPlayer>);
 
     ServerInfo mServerInfo;
 

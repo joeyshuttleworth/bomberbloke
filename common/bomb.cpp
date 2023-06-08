@@ -1,5 +1,4 @@
 #include "bomb.hpp"
-#include "BigBomb.hpp"
 #include "CreationEvent.hpp"
 #include "Explosion.hpp"
 #include "actor.hpp"
@@ -59,6 +58,43 @@ bomb::update()
   return;
 }
 
+std::vector<BombPath>
+bomb::identifyTargetSquares()
+{
+  /** Create stacks of squares that can be iterated in a FIFO fashion **/
+  std::vector<BombPath> targets;
+  int i = int(mPosition[0]); int j = int(mPosition[1]);
+
+  // Square bomb is sat on
+  targets.push_back({
+    { std::make_pair(i, j)}
+  });
+
+  // Horizontal
+  BombPath left;
+  BombPath right;
+  for(int power = 1; power <= mPower; power++) {
+    left.squares.emplace_back(i-power,j);
+    right.squares.emplace_back(i+power,j);
+  }
+
+  // Vertical
+  BombPath up;
+  BombPath down;
+  for(int power = 1; power <= mPower; power++) {
+    up.squares.emplace_back(i, j+power);
+    down.squares.emplace_back(i, j-power);
+  }
+
+  targets.push_back(left);
+  targets.push_back(right);
+  targets.push_back(up);
+  targets.push_back(down);
+
+  return targets;
+}
+
+
 void
 bomb::explode()
 {
@@ -68,22 +104,19 @@ bomb::explode()
     mPower = 100;
 
   if (_server) {
-    /*Iterate over all the sqares the bomb can reach and kill the ones if they
+    std::vector<std::shared_ptr<AbstractSpriteHandler>> explosionEffects;
+
+    /*Iterate over all the squares the bomb can reach and kill the ones if they
      * are in the right (wrong) zone.*/
+    std::vector<BombPath> targets = identifyTargetSquares();
+    for(const auto& path : targets) {
+      for(const auto& coord : path.squares) {
+        explosionEffects.push_back(
+          std::make_shared<Explosion>(coord.first, coord.second, 1, 1, false)
+        );
 
-    int bomb_square[] = { int(mPosition[0]), int(mPosition[1]) };
-
-    for (unsigned int i = 0; i < 2; i++) {
-      for (unsigned int j = 1; j <= mPower; j++) {
-        std::shared_ptr<actor> square;
-
-        if (i == 0)
-          square = std::make_shared<actor>(
-            bomb_square[0] + j, bomb_square[1], 1, 1, false);
-        else if (i == 1)
-          square = std::make_shared<actor>(
-            bomb_square[0], bomb_square[1] + j, 1, 1, false);
-
+        auto square = std::make_shared<actor>(coord.first, coord.second,
+                                              1, 1, false);
         std::list<std::shared_ptr<actor>> actor_list =
           _pScene->ActorsCollidingWith(square.get());
         bool stopped = false;
@@ -99,39 +132,6 @@ bomb::explode()
                 stopped = true;
                 break;
               default:
-                break;
-            }
-          }
-        }
-        if (stopped)
-          break;
-      }
-      for (unsigned int j = 0; j <= mPower; j++) {
-        std::shared_ptr<actor> square;
-
-        if (i == 0)
-          square = std::make_shared<actor>(
-            bomb_square[0] - j, bomb_square[1], 1, 1, false);
-        else if (i == 1)
-          square = std::make_shared<actor>(
-            bomb_square[0], bomb_square[1] - j, 1, 1, false);
-
-        std::list<std::shared_ptr<actor>> actor_list =
-          _pScene->ActorsCollidingWith(square.get());
-        bool stopped = false;
-        for (std::shared_ptr<actor> pActor : actor_list) {
-          if (pActor.get() == this)
-            continue;
-          else {
-            pActor->handleCommand("+kill");
-            switch (pActor->getType()) {
-              case ACTOR_WOODEN_CRATE:
-              case ACTOR_BLOKE:
-              case ACTOR_BOMB:
-                stopped = true;
-                break;
-              default:
-                stopped = false;
                 break;
             }
           }
@@ -141,7 +141,7 @@ bomb::explode()
       }
     }
 
-    /*Cast to a bloke pointer.*/
+   /*Cast to a bloke pointer.*/
     std::shared_ptr<bloke> placed_by =
       std::dynamic_pointer_cast<bloke>(_pScene->GetActor(mPlacedById));
     if (placed_by && _server) {
@@ -151,11 +151,11 @@ bomb::explode()
       }
     }
 
-    /* Create an explosion particle on all clients */
-    std::shared_ptr<AbstractSpriteHandler> explosion =
-      std::make_shared<Explosion>(int(mPosition[0]), int(mPosition[1]), 1, 1);
-    std::unique_ptr<AbstractEvent> c_event(new CreationEvent(explosion));
-    _net_server.broadcastEvent(c_event);
+    /* Create explosion particles on all clients */
+    for(auto expl : explosionEffects) {
+      std::unique_ptr<AbstractEvent> c_event(new CreationEvent(expl));
+      _net_server.broadcastEvent(c_event);
+    }
   }
 
   return;
