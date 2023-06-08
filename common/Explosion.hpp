@@ -4,10 +4,10 @@
 #include "AbstractSpriteHandler.hpp"
 #include <cereal/cereal.hpp>
 #include <cereal/types/polymorphic.hpp>
+#include <engine.hpp>
 
 class Sound;
 
-#define EXPLOSION_SPRITE_SIZE 1000
 #define SPRITE_EXPLOSION 100
 #define N_EXPLOSION_SOUNDS 2
 #define N_SPRITESHEET_SIZE 6
@@ -41,9 +41,6 @@ public:
     mDelay = start_delay;
     mMaxGlowAmount = max_glow;
     mRenderLegacy = legacy;
-
-    for(int i = 1; i <= N_SPRITESHEET_SIZE; i++)
-      mSpritesheet[i] = get_sprite("explosion_frame_" + std::to_string(i) + ".png");
 
     Explosion();
   }

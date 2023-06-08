@@ -4,6 +4,9 @@
 
 Explosion::Explosion()
 {
+  if(_server)
+    return;
+
   /* Create sound objects for explosion sound effects */
   for (int i = 0; i < N_EXPLOSION_SOUNDS; i++) {
     std::shared_ptr<Sound> sound =
@@ -11,6 +14,11 @@ Explosion::Explosion()
     sound->mGroup = SOUND_FX;
     mExplosionSounds[i] = sound;
   }
+
+  /* We need to tell the BLOKE engine to get textures ready if we need them */
+  for(int i = 1; i <= N_SPRITESHEET_SIZE; i++)
+    mSpritesheet[i] = get_sprite("explosion_frame_" + std::to_string(i) + ".png");
+
   return;
 }
 
@@ -74,7 +82,7 @@ Explosion::draw(Camera* cam)
   unsigned int frame_no = (_tick - mStartTick) % mAnimationSpeed;
   // frame_no_image in [1, ... , N_SPRITESHEET_SIZE]
   int frame_no_image = (int) (((float) frame_no * (float) N_SPRITESHEET_SIZE)/(float) mAnimationSpeed);
-  printf("Explosion render %d \n", mRenderLegacy);
+  //printf("Explosion render %d \n", mRenderLegacy);
   //printf("EXPLOSION DEBUG %i %i %i %i %i %i\n", _tick, mStartTick, mAnimationSpeed, frame_no, mTimeout, frame_no_image);
   //printf("EXPLOSION %f %f %f %f\n", mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]);
 
