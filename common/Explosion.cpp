@@ -16,8 +16,11 @@ Explosion::Explosion()
   }
 
   /* We need to tell the BLOKE engine to get textures ready if we need them */
-  for(int i = 1; i <= N_SPRITESHEET_SIZE; i++)
-    mSpritesheet[i] = get_sprite("explosion_frame_" + std::to_string(i) + ".png");
+  if(!mRenderLegacy) {
+    for (int i = 1; i <= N_SPRITESHEET_SIZE; i++)
+      mSpritesheet[i] =
+        get_sprite("explosion_frame_" + std::to_string(i) + ".png");
+  }
 
   return;
 }
