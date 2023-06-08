@@ -79,14 +79,10 @@ Explosion::draw(Camera* cam)
     return;
   }
 
-  //unsigned int frame_no = (_tick - mStartTick) % mAnimationSpeed;
-  // frame_no_image in [1, ... , N_SPRITESHEET_SIZE]
-  int frame_no_image = (int) ( (float) N_SPRITESHEET_SIZE * ( (float) (_tick - mStartTick) / (float) mTimeout) );
-  //printf("Explosion render %d \n", mRenderLegacy);
-  //printf("EXPLOSION DEBUG %i %i %i %i %i %i\n", _tick, mStartTick, mAnimationSpeed, frame_no, mTimeout, frame_no_image);
-  //printf("EXPLOSION %f %f %f %f\n", mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]);
+  // frame_no in [0, ... , N_SPRITESHEET_SIZE - 1]
+  int frame_no = (int) ( (float) N_SPRITESHEET_SIZE * ( (float) (_tick - mStartTick) / (float) mTimeout) );
 
-  SDL_Texture *texture = mSpritesheet[frame_no_image];
+  SDL_Texture *texture = mSpritesheet[frame_no];
   SDL_Rect dstrect = cam->getScreenRect(mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]);
   cam->renderCopy(texture, nullptr, &dstrect, false, 0);
 
