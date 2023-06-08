@@ -18,7 +18,7 @@ int
 main(int argc, char **argv)
 {
   bool debug = false;
-  if(argc > 1 && strcmp(argv[1], "-debug") == 0) {
+  if(argc > 1 && strcmp(argv[1], "--debug") == 0) {
     debug = true;
     log_message(INFO, "DEBUG Mode: On");
   }
