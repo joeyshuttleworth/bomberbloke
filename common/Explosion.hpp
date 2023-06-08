@@ -55,7 +55,7 @@ public:
 
   template<class Archive>
   void serialize(Archive &archive){
-    archive(cereal::base_class<AbstractSpriteHandler>(this), mSound, mRumble);
+    archive(cereal::base_class<AbstractSpriteHandler>(this), mSound, mRumble, mRenderLegacy);
     return;
   }
 };

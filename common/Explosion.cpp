@@ -25,14 +25,12 @@ Explosion::draw_legacy(Camera* cam)
 
   /*  Set our blend mode so that our shapes blend nicely */
   SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
-
   SDL_Color colour;
 
   if (frame_no < mAnimationSpeed / 2.0) {
     /*Set colour to white*/
     colour = SDL_Color({ 0xff, 0xff, 0xff, alpha });
   }
-
   else {
     /*Set colour to red*/
     colour = SDL_Color({ 0xff, backAlpha, backAlpha, alpha });
@@ -47,13 +45,10 @@ Explosion::draw_legacy(Camera* cam)
 void
 Explosion::draw(Camera* cam)
 {
-  if (!mStarted && _tick < mStartTick) {
+  if (!mStarted && _tick < mStartTick)
     return;
-  }
-
-  if (mRemove) {
+  if (mRemove)
     return;
-  }
 
   if (!mStarted) {
     mStarted = true;
@@ -63,16 +58,14 @@ Explosion::draw(Camera* cam)
       std::shared_ptr<Sound> bomb_sound = mExplosionSounds[randIndex];
       soundManager.playSound(bomb_sound);
     }
-    if (mRumble) {
+    if (mRumble)
       _pScene->getCamera()->rumble();
-    }
   }
 
   if (_tick - mStartTick >= mTimeout) {
     mRemove = true;
     return;
   }
-
   if(mRenderLegacy) {
     this->draw_legacy(cam);
     return;
@@ -81,8 +74,9 @@ Explosion::draw(Camera* cam)
   unsigned int frame_no = (_tick - mStartTick) % mAnimationSpeed;
   // frame_no_image in [1, ... , N_SPRITESHEET_SIZE]
   int frame_no_image = (int) (((float) frame_no * (float) N_SPRITESHEET_SIZE)/(float) mAnimationSpeed);
-
-  printf("EXPLOSION DEBUG %i %i %i %i %i %i\n", _tick, mStartTick, mAnimationSpeed, frame_no, mTimeout, frame_no_image);
+  printf("Explosion render %d \n", mRenderLegacy);
+  //printf("EXPLOSION DEBUG %i %i %i %i %i %i\n", _tick, mStartTick, mAnimationSpeed, frame_no, mTimeout, frame_no_image);
+  //printf("EXPLOSION %f %f %f %f\n", mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]);
 
   SDL_Texture *texture = mSpritesheet[frame_no_image];
   SDL_Rect dstrect = cam->getScreenRect(mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]);
