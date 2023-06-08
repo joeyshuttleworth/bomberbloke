@@ -1,8 +1,5 @@
 #include "MainMenuScene.hpp"
-
 #include <limits>
-
-#include "Camera.hpp"
 #include "Explosion.hpp"
 #include "MainMenuHudGroup.hpp"
 
@@ -16,7 +13,7 @@ MainMenuScene::MainMenuScene(int sizeX, int sizeY)
     for (int j = 0; j < sizeY; j++) {
       int speed = (30 + i + 2 * j);
       std::shared_ptr<Explosion> explosion = std::make_shared<Explosion>(
-        i, j, 1, 1, speed, std::numeric_limits<int>::max(), 0, false, false, 0);
+        i, j, 1, 1, true, speed, std::numeric_limits<int>::max(), 0, false, false, 0);
       mParticleList.push_back(explosion);
     }
   }
