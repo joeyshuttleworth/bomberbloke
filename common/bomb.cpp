@@ -117,7 +117,6 @@ bomb::explode()
           std::make_shared<Explosion>(int(square->mPosition[0]),
                                       int(square->mPosition[1]),
                                       1, 1, false
-                                      //,300, std::numeric_limits<int>::max(), 0, false, false, 0 // temporary stuff to make sure they appear
                                       )
         );
 
