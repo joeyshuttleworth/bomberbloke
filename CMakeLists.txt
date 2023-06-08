@@ -86,6 +86,12 @@ cmrc_add_resource_library(files ALIAS files::rc PREFIX files
   assets/crate.svg
   assets/flames.png
   assets/lightning.png
+  assets/explosion_frame_1.png
+  assets/explosion_frame_2.png
+  assets/explosion_frame_3.png
+  assets/explosion_frame_4.png
+  assets/explosion_frame_5.png
+  assets/explosion_frame_6.png
 )
 
 #Include directories
