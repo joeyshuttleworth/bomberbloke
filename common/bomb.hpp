@@ -9,7 +9,9 @@
 #include "AbstractSpriteHandler.hpp"
 #include "Sound.hpp"
 
-typedef std::shared_ptr<actor> TargetSquare;
+struct BombPath {
+  std::vector<std::pair<int, int>> squares;
+};
 
 class bomb : public actor {
  protected:
@@ -20,7 +22,7 @@ class bomb : public actor {
   bool mBigBomb;
   bool mSatellite;
   bool mInitialised = false;
-  std::vector<std::vector<TargetSquare>> identifyTargetSquares();
+  std::vector<BombPath> identifyTargetSquares();
 
  public:
   /*Cereal serialisation*/

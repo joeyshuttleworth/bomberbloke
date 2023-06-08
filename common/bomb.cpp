@@ -58,34 +58,32 @@ bomb::update()
   return;
 }
 
-std::vector<std::vector<TargetSquare>>
+std::vector<BombPath>
 bomb::identifyTargetSquares()
 {
   /** Create stacks of squares that can be iterated in a FIFO fashion **/
-  std::vector<std::vector<TargetSquare>> targets;
+  std::vector<BombPath> targets;
   int i = int(mPosition[0]); int j = int(mPosition[1]);
 
-  auto makeSquare = [](int a, int b){
-    return std::make_shared<actor>(a, b, 1, 1, false);
-  };
-
   // Square bomb is sat on
-  targets.push_back({makeSquare(i, j)});
+  targets.push_back({
+    { std::make_pair(i, j)}
+  });
 
   // Horizontal
-  std::vector<TargetSquare> left;
-  std::vector<TargetSquare> right;
+  BombPath left;
+  BombPath right;
   for(int power = 1; power <= mPower; power++) {
-    left.push_back(makeSquare(i - power, j));
-    right.push_back(makeSquare(i + power, j));
+    left.squares.emplace_back(i-power,j);
+    right.squares.emplace_back(i+power,j);
   }
 
   // Vertical
-  std::vector<TargetSquare> up;
-  std::vector<TargetSquare> down;
+  BombPath up;
+  BombPath down;
   for(int power = 1; power <= mPower; power++) {
-    up.push_back(makeSquare(i, j + power));
-    down.push_back(makeSquare(i, j - power));
+    up.squares.emplace_back(i, j+power);
+    down.squares.emplace_back(i, j-power);
   }
 
   targets.push_back(left);
@@ -110,16 +108,15 @@ bomb::explode()
 
     /*Iterate over all the squares the bomb can reach and kill the ones if they
      * are in the right (wrong) zone.*/
-    std::vector<std::vector<TargetSquare>> targets = identifyTargetSquares();
-    for(const auto& stack : targets) {
-      for(const auto& square : stack) {
+    std::vector<BombPath> targets = identifyTargetSquares();
+    for(const auto& path : targets) {
+      for(const auto& coord : path.squares) {
         explosionEffects.push_back(
-          std::make_shared<Explosion>(int(square->mPosition[0]),
-                                      int(square->mPosition[1]),
-                                      1, 1, false
-                                      )
+          std::make_shared<Explosion>(coord.first, coord.second, 1, 1, false)
         );
 
+        auto square = std::make_shared<actor>(coord.first, coord.second,
+                                              1, 1, false);
         std::list<std::shared_ptr<actor>> actor_list =
           _pScene->ActorsCollidingWith(square.get());
         bool stopped = false;
