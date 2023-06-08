@@ -32,7 +32,7 @@ main()
   _pScene->linkActorToPlayer(_pScene->mActors.back(),
                              _local_player_list.back().getId());
 
-  server_loop();
+  server_loop(false);
 
   return 0;
 }
