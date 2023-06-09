@@ -16,6 +16,7 @@
 #include <cereal/types/base_class.hpp>
 #include <cereal/archives/json.hpp>
 #include "GamePlayerProperties.hpp"
+#include "Metadata.hpp"
 
 class actor;
 class scene;
@@ -35,6 +36,9 @@ public:
   void setId(int id);
 
   std::string mNickname;
+
+  // Player metadata, updated by protocol - not serialized as part of AbstractPlayer
+  Metadata mMetadata;
 
   void addWin(){mWins++;}
 

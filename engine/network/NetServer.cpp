@@ -6,14 +6,15 @@
 #include "JoinEvent.hpp"
 #include "KickEvent.hpp"
 #include "MessageEvent.hpp"
+#include "MetadataEvent.hpp"
 #include "PlayerPropertiesEvent.hpp"
 #include "QueryEvent.hpp"
 #include "ServerInfoEvent.hpp"
+#include "SyncEvent.hpp"
 #include "acceptEvent.hpp"
 #include "cereal/archives/portable_binary.hpp"
 #include "engine.hpp"
 #include "errorEvent.hpp"
-#include "syncEvent.hpp"
 #include <curl/curl.h>
 #include <enet/enet.h>
 #include <sstream>
@@ -73,7 +74,7 @@ NetServer::handleJoinEvent(std::shared_ptr<JoinEvent> event, ENetPeer* from)
     /*  Set the timeout for the new peer (in ms)*/
     enet_peer_timeout(from, 1000, 0, 0);
     /* Now sync send the entire gamestate to the client */
-    std::unique_ptr<AbstractEvent> s_event(new syncEvent());
+    std::unique_ptr<AbstractEvent> s_event(new SyncEvent());
     sendEvent(s_event, from);
 
     // Handle join commands e.g 'colour 0x0000ffff'
@@ -441,12 +442,23 @@ NetServer::broadcastEvent(std::unique_ptr<AbstractEvent>& event)
 void
 NetServer::syncPlayers()
 {
+  // Each player receives a SyncEvent, PlayerPropertiesEvent and MetadataEvent
+  auto *metadata_event = new MetadataEvent();
+
   for (auto i = _player_list.begin(); i != _player_list.end(); i++) {
     ENetPeer* peer = (*i)->getPeer();
     if (peer) {
-      std::unique_ptr<AbstractEvent> s_event(new syncEvent(peer));
+      std::unique_ptr<AbstractEvent> s_event(new SyncEvent(peer));
       std::shared_ptr<GamePlayerProperties> p_props =
         (*i)->getPlayerProperties();
+
+      // Use this opportunity to update ping
+      int ping = (int) peer->lastRoundTripTime;
+      std::string key = "lastPingMeasurement";
+      (*i)->mMetadata.numeric[key] = ping;
+      // is actorId == playerId?
+      metadata_event->includeUpdateNumeric((int) (*i)->getId(), key, ping);
+
       if (p_props) {
         GamePlayerProperties props = *p_props;
         std::unique_ptr<AbstractEvent> p_event(
@@ -460,6 +472,10 @@ NetServer::syncPlayers()
     }
     syncPlayerProperties(*i);
   }
+
+  // Finally send everyone new metadata
+  std::unique_ptr<AbstractEvent> e(metadata_event);
+  broadcastEvent(e);
   return;
 }
 
