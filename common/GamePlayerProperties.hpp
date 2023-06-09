@@ -42,7 +42,6 @@ public:
   int  mSpeed;
   int  mMaxBombs;
   int  mPower;
-  int  mLastPingMeasurement;
   bool mBombKick;
   bool mSatellite;
   bool mBigBomb;

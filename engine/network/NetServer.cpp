@@ -456,7 +456,6 @@ NetServer::syncPlayers()
       int ping = (int) peer->lastRoundTripTime;
       std::string key = "lastPingMeasurement";
       (*i)->mMetadata.numeric[key] = ping;
-      // is actorId == playerId?
       metadata_event->includeUpdateNumeric((int) (*i)->getId(), key, ping);
 
       if (p_props) {
