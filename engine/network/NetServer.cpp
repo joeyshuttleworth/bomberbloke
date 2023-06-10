@@ -314,8 +314,10 @@ NetServer::init_enet()
   if (mENetServer == NULL) {
     log_message(ERR, "Could not start server. Is the port already in use?");
     return 0;
-  } else
+  } else {
+      log_message(INFO,"Listening on port: " + std::to_string(mPort));
     return 1;
+  }
 }
 
 bool
@@ -324,6 +326,18 @@ NetServer::stop()
   // TODO: Disconnect clients gracefully
   updateGameMasterServer(true);
   return 0;
+}
+
+void
+NetServer::setPort(short port)
+{
+  mPort = port;
+}
+
+void
+NetServer::setMasterServerAddress(std::string masterServerAddress)
+{
+  mMasterServerAddress = masterServerAddress;
 }
 
 void
@@ -344,7 +358,7 @@ NetServer::updateGameMasterServer(bool disconnect)
 
     curl = curl_easy_init();
     if (curl) {
-      curl_easy_setopt(curl, CURLOPT_URL, this->masterServerAddress.c_str());
+      curl_easy_setopt(curl, CURLOPT_URL, this->mMasterServerAddress.c_str());
       // TODO: update with proper data
       std::string postData = "param1=value1&param2=value2";
       curl_easy_setopt(
@@ -359,7 +373,7 @@ NetServer::updateGameMasterServer(bool disconnect)
                 curl_easy_strerror(res));
       } else {
         printf("\nSuccessfully updated game server at: %s\n",
-               this->masterServerAddress.c_str());
+               this->mMasterServerAddress.c_str());
       }
       curl_easy_cleanup(curl);
     }

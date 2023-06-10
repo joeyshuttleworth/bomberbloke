@@ -55,6 +55,9 @@ public:
 
     bool stop();
 
+    void setPort(short port);
+    void setMasterServerAddress(std::string masterServerAddress);
+
   /*
    * This is called every tick to ping players, remove timed out players
    * and flush the message queue.
@@ -95,7 +98,6 @@ private:
     void flush();
     ENetHost *mENetServer = nullptr;
     ENetAddress mENetAddress;
-    std::string mMasterServerAddress;
     void sendStringMessage(std::string, ENetPeer*);
     void handleJoinEvent();
 
@@ -108,8 +110,8 @@ private:
   void handleEvent(std::shared_ptr<AbstractEvent>, ENetPeer*);
 
   void updateGameMasterServer(bool disconnect);
-  enet_uint16 mPort = 8888;
-  std::string masterServerAddress = "http://ptsv2.com/t/faryp-1591787919/post";
+  enet_uint16 mPort;
+  std::string mMasterServerAddress;
 
 };
 

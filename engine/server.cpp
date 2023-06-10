@@ -7,15 +7,18 @@ bool _draw = false;
 bool _debug_player = false;
 unsigned int _ping_time = 0;
 
-void
-server_loop(bool debug)
-{
-  if(debug)
+void server_loop(short port, std::string masterServerAddress, bool debug){
+  if(debug){
     _debug_player = true;
+    log_message(INFO, "DEBUG Mode: On");
+  }
 
   timespec t1, t2;
   t2.tv_nsec = 0;
   t2.tv_sec = 0;
+
+  _net_server.setPort(port);
+  _net_server.setMasterServerAddress(masterServerAddress);
 
   if (!_net_server.init_enet())
     return;
