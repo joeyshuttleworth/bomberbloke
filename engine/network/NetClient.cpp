@@ -57,6 +57,7 @@ NetClient::connectClient(std::string serverAddress, enet_uint16 port)
   if (mENetHost)
     enet_host_destroy(mENetHost);
   mENetHost = enet_host_create(nullptr, 1, 1, 0, 0);
+  enet_host_compress_with_range_coder(mENetHost);
   mENetServer = enet_host_connect(mENetHost, &mENetServerAddress, 1, 0);
   if (mENetServer == NULL) {
     fprintf(stderr, "No available peers for initiating an ENet connection.\n");
@@ -409,7 +410,7 @@ NetClient::sendEvent(std::unique_ptr<AbstractEvent>& event)
 
   if (reliable)
     packet = enet_packet_create(
-      message.c_str(), message.size(), ENET_PACKET_FLAG_RELIABLE);
+    message.c_str(), message.size(), ENET_PACKET_FLAG_RELIABLE);
   else
     packet = enet_packet_create(message.c_str(), message.size(), 0);
 

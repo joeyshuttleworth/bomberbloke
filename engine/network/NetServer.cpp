@@ -310,6 +310,7 @@ NetServer::init_enet()
   // const ENetAddress *address, size_t peerCount, size_t channelLimit,
   // enet_uint32 incomingBandwidth, enet_uint32 outgoingBandwidth)
   mENetServer = enet_host_create(&mENetAddress, 124, 10, 0, 0);
+  enet_host_compress_with_range_coder(mENetServer);
 
   if (mENetServer == NULL) {
     log_message(ERR, "Could not start server. Is the port already in use?");
