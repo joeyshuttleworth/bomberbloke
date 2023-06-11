@@ -62,7 +62,10 @@ void new_game(std::string);
 void engine_new_game(std::string);
 void engine_start_game();
 void client_loop();
-void server_loop(bool debug);
+void server_loop(short port=8888, 
+                 std::string masterServerAddress="", 
+                 bool debug=false
+                );
 void log_message(int, std::string);
 bool handle_system_command(std::list<std::string>);
 void handle_input();
