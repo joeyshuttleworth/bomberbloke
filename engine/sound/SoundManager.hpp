@@ -48,7 +48,7 @@ public:
      * Loads sound file into soundFileBank. Returns sound name to use when
      * creating Sound objects (see createSound).
      */
-    void loadFromPath(const std::string& path, const std::string& id);
+    void loadFromPath(SDL_RWops *src, const std::string& id);
 
     /**
      * Create Sound object from sound name.

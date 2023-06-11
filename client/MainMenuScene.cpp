@@ -20,7 +20,7 @@ MainMenuScene::MainMenuScene(int sizeX, int sizeY)
 
   mpCamera->mPosition[0] = ((double)sizeX) / 2;
   mpCamera->mPosition[1] = ((double)sizeY) / 2;
-  mpCamera->mZoom = 1.2 / std::fmax(sizeX, sizeY);
+  mpCamera->mZoom = 1.2 / std::max(sizeX, sizeY);
 
   mpCamera->setBlur(20);
   mpCamera->setBrightness(-80);
