@@ -21,9 +21,9 @@ TextManager::~TextManager()
 }
 
 void
-TextManager::loadFontFromPath(std::string path, std::string id, int ptSize)
+TextManager::loadFontFromPath(SDL_RWops *src, std::string id, int ptSize)
 {
-  TTF_Font* font = TTF_OpenFont(path.c_str(), ptSize);
+  TTF_Font* font = TTF_OpenFontRW(src, 1, ptSize);
 
   // Adds font to font bank
   if (font) {

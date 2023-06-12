@@ -33,9 +33,9 @@ SoundManager::init(void (*finishedCallback)(int))
 }
 
 void
-SoundManager::loadFromPath(const std::string& path, const std::string& id)
+SoundManager::loadFromPath(SDL_RWops *src, const std::string& id)
 {
-  Mix_Chunk* sound = Mix_LoadWAV(path.c_str());
+  Mix_Chunk* sound = Mix_LoadWAV_RW(src, 1);
   if (sound == nullptr)
     std::cout << Mix_GetError() << std::endl;
 
