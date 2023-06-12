@@ -16,7 +16,7 @@ JoinMenuHudGroup::JoinMenuHudGroup(std::function<void()> goBackFn)
 {
   // Create nickname text
   std::shared_ptr<Text> nicknameFieldText =
-    textManager.createText("Aileron-Black", "NICKNAME");
+    textManager.createText("NICKNAME");
   if (nicknameFieldText) {
     nicknameFieldText->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
     nicknameFieldText->setTextColour({ 255, 255, 255, 128 });
@@ -34,7 +34,7 @@ JoinMenuHudGroup::JoinMenuHudGroup(std::function<void()> goBackFn)
 
   // Create red text
   std::shared_ptr<Text> redFieldText =
-    textManager.createText("Aileron-Black", "R");
+    textManager.createText("R");
   if (redFieldText) {
     redFieldText->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
     redFieldText->setTextColour({ 255, 255, 255, 128 });
@@ -51,7 +51,7 @@ JoinMenuHudGroup::JoinMenuHudGroup(std::function<void()> goBackFn)
 
   // Create green text
   std::shared_ptr<Text> greenFieldText =
-    textManager.createText("Aileron-Black", "G");
+    textManager.createText("G");
   if (greenFieldText) {
     greenFieldText->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
     greenFieldText->setTextColour({ 255, 255, 255, 128 });
@@ -68,7 +68,7 @@ JoinMenuHudGroup::JoinMenuHudGroup(std::function<void()> goBackFn)
 
   // Create blue text
   std::shared_ptr<Text> blueFieldText =
-    textManager.createText("Aileron-Black", "B");
+    textManager.createText("B");
   if (blueFieldText) {
     blueFieldText->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
     blueFieldText->setTextColour({ 255, 255, 255, 128 });
@@ -84,7 +84,7 @@ JoinMenuHudGroup::JoinMenuHudGroup(std::function<void()> goBackFn)
   mBlueField = blueField;
 
   // Create colour button text
-  std::shared_ptr<Text> colourText = textManager.createText("Aileron-Black", "");
+  std::shared_ptr<Text> colourText = textManager.createText("");
   if (colourText) {
     colourText->setBackgroundColour({ 255, 255, 255, 255 });
   }
@@ -104,7 +104,7 @@ JoinMenuHudGroup::JoinMenuHudGroup(std::function<void()> goBackFn)
 
   // Create address text
   std::shared_ptr<Text> addressFieldText =
-    textManager.createText("Aileron-Black", "ADDRESS");
+    textManager.createText("ADDRESS");
   if (addressFieldText) {
     addressFieldText->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
     addressFieldText->setTextColour({ 255, 255, 255, 128 });
@@ -122,7 +122,7 @@ JoinMenuHudGroup::JoinMenuHudGroup(std::function<void()> goBackFn)
 
   // Create join text
   std::shared_ptr<Text> joinText =
-    textManager.createText("Aileron-Black", "JOIN");
+    textManager.createText("JOIN");
   if (joinText) {
     joinText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
     joinText->setTextColour({ 255, 255, 255, 255 });
@@ -138,7 +138,7 @@ JoinMenuHudGroup::JoinMenuHudGroup(std::function<void()> goBackFn)
 
   // Create go back button text
   std::shared_ptr<Text> backText =
-    textManager.createText("Aileron-Black", "BACK");
+    textManager.createText("BACK");
   if (backText) {
     backText->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM);
     backText->setTextColour({ 255, 255, 255, 255 });
@@ -153,7 +153,7 @@ JoinMenuHudGroup::JoinMenuHudGroup(std::function<void()> goBackFn)
 
   // Create loading text
   std::shared_ptr<Text> loadingText =
-    textManager.createText("Aileron-Black", "LOADING...");
+    textManager.createText("LOADING...");
   if (loadingText) {
     loadingText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
     loadingText->setTextColour({ 255, 255, 255, 255 });

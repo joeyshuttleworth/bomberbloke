@@ -34,14 +34,15 @@ TextManager::loadFontFromPath(SDL_RWops *src, std::string id, int ptSize)
 }
 
 std::shared_ptr<Text>
-TextManager::createText(std::string fontId,
-                        std::string text,
+TextManager::createText(std::string text,
+                        std::string fontId,
                         int posX,
                         int posY,
                         int xDim,
                         int yDim,
                         TextAlignFlag xTextAlign,
-                        TextAlignFlag yTextAlign)
+                        TextAlignFlag yTextAlign
+                        )
 {
   // Obtain font
   TTF_Font* font = mFontBank[fontId];

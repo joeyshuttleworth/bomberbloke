@@ -20,7 +20,7 @@ EndRoundHudGroup::EndRoundHudGroup()
 {
   // Create round winner label
   std::shared_ptr<Text> winnerLabelText =
-    textManager.createText("Aileron-Black", "ROUND WINNER");
+    textManager.createText("ROUND WINNER");
   winnerLabelText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
   winnerLabelText->setTextColour({ 255, 255, 255, 255 });
   winnerLabelText->setTextScale(1.5);
@@ -31,7 +31,7 @@ EndRoundHudGroup::EndRoundHudGroup()
 
   // Create round winner text
   std::shared_ptr<Text> winnerText =
-    textManager.createText("Aileron-Black", "");
+    textManager.createText("");
   winnerText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
   winnerText->setTextColour({ 255, 255, 255, 255 });
   winnerText->setTextScale(4.);
@@ -65,7 +65,7 @@ EndRoundHudGroup::updateScores(
   for (unsigned int i = 0; i < sortedPlayerList.size(); i++) {
     if (i >= mScoreTexts.size()) {
       std::shared_ptr<Text> playerText =
-        textManager.createText("Aileron-Black", (*playerIter)->mNickname);
+        textManager.createText((*playerIter)->mNickname);
       playerText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
       playerText->setTextColour({ 255, 255, 255, 255 });
       playerText->setTextScale(1.5);
