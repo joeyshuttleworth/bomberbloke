@@ -20,7 +20,7 @@ EndRoundHudGroup::EndRoundHudGroup()
 {
   // Create round winner label
   std::shared_ptr<Text> winnerLabelText =
-    textManager.createText("Aileron-Black", "ROUND WINNER");
+    textManager.createText("ROUND WINNER");
   winnerLabelText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
   winnerLabelText->setTextColour({ 255, 255, 255, 255 });
   winnerLabelText->setTextScale(1.5);
@@ -31,7 +31,7 @@ EndRoundHudGroup::EndRoundHudGroup()
 
   // Create round winner text
   std::shared_ptr<Text> winnerText =
-    textManager.createText("Aileron-Black", "");
+    textManager.createText("");
   winnerText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
   winnerText->setTextColour({ 255, 255, 255, 255 });
   winnerText->setTextScale(4.);
@@ -49,7 +49,7 @@ std::pair<std::shared_ptr<TextHudElement>, std::shared_ptr<TextHudElement>>
 EndRoundHudGroup::createBlankScoreText(int index)
 {
   std::shared_ptr<Text> playerText =
-    textManager.createText("Aileron-Black", "");
+    textManager.createText("");
   playerText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
   playerText->setTextColour({ 255, 255, 255, 255 });
   playerText->setTextScale(1.5);
@@ -59,7 +59,7 @@ EndRoundHudGroup::createBlankScoreText(int index)
   addElement(playerElement);
 
    std::shared_ptr<Text> scoreText =
-    textManager.createText("Aileron-Black", "");
+    textManager.createText("");
    scoreText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
    scoreText->setTextColour({ 255, 255, 255, 255 });
    scoreText->setTextScale(1.5);

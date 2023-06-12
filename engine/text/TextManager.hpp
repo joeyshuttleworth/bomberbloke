@@ -37,9 +37,11 @@ public:
      * Creates a text object given a specified font.
      *
      * Font must first be loaded using loadFontFromPath.
+     * 
+     * @see TextManager::loadFontFromPath
      *
-     * @param fontId    ID corresponding to font (see loadFontFromPath).
      * @param text  String that is rendered.
+     * @param fontId    ID corresponding to font (see loadFontFromPath). Default Aileron-Black
      * @param xPos  X-coordinate of the screen position (pixels).
      * @param yPos  Y-coordinate of the screen position (pixels).
      * @param xDim    Number of pixels wide.
@@ -49,7 +51,7 @@ public:
      * @param yAlign    Horizontal alignment of the text. Accepts TEXT_ALIGN_TOP,
      *                  TEXT_ALIGN_BOTTOM and TEXT_ALIGN_CENTER (default).
      */
-    std::shared_ptr<Text> createText(std::string fontId, std::string text="",
+    std::shared_ptr<Text> createText(std::string text="", std::string fontId="Aileron-Black",
         int posX=0, int posY=0, int xDim=0, int yDim=0,
         TextAlignFlag xTextAlign=TEXT_ALIGN_LEFT,
         TextAlignFlag yTextAlign=TEXT_ALIGN_TOP);

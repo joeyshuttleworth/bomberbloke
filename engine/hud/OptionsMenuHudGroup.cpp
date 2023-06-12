@@ -14,7 +14,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
 {
   // Create title
   std::shared_ptr<Text> titleText =
-    textManager.createText("Aileron-Black", "OPTIONS");
+    textManager.createText("OPTIONS");
   if (titleText) {
     titleText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
     titleText->setTextColour({ 255, 255, 255, 255 });
@@ -29,7 +29,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
 
   // Create go back button text
   std::shared_ptr<Text> backText =
-    textManager.createText("Aileron-Black", "BACK");
+    textManager.createText("BACK");
   if (backText) {
     backText->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM);
     backText->setTextColour({ 255, 255, 255, 255 });
@@ -48,7 +48,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
   /* Master Volume */
   // Master volume option title
   std::shared_ptr<Text> volumeTitleText =
-    textManager.createText("Aileron-Black", "MASTER VOLUME:");
+    textManager.createText("MASTER VOLUME:");
   if (volumeTitleText) {
     volumeTitleText->setTextAlignment(TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER);
     volumeTitleText->setTextColour({ 255, 255, 255, 255 });
@@ -62,7 +62,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
 
   // Create reduce volume text
   std::shared_ptr<Text> reduceVolumeText =
-    textManager.createText("Aileron-Black", "-");
+    textManager.createText("-");
   if (reduceVolumeText) {
     reduceVolumeText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
     reduceVolumeText->setTextColour({ 255, 255, 255, 255 });
@@ -87,7 +87,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
   // Master volume option label
   int currentVolumeLabel = soundManager.getVolume(SOUND_MASTER) * 8 / 128;
   std::shared_ptr<Text> volumeLabelText =
-    textManager.createText("Aileron-Black", std::to_string(currentVolumeLabel));
+    textManager.createText(std::to_string(currentVolumeLabel));
   if (volumeLabelText) {
     volumeLabelText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
     volumeLabelText->setTextColour({ 255, 255, 255, 255 });
@@ -102,7 +102,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
 
   // Create increase volume text
   std::shared_ptr<Text> increaseVolumeText =
-    textManager.createText("Aileron-Black", "+");
+    textManager.createText("+");
   if (increaseVolumeText) {
     increaseVolumeText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
     increaseVolumeText->setTextColour({ 255, 255, 255, 255 });
@@ -127,7 +127,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
   /* Music Volume */
   // Music volume option title
   std::shared_ptr<Text> musicTitleText =
-    textManager.createText("Aileron-Black", "MUSIC VOLUME:");
+    textManager.createText("MUSIC VOLUME:");
   if (musicTitleText) {
     musicTitleText->setTextAlignment(TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER);
     musicTitleText->setTextColour({ 255, 255, 255, 255 });
@@ -141,7 +141,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
 
   // Create reduce volume text
   std::shared_ptr<Text> reduceMusicText =
-    textManager.createText("Aileron-Black", "-");
+    textManager.createText("-");
   if (reduceMusicText) {
     reduceMusicText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
     reduceMusicText->setTextColour({ 255, 255, 255, 255 });
@@ -161,7 +161,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
   // Master volume option label
   int currentMusicLabel = soundManager.getVolume(SOUND_MUSIC) * 8 / 128;
   std::shared_ptr<Text> musicLabelText =
-    textManager.createText("Aileron-Black", std::to_string(currentMusicLabel));
+    textManager.createText(std::to_string(currentMusicLabel));
   if (musicLabelText) {
     musicLabelText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
     musicLabelText->setTextColour({ 255, 255, 255, 255 });
@@ -176,7 +176,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
 
   // Create increase volume text
   std::shared_ptr<Text> increaseMusicText =
-    textManager.createText("Aileron-Black", "+");
+    textManager.createText("+");
   if (increaseMusicText) {
     increaseMusicText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
     increaseMusicText->setTextColour({ 255, 255, 255, 255 });
@@ -201,7 +201,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
   /* Window mode setting */
   // Create window mode label
   std::shared_ptr<Text> windowLabelText =
-    textManager.createText("Aileron-Black", "WINDOW MODE:");
+    textManager.createText("WINDOW MODE:");
   if (windowLabelText) {
     windowLabelText->setTextAlignment(TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER);
     windowLabelText->setTextColour({ 255, 255, 255, 255 });
@@ -221,7 +221,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
     buttonString = "WINDOWED";
   }
   std::shared_ptr<Text> windowModeText =
-    textManager.createText("Aileron-Black", buttonString);
+    textManager.createText(buttonString);
   if (windowModeText) {
     windowModeText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
     windowModeText->setTextColour({ 255, 255, 255, 255 });
@@ -238,7 +238,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
   /* debug console */
   // Create debug console text
   std::shared_ptr<Text> consoleText =
-    textManager.createText("Aileron-Black", "CONSOLE");
+    textManager.createText("CONSOLE");
   if (consoleText) {
     consoleText->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
     consoleText->setTextColour({ 255, 255, 255, 128 });
@@ -255,7 +255,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
 
   // Create debug console enter button
   std::shared_ptr<Text> consoleEnterText =
-    textManager.createText("Aileron-Black", "->");
+    textManager.createText("->");
   if (consoleEnterText) {
     consoleEnterText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
     consoleEnterText->setTextColour({ 255, 255, 255, 255 });
