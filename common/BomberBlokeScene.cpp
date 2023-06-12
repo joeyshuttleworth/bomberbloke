@@ -7,13 +7,13 @@
 #include "PauseMenuHudGroup.hpp"
 #include "Soundtrack.hpp"
 #include "SpriteHudElement.hpp"
+#include "SyncEvent.hpp"
 #include "TextButton.hpp"
 #include "TextHudElement.hpp"
 #include "bloke.hpp"
 #include "bomberbloke.h"
 #include "engine.hpp"
 #include "scene.hpp"
-#include "syncEvent.hpp"
 #include "woodenCrate.hpp"
 #include <algorithm>
 #include <functional>
@@ -154,7 +154,7 @@ BomberBlokeScene::logicUpdate()
       }
 
       {
-        // std::unique_ptr<syncEvent> s_event(new syncEvent());
+        // std::unique_ptr<SyncEvent> s_event(new SyncEvent());
         // cereal::JSONOutputArchive outArchive(std::cout);
         // outArchive(s_event);
       }
