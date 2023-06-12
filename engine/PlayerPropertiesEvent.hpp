@@ -1,5 +1,9 @@
 /*
   Event used to set a players properties.
+
+  Users of this class should note that PlayerProperties are NOT observed across
+  clients. Clients will only receive their own PlayerProperties. If this is
+  not desired, the metadata framework via MetadataEvent may be suitable.
 */
 
 #ifndef PLAYERPROPERTIESEVENT_HPP

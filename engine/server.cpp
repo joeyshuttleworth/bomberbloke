@@ -57,7 +57,7 @@ void server_loop(short port, std::string masterServerAddress, bool debug){
         _net_server.syncPlayers();
       handle_input();
     }
-    if(_debug_player && _player_list.size() == 0) { // If empty add a dummy player in debug mode
+    if(_debug_player && _player_list.empty()) { // If empty add a dummy player in debug mode
       server_add_debug_player();
     }
     if (_pScene->getNewGame() && _player_list.size() > 1)

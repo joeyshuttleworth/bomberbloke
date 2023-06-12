@@ -21,7 +21,7 @@ extern unsigned int _state;
 #include "AbstractEvent.hpp"
 #include <cereal/types/vector.hpp>
 
-class syncEvent : public AbstractEvent{
+class SyncEvent : public AbstractEvent{
 private:
   std::vector<serverPlayer> mPlayers;
   std::vector<actor>    mActors;
@@ -37,7 +37,7 @@ public:
     return mPlayers;
   }
 
-  syncEvent(ENetPeer *to = nullptr){   /* Generate the list of players */
+  SyncEvent(ENetPeer *to = nullptr){   /* Generate the list of players */
     for(auto i = _player_list.begin(); i != _player_list.end(); i++){
       if(to && to == (*i)->getPeer())
         mPlayers.push_back(serverPlayer(*i, true));
@@ -56,7 +56,7 @@ public:
   }
 };
 
-CEREAL_REGISTER_TYPE(syncEvent)
+CEREAL_REGISTER_TYPE(SyncEvent)
 
 #endif
 

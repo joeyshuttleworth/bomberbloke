@@ -8,16 +8,17 @@
 #include "CreationEvent.hpp"
 #include "JoinEvent.hpp"
 #include "KickEvent.hpp"
+#include "MetadataEvent.hpp"
 #include "MoveEvent.hpp"
 #include "PlayerPropertiesEvent.hpp"
 #include "QueryEvent.hpp"
 #include "RemovalEvent.hpp"
 #include "ServerInfoEvent.hpp"
+#include "SyncEvent.hpp"
 #include "acceptEvent.hpp"
 #include "actor.hpp"
 #include "engine.hpp"
 #include "errorEvent.hpp"
-#include "syncEvent.hpp"
 #include <cereal/archives/portable_binary.hpp>
 #include <iostream>
 #include <memory>
@@ -229,8 +230,8 @@ NetClient::pollServer()
       std::shared_ptr<AbstractEvent> sp_to_handle = std::move(receive_event);
       switch (sp_to_handle->getType()) {
         case EVENT_SYNC: {
-          std::shared_ptr<syncEvent> s_event =
-            std::dynamic_pointer_cast<syncEvent>(sp_to_handle);
+          std::shared_ptr<SyncEvent> s_event =
+            std::dynamic_pointer_cast<SyncEvent>(sp_to_handle);
           mPlayers = s_event->getPlayers();
           _pScene->mState = s_event->mState;
           /* TODO move mPlayers to _player_list */
@@ -268,6 +269,13 @@ NetClient::pollServer()
             _player_list.push_back(p);
           }
           log_message(DEBUG, "synced with server");
+          break;
+        }
+
+        case EVENT_METADATA: {
+          std::shared_ptr<MetadataEvent> m_event =
+            std::dynamic_pointer_cast<MetadataEvent>(sp_to_handle);
+          m_event->applyUpdate();
           break;
         }
 

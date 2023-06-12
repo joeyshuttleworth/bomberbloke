@@ -33,6 +33,8 @@ protected:
 
   // List of score HUD elements. First in pair is nickname, second is score value.
   std::list<std::pair<std::weak_ptr<TextHudElement>, std::weak_ptr<TextHudElement>>> mScoreTexts = {};
+
+  std::pair<std::shared_ptr<TextHudElement>, std::shared_ptr<TextHudElement>> createBlankScoreText(int index);
 };
 
 #endif
