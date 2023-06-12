@@ -49,7 +49,7 @@ std::pair<std::shared_ptr<TextHudElement>, std::shared_ptr<TextHudElement>>
 EndRoundHudGroup::createBlankScoreText(int index)
 {
   std::shared_ptr<Text> playerText =
-    textManager.createText("Aileron-Black", "");
+    textManager.createText(""");
   playerText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
   playerText->setTextColour({ 255, 255, 255, 255 });
   playerText->setTextScale(1.5);
@@ -59,7 +59,7 @@ EndRoundHudGroup::createBlankScoreText(int index)
   addElement(playerElement);
 
    std::shared_ptr<Text> scoreText =
-    textManager.createText("Aileron-Black", "");
+    textManager.createText("");
    scoreText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
    scoreText->setTextColour({ 255, 255, 255, 255 });
    scoreText->setTextScale(1.5);
