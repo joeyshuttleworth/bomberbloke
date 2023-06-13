@@ -12,7 +12,7 @@
 #include <sstream>
 
 JoinMenuHudGroup::JoinMenuHudGroup(std::function<void()> goBackFn)
-  : AbstractHudGroup(0, 0)
+  : AbstractHudGroup(0, 0), mGoBackFn(goBackFn)
 {
   // Create nickname text
   std::shared_ptr<Text> nicknameFieldText =
@@ -171,6 +171,21 @@ JoinMenuHudGroup::JoinMenuHudGroup(std::function<void()> goBackFn)
 
   pickRandomColour();
 }
+
+void
+JoinMenuHudGroup::onInput(SDL_Event* event){
+  AbstractHudGroup::onInput(event);
+
+  if (event->type == SDL_KEYDOWN){
+    if(event->key.keysym.sym == SDLK_ESCAPE){
+      mGoBackFn();
+      return;
+    } else if (event->key.keysym.sym == SDLK_TAB){
+      // tab to next hud element
+    }
+  }
+}
+
 
 void
 JoinMenuHudGroup::update()

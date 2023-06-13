@@ -22,6 +22,8 @@ public:
    */
   JoinMenuHudGroup(std::function<void()> goBackFn);
 
+  void onInput(SDL_Event* event) override;
+
   /**
    * Callback function for colour button
    */
@@ -56,6 +58,8 @@ protected:
 
   // If set to true the server will be joined on next update.
   bool mJoinServer = false;
+
+  std::function<void()> mGoBackFn;
 
   /**
    * Shows the loading text.
