@@ -4,12 +4,12 @@
 
 #ifndef NETSERVER_HPP
 #define NETSERVER_HPP
-#include <string>
-#include <enet/enet.h>
-#include <string>
-#include <list>
-#include "ServerInfo.hpp"
 #include "AbstractPlayer.hpp"
+#include "ENetConnector.hpp"
+#include "ServerInfo.hpp"
+#include <enet/enet.h>
+#include <list>
+#include <string>
 
 class AbstractEvent;
 class JoinEvent;
@@ -47,11 +47,10 @@ public:
 
     bool isConnected();
 
-    bool init_enet();
+    void init();
 
-    void handleJoinEvent(std::shared_ptr<JoinEvent> event, ENetPeer *from);
-
-    void handleCommandEvent(std::shared_ptr<CommandEvent>, std::shared_ptr<AbstractPlayer>);
+    void handleJoinEvent(std::shared_ptr<JoinEvent> event, int from_id);
+    void handleCommandEvent(std::shared_ptr<CommandEvent>, int from_id);
 
     bool stop();
 
@@ -71,11 +70,10 @@ public:
 
     void printPlayers();
 
-    void disconnectPlayer(std::shared_ptr<AbstractPlayer>, std::string="", bool=false);
+    void disconnectPlayer(std::shared_ptr<AbstractPlayer>, std::string="");
+    void disconnectPlayer(const std::string& player_name, std::string reason="");
 
-    void disconnectPlayer(std::string player_name, std::string reason="");
-
-    void handlePlayerLeave(std::shared_ptr<AbstractPlayer>);
+    void handlePlayerLeave(const std::shared_ptr<AbstractPlayer>&);
 
     /* Gives the player a unique id and adds them to the player list provided that
      * no other player has the same address.
@@ -83,10 +81,16 @@ public:
     bool addPlayer(std::shared_ptr<AbstractPlayer>);
 private:
 
+  // Todo how to manage, init this
+  ENetConnector mConnector;
+
   /** A list containing information about every player connected to the server
    * including local and network players
    */
   std::list<std::shared_ptr<AbstractPlayer>> mPlayerList;
+
+  // TODO It uses _player_list rather than above, why?
+  std::shared_ptr<AbstractPlayer> findPlayer(int id);
 
   /* Poll and Handle all ENetEvents in the queue, by default will wait one second
    * for an event before processing
@@ -107,7 +111,7 @@ private:
      *  Called when the server receives some kind of event.
      *  @param pointer to an event that has been received
      */
-  void handleEvent(std::shared_ptr<AbstractEvent>, ENetPeer*);
+  void handleEvent(std::shared_ptr<AbstractEvent>, int from_id);
 
   void updateGameMasterServer(bool disconnect);
   enet_uint16 mPort;

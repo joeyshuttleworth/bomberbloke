@@ -23,7 +23,7 @@ main()
   NetClient net_client;
   NetServer net_server;
 
-  assert(net_server.init_enet());
+  assert(net_server.init());
 
   std::stringstream data_blob;
   std::stringstream receive_blob;

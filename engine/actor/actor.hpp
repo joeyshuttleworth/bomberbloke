@@ -35,7 +35,7 @@ protected:
   void setPlayerId(int id){mPlayerId = id;}
 
   /*The id of this actor. Used by  scene::mActors*/
-  unsigned int mId;
+  int mId;
 
   Interpolator mInterpolator;
 
@@ -74,7 +74,7 @@ public:
     if we haven't already*/
   std::shared_ptr<AbstractPlayer> getPlayer();
 
-  unsigned int getPlayerId(){
+  int getPlayerId(){
     return mPlayerId;
   }
 

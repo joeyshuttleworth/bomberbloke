@@ -40,7 +40,7 @@ public:
 
   int getWins(){return mWins;}
 
-  unsigned int getId(){return mId;}
+  int getId(){return mId;}
 
   std::string getNickname(){return mNickname;}
 

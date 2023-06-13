@@ -9,6 +9,7 @@
 #include <string>
 #include <memory>
 #include "AbstractEvent.hpp"
+#include "ENetConnector.hpp"
 
 
 class serverPlayer;
@@ -35,6 +36,7 @@ public:
     ENetPeer *getENetServer(){return mENetServer;}
 
 protected:
+    ENetConnector mConnector;
   /* And ENet representation of the address of the server */
     ENetAddress mENetServerAddress;
     ENetPeer *mENetServer;

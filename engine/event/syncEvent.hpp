@@ -26,7 +26,6 @@ private:
   std::vector<serverPlayer> mPlayers;
   std::vector<actor>    mActors;
 public:
-
   int mState;
 
   int getType() const{
@@ -37,9 +36,9 @@ public:
     return mPlayers;
   }
 
-  syncEvent(ENetPeer *to = nullptr){   /* Generate the list of players */
+  explicit syncEvent(int to_id){   /* Generate the list of players */
     for(auto i = _player_list.begin(); i != _player_list.end(); i++){
-      if(to && to == (*i)->getPeer())
+      if(to_id > 0 && to_id == (*i)->getId())
         mPlayers.push_back(serverPlayer(*i, true));
       else
         mPlayers.push_back(serverPlayer(*i, false));

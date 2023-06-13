@@ -20,7 +20,7 @@ void server_loop(short port, std::string masterServerAddress, bool debug){
   _net_server.setPort(port);
   _net_server.setMasterServerAddress(masterServerAddress);
 
-  if (!_net_server.init_enet())
+  if (!_net_server.init())
     return;
 
   while (!_halt) {

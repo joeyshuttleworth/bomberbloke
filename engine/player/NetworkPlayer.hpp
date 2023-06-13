@@ -6,23 +6,23 @@
 
 class NetworkPlayer : public AbstractPlayer{
 private:
-  ENetPeer *mpPeer;
+  int mId;
 
 public:
   unsigned int state = DISCONNECTED;
 
-  NetworkPlayer(std::string nickname, ENetPeer* peer) : AbstractPlayer(){
+  NetworkPlayer(std::string nickname, int id) : AbstractPlayer(){
     mNickname = nickname;
-    mpPeer = peer;
+    mId = id;
     return;
   }
-
-  ENetPeer *getPeer(){return mpPeer;}
 
   ~NetworkPlayer(){
     // free(mpPeer);
     return;
   }
+
+  int getId() { return mId; };
 
   bool synced = false;
 };

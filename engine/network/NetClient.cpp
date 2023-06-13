@@ -26,19 +26,7 @@
 
 NetClient::NetClient()
 {
-  if (enet_initialize() != 0) {
-    printf("ERROR: An error occurred while initializing ENet");
-    return;
-  }
-  // TODO: insert variables for host
-  mENetHost = enet_host_create(nullptr, 1, 1, 0, 0);
-}
-
-NetClient::~NetClient()
-{
-  // Clean up ENet
-  enet_host_destroy(mENetHost);
-  enet_deinitialize();
+  mConnector = ENetConnector();
 }
 
 bool
