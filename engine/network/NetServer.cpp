@@ -29,15 +29,6 @@ NetServer::~NetServer()
 }
 
 void
-NetServer::pollLoop()
-{
-  while (!_halt) {
-    poll();
-  }
-  return;
-}
-
-void
 NetServer::handleJoinEvent(std::shared_ptr<JoinEvent> event, int from_id)
 {
   std::string nickname = event->mNickname;
@@ -62,11 +53,11 @@ NetServer::handleJoinEvent(std::shared_ptr<JoinEvent> event, int from_id)
   _player_list.push_back(player);
 
   /* Send an acceptEvent */
-  std::shared_ptr<AbstractEvent> accept_event(new acceptEvent());
-  mConnector.sendEvent(accept_event, from_id);
+  std::unique_ptr<AbstractEvent> accept_event(new acceptEvent());
+  mConnector->sendEvent(accept_event, from_id);
   /* Now sync send the entire gamestate to the client */
-  std::shared_ptr<AbstractEvent> s_event(new syncEvent(from_id));
-  mConnector.sendEvent(s_event, from_id);
+  std::unique_ptr<AbstractEvent> s_event(new syncEvent(from_id));
+  mConnector->sendEvent(s_event, from_id);
 
   // Handle join commands e.g 'colour 0x0000ffff'
   for(auto& command : event->getCommands()){
@@ -98,9 +89,9 @@ NetServer::handleEvent(std::shared_ptr<AbstractEvent> pEvent, int from_id)
       /*  Get the server info and see if the username may be used */
       std::shared_ptr<QueryEvent> pquery_event =
         std::dynamic_pointer_cast<QueryEvent>(pEvent);
-      std::shared_ptr<AbstractEvent> info_event(new ServerInfoEvent(
+      std::unique_ptr<AbstractEvent> info_event(new ServerInfoEvent(
         mServerInfo, _player_list, pquery_event->getNickname()));
-      mConnector.sendEvent(info_event, from_id);
+      mConnector->sendEvent(info_event, from_id);
       break;
     }
     case EVENT_JOIN: {
@@ -110,9 +101,9 @@ NetServer::handleEvent(std::shared_ptr<AbstractEvent> pEvent, int from_id)
       if(findPlayer(from_id) != nullptr) {
         log_message(INFO, "Player with ID " + std::to_string(from_id) +
                             "is already connected");
-        std::shared_ptr<AbstractEvent> e_event(
+        std::unique_ptr<AbstractEvent> e_event(
           new errorEvent("Player from host already connected"));
-        mConnector.sendEvent(e_event, from_id);
+        mConnector->sendEvent(e_event, from_id);
       }
       handleJoinEvent(pjoin_event, from_id);
       break;
@@ -174,18 +165,18 @@ NetServer::handleCommandEvent(std::shared_ptr<CommandEvent> c_event, int from_id
   return;
 }
 
-//! Initialise ENet, and create server instance.
-// Returns: false if failed to create server
 void
-NetServer::init()
+NetServer::init(int port)
 {
-  mConnector = ENetConnector(mPort);
+  mConnector.reset(new ENetConnector());
+  mConnector->configure(port);
+  mConnector->open();
 }
 
 bool
 NetServer::stop()
 {
-  // TODO: Disconnect clients gracefully
+  mConnector->close();
   updateGameMasterServer(true);
   return 0;
 }
@@ -251,11 +242,11 @@ NetServer::syncPlayers()
       std::shared_ptr<AbstractEvent> p_event(
         new PlayerPropertiesEvent(props));
       //sendEvent(s_event, id); TODO This was duplicated, can it be removed?
-      mConnector.sendEvent(p_event, id);
+      mConnector->sendEvent(p_event, id);
     } else {
       log_message(ERR, "Failed to sync properties - null properties");
     }
-    mConnector.sendEvent(s_event, id);
+    mConnector->sendEvent(s_event, id);
     syncPlayerProperties(*i);
   }
   return;
@@ -266,13 +257,13 @@ NetServer::syncPlayerProperties(std::shared_ptr<AbstractPlayer> player)
 {
   GamePlayerProperties g_props = *player->getPlayerProperties();
   std::shared_ptr<AbstractEvent> p_event(new PlayerPropertiesEvent(g_props));
-  mConnector.sendEvent(p_event, player->getId());
+  mConnector->sendEvent(p_event, player->getId());
 }
 
 void
 NetServer::update()
 {
-  auto receivedEvents = mConnector.poll();
+  auto receivedEvents = mConnector->poll(0);
   for(auto pair : receivedEvents) {
     int id = pair.first;
     std::shared_ptr<AbstractEvent> event = pair.second;
@@ -318,7 +309,7 @@ void
 NetServer::disconnectPlayer(std::shared_ptr<AbstractPlayer> p_player,
                             std::string reason)
 {
-  mConnector.disconnectPeer(p_player->getId(), reason);
+  mConnector->disconnectPeer(p_player->getId(), reason);
   handlePlayerLeave(p_player);
   return;
 }
@@ -338,6 +329,14 @@ NetServer::disconnectPlayer(const std::string& player_name, std::string reason)
 }
 
 void
+NetServer::broadcastEvent(std::unique_ptr<AbstractEvent> &event)
+{
+  if(mConnector == nullptr)
+    return;
+  mConnector->broadcastEvent(event);
+}
+
+void
 NetServer::handlePlayerLeave(const std::shared_ptr<AbstractPlayer>& p)
 {
   if (!p)
@@ -346,7 +345,7 @@ NetServer::handlePlayerLeave(const std::shared_ptr<AbstractPlayer>& p)
   msg << "Player \"" << p->getNickname() << "\" left the server!";
   log_message(INFO, msg.str());
   std::shared_ptr<AbstractEvent> m_event(new MessageEvent(msg.str()));
-  mConnector.broadcastEvent(m_event);
+  mConnector->broadcastEvent(m_event);
   for (auto act = _pScene->mActors.begin(); act != _pScene->mActors.end();
        act++) {
     if ((*act)->getPlayerId() == p->getId())

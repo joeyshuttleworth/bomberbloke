@@ -11,10 +11,8 @@ GamePlayerProperties::GamePlayerProperties(std::shared_ptr<bloke> b)
     _pScene->handleCommand("bigbomb");
     if (_server) {
       std::unique_ptr<AbstractEvent> command(new CommandEvent("bigbomb"));
-      if (auto p = b->getPlayer()) {
-        ENetPeer* to = p->getPeer();
-        _net_server.sendEvent(command, to);
-      }
+      if (auto p = b->getPlayer())
+        _net_server.mConnector->sendEvent(command, p->getId());
     }
   }
   mBigBomb = b->mBigBomb;

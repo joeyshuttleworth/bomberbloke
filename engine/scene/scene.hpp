@@ -183,7 +183,7 @@ public:
 
   /*   */
 
-  bool linkActorToPlayer(std::shared_ptr<actor>&, unsigned int);
+  bool linkActorToPlayer(std::shared_ptr<actor>&, int);
 
 
     std::mutex mMutex;

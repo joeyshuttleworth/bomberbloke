@@ -36,6 +36,8 @@ public:
     return mPlayers;
   }
 
+  syncEvent(){};
+
   explicit syncEvent(int to_id){   /* Generate the list of players */
     for(auto i = _player_list.begin(); i != _player_list.end(); i++){
       if(to_id > 0 && to_id == (*i)->getId())

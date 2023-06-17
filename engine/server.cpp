@@ -17,11 +17,8 @@ void server_loop(short port, std::string masterServerAddress, bool debug){
   t2.tv_nsec = 0;
   t2.tv_sec = 0;
 
-  _net_server.setPort(port);
   _net_server.setMasterServerAddress(masterServerAddress);
-
-  if (!_net_server.init())
-    return;
+  _net_server.init(port);
 
   while (!_halt) {
     t1 = t2;

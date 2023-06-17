@@ -8,21 +8,25 @@ protected:
   std::map<int, std::shared_ptr<ENetPeer>> peers; // (id, *peer)
   ENetHost *mENetHost = nullptr;
 
-  // Listening on
-  std::string mAddress;
-  int mPort;
+  // Listening on, will typically remain un-configured for client use
+  bool mAddressConfigured = false;
   ENetAddress mENetAddress;
+
+  void sendPacket(ENetPeer* peer, ENetPacket* packet, enet_uint8 channel);
 
 public:
   ENetConnector();
-  ENetConnector(int port);
   ~ENetConnector();
 
-  void sendEvent(std::shared_ptr<AbstractEvent> event, int to_id);
-  void disconnectPeer(int id, std::string reason);
-  std::list<std::pair<int, std::shared_ptr<AbstractEvent>>> poll();
+  void configure(ushort port) override;
+  void open() override;
+  void close() override;
 
-  void sendPacket(ENetPeer* peer, ENetPacket* packet, enet_uint8 channel);
+  using Connector::sendEvent;
+  void sendEvent(AbstractEvent &event, int to_id) override;
+  int connectPeer(std::string address, short port) override;
+  void disconnectPeer(int id, std::string reason) override;
+  std::list<std::pair<int, std::shared_ptr<AbstractEvent>>> poll(int) override;
 };
 
 #endif

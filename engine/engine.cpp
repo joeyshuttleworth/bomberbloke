@@ -258,7 +258,7 @@ handle_input()
               if (!_server) {
                 std::unique_ptr<AbstractEvent> c_event(
                   new CommandEvent(command_to_send));
-                _net_client.sendEvent(c_event);
+                _net_client.mConnector->sendEvent(c_event, _net_client.mServerId);
               }
             } else {
               log_message(
@@ -596,7 +596,7 @@ handle_system_command(std::list<std::string> tokens)
       // Send request
       std::string command_to_send = command + " " + tokens.back();
       std::unique_ptr<AbstractEvent> c_event(new CommandEvent(command_to_send));
-      _net_client.sendEvent(c_event);
+      _net_client.mConnector->sendEvent(c_event, _net_client.mServerId);
       log_message(INFO, "Requesting to change player colour to " + tokens.back());
       log_message(DEBUG, "Sending command \"" + command_to_send + "\"");
     }
@@ -753,17 +753,18 @@ get_sprite(std::string asset_name)
 void
 server_add_debug_player()
 {
-  auto player = std::make_shared<NetworkPlayer>("bloke", nullptr);
-  bool added = _net_server.addPlayer(player);
-  if(!added) {
-    log_message(ERR, "Requested debug player, but couldn't be added");
-  }
+  auto player = std::make_shared<NetworkPlayer>("bloke", -1);
+  //.bool added = _net_server.addPlayer(player);
+  _player_list.push_back(player);
+  //if(!added) {
+  //  log_message(ERR, "Requested debug player, but couldn't be added");
+  //}
 }
 
 void
 add_player(std::shared_ptr<AbstractPlayer> a_player)
 {
-  unsigned int id = _player_list.back()->getId();
+  int id = _player_list.back()->getId();
   for (int i = 0; i < 1000; i++) {
     if (find_if(_player_list.begin(),
                 _player_list.end(),

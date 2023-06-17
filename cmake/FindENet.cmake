@@ -25,7 +25,7 @@ ENDIF(_WIN32)
 # Handle the QUIETLY and REQUIRED arguments and set ENET_FOUND to TRUE if
 # all listed variables are TRUE.
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(ENET DEFAULT_MSG
+find_package_handle_standard_args(ENet DEFAULT_MSG
     ENET_INCLUDE_DIR ENET_LIBRARY)
 
 if(ENET_FOUND)

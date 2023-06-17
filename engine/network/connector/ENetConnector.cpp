@@ -1,4 +1,4 @@
-#include <ENetConnector.hpp>
+#include "ENetConnector.hpp"
 #include <enet/enet.h>
 #include "cereal/archives/portable_binary.hpp"
 #include <KickEvent.hpp>
@@ -7,37 +7,52 @@
 
 ENetConnector::ENetConnector()
 {
-  if (enet_initialize() != 0) {
-    printf("ERROR: An error occurred while initializing ENet");
-    return;
-  }
-  mENetHost = enet_host_create(nullptr, 1, 1, 0, 0);
+  printf("ENetConnector() called \n");
 }
 
-ENetConnector::ENetConnector(int port) : Connector(port)
+void
+ENetConnector::configure(ushort port)
+{
+  mPort = port;
+  mENetAddress.host = ENET_HOST_ANY;
+  mENetAddress.port = port;
+  mAddressConfigured = true;
+}
+
+void
+ENetConnector::open()
 {
   if (enet_initialize() != 0) {
     printf("FATAL: Could not init enet\n");
     return;
   }
-  mENetAddress.host = ENET_HOST_ANY; // 0
-  mENetAddress.port = port;
-
   // Config for defaults can be defined later
   // const ENetAddress *address, size_t peerCount, size_t channelLimit,
   // enet_uint32 incomingBandwidth, enet_uint32 outgoingBandwidth)
-  mENetHost = enet_host_create(&mENetAddress, 124, 10, 0, 0);
+  if(mAddressConfigured)
+    mENetHost = enet_host_create(&mENetAddress, 124, 10, 0, 0);
+  else
+    mENetHost = enet_host_create(nullptr, 1, 1, 0, 0);
+
   if (mENetHost == NULL) {
     log_message(ERR, "Could not start server. Is the port already in use?");
   } else {
-    log_message(INFO,"Listening on port: " + std::to_string(port));
+    log_message(INFO,"Listening on port: " + std::to_string(mPort));
   }
 }
 
-ENetConnector::~ENetConnector() {
+void
+ENetConnector::close()
+{
+  printf("ENetConnector : closing on port %i\n", mPort);
+  peers.clear();
   if(mENetHost != nullptr)
     enet_host_destroy(mENetHost);
   enet_deinitialize();
+}
+
+ENetConnector::~ENetConnector() {
+  printf("ENetConnector destructor called\n");
 }
 
 void
@@ -48,7 +63,14 @@ ENetConnector::sendPacket(ENetPeer* peer, ENetPacket* packet, enet_uint8 channel
 }
 
 void
-ENetConnector::sendEvent(std::shared_ptr<AbstractEvent> event, int to_id) {
+ENetConnector::sendEvent(AbstractEvent &event, int to_id)
+{
+  if(mENetHost == nullptr) {
+    fprintf(stderr, "Need to call configure() and open() on connector before"
+                    " opening connections\n");
+    return;
+  }
+
   if(peers.count(to_id) == 0)
     return;
 
@@ -61,7 +83,7 @@ ENetConnector::sendEvent(std::shared_ptr<AbstractEvent> event, int to_id) {
 
   // log_message(DEBUG, "Sending" + blob.str());
   bool reliable = false;
-  switch (event->getType()) {
+  switch (event.getType()) {
     case EVENT_SYNC:
     case EVENT_INFO:
     case EVENT_CREATE:
@@ -87,11 +109,43 @@ ENetConnector::sendEvent(std::shared_ptr<AbstractEvent> event, int to_id) {
     packet = enet_packet_create(message.c_str(), message.size(), 0);
   enet_peer_send(to.get(), 0, packet);
 
-  return;
+}
+
+int
+ENetConnector::connectPeer(std::string address, short port)
+{
+  // Note for ENet, this function blocks the current thread until a
+  // ENET_EVENT_TYPE_CONNECT confirms that a connection has been established.
+
+  if(mENetHost == nullptr) {
+    fprintf(stderr, "Need to call configure() and open() on connector before"
+                    " opening connections\n");
+    return -1;
+  }
+
+  ENetAddress addr;
+  enet_address_set_host(&addr, address.c_str());
+  addr.port = port;
+
+  int newId = nextFreeId();
+  peers[newId] = std::make_shared<ENetPeer>(*enet_host_connect(mENetHost,
+                                                               &addr, 1, 0));
+
+  ENetEvent event;
+  if (enet_host_service(mENetHost, &event, 5000) > 0 &&
+      event.type == ENET_EVENT_TYPE_CONNECT) {
+    std::stringstream msg;
+    printf("ENet: Connection to %s : %i succeeded\n", address.c_str(), port);
+    return newId;
+  } else {
+    printf("ENet: Connection to %s : %i failed\n", address.c_str(), port);
+    return -1;
+  }
 }
 
 void
 ENetConnector::disconnectPeer(int id, std::string reason) {
+  // TODO This shouldn't send a kick event, so it can be used by client
   if(!peers.count(id))
     return;
 
@@ -99,7 +153,7 @@ ENetConnector::disconnectPeer(int id, std::string reason) {
   ENetPeer *peer = player.get();
 
   /* First send a kick event */
-  std::shared_ptr<AbstractEvent> k_event(new KickEvent(reason));
+  std::unique_ptr<AbstractEvent> k_event(new KickEvent(reason));
   sendEvent(k_event, id);
 
   /* Now disconnect the peer */
@@ -109,15 +163,21 @@ ENetConnector::disconnectPeer(int id, std::string reason) {
   return;
 }
 
+
 std::list<std::pair<int, std::shared_ptr<AbstractEvent>>>
-ENetConnector::poll() {
+ENetConnector::poll(int timeout) {
+  if(mENetHost == nullptr) {
+    fprintf(stderr, "Need to call configure() and open() on connector before"
+                    " opening connections\n");
+  }
+
   enet_host_flush(mENetHost); // TODO figure exactly what this does?
 
   // Poll for events and return as { peer_id, shared_ptr<AbstractEvent> }
   std::list<std::pair<int, std::shared_ptr<AbstractEvent>>> events;
 
   ENetEvent event;
-  while (enet_host_service(mENetHost, &event, 0) > 0) {
+  while (enet_host_service(mENetHost, &event, (enet_uint32) timeout) > 0) {
     int id = findIdFromPeer(event.peer);
     if(id == -1) {
       id = nextFreeId();
@@ -169,6 +229,7 @@ ENetConnector::poll() {
         event.peer->data = NULL;
         peers.erase(id);
 
+        // TODO make this make sense from the clients perspective
         std::shared_ptr<AbstractEvent> sp_to_handle = std::make_shared<PlayerLeaveEvent>(id);
         events.emplace_back(id, sp_to_handle);
       }

@@ -18,7 +18,6 @@ public:
   }
 
   ~NetworkPlayer(){
-    // free(mpPeer);
     return;
   }
 

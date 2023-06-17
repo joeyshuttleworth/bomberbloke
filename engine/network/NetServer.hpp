@@ -5,7 +5,7 @@
 #ifndef NETSERVER_HPP
 #define NETSERVER_HPP
 #include "AbstractPlayer.hpp"
-#include "ENetConnector.hpp"
+#include <connector/ENetConnector.hpp>
 #include "ServerInfo.hpp"
 #include <enet/enet.h>
 #include <list>
@@ -44,45 +44,23 @@ public:
      */
 
     void removeFromMasterServer();
-
     bool isConnected();
 
-    void init();
-
+    void init(int);
     void handleJoinEvent(std::shared_ptr<JoinEvent> event, int from_id);
     void handleCommandEvent(std::shared_ptr<CommandEvent>, int from_id);
-
     bool stop();
-
-    void setPort(short port);
     void setMasterServerAddress(std::string masterServerAddress);
-
-  /*
-   * This is called every tick to ping players, remove timed out players
-   * and flush the message queue.
-   */
     void update();
-
-    void sendEvent(std::unique_ptr<AbstractEvent>&, ENetPeer *peer);
     void broadcastEvent(std::unique_ptr<AbstractEvent>&);
     void syncPlayerProperties(std::shared_ptr<AbstractPlayer> player);
     void syncPlayers();
-
     void printPlayers();
-
     void disconnectPlayer(std::shared_ptr<AbstractPlayer>, std::string="");
     void disconnectPlayer(const std::string& player_name, std::string reason="");
-
     void handlePlayerLeave(const std::shared_ptr<AbstractPlayer>&);
-
-    /* Gives the player a unique id and adds them to the player list provided that
-     * no other player has the same address.
-     */
-    bool addPlayer(std::shared_ptr<AbstractPlayer>);
+  std::unique_ptr<ENetConnector> mConnector;
 private:
-
-  // Todo how to manage, init this
-  ENetConnector mConnector;
 
   /** A list containing information about every player connected to the server
    * including local and network players
@@ -92,20 +70,10 @@ private:
   // TODO It uses _player_list rather than above, why?
   std::shared_ptr<AbstractPlayer> findPlayer(int id);
 
-  /* Poll and Handle all ENetEvents in the queue, by default will wait one second
-   * for an event before processing
-   */
-    void poll();
-    /*
-    * Send all of the ENet messages which are waiting to be sent.
-    */
-    void flush();
-    ENetHost *mENetServer = nullptr;
-    ENetAddress mENetAddress;
-    void sendStringMessage(std::string, ENetPeer*);
-    void handleJoinEvent();
+  void sendStringMessage(std::string, ENetPeer*);
+  void handleJoinEvent();
 
-    ServerInfo mServerInfo;
+  ServerInfo mServerInfo;
 
     /** handleEvent
      *  Called when the server receives some kind of event.
@@ -114,9 +82,7 @@ private:
   void handleEvent(std::shared_ptr<AbstractEvent>, int from_id);
 
   void updateGameMasterServer(bool disconnect);
-  enet_uint16 mPort;
   std::string mMasterServerAddress;
-
 };
 
 #endif

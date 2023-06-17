@@ -127,6 +127,7 @@ actor ::getMidpoint()
 std::shared_ptr<AbstractPlayer>
 actor::getPlayer()
 {
+  // TODO Can we reliably store a pointer to AbstractPlayer rather than this search?
   if (mPlayerId == 0)
     return nullptr;
   else {

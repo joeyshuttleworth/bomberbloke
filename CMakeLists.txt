@@ -126,7 +126,7 @@ file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/sources.cmake SHARED_SOURCES)
 
 # file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/tests.cmake TEST_SOURCES)
 
-add_library(${LIB_TARGET_NAME} CLIENT ${SHARED_SOURCES} "engine/client.cpp" "engine/network/NetClient.cpp")
+add_library(CLIENT ${SHARED_SOURCES} "engine/client.cpp" "engine/network/NetClient.cpp")
 target_link_libraries(CLIENT PUBLIC files::rc)
 
 # run_and_close test
@@ -165,7 +165,7 @@ add_executable(bomberbloke_client ${client_src} "engine/client.cpp")
 target_link_libraries(bomberbloke_client PUBLIC files::rc CLIENT ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES}  )
 
 # Server setup
-add_library(${LIB_TARGET_NAME} SERVER ${SHARED_SOURCES} "engine/server.cpp" "engine/network/NetServer.cpp")
+add_library(SERVER ${SHARED_SOURCES} "engine/server.cpp" "engine/network/NetServer.cpp")
 target_link_libraries(SERVER PUBLIC files::rc)
 
 set(server_src "server/bomberbloke_server.cpp" "engine/server.cpp" "engine/network/NetServer.cpp")
@@ -183,7 +183,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror -Wpedantic -Wfatal
 # Build docs
 find_package(Doxygen)
 set(DOXYFILE_IN ${PROJECT_SOURCE_DIR}/.doxygen.conf)
-message(WARNING ${PROJECT_SOURCE_DIR})
 if(DOXYGEN_FOUND)
   add_custom_target(
     docs ALL

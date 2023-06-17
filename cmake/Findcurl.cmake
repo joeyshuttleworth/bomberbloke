@@ -23,7 +23,7 @@ endif(_WIN32)
 # Handle the QUIETLY and REQUIRED arguments and set CURL_FOUND to TRUE if
 # all listed variables are TRUE.
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(CURL DEFAULT_MSG
+find_package_handle_standard_args(curl DEFAULT_MSG
     CURL_INCLUDE_DIR CURL_LIBRARY)
 
 if(CURL_FOUND)
