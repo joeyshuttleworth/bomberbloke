@@ -22,7 +22,7 @@ private:
 
 public:
   std::string mNickname;
-  int getType() const{
+  EventType getType() const{
     return EVENT_JOIN;
   }
 

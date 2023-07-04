@@ -52,7 +52,7 @@ public:
     bool stop();
     void setMasterServerAddress(std::string masterServerAddress);
     void update();
-    void broadcastEvent(std::unique_ptr<AbstractEvent>&);
+    void broadcastEvent(std::unique_ptr<AbstractEvent> event);
     void syncPlayerProperties(std::shared_ptr<AbstractPlayer> player);
     void syncPlayers();
     void printPlayers();

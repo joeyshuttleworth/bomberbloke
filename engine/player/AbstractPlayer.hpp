@@ -92,7 +92,7 @@ protected:
   std::shared_ptr<GamePlayerProperties> mpProperties;
   std::shared_ptr<actor> mpCharacter;
   virtual void ping(){}
-  unsigned int mId;
+  int mId;
   unsigned int mWins = 0;
 
   // Default is blue

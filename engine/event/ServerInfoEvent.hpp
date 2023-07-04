@@ -29,7 +29,7 @@ public:std::string mCommand;
   std::string mDescription;
   int mMaxPlayers;
 
-  int getType() const{
+  EventType getType() const{
     return EVENT_INFO;
   }
 

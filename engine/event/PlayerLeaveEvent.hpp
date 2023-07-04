@@ -8,7 +8,7 @@
 class PlayerLeaveEvent : public AbstractEvent {
 public:
   int id;
-  int getType() const{
+  EventType getType() const{
     return EVENT_PLAYERLEAVE;
   }
 

@@ -40,7 +40,7 @@ Uint8* _kb_state = NULL;
 std::shared_ptr<scene> _pScene;
 std::shared_ptr<scene> _pNewScene;
 unsigned int _tick = 0;
-std::string _nickname = "big_beef";
+std::string _nickname = "bloke";
 ServerInfo _server_info;
 std::ofstream _console_log_file;
 std::list<std::shared_ptr<AbstractSpriteHandler>> _particle_list;
@@ -258,7 +258,7 @@ handle_input()
               if (!_server) {
                 std::unique_ptr<AbstractEvent> c_event(
                   new CommandEvent(command_to_send));
-                _net_client.mConnector->sendEvent(c_event, _net_client.mServerId);
+                _net_client.mConnector->sendEvent(std::move(c_event), _net_client.mServerId);
               }
             } else {
               log_message(
@@ -596,7 +596,7 @@ handle_system_command(std::list<std::string> tokens)
       // Send request
       std::string command_to_send = command + " " + tokens.back();
       std::unique_ptr<AbstractEvent> c_event(new CommandEvent(command_to_send));
-      _net_client.mConnector->sendEvent(c_event, _net_client.mServerId);
+      _net_client.mConnector->sendEvent(std::move(c_event), _net_client.mServerId);
       log_message(INFO, "Requesting to change player colour to " + tokens.back());
       log_message(DEBUG, "Sending command \"" + command_to_send + "\"");
     }
@@ -753,7 +753,7 @@ get_sprite(std::string asset_name)
 void
 server_add_debug_player()
 {
-  auto player = std::make_shared<NetworkPlayer>("bloke", -1);
+  auto player = std::make_shared<NetworkPlayer>("debug-bloke", -1);
   //.bool added = _net_server.addPlayer(player);
   _player_list.push_back(player);
   //if(!added) {

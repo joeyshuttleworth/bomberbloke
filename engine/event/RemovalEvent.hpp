@@ -18,7 +18,7 @@ private:
   unsigned int mTick;
 
 public:
-  int getType() const{
+  EventType getType() const{
     return EVENT_REMOVE;
   }
 

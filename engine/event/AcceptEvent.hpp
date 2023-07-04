@@ -6,22 +6,23 @@
   be necessary.
 */
 
-#ifndef ERROREVENT_HPP
+#ifndef ACCEPTEVENT_HPP
+#define ACCEPTEVENT_HPP
 
-#define ERROREVENT_HPP
 #include "AbstractEvent.hpp"
 #include <cereal/types/vector.hpp>
 
-class errorEvent : public AbstractEvent{
+
+class AcceptEvent : public AbstractEvent{
 private:
   std::string mMessage;
 public:
 
-  int getType() const{
-    return EVENT_ERROR;
+  EventType getType() const{
+    return EVENT_ACCEPT;
   }
 
-  errorEvent(std::string message = ""){
+  AcceptEvent(std::string message = ""){
     mMessage = message;
     return;
   };
@@ -34,6 +35,6 @@ public:
 
 };
 
-CEREAL_REGISTER_TYPE(errorEvent)
+CEREAL_REGISTER_TYPE(AcceptEvent)
 
 #endif

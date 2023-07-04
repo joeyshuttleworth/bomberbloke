@@ -105,9 +105,10 @@ scene ::addActor(std::shared_ptr<actor> a)
       mActors.push_back(a);
       a->init();
       if (_server) {
+        printf("Server: scene::addActor EVENT_CREATE broadcast\n");
         /* Broadcast a EVENT_CREATE event */
         std::unique_ptr<AbstractEvent> c_event(new CreationEvent(a));
-        _net_server.broadcastEvent(c_event);
+        _net_server.broadcastEvent(std::move(c_event));
       }
       return;
     }

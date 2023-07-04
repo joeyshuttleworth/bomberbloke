@@ -68,21 +68,23 @@ NetClient::joinBlokeServer(std::string address, const std::string& nickname, con
     }
   }
 
-  if (!connectClient(address, port)) {
+  if (!connectClient(address, port))
     return false;
-  }
 
   /* Query the server to see if we're able to join */
+  printf("Nickname is %s\n", nickname.c_str());
   std::unique_ptr<AbstractEvent> q_event(new QueryEvent(nickname));
-  mConnector->sendEvent(q_event, mServerId);
-  auto firstEvents = mConnector->poll(5000);
-  if(firstEvents.empty())
-    return false;
-  auto firstEvent = firstEvents.front().second;
+  mConnector->sendEvent(std::move(q_event), mServerId);
 
-  /*The event is a ServerInfoEvent*/
+  /* We expect ServerInfoEvent */
+  std::set<EventType> outcomes = { EVENT_INFO };
+  auto response = mConnector->pollFor(5000, outcomes);
+  if(response.second == nullptr) {
+    printf("joinBlokeServer : waited for ServerInfoEvent but nothing, exiting\n");
+    return false;
+  }
   std::shared_ptr<ServerInfoEvent> info_event =
-    std::dynamic_pointer_cast<ServerInfoEvent>(firstEvent);
+    std::dynamic_pointer_cast<ServerInfoEvent>(response.second);
   info_event->output();
 
   /* Check we're allowed our nickname */
@@ -100,13 +102,14 @@ NetClient::joinBlokeServer(std::string address, const std::string& nickname, con
   /* Now 'join' and wait at least 10 seconds */
   std::unique_ptr<AbstractEvent> join_event(
     new JoinEvent(nickname, info_event->mMagicNumber, commands));
-  mConnector->sendEvent(join_event, mServerId);
-  auto joinResponseEvents = mConnector->poll(10000);
-  if(joinResponseEvents.empty()) {
+  mConnector->sendEvent(std::move(join_event), mServerId);
+  std::set<EventType> outcomes_2 = { EVENT_ERROR, EVENT_ACCEPT };
+  auto joinResponse = mConnector->pollFor(10000, outcomes_2);
+  if(joinResponse.first == -1) {
     log_message(ERR, "Timed out");
     return false;
   }
-  auto receive_event = joinResponseEvents.front().second;
+  auto receive_event = joinResponse.second;
   switch (receive_event->getType()) {
     case EVENT_ERROR: {
       /* Handle rejection */
@@ -143,7 +146,7 @@ NetClient::pollServer()
     return;
 
   auto events = mConnector->poll(0);
-  for(auto event_received : events) {
+  for(const auto& event_received : events) {
     // Assumed to be the server in all cases
     std::shared_ptr<AbstractEvent> event = event_received.second;
 
@@ -190,14 +193,12 @@ NetClient::pollServer()
         log_message(DEBUG, "synced with server");
         break;
       }
-
       case EVENT_COMMAND: {
         std::shared_ptr<CommandEvent> c_event =
           std::dynamic_pointer_cast<CommandEvent>(event);
         handleServerCommand(c_event->getCommand());
         break;
       }
-
       case EVENT_MOVE: {
         std::shared_ptr<MoveEvent> m_event =
           std::dynamic_pointer_cast<MoveEvent>(event);
@@ -215,8 +216,8 @@ NetClient::pollServer()
         }
         break;
       }
-
       case EVENT_CREATE: {
+        printf("NetClient: EVENT_CREATE detected\n");
         std::shared_ptr<CreationEvent> c_event =
           std::dynamic_pointer_cast<CreationEvent>(event);
         if (c_event->getActor())

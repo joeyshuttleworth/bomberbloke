@@ -11,11 +11,10 @@ Event used to request information from a server
 #include <cereal/types/polymorphic.hpp>
 
 class QueryEvent :  public  AbstractEvent{
-private:
-  std::string mNickname;
 public:
+  std::string mNickname;
 
-  int getType() const{
+  EventType getType() const{
     return EVENT_QUERY;
   }
 
@@ -29,7 +28,8 @@ public:
 
   template<class Archive>
   void serialize(Archive &archive){
-    archive(cereal::base_class<AbstractEvent>(this), cereal::make_nvp("nickname", mNickname));
+    archive(cereal::base_class<AbstractEvent>(this),
+            cereal::make_nvp("nickname", mNickname));
   }
 };
 

@@ -11,13 +11,9 @@
 
 #ifndef SYNCEVENT_HPP
 #define SYNCEVENT_HPP
+
 #include "GamePlayerProperties.hpp"
 #include "serverPlayer.hpp"
-
-extern unsigned int _state;
-
-
-#define SYNCEVENT_HPP
 #include "AbstractEvent.hpp"
 #include <cereal/types/vector.hpp>
 
@@ -28,7 +24,7 @@ private:
 public:
   int mState;
 
-  int getType() const{
+  EventType getType() const{
     return EVENT_SYNC;
   }
 
@@ -53,7 +49,10 @@ public:
   /*Used by cereal to serialize the event for it to be sent/received*/
   template<class Archive>
   void serialize(Archive &archive){
-    archive(cereal::base_class<AbstractEvent>(this), cereal::make_nvp("state", mState), cereal::make_nvp("mActors", _pScene->mActors), cereal::make_nvp("players", mPlayers));
+    archive(cereal::base_class<AbstractEvent>(this),
+      cereal::make_nvp("state", mState),
+            cereal::make_nvp("mActors", _pScene->mActors),
+            cereal::make_nvp("players", mPlayers));
   }
 };
 

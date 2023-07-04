@@ -3,15 +3,15 @@
 //
 #include "NetServer.hpp"
 #include "AbstractEvent.hpp"
+#include "AcceptEvent.hpp"
 #include "CommandEvent.hpp"
+#include "ErrorEvent.hpp"
 #include "JoinEvent.hpp"
 #include "MessageEvent.hpp"
 #include "PlayerPropertiesEvent.hpp"
 #include "QueryEvent.hpp"
 #include "ServerInfoEvent.hpp"
-#include "acceptEvent.hpp"
 #include "engine.hpp"
-#include "errorEvent.hpp"
 #include "syncEvent.hpp"
 #include <curl/curl.h>
 #include <sstream>
@@ -24,40 +24,55 @@ NetServer::NetServer()
 
 NetServer::~NetServer()
 {
-  // Clean up ENet
   stop();
 }
 
 void
 NetServer::handleJoinEvent(std::shared_ptr<JoinEvent> event, int from_id)
 {
+  printf("handleJoinEvent called with id %i\n", from_id);
   std::string nickname = event->mNickname;
 
   /*  First check that there's space on the server */
   if (_server_info.mMaxPlayers <= _player_list.size()) {
     return;
   }
+
   /* Second check that no player has the same nickname */
   auto iter = find_if(_player_list.begin(),
                       _player_list.end(),
                       [&](std::shared_ptr<AbstractPlayer> p) {
                         return nickname == p->mNickname;
                       });
-
   if (iter != _player_list.end()) {
     return;
   }
+
+  /* Or ID */
+  if(findPlayer(from_id) != nullptr) {
+    log_message(INFO, "Player with ID " + std::to_string(from_id) +
+                        "is already connected");
+    std::unique_ptr<AbstractEvent> e_event(
+      new ErrorEvent("Player from host already connected"));
+    mConnector->sendEvent(std::move(e_event), from_id);
+    return;
+  }
+
+  printf("handleJoinEvent : check passed\n");
+
   /* Add the player to _player_list */
   auto player = std::make_shared<NetworkPlayer>(nickname, from_id);
   player->setId(from_id);
   _player_list.push_back(player);
 
   /* Send an acceptEvent */
-  std::unique_ptr<AbstractEvent> accept_event(new acceptEvent());
-  mConnector->sendEvent(accept_event, from_id);
+  std::unique_ptr<AbstractEvent> accept_event(new AcceptEvent());
+  mConnector->sendEvent(std::move(accept_event), from_id);
   /* Now sync send the entire gamestate to the client */
   std::unique_ptr<AbstractEvent> s_event(new syncEvent(from_id));
-  mConnector->sendEvent(s_event, from_id);
+  mConnector->sendEvent(std::move(s_event), from_id);
+
+  printf("handleJoinEvent : sent both events to client\n");
 
   // Handle join commands e.g 'colour 0x0000ffff'
   for(auto& command : event->getCommands()){
@@ -89,22 +104,18 @@ NetServer::handleEvent(std::shared_ptr<AbstractEvent> pEvent, int from_id)
       /*  Get the server info and see if the username may be used */
       std::shared_ptr<QueryEvent> pquery_event =
         std::dynamic_pointer_cast<QueryEvent>(pEvent);
+
+      printf("EVENT_QUERY requested username %s\n", pquery_event->getNickname().c_str());
       std::unique_ptr<AbstractEvent> info_event(new ServerInfoEvent(
         mServerInfo, _player_list, pquery_event->getNickname()));
-      mConnector->sendEvent(info_event, from_id);
+      mConnector->sendEvent(std::move(info_event), from_id);
       break;
     }
     case EVENT_JOIN: {
       std::shared_ptr<JoinEvent> pjoin_event =
         std::dynamic_pointer_cast<JoinEvent>(pEvent);
+      printf("NetServer::handleEvent got JoinEvent\n");
 
-      if(findPlayer(from_id) != nullptr) {
-        log_message(INFO, "Player with ID " + std::to_string(from_id) +
-                            "is already connected");
-        std::unique_ptr<AbstractEvent> e_event(
-          new errorEvent("Player from host already connected"));
-        mConnector->sendEvent(e_event, from_id);
-      }
       handleJoinEvent(pjoin_event, from_id);
       break;
     }
@@ -234,6 +245,9 @@ NetServer::syncPlayers()
 {
   for (auto i = _player_list.begin(); i != _player_list.end(); i++) {
     int id = (*i)->getId();
+    if(id < 0)
+      continue; // No need to sync debug players
+
     std::shared_ptr<AbstractEvent> s_event(new syncEvent(id));
     std::shared_ptr<GamePlayerProperties> p_props =
       (*i)->getPlayerProperties();
@@ -269,14 +283,13 @@ NetServer::update()
     std::shared_ptr<AbstractEvent> event = pair.second;
     std::shared_ptr<AbstractPlayer> player = findPlayer(id);
 
-    if(player == nullptr) {
-      log_message(ERR, "Recieved event, but associated id could not be matched "
-                       "to player");
-      continue;
-    }
-
     switch(event->getType()) {
       case EVENT_PLAYERLEAVE: {
+        if(player == nullptr) {
+          log_message(ERR, "EVENT_PLAYERLEAVE but could not find player to"
+                           "remove");
+          continue;
+        }
         handlePlayerLeave(player);
         break;
       }
@@ -329,11 +342,11 @@ NetServer::disconnectPlayer(const std::string& player_name, std::string reason)
 }
 
 void
-NetServer::broadcastEvent(std::unique_ptr<AbstractEvent> &event)
+NetServer::broadcastEvent(std::unique_ptr<AbstractEvent> event)
 {
   if(mConnector == nullptr)
     return;
-  mConnector->broadcastEvent(event);
+  mConnector->broadcastEvent(std::move(event));
 }
 
 void

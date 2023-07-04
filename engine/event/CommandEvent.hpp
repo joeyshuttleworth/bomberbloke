@@ -17,7 +17,7 @@ private:
   std::string mCommand;
 public:
 
-  int getType() const{
+  EventType getType() const{
     return EVENT_COMMAND;
   }
 

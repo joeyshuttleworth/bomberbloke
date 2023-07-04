@@ -147,6 +147,11 @@ add_executable(local_server_connect "tests/local_server_connect.cpp")
 target_link_libraries(local_server_connect CLIENT ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES})
 add_test(LOCAL_SERVER_CONNECT local_server_connect COMMAND)
 
+#serialise_event test
+add_executable(serialise_event "tests/serialise_event_test.cpp")
+target_link_libraries(serialise_event CLIENT ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES})
+add_test(SERIALISE_EVENT_TEST serialise_event COMMAND)
+
 #test split_to_tokens
 add_executable(tokens_test "tests/split_to_tokens_test.cpp")
 target_link_libraries(tokens_test CLIENT ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES})
