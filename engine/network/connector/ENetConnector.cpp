@@ -158,15 +158,16 @@ ENetConnector::connectPeer(std::string address, short port)
 
 void
 ENetConnector::disconnectPeer(int id, std::string reason) {
-  // TODO This shouldn't send a kick event, so it can be used by client
   if(!peers.count(id))
     return;
 
   ENetPeer *peer = peers[id];
 
   /* First send a kick event */
-  std::unique_ptr<AbstractEvent> k_event(new KickEvent(reason));
-  sendEvent(std::move(k_event), id);
+  if(_server) {
+    std::unique_ptr<AbstractEvent> k_event(new KickEvent(reason));
+    sendEvent(std::move(k_event), id);
+  }
 
   /* Now disconnect the peer */
   enet_peer_disconnect(peer, 0);
@@ -187,6 +188,7 @@ ENetConnector::parseENetPacket(ENetEvent &event,
     sendPacket(event.peer, pong_packet, 0);
     log_message(0, "Sent Packet to Peer");
     enet_host_flush(mENetHost);
+    return;
   }
   std::stringstream data_in;
   data_in.write((char*)event.packet->data, event.packet->dataLength);
@@ -255,7 +257,7 @@ ENetConnector::poll(int timeout) {
         if(id >= 0) {
           peers.erase(id);
           std::shared_ptr<AbstractEvent> sp_to_handle =
-            std::make_shared<PlayerLeaveEvent>(id);
+            std::make_shared<PlayerLeaveEvent>();
           events.emplace_back(id, sp_to_handle);
         }
       }
@@ -316,7 +318,7 @@ ENetConnector::pollFor(int timeout, std::set<EventType> &lookFor) {
         if(id >= 0) {
           peers.erase(id);
           std::shared_ptr<AbstractEvent> sp_to_handle =
-            std::make_shared<PlayerLeaveEvent>(id);
+            std::make_shared<PlayerLeaveEvent>();
           cache.emplace_back(id, sp_to_handle);
         }
       }
