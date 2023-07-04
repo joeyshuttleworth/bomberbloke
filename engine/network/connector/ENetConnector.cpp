@@ -247,16 +247,17 @@ ENetConnector::poll(int timeout) {
       }
       case ENET_EVENT_TYPE_DISCONNECT: {
         log_message(INFO, "Disconnect event received");
+
         /* Reset the peer's client information. */
         event.peer->data = NULL;
-        //peers.erase(id); TODO uncomment this, connector needs to clean things up
 
-        //// TODO make this make sense from the clients perspective
-        //if(findIdFromPeer(event.peer) != -1) {
-        //  std::shared_ptr<AbstractEvent> sp_to_handle =
-        //    std::make_shared<PlayerLeaveEvent>(id);
-        //  events.emplace_back(id, sp_to_handle);
-        //}
+        int id = findIdFromPeer(event.peer);
+        if(id >= 0) {
+          peers.erase(id);
+          std::shared_ptr<AbstractEvent> sp_to_handle =
+            std::make_shared<PlayerLeaveEvent>(id);
+          events.emplace_back(id, sp_to_handle);
+        }
       }
       default:
         break;
@@ -307,16 +308,17 @@ ENetConnector::pollFor(int timeout, std::set<EventType> &lookFor) {
       }
       case ENET_EVENT_TYPE_DISCONNECT: {
         log_message(INFO, "Disconnect event received");
+
         /* Reset the peer's client information. */
         event.peer->data = NULL;
-        //peers.erase(id); TODO uncomment this, connector needs to clean things up
 
-        //// TODO make this make sense from the clients perspective
-        //if(findIdFromPeer(event.peer) != -1) {
-        //  std::shared_ptr<AbstractEvent> sp_to_handle =
-        //    std::make_shared<PlayerLeaveEvent>(id);
-        //  events.emplace_back(id, sp_to_handle);
-        //}
+        int id = findIdFromPeer(event.peer);
+        if(id >= 0) {
+          peers.erase(id);
+          std::shared_ptr<AbstractEvent> sp_to_handle =
+            std::make_shared<PlayerLeaveEvent>(id);
+          cache.emplace_back(id, sp_to_handle);
+        }
       }
       default:
         continue;
