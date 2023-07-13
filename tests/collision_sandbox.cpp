@@ -23,7 +23,7 @@ main()
   SDL_Init(SDL_INIT_EVERYTHING);
 
   _draw = true;
-  init_engine();
+  init_engine(false);
 
   _pScene = std::make_shared<BomberBlokeScene>(10, 10);
   _pScene->addActor(

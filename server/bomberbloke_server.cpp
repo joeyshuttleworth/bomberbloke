@@ -65,7 +65,7 @@ main(int argc, char** argv)
 
   log_message(INFO, "Bomberbloke server starting...");
 
-  init_engine();
+  init_engine(true);
 
   _pScene = std::make_shared<BomberBlokeScene>(10, 10);
 

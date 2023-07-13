@@ -19,7 +19,7 @@ main()
   };
 
   SDL_Init(SDL_INIT_EVERYTHING);
-  init_engine();
+  init_engine(false);
 
   _pScene = std::make_shared<BomberBlokeScene>();
 

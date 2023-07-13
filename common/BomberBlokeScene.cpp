@@ -153,7 +153,7 @@ BomberBlokeScene::logicUpdate()
           new CommandEvent("end " + (*winner_iter)->mNickname));
         (*winner_iter)->addWin();
       }
-      _net_server.broadcastEvent(std::move(c_event));
+      _net_server->broadcastEvent(std::move(c_event));
     }
   } else if (mIsRoundEnd) {
     mRoundEndTicks++;
@@ -416,7 +416,7 @@ BomberBlokeScene::startCountdown(int nSecs)
   countdown->start(nSecs);
   if (_server) {
     std::unique_ptr<AbstractEvent> c_event(new CommandEvent("start"));
-    _net_server.broadcastEvent(std::move(c_event));
+    _net_server->broadcastEvent(std::move(c_event));
   }
 }
 
@@ -425,7 +425,7 @@ BomberBlokeScene::onCountdownFinished()
 {
   mState = PLAYING;
   if (_server) {
-    _net_server.syncPlayers();
+    _net_server->syncPlayers();
   }
   if (mSoundtrack)
     mSoundtrack->play();

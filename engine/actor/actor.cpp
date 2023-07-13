@@ -9,7 +9,7 @@ actor ::remove()
   /*Send remove event*/
   if (_server) {
     std::unique_ptr<AbstractEvent> r_event(new RemovalEvent(this));
-    _net_server.broadcastEvent(std::move(r_event));
+    _net_server->broadcastEvent(std::move(r_event));
   }
   auto player = getPlayer();
   if (player) {
@@ -70,7 +70,7 @@ actor ::move(double x, double y)
   /*Create a MoveEvent and send it*/
   if (_server & mMoved) {
     std::unique_ptr<AbstractEvent> e(new MoveEvent(this));
-    _net_server.broadcastEvent(std::move(e));
+    _net_server->broadcastEvent(std::move(e));
   }
 
   if (in_scene) {

@@ -15,7 +15,7 @@ AbstractPickup::update()
       pickup(bloke1);
       remove();
       if (auto p = bloke1->getPlayer())
-        _net_server.syncPlayerProperties(p);
+        _net_server->syncPlayerProperties(p);
       break;
     }
   }

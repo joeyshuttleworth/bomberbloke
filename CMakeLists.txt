@@ -123,7 +123,6 @@ include_directories(${PROJECT_SOURCE_DIR}/engine/hud)
 #   -checks=*;)
 
 file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/sources.cmake SHARED_SOURCES)
-
 # file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/tests.cmake TEST_SOURCES)
 
 add_library(CLIENT ${SHARED_SOURCES} "engine/client.cpp" "engine/network/NetClient.cpp")
@@ -141,6 +140,11 @@ if(_WIN32)
   target_link_libraries(query_event_test ws2_32)
 endif(_WIN32)
 add_test(QUERY_TEST query_event_test COMMAND)
+
+# ENetConnector test
+add_executable(enet_connector_test "tests/enet_connector.cpp")
+target_link_libraries(enet_connector_test SERVER files::rc ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES})
+add_test(ENET_TEST enet_connector_test COMMAND)
 
 #local_server_connect test
 add_executable(local_server_connect "tests/local_server_connect.cpp")

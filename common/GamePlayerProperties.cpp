@@ -12,7 +12,7 @@ GamePlayerProperties::GamePlayerProperties(std::shared_ptr<bloke> b)
     if (_server) {
       std::unique_ptr<AbstractEvent> command(new CommandEvent("bigbomb"));
       if (auto p = b->getPlayer())
-        _net_server.mConnector->sendEvent(std::move(command), p->getId());
+        _net_server->mConnector->sendEvent(std::move(command), p->getId());
     }
   }
   mBigBomb = b->mBigBomb;

@@ -154,7 +154,7 @@ bomb::explode()
     /* Create explosion particles on all clients */
     for(auto expl : explosionEffects) {
       std::unique_ptr<AbstractEvent> c_event(new CreationEvent(expl));
-      _net_server.broadcastEvent(std::move(c_event));
+      _net_server->broadcastEvent(std::move(c_event));
     }
   }
 

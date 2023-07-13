@@ -70,7 +70,7 @@ void log_message(int, std::string);
 bool handle_system_command(std::list<std::string>);
 void handle_input();
 void handle_movement();
-void init_engine();
+void init_engine(bool); // TODO Give this a named bitmask instead of bool
 void console_loop();
 void draw_screen();
 void set_draw(bool);
@@ -167,8 +167,8 @@ class NetServer;
 
 #include "NetClient.hpp"
 #include "NetServer.hpp"
-extern NetClient _net_client;
-extern NetServer _net_server;
+extern std::shared_ptr<NetClient> _net_client;
+extern std::shared_ptr<NetServer> _net_server;
 
 /* Define the path seperator based on the operating system*/
 const std::string PATHSEPARATOR =

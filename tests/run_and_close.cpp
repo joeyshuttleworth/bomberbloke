@@ -14,7 +14,7 @@ main(int, char**)
   _draw = false;
 
   SDL_Init(SDL_INIT_EVERYTHING);
-  init_engine();
+  init_engine(false);
 
   const std::string username = "big_beef";
   _local_player_list.push_back(LocalPlayer(username));

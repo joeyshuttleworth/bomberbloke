@@ -14,6 +14,7 @@ ENetConnector::ENetConnector()
 void
 ENetConnector::configure(ushort port)
 {
+  // Sets connector to listen to a specific port, i.e. in 'server' mode.
   mPort = port;
   mENetAddress.host = ENET_HOST_ANY;
   mENetAddress.port = port;
@@ -36,11 +37,9 @@ ENetConnector::open()
     mENetHost = enet_host_create(&mENetAddress, 124, 10, 0, 0);
   else
     mENetHost = enet_host_create(nullptr, 1, 1, 0, 0);
-  printf("ENetConnector::open -> mAddressConfigured = %d\n", mAddressConfigured);
-
 
   if (mENetHost == nullptr) {
-    log_message(ERR, "Could not start server. Is the port already in use?");
+    log_message(ERR, "Could not start ENetHost. Is the port already in use?");
   } else {
     log_message(INFO,"Listening on port: " + std::to_string(mPort));
   }

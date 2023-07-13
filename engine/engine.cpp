@@ -48,8 +48,9 @@ std::vector<CommandBinding> _default_bindings;
 std::list<std::shared_ptr<AbstractPlayer>> _player_list;
 std::mutex _scene_mutex;
 
-NetClient _net_client;
-NetServer _net_server;
+// Todo changed these to ptrs to prevent initialisation
+std::shared_ptr<NetClient> _net_client;
+std::shared_ptr<NetServer> _net_server;
 
 SoundManager soundManager;
 TextManager textManager;
@@ -161,8 +162,13 @@ channelFinishedForwarder(int channel)
 }
 
 void
-init_engine()
+init_engine(bool server)
 {
+  if(server)
+    _net_server = std::make_shared<NetServer>();
+  else
+    _net_client = std::make_shared<NetClient>();
+
   signal(SIGINT, exit_engine);
   SDL_Init(SDL_INIT_EVERYTHING);
   soundManager.init(channelFinishedForwarder);
@@ -258,7 +264,7 @@ handle_input()
               if (!_server) {
                 std::unique_ptr<AbstractEvent> c_event(
                   new CommandEvent(command_to_send));
-                _net_client.mConnector->sendEvent(std::move(c_event), _net_client.mServerId);
+                _net_client->mConnector->sendEvent(std::move(c_event), _net_client->mServerId);
               }
             } else {
               log_message(
@@ -392,18 +398,18 @@ handle_system_command(std::list<std::string> tokens)
     }
     auto iter = tokens.begin();
     iter++;
-    _net_server.disconnectPlayer(*iter, tokens.back());
+    _net_server->disconnectPlayer(*iter, tokens.back());
     return true;
   }
 
   else if (command == "players" && _server) {
-    _net_server.printPlayers();
+    _net_server->printPlayers();
   }
 
   else if (command == "new" && _server) {
     log_message(INFO, "starting new game");
     new_game("");
-    _net_server.syncPlayers();
+    _net_server->syncPlayers();
   }
 
   else if (command == "zoom" && !_server && !key_down) {
@@ -468,7 +474,7 @@ handle_system_command(std::list<std::string> tokens)
     /*TODO:*/ if (_server) {
 
     } else {
-      _net_client.disconnectClient();
+      _net_client->disconnectClient();
       _pScene = std::make_shared<MainMenuScene>(15, 15);
     }
   }
@@ -500,7 +506,7 @@ handle_system_command(std::list<std::string> tokens)
            this value
         */
         std::string address = tokens.back();
-        if (!_net_client.joinBlokeServer(address, _nickname)) {
+        if (!_net_client->joinBlokeServer(address, _nickname)) {
           log_message(INFO, "failed to connect to server");
           return false;
         }
@@ -596,7 +602,7 @@ handle_system_command(std::list<std::string> tokens)
       // Send request
       std::string command_to_send = command + " " + tokens.back();
       std::unique_ptr<AbstractEvent> c_event(new CommandEvent(command_to_send));
-      _net_client.mConnector->sendEvent(std::move(c_event), _net_client.mServerId);
+      _net_client->mConnector->sendEvent(std::move(c_event), _net_client->mServerId);
       log_message(INFO, "Requesting to change player colour to " + tokens.back());
       log_message(DEBUG, "Sending command \"" + command_to_send + "\"");
     }
