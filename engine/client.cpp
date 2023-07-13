@@ -33,7 +33,7 @@ client_loop()
 
     /* Lock _scene_mutex to protect _pScene from other threads */
     const std::lock_guard<std::mutex> lock(_scene_mutex);
-    _net_client.pollServer();
+    _net_client->pollServer();
     if (_pScene) {
       _pScene->update();
       handle_input();
