@@ -23,7 +23,7 @@ protected:
   }
 
 public:
-  virtual ~Connector() = 0;
+  virtual ~Connector() = default;
   virtual void configure(ushort port) = 0;
   virtual void open() = 0;
   virtual void close() = 0;

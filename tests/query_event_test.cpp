@@ -1,12 +1,9 @@
 #include "NetClient.hpp"
 #include "NetServer.hpp"
 #include "QueryEvent.hpp"
-#include "bloke.hpp"
-#include "bomb.hpp"
 #include "bomberbloke.h"
 #include "cereal/archives/portable_binary.hpp"
 #include <SDL2/SDL.h>
-#include <assert.h>
 #include <thread>
 
 CEREAL_REGISTER_DYNAMIC_INIT(actor)
@@ -14,6 +11,7 @@ CEREAL_REGISTER_DYNAMIC_INIT(actor)
 int
 main()
 {
+  // TODO: This tests builds but makes no sense under new connector framework
   // Don't display any graphics for this test, or even create a window
   _draw = false;
   int rc = 0;
@@ -36,23 +34,19 @@ main()
     cereal::PortableBinaryOutputArchive outArchive(data_blob);
     outArchive(q_event);
   }
-
   cereal::PortableBinaryInputArchive inArchive(data_blob);
-
   inArchive(test_in_event);
 
   log_message(DEBUG, "query_event_test event to send is " + data_blob.str());
 
   /* Wait for a few moments */
   SDL_Delay(1000);
-  std::thread server_thread(&NetServer::pollLoop, &net_server);
+  std::thread server_thread(&NetServer::update, &net_server);
 
   if (net_client.connectClient("127.0.0.1", 8888)) {
-    net_client.sendEvent(test_in_event);
+    net_client.mConnector->sendEvent(std::move(test_in_event), net_client.mServerId);
     SDL_Delay(900);
-  }
-
-  else {
+  } else {
     rc = -1;
   }
 
@@ -66,13 +60,5 @@ main()
   return rc;
 }
 
-void
-gameUpdate()
-{
-  return;
-}
-
-void new_game(std::string)
-{
-  return;
-}
+void gameUpdate(){}
+void new_game(std::string){}

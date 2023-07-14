@@ -8,7 +8,6 @@ common/bomb.cpp
 common/Explosion.cpp
 common/BomberBlokeScene.cpp
 client/MainMenuScene.cpp
-engine/network/connector/Connector.cpp
 engine/network/connector/ENetConnector.cpp
 engine/network/NetClient.cpp
 engine/network/NetServer.cpp

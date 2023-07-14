@@ -11,6 +11,7 @@
 int
 main()
 {
+  // TODO: This tests builds but makes no sense under new connector framework
   // Don't display any graphics for this test, or even create a window
   _draw = false;
   int rc = 0;
@@ -24,9 +25,9 @@ main()
 
   /* Wait for a few moments */
   SDL_Delay(1000);
-  std::thread server_thread(&NetServer::pollLoop, &net_server);
+  std::thread server_thread(&NetServer::update, &net_server);
 
-  /* Connect to the server. If uncessful this will exit(EXIT_FAILURE)
+  /* Connect to the server. If unsuccessful this will exit(EXIT_FAILURE)
    *  so there's no need for additional checking at this stage.
    */
   if (net_client.connectClient("127.0.0.1", 8888)) {
@@ -41,13 +42,5 @@ main()
   return rc;
 }
 
-void
-gameUpdate()
-{
-  return;
-}
-
-void new_game(std::string)
-{
-  return;
-}
+void gameUpdate() {}
+void new_game(std::string) {}
