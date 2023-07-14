@@ -73,7 +73,6 @@ NetClient::joinBlokeServer(std::string address, const std::string& nickname, con
     return false;
 
   /* Query the server to see if we're able to join */
-  printf("Nickname is %s\n", nickname.c_str());
   std::unique_ptr<AbstractEvent> q_event(new QueryEvent(nickname));
   mConnector->sendEvent(std::move(q_event), mServerId);
 
@@ -81,7 +80,6 @@ NetClient::joinBlokeServer(std::string address, const std::string& nickname, con
   std::set<EventType> outcomes = { EVENT_INFO };
   auto response = mConnector->pollFor(5000, outcomes);
   if(response.second == nullptr) {
-    printf("joinBlokeServer : waited for ServerInfoEvent but nothing, exiting\n");
     return false;
   }
   std::shared_ptr<ServerInfoEvent> info_event =
@@ -129,6 +127,7 @@ NetClient::joinBlokeServer(std::string address, const std::string& nickname, con
     default:
       break;
   }
+
   log_message(ERR, "Unexpected first response to join attempt");
   return false;
 }

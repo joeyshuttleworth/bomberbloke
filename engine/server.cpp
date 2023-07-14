@@ -57,11 +57,7 @@ void server_loop(short port, std::string masterServerAddress, bool debug){
     if(_debug_player && _player_list.size() == 0) { // If empty add a dummy player in debug mode
       server_add_debug_player();
     }
-    if(_tick % 50 == 0) {
-      log_message(INFO, "State" + std::to_string(_pScene->getState()));
-    }
     if (_pScene->getNewGame() && _player_list.size() > 1) {
-      printf("Server: Conditions for new game met, calling new_game()\n");
       new_game("");
     }
   }

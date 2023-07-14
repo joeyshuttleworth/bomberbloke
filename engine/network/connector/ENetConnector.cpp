@@ -11,6 +11,15 @@ ENetConnector::ENetConnector()
   //printf("ENetConnector() constructor called\n");
 }
 
+int
+ENetConnector::nextFreeId()
+{
+  int m = 0;
+  for(auto peer : peers)
+    m = std::max(m, peer.first);
+  return m+1;
+}
+
 void
 ENetConnector::configure(ushort port)
 {
@@ -48,7 +57,7 @@ ENetConnector::open()
 void
 ENetConnector::close()
 {
-  log_message(DEBUG, "ENetConnector - closing on port" + std::to_string(mPort));
+  log_message(DEBUG, "ENetConnector - closing on port " + std::to_string(mPort));
   peers.clear();
   if(mENetHost != nullptr)
     enet_host_destroy(mENetHost);
@@ -199,10 +208,7 @@ ENetConnector::parseENetPacket(ENetEvent &event,
     std::shared_ptr<AbstractEvent> receive_event;
     cereal::PortableBinaryInputArchive inArchive(data_in);
     inArchive(receive_event);
-
     abstractEvent = receive_event;
-    log_message(DEBUG, "ENetConnector - got event of type " +
-                         std::to_string(receive_event->getType()));
   } catch (std::exception& e) {
     std::stringstream strstream;
     strstream << "Received malformed network event.\n" << e.what();
@@ -230,7 +236,6 @@ ENetConnector::poll(int timeout) {
       case ENET_EVENT_TYPE_RECEIVE: {
         int id = findIdFromPeer(event.peer);
         if(id == -1) {
-          log_message(DEBUG, "ENetConnector - Unrecognised peer, registering");
           id = nextFreeId();
           peers[id] = event.peer;
           /*  Set the timeout for the new peer (in ms)*/
@@ -285,7 +290,6 @@ ENetConnector::pollFor(int timeout, std::set<EventType> &lookFor) {
       case ENET_EVENT_TYPE_RECEIVE: {
         int id = findIdFromPeer(event.peer);
         if(id == -1) {
-          log_message(DEBUG, "ENetConnector - Unrecognised peer, registering");
           id = nextFreeId();
           peers[id] = event.peer;
           /*  Set the timeout for the new peer (in ms)*/
@@ -298,8 +302,6 @@ ENetConnector::pollFor(int timeout, std::set<EventType> &lookFor) {
         if(abstractEvent != nullptr) {
           if (lookFor.count(abstractEvent->getType()) > 0)
             return std::make_pair(id, abstractEvent);
-
-          printf("Poll for stored event of type %i in cache\n", abstractEvent->getType());
           cache.emplace_back(id, abstractEvent);
         }
       }
@@ -327,4 +329,15 @@ ENetConnector::pollFor(int timeout, std::set<EventType> &lookFor) {
   }
 
   return std::make_pair(-1, nullptr);
+}
+
+int ENetConnector::countPeers()
+{
+  return (int) peers.size();
+}
+
+void ENetConnector::broadcastEvent(std::shared_ptr<AbstractEvent> event)
+{
+  for(auto peer : peers)
+    sendEvent(event, peer.first);
 }
