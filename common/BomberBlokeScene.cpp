@@ -7,13 +7,13 @@
 #include "PauseMenuHudGroup.hpp"
 #include "Soundtrack.hpp"
 #include "SpriteHudElement.hpp"
+#include "SyncEvent.hpp"
 #include "TextButton.hpp"
 #include "TextHudElement.hpp"
 #include "bloke.hpp"
 #include "bomberbloke.h"
 #include "engine.hpp"
 #include "scene.hpp"
-#include "syncEvent.hpp"
 #include "woodenCrate.hpp"
 #include <algorithm>
 #include <functional>
@@ -410,7 +410,6 @@ BomberBlokeScene::togglePause()
 void
 BomberBlokeScene::startCountdown(int nSecs)
 {
-  printf("Server: BomberBlokeScene::startCountdown() called\n");
   mState = PLAYING;
   std::shared_ptr<CountdownHudGroup> countdown = mCountdownHud.lock();
   countdown->start(nSecs);

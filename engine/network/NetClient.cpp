@@ -9,14 +9,19 @@
 #include "PlayerLeaveEvent.hpp"
 #include "JoinEvent.hpp"
 #include "KickEvent.hpp"
+#include "MetadataEvent.hpp"
 #include "MoveEvent.hpp"
 #include "PlayerPropertiesEvent.hpp"
 #include "QueryEvent.hpp"
 #include "RemovalEvent.hpp"
 #include "ServerInfoEvent.hpp"
+#include "SyncEvent.hpp"
+#include "acceptEvent.hpp"
 #include "actor.hpp"
 #include "engine.hpp"
 #include "syncEvent.hpp"
+#include "errorEvent.hpp"
+#include <cereal/archives/portable_binary.hpp>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -152,8 +157,8 @@ NetClient::pollServer()
 
     switch (event->getType()) {
       case EVENT_SYNC: {
-        std::shared_ptr<syncEvent> s_event =
-          std::dynamic_pointer_cast<syncEvent>(event);
+        std::shared_ptr<SyncEvent> s_event =
+          std::dynamic_pointer_cast<SyncEvent>(event);
         mPlayers = s_event->getPlayers();
         _pScene->mState = s_event->mState;
         /* TODO move mPlayers to _player_list */
@@ -203,6 +208,70 @@ NetClient::pollServer()
         std::shared_ptr<MoveEvent> m_event =
           std::dynamic_pointer_cast<MoveEvent>(event);
         std::shared_ptr<actor> p_actor = _pScene->GetActor(m_event->mActorId);
+      /* Make the pointer shared so we can handle it elsewhere */
+      std::shared_ptr<AbstractEvent> sp_to_handle = std::move(receive_event);
+      switch (sp_to_handle->getType()) {
+        case EVENT_SYNC: {
+          std::shared_ptr<SyncEvent> s_event =
+            std::dynamic_pointer_cast<SyncEvent>(sp_to_handle);
+          mPlayers = s_event->getPlayers();
+          _pScene->mState = s_event->mState;
+          /* TODO move mPlayers to _player_list */
+          auto iter =
+            std::find_if(mPlayers.begin(),
+                         mPlayers.end(),
+                         [](serverPlayer sp) -> bool { return sp.isLocal(); });
+          if (iter != mPlayers.end()) {
+            if (iter->mNickname != _nickname) {
+              log_message(
+                ERR,
+                "sync player list had wrong nickname for the local player");
+              break;
+            }
+            /*  Reset player list */
+            _player_list = {};
+            if (_local_player_list.size() == 0)
+              _local_player_list.push_back(
+                LocalPlayer(iter->getNickname(), iter->getId()));
+            _local_player_list.back().setId(iter->getId());
+            unsigned int player_id = iter->getId();
+            for (auto i = _pScene->mActors.begin(); i != _pScene->mActors.end();
+                 i++) {
+              if (!*i)
+                continue;
+              if ((*i)->getPlayerId() == player_id)
+                _pScene->linkActorToPlayer((*i), player_id);
+            }
+          }
+          _pScene->init();
+          auto p_list = s_event->getPlayers();
+          for (auto i = p_list.begin(); i != p_list.end(); i++) {
+            std::shared_ptr<AbstractPlayer> p =
+              std::make_shared<serverPlayer>(*i);
+            _player_list.push_back(p);
+          }
+          log_message(DEBUG, "synced with server");
+          break;
+        }
+
+        case EVENT_METADATA: {
+          std::shared_ptr<MetadataEvent> m_event =
+            std::dynamic_pointer_cast<MetadataEvent>(sp_to_handle);
+          m_event->applyUpdate();
+          break;
+        }
+
+        case EVENT_COMMAND: {
+          std::shared_ptr<CommandEvent> c_event =
+            std::dynamic_pointer_cast<CommandEvent>(sp_to_handle);
+          handleServerCommand(c_event->getCommand());
+          break;
+        }
+
+        case EVENT_MOVE: {
+          std::shared_ptr<MoveEvent> m_event =
+            std::dynamic_pointer_cast<MoveEvent>(sp_to_handle);
+          std::shared_ptr<actor> p_actor = _pScene->GetActor(m_event->mActorId);
 
         if (!p_actor) {
           log_message(ERR,

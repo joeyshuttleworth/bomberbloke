@@ -42,7 +42,7 @@ PauseMenuHudGroup::PauseMenuHudGroup()
 {
   // Create resume button text
   std::shared_ptr<Text> resumeText =
-    textManager.createText("Aileron-Black", "RESUME GAME");
+    textManager.createText("RESUME GAME");
   if(resumeText){
     resumeText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
     resumeText->setTextColour({ 255, 255, 255, 255 });
@@ -57,7 +57,7 @@ PauseMenuHudGroup::PauseMenuHudGroup()
 
   // Create leave button text
   std::shared_ptr<Text> leaveText =
-    textManager.createText("Aileron-Black", "LEAVE GAME");
+    textManager.createText("LEAVE GAME");
   leaveText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
   leaveText->setTextColour({ 255, 255, 255, 255 });
   leaveText->setTextScale(1.5);
@@ -70,7 +70,7 @@ PauseMenuHudGroup::PauseMenuHudGroup()
 
   // Create options menu button
   std::shared_ptr<Text> optionsText =
-    textManager.createText("Aileron-Black", "OPTIONS");
+    textManager.createText("OPTIONS");
   optionsText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
   optionsText->setTextColour({ 255, 255, 255, 255 });
   optionsText->setTextScale(1.5);

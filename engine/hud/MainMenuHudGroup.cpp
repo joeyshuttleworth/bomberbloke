@@ -24,7 +24,7 @@ MainMenuHudGroup::MainMenuHudGroup()
 {
   // Create title
   std::shared_ptr<Text> titleText =
-    textManager.createText("Aileron-Black", "BOMBERBLOKE");
+    textManager.createText("BOMBERBLOKE");
   if (titleText) {
     titleText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
     titleText->setTextColour({ 255, 255, 255, 255 });
@@ -40,7 +40,7 @@ MainMenuHudGroup::MainMenuHudGroup()
 
   // Create start game button text
   std::shared_ptr<Text> startText =
-    textManager.createText("Aileron-Black", "JOIN GAME");
+    textManager.createText("JOIN GAME");
   if (startText) {
     startText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
     startText->setTextColour({ 255, 255, 255, 255 });
@@ -56,7 +56,7 @@ MainMenuHudGroup::MainMenuHudGroup()
 
   // Create options menu button
   std::shared_ptr<Text> optionsText =
-    textManager.createText("Aileron-Black", "OPTIONS");
+    textManager.createText("OPTIONS");
   if (optionsText) {
     optionsText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
     optionsText->setTextColour({ 255, 255, 255, 255 });
@@ -72,7 +72,7 @@ MainMenuHudGroup::MainMenuHudGroup()
 
   // Create exit game button
   std::shared_ptr<Text> quitText =
-    textManager.createText("Aileron-Black", "QUIT");
+    textManager.createText("QUIT");
   if (quitText) {
     quitText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
     quitText->setTextColour({ 255, 255, 255, 255 });

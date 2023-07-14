@@ -9,8 +9,8 @@
 #include "QueryEvent.hpp"
 #include "ServerInfo.hpp"
 #include "ShowAllCamera.hpp"
+#include "SyncEvent.hpp"
 #include "scene.hpp"
-#include "syncEvent.hpp"
 #include <SDL2/SDL_image.h>
 #include <cereal/archives/json.hpp>
 #include <dirent.h>
@@ -735,6 +735,20 @@ load_assets()
       _sprite_list.push_back({ entry.filename(), sprite });
     }
   }
+}
+
+std::shared_ptr<AbstractPlayer>
+findPlayer(unsigned int id) {
+  auto it = std::find_if(
+    _player_list.begin(),_player_list.end(),
+    [&](std::shared_ptr<AbstractPlayer> p) -> bool {
+      return p->getId() == id;
+    });
+
+  if(it == _player_list.end())
+    return {};
+
+  return *it;
 }
 
 /* Lookup the name in our list of assets and return a pointer to its texture if

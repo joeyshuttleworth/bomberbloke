@@ -8,11 +8,15 @@
 #include "ErrorEvent.hpp"
 #include "JoinEvent.hpp"
 #include "MessageEvent.hpp"
+#include "MetadataEvent.hpp"
 #include "PlayerPropertiesEvent.hpp"
 #include "QueryEvent.hpp"
 #include "ServerInfoEvent.hpp"
+#include "SyncEvent.hpp"
+#include "AcceptEvent.hpp"
+#include "cereal/archives/portable_binary.hpp"
 #include "engine.hpp"
-#include "syncEvent.hpp"
+#include "ErrorEvent.hpp"
 #include <curl/curl.h>
 #include <sstream>
 #include <string>
@@ -66,7 +70,7 @@ NetServer::handleJoinEvent(std::shared_ptr<JoinEvent> event, int from_id)
   std::unique_ptr<AbstractEvent> accept_event(new AcceptEvent());
   mConnector->sendEvent(std::move(accept_event), from_id);
   /* Now sync send the entire gamestate to the client */
-  std::unique_ptr<AbstractEvent> s_event(new syncEvent(from_id));
+  std::unique_ptr<AbstractEvent> s_event(new SyncEvent(from_id));
   mConnector->sendEvent(std::move(s_event), from_id);
 
   // Handle join commands e.g 'colour 0x0000ffff'
@@ -235,19 +239,28 @@ NetServer::updateGameMasterServer(bool disconnect)
 void
 NetServer::syncPlayers()
 {
+  // Each player receives a SyncEvent, PlayerPropertiesEvent and MetadataEvent
+  auto *metadata_event = new MetadataEvent();
+
   for (auto i = _player_list.begin(); i != _player_list.end(); i++) {
     int id = (*i)->getId();
     if(id < 0)
       continue; // No need to sync debug players
 
-    std::shared_ptr<AbstractEvent> s_event(new syncEvent(id));
+    std::shared_ptr<AbstractEvent> s_event(new SyncEvent(id));
     std::shared_ptr<GamePlayerProperties> p_props =
       (*i)->getPlayerProperties();
+
+    // Use this opportunity to update ping
+    int ping = (int) peer->lastRoundTripTime;
+    std::string key = "lastPingMeasurement";
+    (*i)->mMetadata.numeric[key] = ping;
+    metadata_event->includeUpdateNumeric((int) (*i)->getId(), key, ping);
+
     if (p_props) {
       GamePlayerProperties props = *p_props;
       std::shared_ptr<AbstractEvent> p_event(
         new PlayerPropertiesEvent(props));
-      //sendEvent(s_event, id); TODO This was duplicated, can it be removed?
       mConnector->sendEvent(p_event, id);
     } else {
       log_message(ERR, "Failed to sync properties - null properties");
@@ -255,6 +268,10 @@ NetServer::syncPlayers()
     mConnector->sendEvent(s_event, id);
     syncPlayerProperties(*i);
   }
+
+  // Finally send everyone new metadata
+  std::unique_ptr<AbstractEvent> e(metadata_event);
+  broadcastEvent(e);
   return;
 }
 

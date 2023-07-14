@@ -17,7 +17,7 @@
 #include "AbstractEvent.hpp"
 #include <cereal/types/vector.hpp>
 
-class syncEvent : public AbstractEvent{
+class SyncEvent : public AbstractEvent{
 private:
   std::vector<serverPlayer> mPlayers;
   std::vector<actor>    mActors;
@@ -32,9 +32,9 @@ public:
     return mPlayers;
   }
 
-  syncEvent(){};
+  SyncEvent(){};
 
-  explicit syncEvent(int to_id){   /* Generate the list of players */
+  explicit SyncEvent(int to_id){   /* Generate the list of players */
     for(auto i = _player_list.begin(); i != _player_list.end(); i++){
       if(to_id > 0 && to_id == (*i)->getId())
         mPlayers.push_back(serverPlayer(*i, true));
@@ -56,7 +56,7 @@ public:
   }
 };
 
-CEREAL_REGISTER_TYPE(syncEvent)
+CEREAL_REGISTER_TYPE(SyncEvent)
 
 #endif
 

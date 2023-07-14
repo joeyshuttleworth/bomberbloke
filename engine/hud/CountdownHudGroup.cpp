@@ -19,7 +19,7 @@ CountdownHudGroup::CountdownHudGroup(std::function<void()> onFinished,
   mMaxGlowAmount = maxGlowAmount;
 
   // Create countdown text
-  std::shared_ptr<Text> text = textManager.createText("Aileron-Black", "");
+  std::shared_ptr<Text> text = textManager.createText("");
   text->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
   text->setTextColour({ 255, 255, 255, 255 });
   text->setTextScale(4.);
