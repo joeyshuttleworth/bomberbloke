@@ -30,7 +30,6 @@ NetServer::~NetServer()
 void
 NetServer::handleJoinEvent(std::shared_ptr<JoinEvent> event, int from_id)
 {
-  printf("handleJoinEvent called with id %i\n", from_id);
   std::string nickname = event->mNickname;
 
   /*  First check that there's space on the server */
@@ -58,8 +57,6 @@ NetServer::handleJoinEvent(std::shared_ptr<JoinEvent> event, int from_id)
     return;
   }
 
-  printf("handleJoinEvent : check passed\n");
-
   /* Add the player to _player_list */
   auto player = std::make_shared<NetworkPlayer>(nickname, from_id);
   player->setId(from_id);
@@ -71,8 +68,6 @@ NetServer::handleJoinEvent(std::shared_ptr<JoinEvent> event, int from_id)
   /* Now sync send the entire gamestate to the client */
   std::unique_ptr<AbstractEvent> s_event(new syncEvent(from_id));
   mConnector->sendEvent(std::move(s_event), from_id);
-
-  printf("handleJoinEvent : sent both events to client\n");
 
   // Handle join commands e.g 'colour 0x0000ffff'
   for(auto& command : event->getCommands()){
@@ -104,8 +99,6 @@ NetServer::handleEvent(std::shared_ptr<AbstractEvent> pEvent, int from_id)
       /*  Get the server info and see if the username may be used */
       std::shared_ptr<QueryEvent> pquery_event =
         std::dynamic_pointer_cast<QueryEvent>(pEvent);
-
-      printf("EVENT_QUERY requested username %s\n", pquery_event->getNickname().c_str());
       std::unique_ptr<AbstractEvent> info_event(new ServerInfoEvent(
         mServerInfo, _player_list, pquery_event->getNickname()));
       mConnector->sendEvent(std::move(info_event), from_id);
@@ -114,7 +107,6 @@ NetServer::handleEvent(std::shared_ptr<AbstractEvent> pEvent, int from_id)
     case EVENT_JOIN: {
       std::shared_ptr<JoinEvent> pjoin_event =
         std::dynamic_pointer_cast<JoinEvent>(pEvent);
-      printf("NetServer::handleEvent got JoinEvent\n");
 
       handleJoinEvent(pjoin_event, from_id);
       break;
@@ -140,8 +132,8 @@ NetServer::handleCommandEvent(std::shared_ptr<CommandEvent> c_event, int from_id
     return;
   }
   std::string command = c_event->getCommand();
-  log_message(DEBUG, "received command " + command + " from player " +
-  std::to_string(p_player->getId()) +  ".");
+  //log_message(DEBUG, "received command " + command + " from player " +
+  //std::to_string(p_player->getId()) +  ".");
 
   if (command != "") {
     auto tokens = split_to_tokens(command);

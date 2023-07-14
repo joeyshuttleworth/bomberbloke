@@ -217,7 +217,6 @@ NetClient::pollServer()
         break;
       }
       case EVENT_CREATE: {
-        printf("NetClient: EVENT_CREATE detected\n");
         std::shared_ptr<CreationEvent> c_event =
           std::dynamic_pointer_cast<CreationEvent>(event);
         if (c_event->getActor())
