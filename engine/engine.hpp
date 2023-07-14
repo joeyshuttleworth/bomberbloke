@@ -167,8 +167,8 @@ class NetServer;
 
 #include "NetClient.hpp"
 #include "NetServer.hpp"
-extern std::shared_ptr<NetClient> _net_client;
-extern std::shared_ptr<NetServer> _net_server;
+extern std::unique_ptr<NetClient> _net_client;
+extern std::unique_ptr<NetServer> _net_server;
 
 /* Define the path seperator based on the operating system*/
 const std::string PATHSEPARATOR =

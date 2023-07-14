@@ -48,9 +48,8 @@ std::vector<CommandBinding> _default_bindings;
 std::list<std::shared_ptr<AbstractPlayer>> _player_list;
 std::mutex _scene_mutex;
 
-// Todo changed these to ptrs to prevent initialisation
-std::shared_ptr<NetClient> _net_client;
-std::shared_ptr<NetServer> _net_server;
+std::unique_ptr<NetClient> _net_client;
+std::unique_ptr<NetServer> _net_server;
 
 SoundManager soundManager;
 TextManager textManager;
@@ -165,9 +164,9 @@ void
 init_engine(bool server)
 {
   if(server)
-    _net_server = std::make_shared<NetServer>();
+    _net_server = std::unique_ptr<NetServer>(new NetServer());
   else
-    _net_client = std::make_shared<NetClient>();
+    _net_client = std::unique_ptr<NetClient>(new NetClient());
 
   signal(SIGINT, exit_engine);
   SDL_Init(SDL_INIT_EVERYTHING);

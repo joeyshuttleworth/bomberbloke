@@ -8,7 +8,7 @@
 
 ENetConnector::ENetConnector()
 {
-  printf("ENetConnector() called \n");
+  //printf("ENetConnector() constructor called\n");
 }
 
 void
@@ -24,7 +24,7 @@ ENetConnector::configure(ushort port)
 void
 ENetConnector::open()
 {
-  printf("ENetConnector::open called\n");
+  log_message(DEBUG, "ENetConnector - open() called");
 
   if (enet_initialize() != 0) {
     printf("FATAL: Could not init enet\n");
@@ -48,7 +48,7 @@ ENetConnector::open()
 void
 ENetConnector::close()
 {
-  printf("ENetConnector : closing on port %i\n", mPort);
+  log_message(DEBUG, "ENetConnector - closing on port" + std::to_string(mPort));
   peers.clear();
   if(mENetHost != nullptr)
     enet_host_destroy(mENetHost);
@@ -56,7 +56,7 @@ ENetConnector::close()
 }
 
 ENetConnector::~ENetConnector() {
-  printf("ENetConnector destructor called\n");
+  log_message(DEBUG, "ENetConnector - destructor called");
 }
 
 int
@@ -143,13 +143,16 @@ ENetConnector::connectPeer(std::string address, short port)
   peers[newId] = enet_host_connect(mENetHost, &addr, 1, 0);
 
   ENetEvent event;
+  std::stringstream msg;
+  msg << "ENet: Connection to " << address.c_str() << " : " << port;
   if (enet_host_service(mENetHost, &event, 5000) > 0 &&
       event.type == ENET_EVENT_TYPE_CONNECT) {
-    std::stringstream msg;
-    printf("ENet: Connection to %s : %i succeeded\n", address.c_str(), port);
+    msg << " succeeded";
+    log_message(DEBUG, msg.str());
     return newId;
   } else {
-    printf("ENet: Connection to %s : %i failed\n", address.c_str(), port);
+    msg << " failed";
+    log_message(DEBUG, msg.str());
     peers.erase(newId);
     return -1;
   }
@@ -198,7 +201,8 @@ ENetConnector::parseENetPacket(ENetEvent &event,
     inArchive(receive_event);
 
     abstractEvent = receive_event;
-    std::cout << "---> got event type " << receive_event->getType() << std::endl;
+    log_message(DEBUG, "ENetConnector - got event of type " +
+                         std::to_string(receive_event->getType()));
   } catch (std::exception& e) {
     std::stringstream strstream;
     strstream << "Received malformed network event.\n" << e.what();
@@ -224,11 +228,9 @@ ENetConnector::poll(int timeout) {
   while (enet_host_service(mENetHost, &event, (enet_uint32) timeout) > 0) {
     switch (event.type) {
       case ENET_EVENT_TYPE_RECEIVE: {
-        printf("ENET RECEIVE\n");
-
         int id = findIdFromPeer(event.peer);
         if(id == -1) {
-          printf("--> Unrecognised peer, adding to peers list \n");
+          log_message(DEBUG, "ENetConnector - Unrecognised peer, registering");
           id = nextFreeId();
           peers[id] = event.peer;
           /*  Set the timeout for the new peer (in ms)*/
@@ -281,11 +283,9 @@ ENetConnector::pollFor(int timeout, std::set<EventType> &lookFor) {
   while (enet_host_service(mENetHost, &event, (enet_uint32) timeout) > 0) {
     switch (event.type) {
       case ENET_EVENT_TYPE_RECEIVE: {
-        printf("ENET RECEIVE\n");
-
         int id = findIdFromPeer(event.peer);
         if(id == -1) {
-          printf("--> Unrecognised peer, adding to peers list \n");
+          log_message(DEBUG, "ENetConnector - Unrecognised peer, registering");
           id = nextFreeId();
           peers[id] = event.peer;
           /*  Set the timeout for the new peer (in ms)*/

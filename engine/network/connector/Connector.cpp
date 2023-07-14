@@ -1,6 +1,7 @@
 #include <Connector.hpp>
+#include <engine.hpp>
 
 Connector::~Connector()
 {
-  printf("Connector destroyed\n");
+  log_message(DEBUG, "Connector - destructor called");
 }
