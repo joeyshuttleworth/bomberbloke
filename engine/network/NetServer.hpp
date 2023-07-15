@@ -56,7 +56,14 @@ public:
     void disconnectPlayer(std::shared_ptr<AbstractPlayer>, std::string="");
     void disconnectPlayer(const std::string& player_name, std::string reason="");
     void handlePlayerLeave(const std::shared_ptr<AbstractPlayer>&);
-  std::unique_ptr<Connector> mConnector;
+
+    /** handleEvent
+     *  Called when the server receives some kind of event.
+     *  @param pointer to an event that has been received
+     */
+    void handleEvent(std::shared_ptr<AbstractEvent>, int from_id);
+
+    std::unique_ptr<Connector> mConnector;
 private:
 
   /** A list containing information about every player connected to the server
@@ -71,12 +78,6 @@ private:
   void handleJoinEvent();
 
   ServerInfo mServerInfo;
-
-    /** handleEvent
-     *  Called when the server receives some kind of event.
-     *  @param pointer to an event that has been received
-     */
-  void handleEvent(std::shared_ptr<AbstractEvent>, int from_id);
 
   void updateGameMasterServer(bool disconnect);
   std::string mMasterServerAddress;
