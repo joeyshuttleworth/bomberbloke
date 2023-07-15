@@ -13,10 +13,7 @@
 #include "QueryEvent.hpp"
 #include "ServerInfoEvent.hpp"
 #include "SyncEvent.hpp"
-#include "AcceptEvent.hpp"
-#include "cereal/archives/portable_binary.hpp"
 #include "engine.hpp"
-#include "ErrorEvent.hpp"
 #include <curl/curl.h>
 #include <sstream>
 #include <string>

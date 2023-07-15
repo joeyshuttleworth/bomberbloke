@@ -7,7 +7,6 @@
 #include "AbstractPlayer.hpp"
 #include <connector/ENetConnector.hpp>
 #include "ServerInfo.hpp"
-#include <enet/enet.h>
 #include <list>
 #include <string>
 
@@ -17,31 +16,14 @@ class CommandEvent;
 
 class NetServer {
 public:
-    uint32_t clientCount() const;
-
-    enet_uint32 packetsSent() const;
-
-    enet_uint32 packetsRecieved() const;
-
     NetServer();
 
     ~NetServer();
 
-    bool status();
-
-    void disconnectPeer(ENetPeer *peer);
-
-    void broadcastPacket(ENetPacket *packet, enet_uint8 channel = 0);
-
-    void sendPacket(ENetPeer *peer, ENetPacket *packet, enet_uint8 channel = 0);
-
-
     /* Update the master server about us. If disconnect is true, we will disconnect from the master server
        otherwise, we will send our info to the master server.
      */
-
     void removeFromMasterServer();
-    bool isConnected();
 
     void init(int);
     void handleJoinEvent(std::shared_ptr<JoinEvent> event, int from_id);
@@ -68,12 +50,10 @@ private:
   // TODO It uses _player_list rather than above, why?
   std::shared_ptr<AbstractPlayer> findPlayer(int id);
 
-  void sendStringMessage(std::string, ENetPeer*);
-  void handleJoinEvent();
-
   /** handleEvent
      *  Called when the server receives some kind of event.
-     *  @param pointer to an event that has been received
+     *  @param Event to process
+     *  @param int id, specified by Connector, of the sender
    */
   void handleEvent(std::shared_ptr<AbstractEvent>, int from_id);
 
