@@ -193,40 +193,73 @@ ENetConnector::statRoundTripTime(int id)
   if(peers.count(id) == 0)
     return -1;
 
-  return peers[id]->lastRoundTripTime;
+  return (int) peers[id]->lastRoundTripTime;
 }
 
-void
-ENetConnector::parseENetPacket(ENetEvent &event,
-                               std::shared_ptr<AbstractEvent> &abstractEvent) {
-  if (std::strcmp(reinterpret_cast<const char*>(event.packet->data),
-                  "ping") == 0) {
-    log_message(DEBUG, "Recieved ping command from peer");
+void ENetConnector::processENetEvent(ENetEvent &event,
+                      std::shared_ptr<AbstractEvent> &emitted_event,
+                      int &from_id)
+{
+  from_id = findIdFromPeer(event.peer);
 
-    ENetPacket* pong_packet = enet_packet_create(
-      "pong", strlen("pong") + 1, ENET_PACKET_FLAG_RELIABLE);
-    sendPacket(event.peer, pong_packet, 0);
-    log_message(0, "Sent Packet to Peer");
-    enet_host_flush(mENetHost);
-    return;
+  switch(event.type) {
+    case ENET_EVENT_TYPE_CONNECT: {
+      log_message(0, "User made ENet connection");
+      return;
+    }
+    case ENET_EVENT_TYPE_DISCONNECT: {
+      log_message(INFO, "Disconnect event received");
+
+      /* Reset the peer's client information. */
+      event.peer->data = NULL;
+
+      if(from_id >= 0) {
+        peers.erase(from_id);
+        emitted_event = std::make_shared<PlayerLeaveEvent>();
+      }
+    }
+    case ENET_EVENT_TYPE_RECEIVE: {
+      if(from_id == -1) {
+        from_id = nextFreeId();
+        peers[from_id] = event.peer;
+        /*  Set the timeout for the new peer (in ms)*/
+        enet_peer_timeout(event.peer, 1000, 0, 0);
+      }
+
+      if (std::strcmp(reinterpret_cast<const char*>(event.packet->data),
+                      "ping") == 0) {
+        log_message(DEBUG, "Recieved ping command from peer");
+
+        ENetPacket* pong_packet = enet_packet_create(
+          "pong", strlen("pong") + 1, ENET_PACKET_FLAG_RELIABLE);
+        sendPacket(event.peer, pong_packet, 0);
+        log_message(0, "Sent Packet to Peer");
+        enet_host_flush(mENetHost);
+        return;
+      }
+      std::stringstream data_in;
+      data_in.write((char*)event.packet->data, event.packet->dataLength);
+
+      try {
+        std::shared_ptr<AbstractEvent> receive_event;
+        cereal::PortableBinaryInputArchive inArchive(data_in);
+        inArchive(receive_event);
+        emitted_event = receive_event;
+      } catch (std::exception& e) {
+        std::stringstream strstream;
+        strstream << "Received malformed network event.\n" << e.what();
+        log_message(ERR, strstream.str());
+      }
+
+      /* Clean up the packet now that we're done using it. */
+      enet_packet_destroy(event.packet);
+      break;
+    }
+    default:
+      break;
   }
-  std::stringstream data_in;
-  data_in.write((char*)event.packet->data, event.packet->dataLength);
-
-  try {
-    std::shared_ptr<AbstractEvent> receive_event;
-    cereal::PortableBinaryInputArchive inArchive(data_in);
-    inArchive(receive_event);
-    abstractEvent = receive_event;
-  } catch (std::exception& e) {
-    std::stringstream strstream;
-    strstream << "Received malformed network event.\n" << e.what();
-    log_message(ERR, strstream.str());
-  }
-
-  /* Clean up the packet now that we're done using it. */
-  enet_packet_destroy(event.packet);
 }
+
 
 std::list<std::pair<int, std::shared_ptr<AbstractEvent>>>
 ENetConnector::poll(int timeout) {
@@ -241,43 +274,14 @@ ENetConnector::poll(int timeout) {
 
   ENetEvent event;
   while (enet_host_service(mENetHost, &event, (enet_uint32) timeout) > 0) {
-    switch (event.type) {
-      case ENET_EVENT_TYPE_RECEIVE: {
-        int id = findIdFromPeer(event.peer);
-        if(id == -1) {
-          id = nextFreeId();
-          peers[id] = event.peer;
-          /*  Set the timeout for the new peer (in ms)*/
-          enet_peer_timeout(event.peer, 1000, 0, 0);
-        }
+    std::shared_ptr<AbstractEvent> event_recieved;
+    int id;
 
-        std::shared_ptr<AbstractEvent> abstractEvent;
-        parseENetPacket(event, abstractEvent);
-        if(abstractEvent != nullptr)
-          events.emplace_back(id, abstractEvent);
-        break;
-      }
-      case ENET_EVENT_TYPE_CONNECT: {
-        log_message(0, "User made ENet connection");
-        std::stringstream message;
-        continue;
-      }
-      case ENET_EVENT_TYPE_DISCONNECT: {
-        log_message(INFO, "Disconnect event received");
+    processENetEvent(event, event_recieved, id);
 
-        /* Reset the peer's client information. */
-        event.peer->data = NULL;
-
-        int id = findIdFromPeer(event.peer);
-        if(id >= 0) {
-          peers.erase(id);
-          std::shared_ptr<AbstractEvent> sp_to_handle =
-            std::make_shared<PlayerLeaveEvent>();
-          events.emplace_back(id, sp_to_handle);
-        }
-      }
-      default:
-        break;
+    if(event_recieved != nullptr) {
+      // Got something
+      events.emplace_back(id, event_recieved);
     }
   }
 
@@ -295,45 +299,18 @@ ENetConnector::pollFor(int timeout, std::set<EventType> &lookFor) {
 
   ENetEvent event;
   while (enet_host_service(mENetHost, &event, (enet_uint32) timeout) > 0) {
-    switch (event.type) {
-      case ENET_EVENT_TYPE_RECEIVE: {
-        int id = findIdFromPeer(event.peer);
-        if(id == -1) {
-          id = nextFreeId();
-          peers[id] = event.peer;
-          /*  Set the timeout for the new peer (in ms)*/
-          enet_peer_timeout(event.peer, 1000, 0, 0);
-        }
+    std::shared_ptr<AbstractEvent> event_recieved;
+    int id;
 
-        std::shared_ptr<AbstractEvent> abstractEvent;
+    processENetEvent(event, event_recieved, id);
 
-        parseENetPacket(event, abstractEvent);
-        if(abstractEvent != nullptr) {
-          if (lookFor.count(abstractEvent->getType()) > 0)
-            return std::make_pair(id, abstractEvent);
-          cache.emplace_back(id, abstractEvent);
-        }
-      }
-      case ENET_EVENT_TYPE_CONNECT: {
-        log_message(0, "User made ENet connection");
-        std::stringstream message;
-      }
-      case ENET_EVENT_TYPE_DISCONNECT: {
-        log_message(INFO, "Disconnect event received");
+    if(event_recieved != nullptr) {
+      // Got something
+      if (lookFor.count(event_recieved->getType()) > 0)
+        return std::make_pair(id, event_recieved);
 
-        /* Reset the peer's client information. */
-        event.peer->data = NULL;
-
-        int id = findIdFromPeer(event.peer);
-        if(id >= 0) {
-          peers.erase(id);
-          std::shared_ptr<AbstractEvent> sp_to_handle =
-            std::make_shared<PlayerLeaveEvent>();
-          cache.emplace_back(id, sp_to_handle);
-        }
-      }
-      default:
-        continue;
+      // Not looking for this so cache it
+      cache.emplace_back(id, event_recieved);
     }
   }
 

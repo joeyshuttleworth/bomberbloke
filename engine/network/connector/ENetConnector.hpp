@@ -21,6 +21,10 @@ protected:
   void sendPacket(ENetPeer* peer, ENetPacket* packet, enet_uint8 channel);
   int findIdFromPeer(ENetPeer* peer);
 
+  void processENetEvent(ENetEvent &event,
+                        std::shared_ptr<AbstractEvent> &emitted_event,
+                        int &from_id);
+
 public:
   ENetConnector();
   ~ENetConnector();
@@ -31,9 +35,6 @@ public:
 
   using Connector::sendEvent;
   void sendEvent(std::shared_ptr<AbstractEvent> event, int to_id) override;
-
-  void parseENetPacket(ENetEvent& event,
-                       std::shared_ptr<AbstractEvent>& abstractEvent);
 
   int connectPeer(std::string address, short port) override;
   void disconnectPeer(int id, std::string reason) override;
