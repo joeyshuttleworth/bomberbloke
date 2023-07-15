@@ -738,7 +738,7 @@ load_assets()
 }
 
 std::shared_ptr<AbstractPlayer>
-findPlayer(unsigned int id) {
+findPlayer(int id) {
   auto it = std::find_if(
     _player_list.begin(),_player_list.end(),
     [&](std::shared_ptr<AbstractPlayer> p) -> bool {

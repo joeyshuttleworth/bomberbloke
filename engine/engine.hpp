@@ -76,7 +76,7 @@ void draw_screen();
 void set_draw(bool);
 SDL_Joystick* handle_input_controller();
 void server_add_debug_player();
-std::shared_ptr<AbstractPlayer> findPlayer(unsigned int id);
+std::shared_ptr<AbstractPlayer> findPlayer(int id);
 void add_player(std::shared_ptr<AbstractPlayer>);
 
 

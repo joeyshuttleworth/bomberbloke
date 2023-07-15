@@ -31,7 +31,7 @@ public:
     short mPort;
     int mServerId;
 
-    std::unique_ptr<ENetConnector> mConnector;
+    std::unique_ptr<Connector> mConnector;
 };
 
 #endif

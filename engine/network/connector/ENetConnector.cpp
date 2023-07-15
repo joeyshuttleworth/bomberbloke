@@ -187,6 +187,15 @@ ENetConnector::disconnectPeer(int id, std::string reason) {
   return;
 }
 
+int
+ENetConnector::statRoundTripTime(int id)
+{
+  if(peers.count(id) == 0)
+    return -1;
+
+  return peers[id]->lastRoundTripTime;
+}
+
 void
 ENetConnector::parseENetPacket(ENetEvent &event,
                                std::shared_ptr<AbstractEvent> &abstractEvent) {

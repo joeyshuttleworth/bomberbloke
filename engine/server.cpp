@@ -57,6 +57,17 @@ void server_loop(short port, std::string masterServerAddress, bool debug){
     if(_debug_player && _player_list.empty()) { // If empty add a dummy player in debug mode
       server_add_debug_player();
     }
+
+    // This is a good place to spit out diagnostics evenly in time:
+    /*
+    if(_tick % 50) {
+      log_message(DEBUG, "Begin ping dump");
+      for(auto p : _player_list) {
+        log_message(DEBUG, "Ping : " + std::to_string(_net_server->mConnector->statRoundTripTime(p->getId())));
+      }
+    }
+    */
+
     if (_pScene->getNewGame() && _player_list.size() > 1) {
       new_game("");
     }

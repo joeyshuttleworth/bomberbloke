@@ -37,6 +37,9 @@ public:
 
   int connectPeer(std::string address, short port) override;
   void disconnectPeer(int id, std::string reason) override;
+
+  int statRoundTripTime(int id) override;
+
   std::list<std::pair<int, std::shared_ptr<AbstractEvent>>> poll(int) override;
   std::pair<int, std::shared_ptr<AbstractEvent>> pollFor(
     int timeout,

@@ -252,7 +252,7 @@ NetServer::syncPlayers()
       (*i)->getPlayerProperties();
 
     // Use this opportunity to update ping
-    int ping = (int) peer->lastRoundTripTime;
+    int ping = mConnector->statRoundTripTime(id);
     std::string key = "lastPingMeasurement";
     (*i)->mMetadata.numeric[key] = ping;
     metadata_event->includeUpdateNumeric((int) (*i)->getId(), key, ping);
@@ -271,7 +271,7 @@ NetServer::syncPlayers()
 
   // Finally send everyone new metadata
   std::unique_ptr<AbstractEvent> e(metadata_event);
-  broadcastEvent(e);
+  mConnector->broadcastEvent(std::move(e));
   return;
 }
 

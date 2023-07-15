@@ -21,7 +21,7 @@ public:
   // Store delta for each player ('mActorId')
   std::map<int, Metadata> delta;
 
-  int getType() const override{
+  EventType getType() const override {
     return EVENT_METADATA;
   }
 
@@ -44,7 +44,7 @@ public:
       int id = p.first;
       Metadata update = p.second;
 
-      std::shared_ptr<AbstractPlayer> player = findPlayer((unsigned int) id);
+      std::shared_ptr<AbstractPlayer> player = findPlayer(id);
       if(player == nullptr)
         log_message(INFO,
                     "Recieved metadata for player id " + std::to_string(id)
