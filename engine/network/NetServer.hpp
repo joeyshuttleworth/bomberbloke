@@ -57,12 +57,6 @@ public:
     void disconnectPlayer(const std::string& player_name, std::string reason="");
     void handlePlayerLeave(const std::shared_ptr<AbstractPlayer>&);
 
-    /** handleEvent
-     *  Called when the server receives some kind of event.
-     *  @param pointer to an event that has been received
-     */
-    void handleEvent(std::shared_ptr<AbstractEvent>, int from_id);
-
     std::unique_ptr<Connector> mConnector;
 private:
 
@@ -76,6 +70,12 @@ private:
 
   void sendStringMessage(std::string, ENetPeer*);
   void handleJoinEvent();
+
+  /** handleEvent
+     *  Called when the server receives some kind of event.
+     *  @param pointer to an event that has been received
+   */
+  void handleEvent(std::shared_ptr<AbstractEvent>, int from_id);
 
   ServerInfo mServerInfo;
 
