@@ -41,8 +41,8 @@ public:
 
   int statRoundTripTime(int id) override;
 
-  std::list<std::pair<int, std::shared_ptr<AbstractEvent>>> poll(int) override;
-  std::pair<int, std::shared_ptr<AbstractEvent>> pollFor(
+  std::list<EventReceived> poll(int) override;
+  EventReceived pollFor(
     int timeout,
     std::set<EventType>& lookFor) override;
 

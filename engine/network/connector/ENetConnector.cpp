@@ -261,7 +261,7 @@ void ENetConnector::processENetEvent(ENetEvent &event,
 }
 
 
-std::list<std::pair<int, std::shared_ptr<AbstractEvent>>>
+std::list<EventReceived>
 ENetConnector::poll(int timeout) {
   if(mENetHost == nullptr) {
     fprintf(stderr, "Need to call configure() and open() on connector before"
@@ -269,7 +269,7 @@ ENetConnector::poll(int timeout) {
   }
 
   // Poll for events and store as { peer_id, shared_ptr<AbstractEvent> }
-  std::list<std::pair<int, std::shared_ptr<AbstractEvent>>> events = cache;
+  std::list<EventReceived> events = cache;
   cache.clear();
 
   ENetEvent event;
@@ -281,7 +281,7 @@ ENetConnector::poll(int timeout) {
 
     if(event_recieved != nullptr) {
       // Got something
-      events.emplace_back(id, event_recieved);
+      events.push_back({event_recieved, id});
     }
   }
 
@@ -289,14 +289,12 @@ ENetConnector::poll(int timeout) {
 }
 
 
-std::pair<int, std::shared_ptr<AbstractEvent>>
+EventReceived
 ENetConnector::pollFor(int timeout, std::set<EventType> &lookFor) {
   /*
    * Used when the next event is expected to be a particular type, caches
    * everything else.
    */
-  std::pair<int, std::shared_ptr<AbstractEvent>> ret;
-
   ENetEvent event;
   while (enet_host_service(mENetHost, &event, (enet_uint32) timeout) > 0) {
     std::shared_ptr<AbstractEvent> event_recieved;
@@ -307,14 +305,14 @@ ENetConnector::pollFor(int timeout, std::set<EventType> &lookFor) {
     if(event_recieved != nullptr) {
       // Got something
       if (lookFor.count(event_recieved->getType()) > 0)
-        return std::make_pair(id, event_recieved);
+        return {event_recieved, id};
 
       // Not looking for this so cache it
-      cache.emplace_back(id, event_recieved);
+      cache.push_back({event_recieved, id});
     }
   }
 
-  return std::make_pair(-1, nullptr);
+  return {nullptr, -1};
 }
 
 int ENetConnector::countPeers()

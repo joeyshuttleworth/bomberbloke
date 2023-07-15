@@ -7,6 +7,15 @@
 #include <AbstractPlayer.hpp>
 
 /*
+ * Event object that the Connector interface emits
+ */
+
+struct EventReceived {
+  std::shared_ptr<AbstractEvent> event;
+  int from_id;
+};
+
+/*
  * Connector Interface
  *
  * All client/server code is intended to target this interface, so that the
@@ -37,10 +46,10 @@ public:
 
   virtual int statRoundTripTime(int id) = 0;
 
-  std::list<std::pair<int, std::shared_ptr<AbstractEvent>>> cache;
-  virtual std::list<std::pair<int, std::shared_ptr<AbstractEvent>>> poll(
+  std::list<EventReceived> cache;
+  virtual std::list<EventReceived> poll(
     int) = 0;
-  virtual std::pair<int, std::shared_ptr<AbstractEvent>> pollFor(
+  virtual EventReceived pollFor(
     int timeout,
     std::set<EventType>& lookFor) = 0;
 

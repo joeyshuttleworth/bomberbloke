@@ -284,12 +284,10 @@ void
 NetServer::update()
 {
   auto receivedEvents = mConnector->poll(0);
-  for(auto pair : receivedEvents) {
-    int id = pair.first;
-    std::shared_ptr<AbstractEvent> event = pair.second;
-    std::shared_ptr<AbstractPlayer> player = findPlayer(id);
+  for(auto received : receivedEvents) {
+    std::shared_ptr<AbstractPlayer> player = findPlayer(received.from_id);
 
-    switch(event->getType()) {
+    switch(received.event->getType()) {
       case EVENT_PLAYERLEAVE: {
         if(player == nullptr) {
           log_message(ERR, "EVENT_PLAYERLEAVE but could not find player to"
@@ -301,10 +299,10 @@ NetServer::update()
       }
       default: {
         try {
-          handleEvent(event, id);
+          handleEvent(received.event, received.from_id);
         } catch (std::exception& e) {
           std::stringstream strstream;
-          strstream << "Received malformed network event.\n" << event->getType();
+          strstream << "Received malformed network event.\n" << received.event->getType();
           log_message(ERR, strstream.str());
         }
       }

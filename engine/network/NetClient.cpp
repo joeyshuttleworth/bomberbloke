@@ -84,11 +84,11 @@ NetClient::joinBlokeServer(std::string address, const std::string& nickname, con
   /* We expect ServerInfoEvent */
   std::set<EventType> outcomes = { EVENT_INFO };
   auto response = mConnector->pollFor(5000, outcomes);
-  if(response.second == nullptr) {
+  if(response.event == nullptr)
     return false;
-  }
+
   std::shared_ptr<ServerInfoEvent> info_event =
-    std::dynamic_pointer_cast<ServerInfoEvent>(response.second);
+    std::dynamic_pointer_cast<ServerInfoEvent>(response.event);
   info_event->output();
 
   /* Check we're allowed our nickname */
@@ -109,11 +109,11 @@ NetClient::joinBlokeServer(std::string address, const std::string& nickname, con
   mConnector->sendEvent(std::move(join_event), mServerId);
   std::set<EventType> outcomes_2 = { EVENT_ERROR, EVENT_ACCEPT };
   auto joinResponse = mConnector->pollFor(10000, outcomes_2);
-  if(joinResponse.first == -1) {
+  if(joinResponse.from_id == -1) {
     log_message(ERR, "Timed out");
     return false;
   }
-  auto receive_event = joinResponse.second;
+  auto receive_event = joinResponse.event;
   switch (receive_event->getType()) {
     case EVENT_ERROR: {
       /* Handle rejection */
@@ -153,7 +153,7 @@ NetClient::pollServer()
   auto events = mConnector->poll(0);
   for(const auto& event_received : events) {
     // Assumed to be the server in all cases
-    std::shared_ptr<AbstractEvent> event = event_received.second;
+    std::shared_ptr<AbstractEvent> event = event_received.event;
     switch (event->getType()) {
       case EVENT_SYNC: {
         std::shared_ptr<SyncEvent> s_event =
