@@ -4,12 +4,11 @@
 
 #ifndef NETSERVER_HPP
 #define NETSERVER_HPP
-#include <string>
-#include <enet/enet.h>
-#include <string>
-#include <list>
-#include "ServerInfo.hpp"
 #include "AbstractPlayer.hpp"
+#include <connector/ENetConnector.hpp>
+#include "ServerInfo.hpp"
+#include <list>
+#include <string>
 
 class AbstractEvent;
 class JoinEvent;
@@ -17,70 +16,30 @@ class CommandEvent;
 
 class NetServer {
 public:
-    uint32_t clientCount() const;
-
-    enet_uint32 packetsSent() const;
-
-    enet_uint32 packetsRecieved() const;
-
     NetServer();
 
     ~NetServer();
 
-    bool status();
-
-    void disconnectPeer(ENetPeer *peer);
-
-    void broadcastPacket(ENetPacket *packet, enet_uint8 channel = 0);
-
-    void sendPacket(ENetPeer *peer, ENetPacket *packet, enet_uint8 channel = 0);
-
-
-    //! Keeps polling until the _halt flag is set to true. This is used to have the server running in a separate thread.
-    void pollLoop();
-
     /* Update the master server about us. If disconnect is true, we will disconnect from the master server
        otherwise, we will send our info to the master server.
      */
-
     void removeFromMasterServer();
 
-    bool isConnected();
-
-    bool init_enet();
-
-    void handleJoinEvent(std::shared_ptr<JoinEvent> event, ENetPeer *from);
-
-    void handleCommandEvent(std::shared_ptr<CommandEvent>, std::shared_ptr<AbstractPlayer>);
-
+    void init(int);
+    void handleJoinEvent(std::shared_ptr<JoinEvent> event, int from_id);
+    void handleCommandEvent(std::shared_ptr<CommandEvent>, int from_id);
     bool stop();
-
-    void setPort(short port);
     void setMasterServerAddress(std::string masterServerAddress);
-
-  /*
-   * This is called every tick to ping players, remove timed out players
-   * and flush the message queue.
-   */
     void update();
-
-    void sendEvent(std::unique_ptr<AbstractEvent>&, ENetPeer *peer);
-    void broadcastEvent(std::unique_ptr<AbstractEvent>&);
+    void broadcastEvent(std::unique_ptr<AbstractEvent> event);
     void syncPlayerProperties(std::shared_ptr<AbstractPlayer> player);
     void syncPlayers();
-
     void printPlayers();
+    void disconnectPlayer(std::shared_ptr<AbstractPlayer>, std::string="");
+    void disconnectPlayer(const std::string& player_name, std::string reason="");
+    void handlePlayerLeave(const std::shared_ptr<AbstractPlayer>&);
 
-    void disconnectPlayer(std::shared_ptr<AbstractPlayer>, std::string="", bool=false);
-
-    void disconnectPlayer(std::string player_name, std::string reason="");
-
-    void handlePlayerLeave(std::shared_ptr<AbstractPlayer>);
-
-    /* Gives the player a unique id and adds them to the player list provided that
-     * no other player has the same address.
-     */
-    bool addPlayer(std::shared_ptr<AbstractPlayer>);
+    std::unique_ptr<Connector> mConnector;
 private:
 
   /** A list containing information about every player connected to the server
@@ -88,31 +47,20 @@ private:
    */
   std::list<std::shared_ptr<AbstractPlayer>> mPlayerList;
 
-  /* Poll and Handle all ENetEvents in the queue, by default will wait one second
-   * for an event before processing
-   */
-    void poll();
-    /*
-    * Send all of the ENet messages which are waiting to be sent.
-    */
-    void flush();
-    ENetHost *mENetServer = nullptr;
-    ENetAddress mENetAddress;
-    void sendStringMessage(std::string, ENetPeer*);
-    void handleJoinEvent();
+  // TODO It uses _player_list rather than above, why?
+  std::shared_ptr<AbstractPlayer> findPlayer(int id);
 
-    ServerInfo mServerInfo;
-
-    /** handleEvent
+  /** handleEvent
      *  Called when the server receives some kind of event.
-     *  @param pointer to an event that has been received
-     */
-  void handleEvent(std::shared_ptr<AbstractEvent>, ENetPeer*);
+     *  @param Event to process
+     *  @param int id, specified by Connector, of the sender
+   */
+  void handleEvent(std::shared_ptr<AbstractEvent>, int from_id);
+
+  ServerInfo mServerInfo;
 
   void updateGameMasterServer(bool disconnect);
-  enet_uint16 mPort;
   std::string mMasterServerAddress;
-
 };
 
 #endif

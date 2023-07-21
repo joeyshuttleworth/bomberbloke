@@ -116,7 +116,7 @@ JoinMenuHudGroup::JoinMenuHudGroup(std::function<void()> goBackFn)
   std::shared_ptr<InputField> addressField = std::make_shared<InputField>(
     addressFieldText, 0, 60, 300, 50, ALIGN_CENTER, ALIGN_CENTER);
   addressField->setInputColour({ 255, 255, 255, 255 });
-  addressField->setInputText(_net_client.mServerAddress);
+  addressField->setInputText(_net_client->mServerAddress);
   addElement(addressField);
   mAddressField = addressField;
 
@@ -237,7 +237,7 @@ JoinMenuHudGroup::update()
 
     std::vector<std::string> commands = {colour_stream.str()};
 
-    if(_net_client.joinBlokeServer(address, _nickname, commands)){
+    if(_net_client->joinBlokeServer(address, _nickname, commands)){
     // If successful move to bomberbloke scene
     _pNewScene = std::make_shared<BomberBlokeScene>(10, 10);
     } else{

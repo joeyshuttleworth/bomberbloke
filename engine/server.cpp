@@ -17,11 +17,8 @@ void server_loop(short port, std::string masterServerAddress, bool debug){
   t2.tv_nsec = 0;
   t2.tv_sec = 0;
 
-  _net_server.setPort(port);
-  _net_server.setMasterServerAddress(masterServerAddress);
-
-  if (!_net_server.init_enet())
-    return;
+  _net_server->setMasterServerAddress(masterServerAddress);
+  _net_server->init(port);
 
   while (!_halt) {
     t1 = t2;
@@ -41,7 +38,7 @@ void server_loop(short port, std::string masterServerAddress, bool debug){
         log_message(ERR, "Failed to get time");
     } while (t2.tv_nsec - t1.tv_nsec +
                1e9 * (t2.tv_sec - t1.tv_sec) < 1e9 / TICK_RATE);
-    _net_server.update();
+    _net_server->update();
     if (_tick % (5 * TICK_RATE) == 0) {
       _ping_time = _tick;
     }
@@ -54,14 +51,26 @@ void server_loop(short port, std::string masterServerAddress, bool debug){
       draw_screen();
       _tick++;
       if (_tick % 1000 == 0)
-        _net_server.syncPlayers();
+        _net_server->syncPlayers();
       handle_input();
     }
     if(_debug_player && _player_list.empty()) { // If empty add a dummy player in debug mode
       server_add_debug_player();
     }
-    if (_pScene->getNewGame() && _player_list.size() > 1)
+
+    // This is a good place to spit out diagnostics evenly in time:
+    /*
+    if(_tick % 50) {
+      log_message(DEBUG, "Begin ping dump");
+      for(auto p : _player_list) {
+        log_message(DEBUG, "Ping : " + std::to_string(_net_server->mConnector->statRoundTripTime(p->getId())));
+      }
+    }
+    */
+
+    if (_pScene->getNewGame() && _player_list.size() > 1) {
       new_game("");
+    }
   }
   return;
 }

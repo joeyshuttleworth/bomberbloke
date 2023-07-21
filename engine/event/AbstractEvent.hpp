@@ -16,10 +16,10 @@ enum EventType{
   EVENT_PROPERTIES,
   EVENT_MOVE,
   EVENT_METADATA,
+  EVENT_PLAYERLEAVE,
   EVENT_CREATE,
   EVENT_REMOVE,
   EVENT_SYNC,
-  EVENT_NEWGAME,
   EVENT_COMMAND,
   EVENT_ERROR,
   EVENT_ACCEPT,
@@ -30,7 +30,7 @@ enum EventType{
 
 class AbstractEvent{
 public:
-  virtual int getType() const = 0;
+  virtual EventType getType() const = 0;
 
   virtual ~AbstractEvent(){}
 

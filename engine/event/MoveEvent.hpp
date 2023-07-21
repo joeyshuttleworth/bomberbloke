@@ -24,7 +24,7 @@ public:
   double mVelocity[2];
   unsigned int mTick;
 
-  int getType() const{
+  EventType getType() const{
     return EVENT_MOVE;
   }
 

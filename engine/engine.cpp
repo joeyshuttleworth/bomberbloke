@@ -40,7 +40,7 @@ Uint8* _kb_state = NULL;
 std::shared_ptr<scene> _pScene;
 std::shared_ptr<scene> _pNewScene;
 unsigned int _tick = 0;
-std::string _nickname = "big_beef";
+std::string _nickname = "bloke";
 ServerInfo _server_info;
 std::ofstream _console_log_file;
 std::list<std::shared_ptr<AbstractSpriteHandler>> _particle_list;
@@ -48,8 +48,8 @@ std::vector<CommandBinding> _default_bindings;
 std::list<std::shared_ptr<AbstractPlayer>> _player_list;
 std::mutex _scene_mutex;
 
-NetClient _net_client;
-NetServer _net_server;
+std::unique_ptr<NetClient> _net_client;
+std::unique_ptr<NetServer> _net_server;
 
 SoundManager soundManager;
 TextManager textManager;
@@ -161,8 +161,13 @@ channelFinishedForwarder(int channel)
 }
 
 void
-init_engine()
+init_engine(bool server)
 {
+  if(server)
+    _net_server = std::unique_ptr<NetServer>(new NetServer());
+  else
+    _net_client = std::unique_ptr<NetClient>(new NetClient());
+
   signal(SIGINT, exit_engine);
   SDL_Init(SDL_INIT_EVERYTHING);
   soundManager.init(channelFinishedForwarder);
@@ -258,7 +263,7 @@ handle_input()
               if (!_server) {
                 std::unique_ptr<AbstractEvent> c_event(
                   new CommandEvent(command_to_send));
-                _net_client.sendEvent(c_event);
+                _net_client->mConnector->sendEvent(std::move(c_event), _net_client->mServerId);
               }
             } else {
               log_message(
@@ -392,18 +397,18 @@ handle_system_command(std::list<std::string> tokens)
     }
     auto iter = tokens.begin();
     iter++;
-    _net_server.disconnectPlayer(*iter, tokens.back());
+    _net_server->disconnectPlayer(*iter, tokens.back());
     return true;
   }
 
   else if (command == "players" && _server) {
-    _net_server.printPlayers();
+    _net_server->printPlayers();
   }
 
   else if (command == "new" && _server) {
     log_message(INFO, "starting new game");
     new_game("");
-    _net_server.syncPlayers();
+    _net_server->syncPlayers();
   }
 
   else if (command == "zoom" && !_server && !key_down) {
@@ -468,7 +473,7 @@ handle_system_command(std::list<std::string> tokens)
     /*TODO:*/ if (_server) {
 
     } else {
-      _net_client.disconnectClient();
+      _net_client->disconnectClient();
       _pScene = std::make_shared<MainMenuScene>(15, 15);
     }
   }
@@ -500,7 +505,7 @@ handle_system_command(std::list<std::string> tokens)
            this value
         */
         std::string address = tokens.back();
-        if (!_net_client.joinBlokeServer(address, _nickname)) {
+        if (!_net_client->joinBlokeServer(address, _nickname)) {
           log_message(INFO, "failed to connect to server");
           return false;
         }
@@ -596,7 +601,7 @@ handle_system_command(std::list<std::string> tokens)
       // Send request
       std::string command_to_send = command + " " + tokens.back();
       std::unique_ptr<AbstractEvent> c_event(new CommandEvent(command_to_send));
-      _net_client.sendEvent(c_event);
+      _net_client->mConnector->sendEvent(std::move(c_event), _net_client->mServerId);
       log_message(INFO, "Requesting to change player colour to " + tokens.back());
       log_message(DEBUG, "Sending command \"" + command_to_send + "\"");
     }
@@ -733,7 +738,7 @@ load_assets()
 }
 
 std::shared_ptr<AbstractPlayer>
-findPlayer(unsigned int id) {
+findPlayer(int id) {
   auto it = std::find_if(
     _player_list.begin(),_player_list.end(),
     [&](std::shared_ptr<AbstractPlayer> p) -> bool {
@@ -767,17 +772,18 @@ get_sprite(std::string asset_name)
 void
 server_add_debug_player()
 {
-  auto player = std::make_shared<NetworkPlayer>("bloke", nullptr);
-  bool added = _net_server.addPlayer(player);
-  if(!added) {
-    log_message(ERR, "Requested debug player, but couldn't be added");
-  }
+  auto player = std::make_shared<NetworkPlayer>("debug-bloke", -1);
+  //.bool added = _net_server.addPlayer(player);
+  _player_list.push_back(player);
+  //if(!added) {
+  //  log_message(ERR, "Requested debug player, but couldn't be added");
+  //}
 }
 
 void
 add_player(std::shared_ptr<AbstractPlayer> a_player)
 {
-  unsigned int id = _player_list.back()->getId();
+  int id = _player_list.back()->getId();
   for (int i = 0; i < 1000; i++) {
     if (find_if(_player_list.begin(),
                 _player_list.end(),

@@ -11,13 +11,9 @@
 
 #ifndef SYNCEVENT_HPP
 #define SYNCEVENT_HPP
+
 #include "GamePlayerProperties.hpp"
 #include "serverPlayer.hpp"
-
-extern unsigned int _state;
-
-
-#define SYNCEVENT_HPP
 #include "AbstractEvent.hpp"
 #include <cereal/types/vector.hpp>
 
@@ -26,10 +22,9 @@ private:
   std::vector<serverPlayer> mPlayers;
   std::vector<actor>    mActors;
 public:
-
   int mState;
 
-  int getType() const{
+  EventType getType() const{
     return EVENT_SYNC;
   }
 
@@ -37,9 +32,11 @@ public:
     return mPlayers;
   }
 
-  SyncEvent(ENetPeer *to = nullptr){   /* Generate the list of players */
+  SyncEvent(){};
+
+  explicit SyncEvent(int to_id){   /* Generate the list of players */
     for(auto i = _player_list.begin(); i != _player_list.end(); i++){
-      if(to && to == (*i)->getPeer())
+      if(to_id > 0 && to_id == (*i)->getId())
         mPlayers.push_back(serverPlayer(*i, true));
       else
         mPlayers.push_back(serverPlayer(*i, false));
@@ -52,7 +49,10 @@ public:
   /*Used by cereal to serialize the event for it to be sent/received*/
   template<class Archive>
   void serialize(Archive &archive){
-    archive(cereal::base_class<AbstractEvent>(this), cereal::make_nvp("state", mState), cereal::make_nvp("mActors", _pScene->mActors), cereal::make_nvp("players", mPlayers));
+    archive(cereal::base_class<AbstractEvent>(this),
+      cereal::make_nvp("state", mState),
+            cereal::make_nvp("mActors", _pScene->mActors),
+            cereal::make_nvp("players", mPlayers));
   }
 };
 

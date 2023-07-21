@@ -4,8 +4,8 @@
 #include "scene.hpp"
 #include "bomberbloke.h"
 #include "ShowAllCamera.hpp"
-
 #include <memory>
+
 
 class FollowCamera;
 class PauseMenuHudGroup;

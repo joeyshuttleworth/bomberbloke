@@ -22,7 +22,7 @@ public:
     return mProperties;
   }
 
-  int getType() const{
+  EventType getType() const{
     return EVENT_PROPERTIES;
   }
 

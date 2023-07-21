@@ -21,7 +21,7 @@ class KickEvent : public AbstractEvent{
 private:
   std::string mReason;
 public:
-  int getType() const{
+  EventType getType() const{
     return EVENT_KICK;
   }
 

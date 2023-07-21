@@ -9,8 +9,8 @@
 */
 
 #ifndef JOINEVENT_HPP
-
 #define JOINEVENT_HPP
+
 #include "AbstractEvent.hpp"
 #include <cereal/types/vector.hpp>
 #include <cereal/types/polymorphic.hpp>
@@ -22,7 +22,7 @@ private:
 
 public:
   std::string mNickname;
-  int getType() const{
+  EventType getType() const{
     return EVENT_JOIN;
   }
 

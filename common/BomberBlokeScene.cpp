@@ -146,19 +146,14 @@ BomberBlokeScene::logicUpdate()
                      [&](std::shared_ptr<AbstractPlayer> p) -> bool {
                        return p->getCharacter() != nullptr;
                      });
+
       std::unique_ptr<AbstractEvent> c_event(new CommandEvent("end nobody"));
       if (winner_iter != _player_list.end()) {
         c_event = std::unique_ptr<AbstractEvent>(
           new CommandEvent("end " + (*winner_iter)->mNickname));
         (*winner_iter)->addWin();
       }
-
-      {
-        // std::unique_ptr<SyncEvent> s_event(new SyncEvent());
-        // cereal::JSONOutputArchive outArchive(std::cout);
-        // outArchive(s_event);
-      }
-      _net_server.broadcastEvent(c_event);
+      _net_server->broadcastEvent(std::move(c_event));
     }
   } else if (mIsRoundEnd) {
     mRoundEndTicks++;
@@ -221,7 +216,6 @@ BomberBlokeScene::BomberBlokeScene(unsigned int size_x, unsigned int size_y)
     }
 
     /* Fill in the other blocks - could be wooden crates or other types*/
-
     for (int i = 0; i < 10; i++) {
       for (int j = 0; j < 10; j++) {
         if (blocks[i][j] == EMPTY) {
@@ -256,7 +250,6 @@ BomberBlokeScene::BomberBlokeScene(unsigned int size_x, unsigned int size_y)
                                          size_x * 64,
                                          size_y * 64);
   SDL_SetRenderTarget(_renderer, mBackgroundTexture);
-
   SDL_Texture* tileTexture;
   SDL_Rect tileRect({ 0, 0, 64, 64 });
   std::uniform_int_distribution<> tileDistribution(0, N_BACKGROUND_TILES - 1);
@@ -422,7 +415,7 @@ BomberBlokeScene::startCountdown(int nSecs)
   countdown->start(nSecs);
   if (_server) {
     std::unique_ptr<AbstractEvent> c_event(new CommandEvent("start"));
-    _net_server.broadcastEvent(c_event);
+    _net_server->broadcastEvent(std::move(c_event));
   }
 }
 
@@ -431,7 +424,7 @@ BomberBlokeScene::onCountdownFinished()
 {
   mState = PLAYING;
   if (_server) {
-    _net_server.syncPlayers();
+    _net_server->syncPlayers();
   }
   if (mSoundtrack)
     mSoundtrack->play();

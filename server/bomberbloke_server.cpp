@@ -65,7 +65,7 @@ main(int argc, char** argv)
 
   log_message(INFO, "Bomberbloke server starting...");
 
-  init_engine();
+  init_engine(true);
 
   _pScene = std::make_shared<BomberBlokeScene>(10, 10);
 
@@ -80,13 +80,6 @@ new_game(std::string)
 {
   /* Lock _scene_mutex to protect _pScene from other threads */
   const std::lock_guard<std::mutex> lock(_scene_mutex);
-
-  /* First set reset everyone's powerups */
-  for (auto i = _player_list.begin(); i != _player_list.end(); i++) {
-    if (!(*i)->getPlayerProperties())
-      (*i)->resetPlayerProperties(std::make_shared<GamePlayerProperties>());
-    (*i)->resetPlayerProperties();
-  }
 
   _pScene = std::make_shared<BomberBlokeScene>(10, 10);
 

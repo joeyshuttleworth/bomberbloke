@@ -107,7 +107,7 @@ scene ::addActor(std::shared_ptr<actor> a)
       if (_server) {
         /* Broadcast a EVENT_CREATE event */
         std::unique_ptr<AbstractEvent> c_event(new CreationEvent(a));
-        _net_server.broadcastEvent(c_event);
+        _net_server->broadcastEvent(std::move(c_event));
       }
       return;
     }
@@ -337,7 +337,7 @@ scene::onResize()
 }
 
 bool
-scene::linkActorToPlayer(std::shared_ptr<actor>& act, unsigned int player_id)
+scene::linkActorToPlayer(std::shared_ptr<actor>& act, int player_id)
 {
   if (!act) {
     auto iter_player =

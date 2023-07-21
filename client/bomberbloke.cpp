@@ -29,7 +29,7 @@ main()
   _local_player_list.push_back(LocalPlayer(std::string("big_beef")));
 
   SDL_Init(SDL_INIT_EVERYTHING);
-  init_engine();
+  init_engine(false);
 
   _pScene = std::make_shared<MainMenuScene>(15, 15);
 

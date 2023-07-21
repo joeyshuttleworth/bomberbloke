@@ -28,14 +28,14 @@ protected:
     to a unique id of a player in _player_list. 0 corresponds
     to the server.
   */
-  unsigned int mPlayerId = 0;
+  int mPlayerId = 0;
 
   virtual void init(){};
 
   void setPlayerId(int id){mPlayerId = id;}
 
   /*The id of this actor. Used by  scene::mActors*/
-  unsigned int mId;
+  int mId;
 
   Interpolator mInterpolator;
 
@@ -74,7 +74,7 @@ public:
     if we haven't already*/
   std::shared_ptr<AbstractPlayer> getPlayer();
 
-  unsigned int getPlayerId(){
+  int getPlayerId(){
     return mPlayerId;
   }
 

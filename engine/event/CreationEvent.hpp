@@ -20,7 +20,7 @@ private:
   std::shared_ptr<AbstractSpriteHandler> mParticle = nullptr;
   unsigned int mTick;
 public:
-  int getType() const{
+  EventType getType() const{
     return EVENT_CREATE;
   }
 
