@@ -34,6 +34,23 @@ include_directories(/usr/x86_64-w64-mingw32/include)
 set(CMAKE_CXX_STANDARD_LIBRARIES "${CMAKE_CXX_STANDARD_LIBRARIES} -static-libgcc -static-libstdc++ -lwsock32 -lws2_32 -lwinmm -lwldap32 -lhid -lsetupapi -lole32 -loleaut32 -limm32 -lversion -mwindows")
 endif(_WIN32)
 
+
+# GAME_NET_PROTOCOL specifies which network protocol the build will target
+set(GAME_NET_PROTOCOL ENET CACHE STRING "")
+set(GAME_NET_PROTOCOL_OPTIONS ENET EMSCRIPTEN-WS-CLIENT WS-SERVER)
+if (NOT GAME_NET_PROTOCOL IN_LIST GAME_NET_PROTOCOL_OPTIONS)
+  message(FATAL_ERROR "Unrecognised network protocol for build.")
+endif()
+if(EMSCRIPTEN AND (NOT GAME_NET_PROTOCOL STREQUAL "EMSCRIPTEN-WS-CLIENT"))
+  message(FATAL_ERROR "Must target emscripten websocket header.")
+endif()
+if(EMSCRIPTEN)
+  target_compile_definitions(CLIENT PUBLIC TARGET_WEB_BROWSER=1)
+  target_compile_definitions(SERVER PUBLIC TARGET_WEB_BROWSER=1)
+endif()
+message(STATUS "Network protocol is ${GAME_NET_PROTOCOL}")
+
+
 find_package(ENet REQUIRED)
 include_directories(${ENET_INCLUDE_DIR})
 
@@ -42,6 +59,8 @@ include_directories(${SDL2_INCLUDE_DIRS})
 
 find_package(curl REQUIRED)
 include_directories(${CURL_INCLUDE_DIR})
+
+find_package(libwebsockets REQUIRED)
 
 include(CMakeRC)
 
