@@ -21,7 +21,7 @@ ENetConnector::nextFreeId()
 }
 
 void
-ENetConnector::configure(ushort port)
+ENetConnector::configureListenPort(ushort port)
 {
   // Sets connector to listen to a specific port, i.e. in 'server' mode.
   mPort = port;
@@ -139,7 +139,7 @@ ENetConnector::connectPeer(std::string address, short port)
   // ENET_EVENT_TYPE_CONNECT confirms that a connection has been established.
 
   if(mENetHost == nullptr) {
-    fprintf(stderr, "Need to call configure() and open() on connector before"
+    fprintf(stderr, "Need to call configureListenPort() and open() on connector before"
                     " opening connections\n");
     return -1;
   }
@@ -264,7 +264,7 @@ void ENetConnector::processENetEvent(ENetEvent &event,
 std::list<EventReceived>
 ENetConnector::poll(int timeout) {
   if(mENetHost == nullptr) {
-    fprintf(stderr, "Need to call configure() and open() on connector before"
+    fprintf(stderr, "Need to call configureListenPort() and open() on connector before"
                     " opening connections\n");
   }
 

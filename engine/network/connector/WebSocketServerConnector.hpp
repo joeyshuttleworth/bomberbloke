@@ -1,29 +1,19 @@
-#ifndef ENETCONNECTOR_HPP
-#define ENETCONNECTOR_HPP
+//
+// Created by Harvey Williams on 16/07/2023.
+//
 
-#include <Connector.hpp>
-#include <enet/enet.h>
+#ifndef BOMBERBLOKE_LIBWSCONNECTOR_H
+#define BOMBERBLOKE_LIBWSCONNECTOR_H
 
+#include "Connector.hpp"
 
-class ENetConnector : public Connector
+class libWSConnector : Connector
 {
 protected:
-  std::map<int, ENetPeer*> peers; // (id, *peer)
-  ENetHost* mENetHost = nullptr;
+  std::map<int, void*> peers; // (id, *peer)
   short mPort;
 
   int nextFreeId() override;
-
-  // Listening on, will typically remain un-configured for client use
-  bool mAddressConfigured = false;
-  ENetAddress mENetAddress;
-
-  void sendPacket(ENetPeer* peer, ENetPacket* packet, enet_uint8 channel);
-  int findIdFromPeer(ENetPeer* peer);
-
-  void processENetEvent(ENetEvent &event,
-                        std::shared_ptr<AbstractEvent> &emitted_event,
-                        int &from_id);
 
 public:
   ENetConnector();
@@ -50,4 +40,4 @@ public:
   void broadcastEvent(std::shared_ptr<AbstractEvent> event) override;
 };
 
-#endif
+#endif // BOMBERBLOKE_LIBWSCONNECTOR_H

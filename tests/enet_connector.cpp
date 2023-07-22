@@ -25,7 +25,7 @@ void run_client() {
 int
 main(int, char**)
 {
-  server_connector.configure(8888);
+  server_connector.configureListenPort(8888);
   server_connector.open();
   client_connector.open();
 

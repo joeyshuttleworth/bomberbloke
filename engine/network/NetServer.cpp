@@ -173,7 +173,7 @@ void
 NetServer::init(int port)
 {
   mConnector.reset(new ENetConnector());
-  mConnector->configure(port);
+  mConnector->configureListenPort(port);
   mConnector->open();
 }
 
