@@ -8,7 +8,16 @@
 #include <string>
 #include <memory>
 #include "AbstractEvent.hpp"
+
+#ifdef ENET
 #include "ENetConnector.hpp"
+#endif
+#ifdef EMSCRIPTEN_WS_CLIENT
+#include "EmscriptenWSConnector.hpp"
+#endif
+#ifdef WS_SERVER
+#include "WSServerConnector.hpp"
+#endif
 
 
 class serverPlayer;

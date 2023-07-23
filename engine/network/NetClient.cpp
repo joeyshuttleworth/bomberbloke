@@ -42,7 +42,16 @@ NetClient::connectClient(std::string serverAddress, ushort port)
 bool
 NetClient::joinBlokeServer(std::string address, const std::string& nickname, const std::vector<std::string>& commands)
 {
-  mConnector.reset(new ENetConnector());
+  #ifdef ENET
+    mConnector.reset(new ENetConnector());
+  #endif
+  #ifdef EMSCRIPTEN_WS_CLIENT
+    mConnector.reset(new EmscriptenWSConnector());
+  #endif
+  #ifdef WS_SERVER
+    mConnector.reset(new WSServerConnector());
+  #endif
+
   mConnector->open();
 
   ushort port;

@@ -5,10 +5,17 @@
 #ifndef NETSERVER_HPP
 #define NETSERVER_HPP
 #include "AbstractPlayer.hpp"
-#include <connector/ENetConnector.hpp>
 #include "ServerInfo.hpp"
 #include <list>
 #include <string>
+
+#ifdef ENET
+#include "ENetConnector.hpp"
+#endif
+#ifdef WS_SERVER
+#include "WSServerConnector.hpp"
+#endif
+
 
 class AbstractEvent;
 class JoinEvent;

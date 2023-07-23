@@ -172,7 +172,13 @@ NetServer::handleCommandEvent(std::shared_ptr<CommandEvent> c_event, int from_id
 void
 NetServer::init(int port)
 {
-  mConnector.reset(new ENetConnector());
+  #ifdef ENET
+    mConnector.reset(new ENetConnector());
+  #endif
+  #ifdef WS_SERVER
+    mConnector.reset(new WSServerConnector());
+  #endif
+
   mConnector->configureListenPort(port);
   mConnector->open();
 }

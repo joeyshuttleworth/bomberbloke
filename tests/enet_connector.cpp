@@ -11,7 +11,7 @@ void run_server() {
 
   // Check server got message, and that it was serialised correctly
   assert(got.size() == 1);
-  assert(EVENT_MESSAGE == got.front().second->getType());
+  assert(EVENT_MESSAGE == got.front().event->getType());
 }
 
 void run_client() {

@@ -34,20 +34,21 @@ include_directories(/usr/x86_64-w64-mingw32/include)
 set(CMAKE_CXX_STANDARD_LIBRARIES "${CMAKE_CXX_STANDARD_LIBRARIES} -static-libgcc -static-libstdc++ -lwsock32 -lws2_32 -lwinmm -lwldap32 -lhid -lsetupapi -lole32 -loleaut32 -limm32 -lversion -mwindows")
 endif(_WIN32)
 
-
 # GAME_NET_PROTOCOL specifies which network protocol the build will target
 set(GAME_NET_PROTOCOL ENET CACHE STRING "")
-set(GAME_NET_PROTOCOL_OPTIONS ENET EMSCRIPTEN-WS-CLIENT WS-SERVER)
+set(GAME_NET_PROTOCOL_OPTIONS ENET EMSCRIPTEN_WS_CLIENT WS_SERVER)
 if (NOT GAME_NET_PROTOCOL IN_LIST GAME_NET_PROTOCOL_OPTIONS)
   message(FATAL_ERROR "Unrecognised network protocol for build.")
 endif()
 if(EMSCRIPTEN AND (NOT GAME_NET_PROTOCOL STREQUAL "EMSCRIPTEN-WS-CLIENT"))
   message(FATAL_ERROR "Must target emscripten websocket header.")
 endif()
+
+add_compile_definitions(${GAME_NET_PROTOCOL}=1) # The protocol in use will have its name defined
 if(EMSCRIPTEN)
-  target_compile_definitions(CLIENT PUBLIC TARGET_WEB_BROWSER=1)
-  target_compile_definitions(SERVER PUBLIC TARGET_WEB_BROWSER=1)
+  add_compile_definitions(TARGET_WEB_BROWSER=1) # Define a flag when running in the web browser
 endif()
+
 message(STATUS "Network protocol is ${GAME_NET_PROTOCOL}")
 
 
@@ -141,6 +142,7 @@ include_directories(${PROJECT_SOURCE_DIR}/engine/hud)
 #   -format-style="mozilla"
 #   -checks=*;)
 
+# Targets
 file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/sources.cmake SHARED_SOURCES)
 # file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/tests.cmake TEST_SOURCES)
 
@@ -154,7 +156,7 @@ add_test(RUN_AND_CLOSE run_and_close COMMAND)
 
 # ENetConnector test
 add_executable(enet_connector_test "tests/enet_connector.cpp")
-target_link_libraries(enet_connector_test SERVER files::rc ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES})
+target_link_libraries(enet_connector_test CLIENT files::rc ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES})
 add_test(ENET_TEST enet_connector_test COMMAND)
 
 #serialise_event test
@@ -171,22 +173,27 @@ add_test(TEST_SPLIT_TO_TOKENS tokens_test COMMAND)
 add_executable(explosion_demo "tests/ExplosionDemo.cpp" "engine/client.cpp")
 target_link_libraries(explosion_demo CLIENT ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES})
 
-add_executable(collision_sandbox "tests/collision_sandbox.cpp" "engine/server.cpp")
-target_link_libraries(collision_sandbox PUBLIC files::rc SERVER ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES})
-
 # Client setup
 set(client_src "client/bomberbloke.cpp")
 add_executable(bomberbloke_client ${client_src} "engine/client.cpp")
-target_link_libraries(bomberbloke_client PUBLIC files::rc CLIENT ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES}  )
+target_link_libraries(bomberbloke_client PUBLIC files::rc CLIENT ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES})
 
 # Server setup
-add_library(SERVER ${SHARED_SOURCES} "engine/server.cpp" "engine/network/NetServer.cpp")
-target_link_libraries(SERVER PUBLIC files::rc)
+if(EMSCRIPTEN)
+  message(STATUS "emscripten toolchain detected - skipping server build/tests")
+else()
+  add_library(SERVER ${SHARED_SOURCES} "engine/server.cpp" "engine/network/NetServer.cpp")
+  target_link_libraries(SERVER PUBLIC files::rc)
 
-set(server_src "server/bomberbloke_server.cpp" "engine/server.cpp" "engine/network/NetServer.cpp")
-add_executable(bomberbloke_server ${server_src})
-set_target_properties(bomberbloke_server PROPERTIES PUBLIC_HEADER "engine/server.h")
-target_link_libraries(bomberbloke_server SERVER ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES})
+  set(server_src "server/bomberbloke_server.cpp" "engine/server.cpp" "engine/network/NetServer.cpp")
+  add_executable(bomberbloke_server ${server_src})
+  set_target_properties(bomberbloke_server PROPERTIES PUBLIC_HEADER "engine/server.h")
+  target_link_libraries(bomberbloke_server SERVER ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES})
+
+  # Collision Sandbox test
+  add_executable(collision_sandbox "tests/collision_sandbox.cpp" "engine/server.cpp")
+  target_link_libraries(collision_sandbox PUBLIC files::rc SERVER ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES})
+endif()
 
 # Adding clang-format target if executable is found
 find_program(CLANG_FORMAT "clang-format")

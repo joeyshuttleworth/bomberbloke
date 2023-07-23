@@ -9,6 +9,8 @@ common/Explosion.cpp
 common/BomberBlokeScene.cpp
 client/MainMenuScene.cpp
 engine/network/connector/ENetConnector.cpp
+engine/network/connector/EmscriptenWSConnector.cpp
+engine/network/connector/WSServerConnector.cpp
 engine/network/NetClient.cpp
 engine/network/NetServer.cpp
 engine/collider/AbstractCollider.cpp
