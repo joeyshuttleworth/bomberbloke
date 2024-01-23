@@ -263,7 +263,7 @@ handle_input()
               if (!_server) {
                 std::unique_ptr<AbstractEvent> c_event(
                   new CommandEvent(command_to_send));
-                _net_client->mConnector->sendEvent(std::move(c_event), _net_client->mServerId);
+                _net_client->mConnector->broadcastEvent(std::move(c_event));
               }
             } else {
               log_message(
@@ -601,7 +601,7 @@ handle_system_command(std::list<std::string> tokens)
       // Send request
       std::string command_to_send = command + " " + tokens.back();
       std::unique_ptr<AbstractEvent> c_event(new CommandEvent(command_to_send));
-      _net_client->mConnector->sendEvent(std::move(c_event), _net_client->mServerId);
+      _net_client->mConnector->broadcastEvent(std::move(c_event));
       log_message(INFO, "Requesting to change player colour to " + tokens.back());
       log_message(DEBUG, "Sending command \"" + command_to_send + "\"");
     }

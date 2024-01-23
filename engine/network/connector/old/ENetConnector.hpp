@@ -2,7 +2,10 @@
 #define ENETCONNECTOR_HPP
 
 #include <Connector.hpp>
+
+#ifdef ENET
 #include <enet/enet.h>
+#endif
 
 
 class ENetConnector : public Connector
@@ -12,7 +15,7 @@ protected:
   ENetHost* mENetHost = nullptr;
   short mPort;
 
-  int nextFreeId() override;
+  int nextFreeId();
 
   // Listening on, will typically remain un-configured for client use
   bool mAddressConfigured = false;

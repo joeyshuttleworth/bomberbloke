@@ -10,7 +10,7 @@ int
 main()
 {
   _draw = true;
-  _server = true;
+  _server = false;
   _default_bindings = {
     { SDL_SCANCODE_W, "up" },      { SDL_SCANCODE_S, "down" },
     { SDL_SCANCODE_A, "left" },    { SDL_SCANCODE_D, "right" },
@@ -24,12 +24,14 @@ main()
   _pScene = std::make_shared<BomberBlokeScene>();
 
   _pScene->mActors.push_back(std::shared_ptr<bloke>(new bloke(5, 5, true)));
+  _local_player_list.push_back(LocalPlayer(std::string("test_bloke")));
+
   cereal::JSONOutputArchive oArchive(std::cout);
 
   for (unsigned int i = 0; i < 10; i++)
     for (unsigned int j = 0; j < 10; j++) {
       _pScene->mParticleList.push_back(std::shared_ptr<Explosion>(
-        new Explosion(i, j, 1, 1, 60 + i + 2 * j, 600 - 2 * i - j)));
+        new Explosion(i, j, 1, 1, false, 60 + i + 2 * j, 600 - 2 * i - j)));
     }
 
   client_loop();

@@ -1,12 +1,14 @@
 /* Abstract class for events to be sent to the client/server.*/
 
-#include <cereal/types/base_class.hpp>
-#include <cereal/types/vector.hpp>
-#include <cereal/types/polymorphic.hpp>
 
 #ifndef ABSTRACTEVENT_HPP
 #define ABSTRACTEVENT_HPP
 
+#include <cereal/types/base_class.hpp>
+#include <cereal/types/vector.hpp>
+#include <cereal/types/polymorphic.hpp>
+#include <cereal/archives/portable_binary.hpp>
+#include <cereal/archives/json.hpp>
 
 enum EventType{
   EVENT_JOIN,

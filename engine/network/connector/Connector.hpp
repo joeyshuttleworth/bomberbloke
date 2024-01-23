@@ -1,66 +1,123 @@
-#ifndef CONNECTOR_HPP
-#define CONNECTOR_HPP
+#pragma once
 
-#include <map>
 #include <list>
+#include <set>
 #include <AbstractEvent.hpp>
-#include <AbstractPlayer.hpp>
+
+typedef int ConnectorPeer;
 
 /*
- * Event object that the Connector interface emits
+ * Connector interface speaks in AbstractEvent, below is a struct emitted when receieving one over network
  */
-
 struct EventReceived {
   std::shared_ptr<AbstractEvent> event;
-  int from_id;
+  ConnectorPeer from;
+
+  bool operator==(EventReceived& rhs) {
+    return event == rhs.event && from == rhs.from; 
+  }
+  bool operator!=(EventReceived& rhs) {
+    return !(*this == rhs);
+  }
 };
+static EventReceived EVENT_RECEIVED_NONE = { nullptr , -1 };
+
+/*
+* Recomended way of creating a Connector object.
+*/
+enum ConnectorMode {
+  CLIENT,
+  SERVER
+};
+struct ConnectorDescriptor {
+  ConnectorMode mode;
+
+  // mode == CLIENT
+  std::string serverAddress = "";
+  short serverPort = 0;
+
+  // mode == SERVER
+  short listenPort = 0;
+};
+class Connector;
+std::unique_ptr<Connector> createConnector(ConnectorDescriptor desc);
 
 /*
  * Connector Interface
  *
- * All client/server code is intended to target this interface, so that the
- * underlying network code is abstracted away.
+ * All network stuff by Client/Server is supposed to use this interface.
+ * Left suitably general to hide away protocol specific details.
  */
 
 class Connector
 {
-protected:
-  virtual int nextFreeId() = 0;
-
 public:
   virtual ~Connector() = default;
-  virtual void configureListenPort(ushort port) = 0;
-  virtual void open() = 0;
+
+  /*
+  * open() must be done once, to begin network activity, and be followed by a corresponding close()
+  */
+  virtual bool open() = 0;
+
+  /*
+  * close() must follow a single open(), and ceases any network activity
+  */
   virtual void close() = 0;
 
-  // We provide an interface for smart pointers
-  void sendEvent(std::unique_ptr<AbstractEvent> event, int to_id)
+  /*
+  * sendEvent with automatic discarding of event after completion
+  */
+  void sendEvent(std::unique_ptr<AbstractEvent> event, ConnectorPeer to_id)
   {
     std::shared_ptr<AbstractEvent> s_event = std::move(event);
     sendEvent(s_event, to_id);
   }
-  virtual void sendEvent(std::shared_ptr<AbstractEvent> event, int to_id) = 0;
 
-  virtual int connectPeer(std::string address, short port) = 0;
-  virtual void disconnectPeer(int id, std::string reason) = 0;
+  /*
+  * sendEvent transmits an AbstractEvent to a ConnectorPeer
+  */
+  virtual void sendEvent(std::shared_ptr<AbstractEvent> event, ConnectorPeer to_id) = 0;
 
-  virtual int statRoundTripTime(int id) = 0;
+  /*
+  * disconnectPeer drops a ConnectorPeer, invalidating it, and may also send a KickEvent to them
+  */
+  virtual void disconnectPeer(ConnectorPeer id, std::string reason) = 0;
 
-  std::list<EventReceived> cache;
+  /*
+  * latency provides a relative metric of latency for a given peer, implementation defined
+  */
+  virtual int latency(ConnectorPeer id) = 0;
+
+  /*
+  * poll returns a list, if any, of EventReceived in 'chronological' order, Connector will no longer track these events internally
+  */
   virtual std::list<EventReceived> poll(
     int) = 0;
+  
+  /*
+  * pollFor spends a maximum of _timeout_ miliseconds waiting for at most one of EventType from any peer,
+  * if none received then EventRecieved = { nullptr , -1 }
+  */
   virtual EventReceived pollFor(
     int timeout,
     std::set<EventType>& lookFor) = 0;
 
+  /*
+  * Returns number of currently valid ConnectorPeer's
+  */
   virtual int countPeers() = 0;
 
+  /*
+  * broadcastEvent with automatic discarding of AbstractEvent after completion 
+  */
   void broadcastEvent(std::unique_ptr<AbstractEvent> event)
   {
     std::shared_ptr<AbstractEvent> s_event = std::move(event);
     broadcastEvent(s_event);
   }
+
+  /*
+  * Broadcasts event to each currently valid ConnectorPeer once.
+  */
   virtual void broadcastEvent(std::shared_ptr<AbstractEvent> event) = 0;
 };
-
-#endif

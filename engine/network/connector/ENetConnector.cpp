@@ -1,327 +1,340 @@
-#include "ENetConnector.hpp"
+#include "Connector.hpp"
+
 #include <enet/enet.h>
-#include "cereal/archives/portable_binary.hpp"
-#include <KickEvent.hpp>
-#include <PlayerLeaveEvent.hpp>
-#include <engine.hpp>
-#include <set>
+#include <cassert>
 
-ENetConnector::ENetConnector()
-{
-  //printf("ENetConnector() constructor called\n");
-}
+#include "KickEvent.hpp"
+#include "PlayerLeaveEvent.hpp"
 
-int
-ENetConnector::nextFreeId()
-{
-  int m = 0;
-  for(auto peer : peers)
-    m = std::max(m, peer.first);
-  return m+1;
-}
+#define ENET_SERVICE_TIMEOUT_MS 50
 
-void
-ENetConnector::configureListenPort(ushort port)
-{
-  // Sets connector to listen to a specific port, i.e. in 'server' mode.
-  mPort = port;
-  mENetAddress.host = ENET_HOST_ANY;
-  mENetAddress.port = port;
-  mAddressConfigured = true;
-}
+class ENetConnector : public Connector {
+protected:
+    ConnectorDescriptor desc;
+    bool isOpen = false;
 
-void
-ENetConnector::open()
-{
-  log_message(DEBUG, "ENetConnector - open() called");
+    std::map<ConnectorPeer, ENetPeer*> peers; 
 
-  if (enet_initialize() != 0) {
-    printf("FATAL: Could not init enet\n");
-    return;
-  }
-  // Config for defaults can be defined later
-  // const ENetAddress *address, size_t peerCount, size_t channelLimit,
-  // enet_uint32 incomingBandwidth, enet_uint32 outgoingBandwidth)
-  if(mAddressConfigured)
-    mENetHost = enet_host_create(&mENetAddress, 124, 10, 0, 0);
-  else
-    mENetHost = enet_host_create(nullptr, 1, 1, 0, 0);
+    ENetHost *host = nullptr;
+    ENetAddress addr;
 
-  if (mENetHost == nullptr) {
-    log_message(ERR, "Could not start ENetHost. Is the port already in use?");
-  } else {
-    log_message(INFO,"Listening on port: " + std::to_string(mPort));
-  }
-}
+    std::list<EventReceived> cache;
 
-void
-ENetConnector::close()
-{
-  log_message(DEBUG, "ENetConnector - closing on port " + std::to_string(mPort));
-  peers.clear();
-  if(mENetHost != nullptr)
-    enet_host_destroy(mENetHost);
-  enet_deinitialize();
+    // Services the enet host, needs to be called 'regularly' to keep things moving
+    void serviceENet(int);
+    
+    // Business logic for what to do with ENetEvent
+    void processENetEvent(ENetEvent &event, EventReceived &recieved);
+public:
+    ENetConnector(ConnectorDescriptor desc): desc(desc) {};
+    ~ENetConnector();
+
+    bool open() override;
+    void close() override;
+    void sendEvent(std::shared_ptr<AbstractEvent> event, ConnectorPeer to_id) override;
+    void disconnectPeer(ConnectorPeer id, std::string reason) override;
+    int latency(ConnectorPeer id) override;
+    std::list<EventReceived> poll(int) override;
+    EventReceived pollFor(int timeout, std::set<EventType>& lookFor) override;
+    int countPeers() override;
+    void broadcastEvent(std::shared_ptr<AbstractEvent> event) override;
+};
+
+// Implementing the creator method
+std::unique_ptr<Connector> createConnector(ConnectorDescriptor desc) {
+    return std::unique_ptr<ENetConnector>(new ENetConnector(desc));
 }
 
 ENetConnector::~ENetConnector() {
-  log_message(DEBUG, "ENetConnector - destructor called");
+    if(isOpen)
+        close();
 }
 
-int
-ENetConnector::findIdFromPeer(ENetPeer* peer)
-{
-  for(auto p : peers) {
-    if(p.second == peer)
-      return p.first;
-  }
-  return -1;
-}
-
-void
-ENetConnector::sendPacket(ENetPeer* peer, ENetPacket* packet, enet_uint8 channel)
-{
-  enet_peer_send(peer, channel, packet);
-  enet_host_flush(mENetHost);
-}
-
-void
-ENetConnector::sendEvent(std::shared_ptr<AbstractEvent> event, int to_id) {
-  if(to_id < 0) {
-    log_message(INFO, "Attempted to sendEvent to debug player");
-    return;
-  }
-  ENetPeer *to = peers[to_id];
-  if(to == nullptr)
-    throw std::invalid_argument("Attempted to sendEvent to player ("
-                                + std::to_string(to_id)
-                                + ") with no ENetPeer");
-
-  std::stringstream blob;
-  {
-    cereal::PortableBinaryOutputArchive outputArchive(blob);
-    outputArchive(event);
-  }
-
-  bool reliable = false;
-  switch (event->getType()) {
-    case EVENT_SYNC:
-    case EVENT_INFO:
-    case EVENT_CREATE:
-    case EVENT_REMOVE:
-    case EVENT_QUERY:
-    case EVENT_MESSAGE:
-    case EVENT_COMMAND:
-    case EVENT_PROPERTIES:
-    case EVENT_KICK:
-    case EVENT_ACCEPT:
-    case EVENT_ERROR:
-      reliable = true;
-    default:
-      break;
-  }
-
-  ENetPacket* packet;
-  std::string message = blob.str();
-  if (reliable)
-    packet = enet_packet_create(
-      message.c_str(), message.size(), ENET_PACKET_FLAG_RELIABLE);
-  else
-    packet = enet_packet_create(message.c_str(), message.size(), 0);
-  enet_peer_send(to, 0, packet);
-  enet_host_flush(mENetHost);
-}
-
-int
-ENetConnector::connectPeer(std::string address, short port)
-{
-  // Note for ENet, this function blocks the current thread until a
-  // ENET_EVENT_TYPE_CONNECT confirms that a connection has been established.
-
-  if(mENetHost == nullptr) {
-    fprintf(stderr, "Need to call configureListenPort() and open() on connector before"
-                    " opening connections\n");
-    return -1;
-  }
-
-  ENetAddress addr;
-  enet_address_set_host(&addr, address.c_str());
-  addr.port = port;
-
-  int newId = nextFreeId();
-  peers[newId] = enet_host_connect(mENetHost, &addr, 1, 0);
-
-  ENetEvent event;
-  std::stringstream msg;
-  msg << "ENet: Connection to " << address.c_str() << " : " << port;
-  if (enet_host_service(mENetHost, &event, 5000) > 0 &&
-      event.type == ENET_EVENT_TYPE_CONNECT) {
-    msg << " succeeded";
-    log_message(DEBUG, msg.str());
-    return newId;
-  } else {
-    msg << " failed";
-    log_message(DEBUG, msg.str());
-    peers.erase(newId);
-    return -1;
-  }
-}
-
-void
-ENetConnector::disconnectPeer(int id, std::string reason) {
-  if(!peers.count(id))
-    return;
-
-  ENetPeer *peer = peers[id];
-
-  /* First send a kick event */
-  if(_server) {
-    std::unique_ptr<AbstractEvent> k_event(new KickEvent(reason));
-    sendEvent(std::move(k_event), id);
-  }
-
-  /* Now disconnect the peer */
-  enet_peer_disconnect(peer, 0);
-  enet_peer_reset(peer);
-
-  return;
-}
-
-int
-ENetConnector::statRoundTripTime(int id)
-{
-  if(peers.count(id) == 0)
-    return -1;
-
-  return (int) peers[id]->lastRoundTripTime;
-}
-
-void ENetConnector::processENetEvent(ENetEvent &event,
-                      std::shared_ptr<AbstractEvent> &emitted_event,
-                      int &from_id)
-{
-  from_id = findIdFromPeer(event.peer);
-
-  switch(event.type) {
-    case ENET_EVENT_TYPE_CONNECT: {
-      log_message(0, "User made ENet connection");
-      return;
+bool
+ENetConnector::open() {
+    if(enet_initialize() != 0) {
+        printf("FATAL: Could not init enet\n");
+        return false;
     }
-    case ENET_EVENT_TYPE_DISCONNECT: {
-      log_message(INFO, "Disconnect event received");
 
-      /* Reset the peer's client information. */
-      event.peer->data = NULL;
-
-      if(from_id >= 0) {
-        peers.erase(from_id);
-        emitted_event = std::make_shared<PlayerLeaveEvent>();
-      }
+    if(desc.mode == CLIENT) {
+        host = enet_host_create(nullptr, 1, 1, 0, 0);
+    } else {
+        addr.host = ENET_PORT_ANY;
+        addr.port = desc.listenPort;
+        host = enet_host_create(&addr, 124, 10, 0, 0);
     }
-    case ENET_EVENT_TYPE_RECEIVE: {
-      if(from_id == -1) {
-        from_id = nextFreeId();
-        peers[from_id] = event.peer;
-        /*  Set the timeout for the new peer (in ms)*/
-        enet_peer_timeout(event.peer, 1000, 0, 0);
-      }
 
-      if (std::strcmp(reinterpret_cast<const char*>(event.packet->data),
-                      "ping") == 0) {
-        log_message(DEBUG, "Recieved ping command from peer");
+    if(host == nullptr) {
+        printf("Could not start ENetHost. Is the port already in use?\n");
+        return false;
+    }
 
-        ENetPacket* pong_packet = enet_packet_create(
-          "pong", strlen("pong") + 1, ENET_PACKET_FLAG_RELIABLE);
-        sendPacket(event.peer, pong_packet, 0);
-        log_message(0, "Sent Packet to Peer");
-        enet_host_flush(mENetHost);
+    isOpen = true;
+    if(desc.mode == CLIENT) {
+        if(enet_address_set_host(&addr, desc.serverAddress.c_str()) < 0) {
+            printf("Failed to resolve hostname\n");
+            close();
+            return false;
+        }
+        addr.port = desc.serverPort;
+
+        int newId = rand();
+        peers[newId] = enet_host_connect(host, &addr, 1, 0);
+
+        ENetEvent event;
+        std::stringstream msg;
+        msg << "ENet: Connection to " << desc.serverAddress.c_str() << " : " << desc.serverPort;
+        if (enet_host_service(host, &event, 5000) > 0 &&
+            event.type == ENET_EVENT_TYPE_CONNECT) {
+            msg << " succeeded";
+            printf("%s\n", msg.str().c_str());
+        } else {
+            msg << " failed";
+            printf("%s\n", msg.str().c_str());
+            close();
+            return false;
+        }
+
+        // poll now allows us to service any handshakes
+        cache = poll(0);
+    }
+
+    return true;
+}
+
+void
+ENetConnector::close() {
+    if(!isOpen)
+        throw std::runtime_error("Connector: tried to close() but was not open");
+
+    // Clear out stored EventRecieved's
+    cache.clear();
+    peers.clear();
+
+    // ENet clearup
+    if(host != nullptr)
+        enet_host_destroy(host);
+    enet_deinitialize();
+
+    isOpen = false;
+}
+
+void ENetConnector::serviceENet(int timeout) {
+    //printf("enet_host_service timeout=%i\n", timeout);
+    ENetEvent event;
+    int result;
+    while((result = enet_host_service(host, &event, (enet_uint32) timeout)) != 0) {
+        if(result < 0) // Err
+            throw std::runtime_error("enet_host_service failure");
+
+        EventReceived recieved;
+        processENetEvent(event, recieved);
+        if(recieved != EVENT_RECEIVED_NONE)
+            cache.push_back(recieved); 
+    }
+}
+
+void ENetConnector::processENetEvent(ENetEvent &event, EventReceived &recieved)
+{
+    recieved = EVENT_RECEIVED_NONE;
+
+    // Recover ConnectorPeer ID
+    ConnectorPeer from = event.peer->data == NULL ? -1 : *((ConnectorPeer*) event.peer->data);
+    
+    // Business logic
+    switch(event.type) {
+        case ENET_EVENT_TYPE_CONNECT: {
+            printf("%i ENet : Connect %i\n", desc.mode, (int) event.peer->state);
+            assert(from == -1); // Should be new
+
+            // Generate new ID
+            from = rand();
+            while(peers.count(from))
+                from = rand();
+
+            // Store
+            peers[from] = event.peer;
+            event.peer->data = new ConnectorPeer(from);
+
+            /* Could configure ping-pong and timeouts here but the defaults are fine */
+            //enet_peer_ping_interval(event.peer, 1);
+            //enet_peer_timeout(event.peer, 2, 0, 500);
+            break;
+        }
+        case ENET_EVENT_TYPE_DISCONNECT: {
+            printf("%i Enet : Disconnect\n", desc.mode);
+
+            /* Reset the peer's client information. */
+            delete (ConnectorPeer *) event.peer->data;
+            event.peer->data = NULL;
+
+            if(from >= 0) {
+                peers.erase(from);
+                recieved = { std::make_shared<PlayerLeaveEvent>(), from };
+            }
+            break;
+        }
+        case ENET_EVENT_TYPE_RECEIVE: {
+            //printf("%i Enet : Receieve\n", desc.mode);
+
+            // Parse AbstractEvent
+            std::stringstream data_in;
+            data_in.write((char*)event.packet->data, event.packet->dataLength);
+            try {
+                std::shared_ptr<AbstractEvent> receive_event;
+                cereal::PortableBinaryInputArchive inArchive(data_in);
+                inArchive(receive_event);
+                recieved = { receive_event, from };
+            } catch (std::exception& e) {
+                std::stringstream strstream;
+                strstream << "Received malformed network event.\n" << e.what();
+                printf("%s\n", strstream.str().c_str());
+            }
+            enet_packet_destroy(event.packet);
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+void 
+ENetConnector::sendEvent(std::shared_ptr<AbstractEvent> event, ConnectorPeer to_id) {
+    if(to_id < 0) {
+        printf("Attempted to sendEvent to debug player\n");
         return;
-      }
-      std::stringstream data_in;
-      data_in.write((char*)event.packet->data, event.packet->dataLength);
-
-      try {
-        std::shared_ptr<AbstractEvent> receive_event;
-        cereal::PortableBinaryInputArchive inArchive(data_in);
-        inArchive(receive_event);
-        emitted_event = receive_event;
-      } catch (std::exception& e) {
-        std::stringstream strstream;
-        strstream << "Received malformed network event.\n" << e.what();
-        log_message(ERR, strstream.str());
-      }
-
-      /* Clean up the packet now that we're done using it. */
-      enet_packet_destroy(event.packet);
-      break;
     }
-    default:
-      break;
-  }
-}
+    ENetPeer *to = peers[to_id];
+    if(to == nullptr)
+        throw std::invalid_argument("Attempted to sendEvent to player ("
+                                    + std::to_string(to_id)
+                                    + ") with no ENetPeer");
 
+    std::stringstream blob;
+    {
+        cereal::PortableBinaryOutputArchive outputArchive(blob);
+        outputArchive(event);
+    }
 
-std::list<EventReceived>
+    bool reliable = false;
+    switch (event->getType()) {
+        case EVENT_SYNC:
+        case EVENT_INFO:
+        case EVENT_CREATE:
+        case EVENT_REMOVE:
+        case EVENT_QUERY:
+        case EVENT_MESSAGE:
+        case EVENT_COMMAND:
+        case EVENT_PROPERTIES:
+        case EVENT_KICK:
+        case EVENT_ACCEPT:
+        case EVENT_ERROR:
+        reliable = true;
+        default:
+        break;
+    }
+
+    ENetPacket* packet;
+    std::string message = blob.str();
+    if (reliable)
+        packet = enet_packet_create(
+        message.c_str(), message.size(), ENET_PACKET_FLAG_RELIABLE);
+    else
+        packet = enet_packet_create(message.c_str(), message.size(), 0);
+
+    enet_peer_send(to, 0, packet);
+    enet_host_flush(host);
+};
+
+void 
+ENetConnector::broadcastEvent(std::shared_ptr<AbstractEvent> event) {
+    for(auto peer : peers)
+        sendEvent(event, peer.first);
+};
+
+void 
+ENetConnector::disconnectPeer(ConnectorPeer id, std::string reason) {
+    if(!peers.count(id))
+        return;
+
+    ENetPeer *peer = peers[id];
+
+    /* First send a kick event */
+    if(desc.mode == SERVER) {
+        auto k_event = std::make_shared<KickEvent>(reason);
+        sendEvent(k_event, id);
+    }
+
+    /* Now disconnect the peer */
+    enet_peer_disconnect(peer, 0);
+    enet_peer_reset(peer);
+    peers.erase(id);
+
+    /* If on the server emit a PlayerLeaveEvent */
+    if(desc.mode == SERVER)
+        cache.push_back({std::make_shared<PlayerLeaveEvent>(), id});
+};
+
+int 
+ENetConnector::latency(ConnectorPeer id) {
+    if(peers.count(id) == 0)
+        return -1;
+    return (int) peers[id]->lastRoundTripTime;
+};
+
+std::list<EventReceived> 
 ENetConnector::poll(int timeout) {
-  if(mENetHost == nullptr) {
-    fprintf(stderr, "Need to call configureListenPort() and open() on connector before"
-                    " opening connections\n");
-  }
+    std::list<EventReceived> events = cache;
+    cache.clear();
 
-  // Poll for events and store as { peer_id, shared_ptr<AbstractEvent> }
-  std::list<EventReceived> events = cache;
-  cache.clear();
+    auto now = std::chrono::steady_clock::now();
+    const auto endTime = now + std::chrono::milliseconds(timeout);
+    do {
+        int left = timeout == 0 ? 0 : std::chrono::duration_cast<std::chrono::milliseconds>(endTime - now).count();
+        serviceENet(std::min(left, ENET_SERVICE_TIMEOUT_MS));
 
-  ENetEvent event;
-  while (enet_host_service(mENetHost, &event, (enet_uint32) timeout) > 0) {
-    std::shared_ptr<AbstractEvent> event_recieved;
-    int id;
+        if(!cache.empty()) {
+            events.insert(events.end(), cache.begin(), cache.end());
+            cache.clear();
+        }
+        if(!events.empty())
+            break;
 
-    processENetEvent(event, event_recieved, id);
+    } while((now = std::chrono::steady_clock::now()) < endTime);
 
-    if(event_recieved != nullptr) {
-      // Got something
-      events.push_back({event_recieved, id});
-    }
-  }
+    return events;
+};
 
-  return events;
-}
+EventReceived 
+ENetConnector::pollFor(int timeout, std::set<EventType>& lookFor) {
+    // Finds and removes matching event
+    auto scanCache = [&]() {
+        for(auto it = cache.begin(); it != cache.end(); it++) {
+            if(lookFor.count((*it).event->getType()) > 0) {
+                EventReceived copy = *it;
+                cache.erase(it);
+                return copy;
+            }
+        }
+        return EVENT_RECEIVED_NONE;
+    };
 
+    auto now = std::chrono::steady_clock::now();
+    const auto endTime = now + std::chrono::milliseconds(timeout);
+    do {
+        int left = timeout == 0 ? 0 : std::chrono::duration_cast<std::chrono::milliseconds>(endTime - now).count();
+        serviceENet(std::min(left, ENET_SERVICE_TIMEOUT_MS));
 
-EventReceived
-ENetConnector::pollFor(int timeout, std::set<EventType> &lookFor) {
-  /*
-   * Used when the next event is expected to be a particular type, caches
-   * everything else.
-   */
-  ENetEvent event;
-  while (enet_host_service(mENetHost, &event, (enet_uint32) timeout) > 0) {
-    std::shared_ptr<AbstractEvent> event_recieved;
-    int id;
+        auto got = scanCache();
+        if(got != EVENT_RECEIVED_NONE)
+            return got;
+    } while((now = std::chrono::steady_clock::now()) < endTime);
 
-    processENetEvent(event, event_recieved, id);
+    return EVENT_RECEIVED_NONE;
+};
 
-    if(event_recieved != nullptr) {
-      // Got something
-      if (lookFor.count(event_recieved->getType()) > 0)
-        return {event_recieved, id};
-
-      // Not looking for this so cache it
-      cache.push_back({event_recieved, id});
-    }
-  }
-
-  return {nullptr, -1};
-}
-
-int ENetConnector::countPeers()
-{
-  return (int) peers.size();
-}
-
-void ENetConnector::broadcastEvent(std::shared_ptr<AbstractEvent> event)
-{
-  for(auto peer : peers)
-    sendEvent(event, peer.first);
-}
+int 
+ENetConnector::countPeers() {
+    return (int) peers.size();
+};

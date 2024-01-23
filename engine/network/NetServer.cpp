@@ -19,9 +19,7 @@
 #include <string>
 
 NetServer::NetServer()
-{
-  // init();
-}
+{}
 
 NetServer::~NetServer()
 {
@@ -172,15 +170,13 @@ NetServer::handleCommandEvent(std::shared_ptr<CommandEvent> c_event, int from_id
 void
 NetServer::init(int port)
 {
-  #ifdef ENET
-    mConnector.reset(new ENetConnector());
-  #endif
-  #ifdef WS_SERVER
-    mConnector.reset(new WSServerConnector());
-  #endif
+  ConnectorDescriptor desc;
+  desc.mode = SERVER;
+  desc.listenPort = (short) port;
+  mConnector = createConnector(desc);
 
-  mConnector->configureListenPort(port);
-  mConnector->open();
+  if(!mConnector->open())
+    throw std::runtime_error("Failed to create connector for NetServer");
 }
 
 bool
@@ -255,7 +251,7 @@ NetServer::syncPlayers()
       (*i)->getPlayerProperties();
 
     // Use this opportunity to update ping
-    int ping = mConnector->statRoundTripTime(id);
+    int ping = mConnector->latency(id);
     std::string key = "lastPingMeasurement";
     (*i)->mMetadata.numeric[key] = ping;
     metadata_event->includeUpdateNumeric((int) (*i)->getId(), key, ping);
@@ -291,7 +287,7 @@ NetServer::update()
 {
   auto receivedEvents = mConnector->poll(0);
   for(auto received : receivedEvents) {
-    std::shared_ptr<AbstractPlayer> player = findPlayer(received.from_id);
+    std::shared_ptr<AbstractPlayer> player = findPlayer(received.from);
 
     switch(received.event->getType()) {
       case EVENT_PLAYERLEAVE: {
@@ -305,7 +301,7 @@ NetServer::update()
       }
       default: {
         try {
-          handleEvent(received.event, received.from_id);
+          handleEvent(received.event, received.from);
         } catch (std::exception& e) {
           std::stringstream strstream;
           strstream << "Received malformed network event.\n" << received.event->getType();

@@ -1,5 +1,7 @@
 CMakeCache.txt
 /build
+/build-xcode
+docs/
 Makefile
 # Emacs Misc
 GPATH

@@ -50,7 +50,7 @@ public:
   }
 
   void update(){
-    remove_if(mBuffer.begin(), mBuffer.end(), [&](VectorState vs) -> bool{
+    (void) remove_if(mBuffer.begin(), mBuffer.end(), [&](VectorState vs) -> bool{
                                                 return abs(mBuffer.back().serverTick - vs.serverTick) || _tick - vs.clientTick > mBufferSize;
                                               });
   }
