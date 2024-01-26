@@ -1,7 +1,7 @@
 #ifndef TEXTMANAGER_HPP
 #define TEXTMANAGER_HPP
 
-#include <SDL2/SDL_ttf.h>
+#include <SDL_ttf.h>
 #include <memory>
 #include <string>
 #include <map>

@@ -3,14 +3,12 @@ engine/scene/scene.cpp
 engine/player/AbstractPlayer.cpp
 engine/engine.cpp
 engine/config.cpp
+engine/assets.cpp
 common/bloke.cpp
 common/bomb.cpp
 common/Explosion.cpp
 common/BomberBlokeScene.cpp
 client/MainMenuScene.cpp
-engine/network/connector/ENetConnector.cpp
-engine/network/connector/EmscriptenWSConnector.cpp
-engine/network/connector/WSServerConnector.cpp
 engine/network/NetClient.cpp
 engine/network/NetServer.cpp
 engine/collider/AbstractCollider.cpp

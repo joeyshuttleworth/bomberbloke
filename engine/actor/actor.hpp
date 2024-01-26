@@ -1,7 +1,7 @@
 #ifndef ACTOR_HPP
 #define ACTOR_HPP
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <memory>
 #include <array>
 #include "Interpolator.hpp"

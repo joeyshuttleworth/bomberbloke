@@ -1,11 +1,11 @@
 #ifndef CAMERA_HPP
 #define CAMERA_HPP
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <memory>
 #include <algorithm>
-#include <mutex>
 #include "scene.hpp"
+#include "engine.hpp"
 
 extern int _window_size[];
 
@@ -53,7 +53,7 @@ class Camera{
 
   virtual ~Camera(){
     /* We will get a double free if we destroy the texture after SDL_Quit is called */
-      std::lock_guard<std::mutex> guard{mMutex};
+    LOCK_GUARD(mMutex);
     if(mpFrameBuffer && !_halt){
       SDL_DestroyTexture(mpFrameBuffer);
     }

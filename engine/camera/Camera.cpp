@@ -1,5 +1,4 @@
 #include "Camera.hpp"
-#include "engine.hpp"
 #include <algorithm>
 
 void
@@ -36,7 +35,8 @@ Camera::setBrightness(int brightness)
 void
 Camera::onResize()
 {
-  std::lock_guard<std::mutex> guard{mMutex};
+  LOCK_GUARD(mMutex);
+
   mScreenRectangle.w = _window_size[0];
   mScreenRectangle.h = _window_size[1];
 
@@ -69,7 +69,7 @@ Camera::onResize()
 void
 Camera::draw()
 {
-  std::lock_guard<std::mutex> guard{mMutex};
+  LOCK_GUARD(mMutex);
 
   // Update the screen rectangle for applying the rumble effect
   mScreenRectangle.x = mRumbleOffset[0];
@@ -113,7 +113,7 @@ Camera::draw()
 void
 Camera::resetFrameBuffer()
 {
-  std::lock_guard<std::mutex> guard{mMutex};
+  LOCK_GUARD(mMutex);
 
   // Set background colour
   SDL_SetRenderTarget(_renderer, mpFrameBuffer);
@@ -236,7 +236,7 @@ Camera::renderCopy(SDL_Texture* texture,
                    bool isPostProcessed,
                    int bloomAmount)
 {
-  std::lock_guard<std::mutex> guard{mMutex};
+  LOCK_GUARD(mMutex);
 
   // Copy the texture onto the appropriate frame buffer
   SDL_SetRenderTarget(_renderer, getFrameBuffer(isPostProcessed));

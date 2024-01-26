@@ -1,5 +1,6 @@
 CMakeCache.txt
 /build
+/build-web
 /build-xcode
 docs/
 Makefile
@@ -9,7 +10,6 @@ GRTAGS
 GTAGS
 
 *.bin
-*~
 
 # Remove CLion Folders
 /.idea
@@ -50,5 +50,4 @@ GTAGS
 *\#*
 *.o
 *.bin
-*.cmake
 CMakeFiles/

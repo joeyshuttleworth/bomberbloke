@@ -6,6 +6,10 @@
 #include <SDL2/SDL.h>
 #include <network/NetClient.hpp>
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten/emscripten.h>
+#endif
+
 const bool EXPLOSION_INTRO = false;
 
 /* Register our actors with cereal */
@@ -47,7 +51,11 @@ main()
     pIntroSound->mGroup = SOUND_FX;
   }
 
-  client_loop();
+  #ifndef __EMSCRIPTEN__
+    client_loop();
+  #else
+    emscripten_set_main_loop(client_entry, 0, true);
+  #endif
 
   return 0;
 }

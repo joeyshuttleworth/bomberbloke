@@ -12,7 +12,6 @@
 #define ABSTRACTPLAYER_HPP
 #include<string>
 #include<memory>
-#include <enet/enet.h>
 #include <cereal/types/base_class.hpp>
 #include <cereal/archives/json.hpp>
 #include "GamePlayerProperties.hpp"
@@ -47,12 +46,6 @@ public:
   int getId(){return mId;}
 
   std::string getNickname(){return mNickname;}
-
-  /** Get a pointer the ENetAddress of the player.
-      this is only non-null for NetworkPlayers
-  */
-
-  virtual ENetPeer *getPeer(){return nullptr;}
 
   std::shared_ptr<actor> getCharacter(){return mpCharacter;}
 

@@ -44,7 +44,8 @@ void server_loop(short port, std::string masterServerAddress, bool debug){
     }
     /* Lock _scene_mutex to protect _pScene from other threads */
     {
-      const std::lock_guard<std::mutex> lock(_scene_mutex);
+      LOCK_GUARD(_scene_mutex);
+
       if (!_pScene)
         _pScene = std::make_shared<scene>(10, 10);
       _pScene->update();

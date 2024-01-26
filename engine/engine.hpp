@@ -20,9 +20,9 @@
 #include <algorithm>
 #include <ctime>
 #include <signal.h>
-#include <thread>
 #include <limits>
-#include <mutex>
+
+#include "threads.hpp"
 
 #define DEFAULT_ZOOM  50
 #define DEFAULT_ACTOR_SIZE 1
@@ -49,7 +49,7 @@ enum state{
            DISCONNECTED
 };
 
-extern std::mutex _scene_mutex;
+DECLARE_EXTERN_MUTEX(_scene_mutex)
 
 class actor;
 class scene;
@@ -61,7 +61,8 @@ void exit_engine(int);
 void new_game(std::string);
 void engine_new_game(std::string);
 void engine_start_game();
-void client_loop();
+void client_loop(); // Perform client loop
+void client_entry(); // Perform one tick of client loop
 void server_loop(short port=8888, 
                  std::string masterServerAddress="", 
                  bool debug=false
@@ -105,6 +106,7 @@ extern SoundManager soundManager;
 #include "TextManager.hpp"
 extern TextManager textManager;
 
+typedef std::list<std::pair<std::string, SDL_Texture*>> SpriteList;
 
 typedef struct{
   SDL_Scancode scancode;
@@ -188,5 +190,4 @@ const std::string PATHSEPARATOR =
 #include "scene.hpp"
 #include "actor.hpp"
 #include "config.hpp"
-#include "Camera.hpp"
 #endif

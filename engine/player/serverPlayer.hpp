@@ -2,7 +2,6 @@
 #define SERVERPLAYER_HPP
 
 #include "AbstractPlayer.hpp"
-#include <enet/enet.h>
 
 class serverPlayer : public AbstractPlayer{
 private:

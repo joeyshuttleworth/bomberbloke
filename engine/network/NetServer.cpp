@@ -14,9 +14,12 @@
 #include "ServerInfoEvent.hpp"
 #include "SyncEvent.hpp"
 #include "engine.hpp"
-#include <curl/curl.h>
 #include <sstream>
 #include <string>
+
+#ifndef __EMSCRIPTEN__
+#include <curl/curl.h>
+#endif
 
 NetServer::NetServer()
 {}
@@ -183,7 +186,11 @@ bool
 NetServer::stop()
 {
   mConnector->close();
+
+  // TODO this needs cleaning up
+  #ifndef __EMSCRIPTEN__
   updateGameMasterServer(true);
+  #endif
   return 0;
 }
 
@@ -193,47 +200,6 @@ NetServer::setMasterServerAddress(std::string masterServerAddress)
   mMasterServerAddress = masterServerAddress;
 }
 
-void
-NetServer::removeFromMasterServer()
-{
-  updateGameMasterServer(true);
-  // printf("%s disconnected.\n", event.peer->data);
-}
-
-void
-NetServer::updateGameMasterServer(bool disconnect)
-{
-  CURL* curl;
-  CURLcode res;
-  if (!disconnect) {
-    /* In windows, this will init the winsock stuff */
-    curl_global_init(CURL_GLOBAL_ALL);
-
-    curl = curl_easy_init();
-    if (curl) {
-      curl_easy_setopt(curl, CURLOPT_URL, this->mMasterServerAddress.c_str());
-      // TODO: update with proper data
-      std::string postData = "param1=value1&param2=value2";
-      curl_easy_setopt(
-        curl, CURLOPT_POSTFIELDS, "name=Server&project=Bomberbloke");
-
-      /* Perform the request, res will get the return code */
-      res = curl_easy_perform(curl);
-      /* Check for errors */
-      if (res != CURLE_OK) {
-        fprintf(stderr,
-                "\ncurl_easy_perform() failed: %s\n",
-                curl_easy_strerror(res));
-      } else {
-        printf("\nSuccessfully updated game server at: %s\n",
-               this->mMasterServerAddress.c_str());
-      }
-      curl_easy_cleanup(curl);
-    }
-    curl_global_cleanup();
-  } else
-    return;
-}
 
 void
 NetServer::syncPlayers()
@@ -373,3 +339,49 @@ NetServer::handlePlayerLeave(const std::shared_ptr<AbstractPlayer>& p)
   _player_list.remove(p);
   return;
 }
+
+#ifndef __EMSCRIPTEN__
+
+void
+NetServer::removeFromMasterServer()
+{
+  updateGameMasterServer(true);
+  // printf("%s disconnected.\n", event.peer->data);
+}
+
+void
+NetServer::updateGameMasterServer(bool disconnect)
+{
+  CURL* curl;
+  CURLcode res;
+  if (!disconnect) {
+    /* In windows, this will init the winsock stuff */
+    curl_global_init(CURL_GLOBAL_ALL);
+
+    curl = curl_easy_init();
+    if (curl) {
+      curl_easy_setopt(curl, CURLOPT_URL, this->mMasterServerAddress.c_str());
+      // TODO: update with proper data
+      std::string postData = "param1=value1&param2=value2";
+      curl_easy_setopt(
+        curl, CURLOPT_POSTFIELDS, "name=Server&project=Bomberbloke");
+
+      /* Perform the request, res will get the return code */
+      res = curl_easy_perform(curl);
+      /* Check for errors */
+      if (res != CURLE_OK) {
+        fprintf(stderr,
+                "\ncurl_easy_perform() failed: %s\n",
+                curl_easy_strerror(res));
+      } else {
+        printf("\nSuccessfully updated game server at: %s\n",
+               this->mMasterServerAddress.c_str());
+      }
+      curl_easy_cleanup(curl);
+    }
+    curl_global_cleanup();
+  } else
+    return;
+}
+
+#endif
