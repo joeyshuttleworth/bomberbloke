@@ -1,7 +1,7 @@
 #pragma once
 
 // Macro to configure whether to use binary or json as the message type
-#define BLOKE_PROTOCOL_USE_JSON 1
+//#define BLOKE_PROTOCOL_USE_JSON 1
 
 /*
 * Archive class defined here

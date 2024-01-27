@@ -256,10 +256,18 @@ int WebSocketsConnector::lws_callback_member(struct lws* wsi, enum lws_callback_
 
             std::string str(LWS_SEND_BUFFER_PRE_PADDING, ' '); // LWS_PRE bytes
             str += blob.str();
+
+            lws_write_protocol writeProtocol;
+            #ifdef BLOKE_PROTOCOL_USE_JSON
+                writeProtocol = LWS_WRITE_TEXT;
+            #else
+                writeProtocol = LWS_WRITE_BINARY;
+            #endif
+
             auto result = lws_write(wsi,
                             (unsigned char *) &str[LWS_SEND_BUFFER_PRE_PADDING],
                             str.size() - LWS_SEND_BUFFER_PRE_PADDING, 
-                            LWS_WRITE_TEXT);
+                            writeProtocol);
             
             if(EVENT_KICK == event->getType()) 
                 return -1; // Disconnect peer 

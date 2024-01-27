@@ -104,11 +104,13 @@ EmscriptenConnector::open() {
     emscripten_websocket_set_onmessage_callback(socket, this, [](
         int eventType, const EmscriptenWebSocketMessageEvent *event, void *userData
     ){
-        printf("Emscripten onMessage callback\n");
-        if(!event->isText) {
-            printf("Emscripten onMessage got non UTF-8 message\n");
-            return EM_FALSE;
-        }
+        #ifdef BLOKE_PROTOCOL_USE_JSON
+            // In this mode we expect to be receiving UTF-8 encoded messages
+            if(!event->isText) {
+                printf("Emscripten onMessage got non UTF-8 message\n");
+                return EM_FALSE;
+            }
+        #endif
 
         // Get
         auto conn = (EmscriptenConnector*) userData;
@@ -144,7 +146,6 @@ EmscriptenConnector::open() {
     }
     printf("EmscriptenConnector: Connection appears to be open!\n");
 
-    
     isOpen = true;
     return true;
 }
@@ -238,5 +239,11 @@ EmscriptenConnector::broadcastEvent(std::shared_ptr<AbstractEvent> event) {
         CEREAL_OUTPUT_ARCHIVE outputArchive(blob);
         outputArchive(event);
     }
-    emscripten_websocket_send_utf8_text(socket, blob.str().c_str());
+    std::string bytes = blob.str();
+
+    #ifdef BLOKE_PROTOCOL_USE_JSON
+        emscripten_websocket_send_utf8_text(socket, bytes.c_str());
+    #else
+        emscripten_websocket_send_binary(socket, (void *) bytes.c_str(), bytes.size());
+    #endif
 };
