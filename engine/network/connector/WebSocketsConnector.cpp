@@ -1,8 +1,6 @@
 #include "Connector.hpp"
 
 #include <libwebsockets.h>
-#include <cereal/archives/portable_binary.hpp>
-#include <cereal/archives/json.hpp>
 
 #include <atomic>
 #include <memory>
@@ -15,6 +13,7 @@
 
 #include "PlayerLeaveEvent.hpp"
 #include "KickEvent.hpp"
+#include "Archive.hpp"
 
 using std::list;
 using std::map;
@@ -31,12 +30,30 @@ using std::vector;
 * finally call lws_write... 
 */
 
+//#define DEBUG_LWS 0
+#define DEBUG_LWS 0
+
 /*
 * libwebsockets requires some setup 
 */
 namespace lws_config {
-    #define BLOKE_RX_BUFFER_BYTES (4096)
+    /*
+    * Browser currently only supports JSON UTF-8 which is more ineffecient than binary, so need larger packets
+    */
+    #ifdef BLOKE_PROTOCOL_USE_JSON
+        #define BLOKE_RX_BUFFER_BYTES (65536)
+    #else
+        #define BLOKE_RX_BUFFER_BYTES (4096)
+    #endif
+
+    /*
+    * The sub protocol name, this is part of the Web Sockets Protocol
+    */
     #define BLOKE_PROTOCOL_NAME "bloke-ws-protocol"
+
+    /*
+    * Sleep time when waiting for the libwebsockets thread to produce messages
+    */
     #define POLL_WAIT_MILLISECONDS 50
 
     const static char protocol_name[] = BLOKE_PROTOCOL_NAME;
@@ -148,6 +165,9 @@ int WebSocketsConnector::lws_callback_member(struct lws* wsi, enum lws_callback_
     {
         case LWS_CALLBACK_CLIENT_ESTABLISHED:
         case LWS_CALLBACK_ESTABLISHED: {
+            if(DEBUG_LWS)
+                printf("LWS: ESTABLISHED\n");
+
             // Assign id
             const std::lock_guard<std::mutex> lock(peersMutex);
 
@@ -165,6 +185,9 @@ int WebSocketsConnector::lws_callback_member(struct lws* wsi, enum lws_callback_
         }
         case LWS_CALLBACK_CLIENT_CLOSED: 
         case LWS_CALLBACK_CLOSED: {
+            if(DEBUG_LWS)
+                printf("LWS: CLOSED\n");
+
             {
                 const std::lock_guard<std::mutex> lock(peersMutex);
                 const std::lock_guard<std::mutex> lock_2(outgoingMutex);
@@ -182,6 +205,9 @@ int WebSocketsConnector::lws_callback_member(struct lws* wsi, enum lws_callback_
         }
         case LWS_CALLBACK_CLIENT_RECEIVE:
         case LWS_CALLBACK_RECEIVE: {
+            if(DEBUG_LWS)
+                printf("LWS: RECEIVE\n");
+
             auto inputString = std::string((char *) in, len);
 
             // Parse
@@ -189,8 +215,7 @@ int WebSocketsConnector::lws_callback_member(struct lws* wsi, enum lws_callback_
             s.write((char *) in, len);
             try {
                 std::shared_ptr<AbstractEvent> receive_event;
-                cereal::PortableBinaryInputArchive inArchive(s);
-                //cereal::JSONInputArchive inArchive(s);
+                CEREAL_INPUT_ARCHIVE inArchive(s);
                 inArchive(receive_event);
 
                 const std::lock_guard<std::mutex> lock(incomingMutex);
@@ -205,6 +230,9 @@ int WebSocketsConnector::lws_callback_member(struct lws* wsi, enum lws_callback_
         }
         case LWS_CALLBACK_CLIENT_WRITEABLE: 
         case LWS_CALLBACK_SERVER_WRITEABLE: {
+            if(DEBUG_LWS)
+                printf("LWS: WRITEABLE\n");
+                
             std::shared_ptr<AbstractEvent> event;
             {
                 const std::lock_guard<std::mutex> lock(outgoingMutex);
@@ -220,8 +248,7 @@ int WebSocketsConnector::lws_callback_member(struct lws* wsi, enum lws_callback_
 
             std::stringstream blob;
             {
-                cereal::PortableBinaryOutputArchive outputArchive(blob);
-                //cereal::JSONOutputArchive outputArchive(blob);
+                CEREAL_OUTPUT_ARCHIVE outputArchive(blob);
                 outputArchive(event);
             }
 
@@ -268,9 +295,10 @@ int WebSocketsConnector::lws_callback_member(struct lws* wsi, enum lws_callback_
 }
 
 bool WebSocketsConnector::open() {
-    // Disable logging
-    //lws_set_log_level(LLL_ERR | LLL_WARN | LLL_NOTICE | LLL_INFO | LLL_DEBUG | LLL_USER | LLL_THREAD, NULL);
-    lws_set_log_level((unsigned int) 0, nullptr);
+    if(DEBUG_LWS) // Note: flags are pointless if LWS has not been built from sources with the logging levels selected
+        lws_set_log_level(LLL_ERR | LLL_WARN | LLL_NOTICE | LLL_INFO | LLL_DEBUG | LLL_USER | LLL_THREAD, NULL);
+    else
+        lws_set_log_level((unsigned int) 0, nullptr);
 
     struct lws_context_creation_info info;
     memset( &info, 0, sizeof(info) );

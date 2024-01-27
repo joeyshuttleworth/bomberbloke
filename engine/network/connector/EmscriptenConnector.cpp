@@ -4,6 +4,8 @@
 #include <emscripten/emscripten.h>
 #include <cassert>
 
+#include "Archive.hpp"
+
 
 class EmscriptenConnector : public Connector {
 protected:
@@ -64,6 +66,10 @@ bool
 EmscriptenConnector::open() {
     assert(emscripten_websocket_is_supported());
 
+    /*
+    * Create websocket and setup callbacks
+    */
+
     EmscriptenWebSocketCreateAttributes attr;
     attr.url = serverUrl().c_str();
     attr.protocols = "bloke-ws-protocol";
@@ -75,18 +81,6 @@ EmscriptenConnector::open() {
         return false;
     }
 
-    int waits = 0;
-    while(countPeers() != 1) {
-        if(waits == 10) {
-            printf("Timed out\n");
-            return false;
-        }
-        emscripten_sleep(100);
-        waits++;
-    }
-    printf("EmscriptenConnector: Connection appears to be open!\n");
-
-    // Setting up callbacks
     emscripten_websocket_set_onopen_callback(socket, this, [](
         int eventType, const EmscriptenWebSocketOpenEvent *event, void *userData
     ){
@@ -123,7 +117,7 @@ EmscriptenConnector::open() {
 
         // Parse
         std::shared_ptr<AbstractEvent> receive_event;
-        cereal::PortableBinaryInputArchive inArchive(s);
+        CEREAL_INPUT_ARCHIVE inArchive(s);
         inArchive(receive_event);
 
         // Store
@@ -134,6 +128,22 @@ EmscriptenConnector::open() {
 
         return EM_TRUE;
     });
+
+    /*
+    * async wait to verify connection
+    */
+
+    int waits = 0;
+    while(countPeers() != 1) {
+        if(waits == 10) {
+            printf("Timed out\n");
+            return false;
+        }
+        emscripten_sleep(100);
+        waits++;
+    }
+    printf("EmscriptenConnector: Connection appears to be open!\n");
+
     
     isOpen = true;
     return true;
@@ -205,7 +215,7 @@ EmscriptenConnector::pollFor(int timeout, std::set<EventType>& lookFor) {
 
 int 
 EmscriptenConnector::countPeers() {
-    if(!isOpen || socket <= 0)
+    if(socket <= 0)
         return 0;
 
     //https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/readyState
@@ -225,7 +235,7 @@ EmscriptenConnector::broadcastEvent(std::shared_ptr<AbstractEvent> event) {
     // Connector is client only so just send to server
     std::stringstream blob;
     {
-        cereal::PortableBinaryOutputArchive outputArchive(blob);
+        CEREAL_OUTPUT_ARCHIVE outputArchive(blob);
         outputArchive(event);
     }
     emscripten_websocket_send_utf8_text(socket, blob.str().c_str());

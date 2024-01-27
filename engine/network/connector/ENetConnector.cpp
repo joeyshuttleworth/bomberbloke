@@ -5,6 +5,7 @@
 
 #include "KickEvent.hpp"
 #include "PlayerLeaveEvent.hpp"
+#include "Archive.hpp"
 
 #define ENET_SERVICE_TIMEOUT_MS 50
 
@@ -183,7 +184,7 @@ void ENetConnector::processENetEvent(ENetEvent &event, EventReceived &recieved)
             data_in.write((char*)event.packet->data, event.packet->dataLength);
             try {
                 std::shared_ptr<AbstractEvent> receive_event;
-                cereal::PortableBinaryInputArchive inArchive(data_in);
+                CEREAL_INPUT_ARCHIVE inArchive(data_in);
                 inArchive(receive_event);
                 recieved = { receive_event, from };
             } catch (std::exception& e) {
@@ -213,7 +214,7 @@ ENetConnector::sendEvent(std::shared_ptr<AbstractEvent> event, ConnectorPeer to_
 
     std::stringstream blob;
     {
-        cereal::PortableBinaryOutputArchive outputArchive(blob);
+        CEREAL_OUTPUT_ARCHIVE outputArchive(blob);
         outputArchive(event);
     }
 
