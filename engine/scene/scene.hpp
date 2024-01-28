@@ -4,11 +4,12 @@
 #include <list>
 #include <string>
 #include <mutex>
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <cereal/types/list.hpp>
 #include <memory>
 #include "AbstractSpriteHandler.hpp"
 #include "AbstractCollider.hpp"
+#include "threads.hpp"
 
 extern double _zoom;
 
@@ -109,7 +110,7 @@ public:
   scene(double x=10, double y=10);
 
   virtual ~scene(){
-      std::lock_guard<std::mutex> guard{mMutex};
+      LOCK_GUARD(mMutex);
   }
 
   std::shared_ptr<actor> GetActor(int id);

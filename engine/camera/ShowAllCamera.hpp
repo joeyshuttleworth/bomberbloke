@@ -22,15 +22,12 @@ public:
     const double width = scene->mDimmension[0];
     const double height = scene->mDimmension[1];
 
-    std::max(width, height);
-
     int screen_dims[2] = {_window_size[0], _window_size[1]};
 
     mZoom = std::min(screen_dims[0]/width, screen_dims[1]/height);
 
     mPosition[0]=width/2;
     mPosition[1]=height/2;
-
   }
 };
 

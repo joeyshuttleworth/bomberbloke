@@ -8,8 +8,6 @@
 unsigned int _last_receive;
 bool _draw = true;
 bool _server = false;
-std::string _serverIP = "127.0.0.1";
-enet_uint16 _port = 8888;
 
 void
 client_loop()
@@ -30,31 +28,29 @@ client_loop()
     }
     while(t2.tv_nsec - t1.tv_nsec +
           1e9 * (t2.tv_sec - t1.tv_sec) < 1e9 / TICK_RATE);
-
-    /* Lock _scene_mutex to protect _pScene from other threads */
-    const std::lock_guard<std::mutex> lock(_scene_mutex);
-    _net_client->pollServer();
-    if (_pScene) {
-      _pScene->update();
-      handle_input();
-    }
-    if (_draw)
-      draw_screen();
-    _tick++;
-
-    if (_pNewScene != nullptr) {
-      _pScene = _pNewScene;
-      _pNewScene = nullptr;
-    }
+    
+    // Perform client tick
+    client_entry();
   }
 }
 
-void
-setAddress(std::string serverAddress = "127.0.0.1", enet_uint16 port = 8888)
-{
-  _serverIP = serverAddress;
-  _port = port;
-  _server = true;
+void client_entry() {
+  /* Lock _scene_mutex to protect _pScene from other threads */
+  LOCK_GUARD(_scene_mutex);
+
+  _net_client->pollServer();
+  if (_pScene) {
+    _pScene->update();
+    handle_input();
+  }
+  if (_draw)
+    draw_screen();
+  _tick++;
+
+  if (_pNewScene != nullptr) {
+    _pScene = _pNewScene;
+    _pNewScene = nullptr;
+  }
 }
 
 void

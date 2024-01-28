@@ -16,42 +16,23 @@
 #include "RemovalEvent.hpp"
 #include "ServerInfoEvent.hpp"
 #include "SyncEvent.hpp"
-#include "AcceptEvent.hpp"
 #include "actor.hpp"
 #include "engine.hpp"
-#include "SyncEvent.hpp"
-#include "ErrorEvent.hpp"
-#include <cereal/archives/portable_binary.hpp>
 #include <iostream>
 #include <memory>
 #include <string>
 
-NetClient::NetClient()
-{}
-
-NetClient::~NetClient()
-{}
 
 bool
-NetClient::connectClient(std::string serverAddress, ushort port)
+parseAddress(const std::string &address, std::string &ip, ushort &port)
 {
-  mServerId = mConnector->connectPeer(serverAddress, port);
-  return mServerId > -1;
-}
-
-bool
-NetClient::joinBlokeServer(std::string address, const std::string& nickname, const std::vector<std::string>& commands)
-{
-  mConnector.reset(new ENetConnector());
-  mConnector->open();
-
-  ushort port;
-
   /*  Attempt to parse the first argument as address:port.
       If no ':' is present, the port number defaults to 8888.
   */
   long unsigned int delim_pos = address.find(':');
+
   if (delim_pos == std::string::npos) {
+    ip = address;
     port = 8888;
   } else if (address.substr(delim_pos + 1).find(':') != std::string::npos) {
     std::stringstream msg;
@@ -59,10 +40,7 @@ NetClient::joinBlokeServer(std::string address, const std::string& nickname, con
     log_message(ERR, msg.str());
     return false;
   } else {
-    address = address.substr(0, delim_pos);
-    /*  TODO replace try-catch with something less lazy to check if
-        we're going to have an error
-    */
+    ip = address.substr(0, delim_pos);
     try {
       port = (ushort) std::stoi(address.substr(delim_pos + 1));
     } catch (std::exception& e) {
@@ -73,18 +51,48 @@ NetClient::joinBlokeServer(std::string address, const std::string& nickname, con
       port = 8888;
     }
   }
+  return true;
+}
 
-  if (!connectClient(address, port))
+NetClient::NetClient()
+{}
+
+NetClient::~NetClient()
+{}
+
+bool
+NetClient::connectClient(std::string serverAddress, ushort port)
+{
+  ConnectorDescriptor desc;
+  desc.mode = CLIENT;
+  desc.serverAddress = serverAddress;
+  desc.serverPort = port;
+  mConnector = createConnector(desc);
+  return mConnector->open();
+}
+
+bool
+NetClient::attemptJoin(std::string address, const std::string &nickname,
+                       const std::vector<std::string> &commands)
+{
+  ushort port;
+  std::string ip;
+  if(!parseAddress(address, ip, port))
+    return false;
+
+  if (!connectClient(ip, port))
     return false;
 
   /* Query the server to see if we're able to join */
   std::unique_ptr<AbstractEvent> q_event(new QueryEvent(nickname));
-  mConnector->sendEvent(std::move(q_event), mServerId);
+  mConnector->broadcastEvent(std::move(q_event));
 
   /* We expect ServerInfoEvent */
+  log_message(DEBUG, "night: wait for server info event");
   std::set<EventType> outcomes = { EVENT_INFO };
-  auto response = mConnector->pollFor(5000, outcomes);
-  if(response.event == nullptr)
+  auto response = mConnector->pollFor(10000, outcomes);
+  log_message(DEBUG, "lets see if we got it");
+  if(response == EVENT_RECEIVED_NONE)
     return false;
 
   std::shared_ptr<ServerInfoEvent> info_event =
@@ -106,10 +114,10 @@ NetClient::joinBlokeServer(std::string address, const std::string& nickname, con
   /* Now 'join' and wait at least 10 seconds */
   std::unique_ptr<AbstractEvent> join_event(
     new JoinEvent(nickname, info_event->mMagicNumber, commands));
-  mConnector->sendEvent(std::move(join_event), mServerId);
+  mConnector->broadcastEvent(std::move(join_event));
   std::set<EventType> outcomes_2 = { EVENT_ERROR, EVENT_ACCEPT };
   auto joinResponse = mConnector->pollFor(10000, outcomes_2);
-  if(joinResponse.from_id == -1) {
+  if(joinResponse == EVENT_RECEIVED_NONE) {
     log_message(ERR, "Timed out");
     return false;
   }
@@ -130,11 +138,19 @@ NetClient::joinBlokeServer(std::string address, const std::string& nickname, con
       return true;
     }
     default:
-      break;
+      return false;
   }
+}
 
-  log_message(ERR, "Unexpected first response to join attempt");
-  return false;
+bool
+NetClient::joinBlokeServer(std::string address, const std::string& nickname, const std::vector<std::string>& commands)
+{
+  if(!attemptJoin(address, nickname, commands)) {
+    printf("\n\n attemptJoin failed\n");
+    mConnector.reset();
+    return false;
+  }
+  return true;
 }
 
 void
@@ -274,9 +290,8 @@ NetClient::pollServer()
 void
 NetClient::disconnectClient()
 {
-  std::unique_ptr<AbstractEvent> leave_event(new PlayerLeaveEvent());
-  mConnector->sendEvent(std::move(leave_event), mServerId);
   mConnector->close();
+  mConnector = nullptr; 
 }
 
 bool

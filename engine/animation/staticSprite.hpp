@@ -1,7 +1,7 @@
 #ifndef STATICSPRITE_HPP
 #define STATICSPRITE_HPP
 #include "AbstractSpriteHandler.hpp"
-#include "SDL2/SDL_image.h"
+#include <SDL_image.h>
 #include "engine.hpp"
 
 extern SDL_Renderer *_renderer;

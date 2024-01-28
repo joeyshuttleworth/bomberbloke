@@ -1,102 +1,12 @@
 cmake_minimum_required(VERSION 3.10)
 project(BOMBERBLOKE)
 
-if(NOT CMAKE_BUILD_TYPE)
-  set( CMAKE_BUILD_TYPE Debug CACHE STRING
-       "Choose the type of build, options are: None Debug Release RelWithDebInfo
-MinSizeRel."
-       FORCE )
-endif()
-
 enable_testing()
+include(FetchContent)
 
-if (CMAKE_COMPILER_IS_MINGW)
-  add_definitions(-DWC_NO_BEST_FIT_CHARS=0x400)   # Note - removed -DPOCO_WIN32_UTF8
-  add_definitions(-D_WIN32 -DMINGW32 -DWIN32_LEAN_AND_MEAN -DWINVER=0x500 -DODBCVER=0x0300 -DPOCO_THREAD_STACK_SIZE)
-  add_compile_options(-Wa,-mbig-obj)   # Note: new - fixes "file too big"
-endif (CMAKE_COMPILER_IS_MINGW)
+# Include directories
 
-if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
-  include(CTest)
-  add_subdirectory(tests)
-endif()
-message(STATUS "CMAKE_SYSTEM_NAME = ${CMAKE_SYSTEM_NAME}")
-message(STATUS "CMAKE_CXX_COMPILER_ID = ${CMAKE_CXX_COMPILER_ID}")
-message(STATUS "CMAKE_CXX_COMPILER_VERSION = ${CMAKE_CXX_COMPILER_VERSION}")
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread")
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
-
-if(_WIN32)
-set(CMAKE_FIND_LIBRARY_PATH ${PROJECT_SOURCE_DIR}/windows_libraries)
-include_directories(${PROJECT_SOURCE_DIR}/windows_libraries/include)
-include_directories(/usr/x86_64-w64-mingw32/include)
-set(CMAKE_CXX_STANDARD_LIBRARIES "${CMAKE_CXX_STANDARD_LIBRARIES} -static-libgcc -static-libstdc++ -lwsock32 -lws2_32 -lwinmm -lwldap32 -lhid -lsetupapi -lole32 -loleaut32 -limm32 -lversion -mwindows")
-endif(_WIN32)
-
-find_package(ENet REQUIRED)
-include_directories(${ENET_INCLUDE_DIR})
-
-find_package(SDL2 REQUIRED)
-include_directories(${SDL2_INCLUDE_DIRS})
-
-find_package(curl REQUIRED)
-include_directories(${CURL_INCLUDE_DIR})
-
-include(CMakeRC)
-
-cmrc_add_resource_library(files ALIAS files::rc PREFIX files 
-  assets/bomb_1.ogg
-  assets/bomb_2.ogg
-  assets/click.ogg
-  assets/countdown_1.ogg
-  assets/countdown_2.ogg
-  assets/countdown_3.ogg
-  assets/countdown_commence.ogg
-  assets/explosion_intro.ogg
-  assets/ost1_a_first.ogg
-  assets/ost1_a_main_neptune.ogg
-  assets/ost1_b_first_neptune.ogg
-  assets/ost1_b_main_neptune.ogg
-  assets/ost1_final_neptune.ogg
-  assets/ost1_idle.ogg
-  assets/ost2_first.ogg
-  assets/ost2_idle.ogg
-  assets/ost2_intro.ogg
-  assets/ost2_main1.ogg
-  assets/ost2_main2.ogg
-  assets/ost2_pads.ogg
-  assets/ost2_solo.ogg
-  assets/place_bomb.ogg
-  assets/Aileron-Black.ttf
-  assets/background_tile_0.png
-  assets/background_tile_1.png
-  assets/background_tile_2.png
-  assets/background_tile_3.png
-  assets/background_tile_4.png
-  assets/background_tile_5.png
-  assets/background_tile_6.png
-  assets/background_tile_7.png
-  assets/background_tile_8.png
-  assets/background_tile_9.png
-  assets/bigredbomb.png
-  assets/bomb.png
-  assets/bomb_pickup.png
-  assets/crate.png
-  assets/crate.svg
-  assets/flames.png
-  assets/lightning.png
-  assets/explosion_frame_1.png
-  assets/explosion_frame_2.png
-  assets/explosion_frame_3.png
-  assets/explosion_frame_4.png
-  assets/explosion_frame_5.png
-  assets/explosion_frame_6.png
-)
-
-#Include directories
 include_directories(BEFORE SYSTEM ${PROJECT_SOURCE_DIR}/cereal/include)
-
 include_directories(${PROJECT_SOURCE_DIR}/engine/event)
 include_directories(${PROJECT_SOURCE_DIR}/engine/file)
 include_directories(${PROJECT_SOURCE_DIR}/engine/scene)
@@ -116,58 +26,107 @@ include_directories(${PROJECT_SOURCE_DIR}/engine/sound)
 include_directories(${PROJECT_SOURCE_DIR}/engine/text)
 include_directories(${PROJECT_SOURCE_DIR}/engine/hud)
 
-# Format in clang
-# set(CMAKE_CXX_CLANG_TIDY
-#   clang-tidy;
-#   -format-style="mozilla"
-#   -checks=*;)
+# Source files
 
 file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/sources.cmake SHARED_SOURCES)
-# file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/tests.cmake TEST_SOURCES)
+
+if(EMSCRIPTEN)
+  message(STATUS "Detected Emscripten, building using CMakeEmscripten.cmake")
+  include("CMakeEmscripten.cmake")
+  return()
+endif()
+
+if (CMAKE_COMPILER_IS_MINGW)
+  add_definitions(-DWC_NO_BEST_FIT_CHARS=0x400)   # Note - removed -DPOCO_WIN32_UTF8
+  add_definitions(-D_WIN32 -DMINGW32 -DWIN32_LEAN_AND_MEAN -DWINVER=0x500 -DODBCVER=0x0300 -DPOCO_THREAD_STACK_SIZE)
+  add_compile_options(-Wa,-mbig-obj)   # Note: new - fixes "file too big"
+endif (CMAKE_COMPILER_IS_MINGW)
+
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
+  include(CTest)
+endif()
+message(STATUS "CMAKE_SYSTEM_NAME = ${CMAKE_SYSTEM_NAME}")
+message(STATUS "CMAKE_CXX_COMPILER_ID = ${CMAKE_CXX_COMPILER_ID}")
+message(STATUS "CMAKE_CXX_COMPILER_VERSION = ${CMAKE_CXX_COMPILER_VERSION}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
+
+if(_WIN32)
+  set(CMAKE_FIND_LIBRARY_PATH ${PROJECT_SOURCE_DIR}/windows_libraries)
+  include_directories(${PROJECT_SOURCE_DIR}/windows_libraries/include)
+  include_directories(/usr/x86_64-w64-mingw32/include)
+  set(CMAKE_CXX_STANDARD_LIBRARIES "${CMAKE_CXX_STANDARD_LIBRARIES} -static-libgcc -static-libstdc++ -lwsock32 -lws2_32 -lwinmm -lwldap32 -lhid -lsetupapi -lole32 -loleaut32 -limm32 -lversion -mwindows")
+endif(_WIN32)
+
+# Dependencies
+
+find_package(SDL2 REQUIRED)
+include_directories(${SDL2_INCLUDE_DIRS})
+
+find_package(curl REQUIRED)
+include_directories(${CURL_INCLUDE_DIR})
+
+find_package(ENet REQUIRED)
+include_directories(${ENET_INCLUDE_DIR})
+
+set(LWS_WITH_IPV6 ON CACHE BOOL "" FORCE)
+set(LWS_WITH_HTTP2 ON CACHE BOOL "" FORCE)
+set(LWS_WITH_PLUGINS ON CACHE BOOL "" FORCE)
+set(LWS_WITHOUT_TESTAPPS ON CACHE BOOL "" FORCE)
+set(LWS_UNIX_SOCK ON CACHE BOOL "" FORCE)
+FetchContent_Declare(
+  lws
+  GIT_REPOSITORY https://github.com/warmcat/libwebsockets.git
+  GIT_TAG v4.3-stable
+)
+FetchContent_MakeAvailable(lws)
+
+# Resources
+
+include(CMakeRC)
+file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/assets.cmake ASSET_FILES)
+cmrc_add_resource_library(files ALIAS files::rc PREFIX files ${ASSET_FILES})
+
+# Networking setup, the client and server can be linked with NET_LIB
+
+set(NET_PROTOCOL ENET CACHE STRING "")
+set(NET_PROTOCOL_OPTIONS ENET WEBSOCKETS)
+if (NOT NET_PROTOCOL IN_LIST NET_PROTOCOL_OPTIONS)
+  message(FATAL_ERROR "Unrecognised network protocol for build.")
+endif()
+
+message(STATUS "Using connector " ${NET_PROTOCOL})
+
+add_library(NET_LIB INTERFACE)
+if(NET_PROTOCOL STREQUAL "ENET")
+  target_link_libraries(NET_LIB INTERFACE ${ENET_LIBRARIES})
+  list(APPEND SHARED_SOURCES "engine/network/connector/ENetConnector.cpp")
+else()
+  target_link_libraries(NET_LIB INTERFACE websockets)
+  list(APPEND SHARED_SOURCES "engine/network/connector/WebSocketsConnector.cpp")
+endif()
+
+#
+# Build targets declared here
+#
 
 add_library(CLIENT ${SHARED_SOURCES} "engine/client.cpp" "engine/network/NetClient.cpp")
-target_link_libraries(CLIENT PUBLIC files::rc)
+target_link_libraries(CLIENT PUBLIC files::rc ${SDL2_LIBRARIES} ${CURL_LIBRARIES} NET_LIB)
 
-# run_and_close test
-add_executable(run_and_close "tests/run_and_close.cpp" "engine/client.cpp")
-target_link_libraries(run_and_close CLIENT ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES})
-add_test(RUN_AND_CLOSE run_and_close COMMAND)
+# Tests
+add_subdirectory(tests)
 
-# ENetConnector test
-add_executable(enet_connector_test "tests/enet_connector.cpp")
-target_link_libraries(enet_connector_test SERVER files::rc ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES})
-add_test(ENET_TEST enet_connector_test COMMAND)
-
-#serialise_event test
-add_executable(serialise_event "tests/serialise_event_test.cpp")
-target_link_libraries(serialise_event CLIENT ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES})
-add_test(SERIALISE_EVENT_TEST serialise_event COMMAND)
-
-#test split_to_tokens
-add_executable(tokens_test "tests/split_to_tokens_test.cpp")
-target_link_libraries(tokens_test CLIENT ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES})
-add_test(TEST_SPLIT_TO_TOKENS tokens_test COMMAND)
-
-# explosion demo
-add_executable(explosion_demo "tests/ExplosionDemo.cpp" "engine/client.cpp")
-target_link_libraries(explosion_demo CLIENT ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES})
-
-add_executable(collision_sandbox "tests/collision_sandbox.cpp" "engine/server.cpp")
-target_link_libraries(collision_sandbox PUBLIC files::rc SERVER ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES})
-
-# Client setup
+# Client 
 set(client_src "client/bomberbloke.cpp")
 add_executable(bomberbloke_client ${client_src} "engine/client.cpp")
-target_link_libraries(bomberbloke_client PUBLIC files::rc CLIENT ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES}  )
-
-# Server setup
+target_link_libraries(bomberbloke_client PUBLIC files::rc CLIENT)
+# Server
 add_library(SERVER ${SHARED_SOURCES} "engine/server.cpp" "engine/network/NetServer.cpp")
-target_link_libraries(SERVER PUBLIC files::rc)
-
+target_link_libraries(SERVER PUBLIC files::rc NET_LIB)
 set(server_src "server/bomberbloke_server.cpp" "engine/server.cpp" "engine/network/NetServer.cpp")
 add_executable(bomberbloke_server ${server_src})
 set_target_properties(bomberbloke_server PROPERTIES PUBLIC_HEADER "engine/server.h")
-target_link_libraries(bomberbloke_server SERVER ${ENET_LIBRARIES} ${SDL2_LIBRARIES} ${CURL_LIBRARIES})
+target_link_libraries(bomberbloke_server SERVER ${SDL2_LIBRARIES} ${CURL_LIBRARIES} NET_LIB)
 
 # Adding clang-format target if executable is found
 find_program(CLANG_FORMAT "clang-format")
@@ -176,16 +135,16 @@ find_program(CLANG_TIDY "clang-tidy")
 # Warning messages are treated as errors
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror -Wpedantic -Wfatal-errors")
 
-# Build docs
-find_package(Doxygen)
-set(DOXYFILE_IN ${PROJECT_SOURCE_DIR}/.doxygen.conf)
-if(DOXYGEN_FOUND)
-  add_custom_target(
-    docs ALL
-    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-    COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYFILE_IN}
-    COMMENT "Generating documentation"
-    VERBATIM
-    )
-endif()
+# # Build docs
+# find_package(Doxygen)
+# set(DOXYFILE_IN ${PROJECT_SOURCE_DIR}/.doxygen.conf)
+# if(DOXYGEN_FOUND)
+#   add_custom_target(
+#     docs ALL
+#     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+#     COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYFILE_IN}
+#     COMMENT "Generating documentation"
+#     VERBATIM
+#     )
+# endif()
 

@@ -8,12 +8,14 @@
 #include <string>
 #include <memory>
 #include "AbstractEvent.hpp"
-#include "ENetConnector.hpp"
-
+#include "engine.hpp"
+#include "Connector.hpp"
 
 class serverPlayer;
 
 class NetClient {
+protected:
+    bool attemptJoin(std::string address, const std::string&, const std::vector<std::string>& = {});
 public:
     NetClient();
     ~NetClient();
@@ -29,9 +31,9 @@ public:
 
     std::string mServerAddress;
     short mPort;
-    int mServerId;
 
     std::unique_ptr<Connector> mConnector;
 };
+
 
 #endif

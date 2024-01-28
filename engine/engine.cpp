@@ -10,17 +10,14 @@
 #include "ServerInfo.hpp"
 #include "ShowAllCamera.hpp"
 #include "SyncEvent.hpp"
+#include "assets.hpp"
 #include "scene.hpp"
-#include <SDL2/SDL_image.h>
+#include <SDL_image.h>
 #include <cereal/archives/json.hpp>
 #include <dirent.h>
 #include <exception>
 #include <fstream>
 #include <utility>
-#include <cmrc/cmrc.hpp>
-
-CMRC_DECLARE(files);
-
 
 
 /*  TODO: reduce number of globals */
@@ -46,17 +43,15 @@ std::ofstream _console_log_file;
 std::list<std::shared_ptr<AbstractSpriteHandler>> _particle_list;
 std::vector<CommandBinding> _default_bindings;
 std::list<std::shared_ptr<AbstractPlayer>> _player_list;
-std::mutex _scene_mutex;
+
+DECLARE_MUTEX(_scene_mutex);
 
 std::unique_ptr<NetClient> _net_client;
 std::unique_ptr<NetServer> _net_server;
 
 SoundManager soundManager;
 TextManager textManager;
-
-std::list<std::pair<std::string, SDL_Texture*>> _sprite_list;
-static void
-load_assets();
+SpriteList _sprite_list;
 
 void
 refresh_sprites();
@@ -184,11 +179,13 @@ init_engine(bool server)
 
   _kb_state = (Uint8*)malloc(sizeof(Uint8) * SDL_SCANCODE_APP2); // max scancode
   memset((void*)_kb_state, 0, sizeof(Uint8) * SDL_SCANCODE_APP2);
-  std::thread console(console_loop);
-  console.detach();
+
+  LAUNCH_THREAD_DETACH(console_loop);
+
   /*  Open a log file  */
   _console_log_file.open("/tmp/bloke.log");
-  load_assets();
+
+  loadAssets(textManager, soundManager, _sprite_list);
   
   return;
 }
@@ -263,7 +260,7 @@ handle_input()
               if (!_server) {
                 std::unique_ptr<AbstractEvent> c_event(
                   new CommandEvent(command_to_send));
-                _net_client->mConnector->sendEvent(std::move(c_event), _net_client->mServerId);
+                _net_client->mConnector->broadcastEvent(std::move(c_event));
               }
             } else {
               log_message(
@@ -601,7 +598,7 @@ handle_system_command(std::list<std::string> tokens)
       // Send request
       std::string command_to_send = command + " " + tokens.back();
       std::unique_ptr<AbstractEvent> c_event(new CommandEvent(command_to_send));
-      _net_client->mConnector->sendEvent(std::move(c_event), _net_client->mServerId);
+      _net_client->mConnector->broadcastEvent(std::move(c_event));
       log_message(INFO, "Requesting to change player colour to " + tokens.back());
       log_message(DEBUG, "Sending command \"" + command_to_send + "\"");
     }
@@ -698,43 +695,6 @@ console_loop()
     }
   }
   return;
-}
-
-/** This is used when the engine is started to pre load all assets into one
-    place.
-*/
-static void
-load_assets()
-{
-
-  auto fs = cmrc::files::get_filesystem();
-  for (auto &&entry : fs.iterate_directory("files/assets/"))
-  {
-    auto dot_pos = entry.filename().find('.');
-    if (dot_pos == std::string::npos)
-    {
-      continue;
-    } // no file extension
-
-    std::string file_name = entry.filename().substr(0, dot_pos);
-    std::string file_extension = entry.filename().substr(dot_pos);
-
-    auto file = fs.open("files/assets/" + entry.filename());
-    SDL_RWops *io = SDL_RWFromConstMem(file.begin(), file.end() - file.begin());
-
-    if (file_extension == ".ttf")
-    {
-      textManager.loadFontFromPath(io, file_name);
-    }
-    else if (file_extension == ".ogg")
-    {
-      soundManager.loadFromPath(io, file_name);
-    }
-    else if (file_extension == ".png"){
-      SDL_Texture* sprite = IMG_LoadTexture_RW(_renderer, io, 1);
-      _sprite_list.push_back({ entry.filename(), sprite });
-    }
-  }
 }
 
 std::shared_ptr<AbstractPlayer>

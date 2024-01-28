@@ -225,7 +225,7 @@ JoinMenuHudGroup::update()
       greenValue = (Uint8) std::stoi(greenString);
       blueValue = (Uint8) std::stoi(blueString);
     } catch (std::invalid_argument &e) {
-      return;
+        return;
     }
 
     // Set colour
