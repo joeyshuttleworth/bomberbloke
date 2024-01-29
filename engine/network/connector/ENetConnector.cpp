@@ -2,6 +2,7 @@
 
 #include <enet/enet.h>
 #include <cassert>
+#include <chrono>
 
 #include "KickEvent.hpp"
 #include "PlayerLeaveEvent.hpp"

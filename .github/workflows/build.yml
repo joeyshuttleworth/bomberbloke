@@ -1,0 +1,35 @@
+name: Build BLOKE Game Engine
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libuv1-dev libsdl2-dev libsdl2-ttf-dev libsdl2-image-dev libenet-dev libsdl2-mixer-dev libcurl4-openssl-dev cmake make build-essential
+
+    - name: Build BLOKE Game Engine
+      run: |
+        git submodule update --init
+        cmake -S . -B build
+        cmake --build build
+
+    - name: Build BLOKE Game Engine for Web
+      run: |
+        git submodule update --init
+        cmake -S . -B build -DNET_PROTOCOL=WEBSOCKETS
+        cmake --build build
+        emcmake cmake -B build-web
+        cmake --build build-web
+
+

@@ -9,7 +9,7 @@ You will need the dependencies Cereal, SDL2, ENet and curl.
 
 For Ubuntu 20.04:
 ```
-sudo apt-get install libsdl2-dev libsdl2-ttf-dev libsdl2-image-dev libenet-dev libsdl2-mixer-dev libcurl4-openssl-dev cmake make build-essential
+sudo apt-get install libuv1-dev libsdl2-dev libsdl2-ttf-dev libsdl2-image-dev libenet-dev libsdl2-mixer-dev libcurl4-openssl-dev cmake make build-essential
 ```
 For MacOS:
 ```
