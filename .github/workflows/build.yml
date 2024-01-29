@@ -37,11 +37,4 @@ jobs:
         cmake --build build
         emcmake cmake -B build-web
         cmake --build build-web
-
-        git submodule update --init
-        cmake -S . -B build -DNET_PROTOCOL=WEBSOCKETS
-        cmake --build build
-        emcmake cmake -B build-web
-        cmake --build build-web
-
-
+        
