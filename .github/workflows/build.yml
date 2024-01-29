@@ -18,7 +18,7 @@ jobs:
     - name: Set up dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y emscripten libuv1-dev libsdl2-dev libsdl2-ttf-dev libsdl2-image-dev libenet-dev libsdl2-mixer-dev libcurl4-openssl-dev cmake make build-essential
+        sudo apt-get install -y libuv1-dev libsdl2-dev libsdl2-ttf-dev libsdl2-image-dev libenet-dev libsdl2-mixer-dev libcurl4-openssl-dev cmake make build-essential
 
     - name: Build BLOKE Game Engine
       run: |
@@ -28,6 +28,16 @@ jobs:
 
     - name: Build BLOKE Game Engine for Web
       run: |
+        git clone https://github.com/emscripten-core/emsdk.git
+        cd emsdk
+        ./emsdk install latest && ./emsdk activate latest
+        source ./emsdk_env.sh && cd ..
+        git submodule update --init
+        cmake -S . -B build -DNET_PROTOCOL=WEBSOCKETS
+        cmake --build build
+        emcmake cmake -B build-web
+        cmake --build build-web
+
         git submodule update --init
         cmake -S . -B build -DNET_PROTOCOL=WEBSOCKETS
         cmake --build build
