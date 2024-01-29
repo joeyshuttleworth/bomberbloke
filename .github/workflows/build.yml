@@ -3,8 +3,10 @@ name: Build BLOKE Game Engine
 on:
   push:
     branches:
-      - main
-
+      - default
+  pull_request:
+    branches:
+      - default
 jobs:
   build:
     runs-on: ubuntu-latest
