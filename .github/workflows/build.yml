@@ -28,10 +28,13 @@ jobs:
 
     - name: Build BLOKE Game Engine for Web
       run: |
+        git clone https://github.com/emscripten-core/emsdk.git
+        cd emsdk
+        ./emsdk install latest && ./emsdk activate latest
+        source ./emsdk_env.sh && cd ..
         git submodule update --init
         cmake -S . -B build -DNET_PROTOCOL=WEBSOCKETS
         cmake --build build
         emcmake cmake -B build-web
         cmake --build build-web
-
-
+        
