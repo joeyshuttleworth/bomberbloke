@@ -46,14 +46,19 @@ std::string
 EmscriptenConnector::serverUrl() {
     std::string url = "";
     const auto WS_PREFIX = "ws://";
+    const auto WSS_PREFIX = "wss://";
+
+    bool is_ws = desc.serverAddress.rfind(WS_PREFIX, 0) != desc.serverAddress.npos;
+    bool is_wss = desc.serverAddress.rfind(WSS_PREFIX, 0) != desc.serverAddress.npos;
 
     // Correct prefix
-    if(desc.serverAddress.rfind(WS_PREFIX, 0) == desc.serverAddress.npos)
-        url = url + WS_PREFIX;
+    if(!is_ws && !is_wss)
+        url = url + WSS_PREFIX;
 
     // hostname:port
     url = url + desc.serverAddress + ":" + std::to_string(desc.serverPort);
 
+    printf("WebSocket URL interpreted as : %s\n", url.c_str());
     return url;
 }
 
