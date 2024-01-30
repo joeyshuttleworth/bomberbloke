@@ -8,11 +8,13 @@ Explosion::Explosion()
     return;
 
   /* Create sound objects for explosion sound effects */
-  for (int i = 0; i < N_EXPLOSION_SOUNDS; i++) {
-    std::shared_ptr<Sound> sound =
-      soundManager.createSound(mExplosionSoundNames[i]);
-    sound->mGroup = SOUND_FX;
-    mExplosionSounds[i] = sound;
+  if(mSound) {
+    for (int i = 0; i < N_EXPLOSION_SOUNDS; i++) {
+      std::shared_ptr<Sound> sound =
+        soundManager.createSound(mExplosionSoundNames[i]);
+      sound->mGroup = SOUND_FX;
+      mExplosionSounds[i] = sound;
+    }
   }
 
   /* We need to tell the BLOKE engine to get textures ready if we need them */
