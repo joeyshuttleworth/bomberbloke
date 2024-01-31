@@ -29,16 +29,11 @@ parseAddress(const std::string &address, std::string &ip, ushort &port)
   /*  Attempt to parse the first argument as address:port.
       If no ':' is present, the port number defaults to 8888.
   */
-  long unsigned int delim_pos = address.find(':');
+  long unsigned int delim_pos = address.rfind(':');
 
   if (delim_pos == std::string::npos) {
     ip = address;
     port = 8888;
-  } else if (address.substr(delim_pos + 1).find(':') != std::string::npos) {
-    std::stringstream msg;
-    msg << "Couldn't parse address, " << address;
-    log_message(ERR, msg.str());
-    return false;
   } else {
     ip = address.substr(0, delim_pos);
     try {

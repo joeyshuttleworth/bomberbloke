@@ -109,11 +109,14 @@ bomb::explode()
     /*Iterate over all the squares the bomb can reach and kill the ones if they
      * are in the right (wrong) zone.*/
     std::vector<BombPath> targets = identifyTargetSquares();
+    bool withSound = true;
     for(const auto& path : targets) {
       for(const auto& coord : path.squares) {
         explosionEffects.push_back(
-          std::make_shared<Explosion>(coord.first, coord.second, 1, 1, false)
+          std::make_shared<Explosion>(coord.first, coord.second, 1, 1, false, 30, 64, 0, withSound)
         );
+        if(withSound)
+          withSound = false; // Only one explosion needs to generate a sound effect
 
         auto square = std::make_shared<actor>(coord.first, coord.second,
                                               1, 1, false);
