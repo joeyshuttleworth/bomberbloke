@@ -220,8 +220,10 @@ BomberBlokeScene::BomberBlokeScene(unsigned int size_x, unsigned int size_y)
     for (int i = 0; i < 10; i++) {
       for (int j = 0; j < 10; j++) {
         if (blocks[i][j] == EMPTY) {
-          blocks[i][j] = ACTOR_WOODEN_CRATE;
-          addActor(std::shared_ptr<WoodenCrate>(new WoodenCrate(i, j)));
+          //blocks[i][j] = ACTOR_WOODEN_CRATE;
+          //addActor(std::shared_ptr<WoodenCrate>(new WoodenCrate(i, j)));
+          blocks[i][j] = ACTOR_STONE_BLOCK;
+          addActor(std::shared_ptr<StoneBlock>(new StoneBlock(i, j)));
         }
       }
     }

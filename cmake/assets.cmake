@@ -36,6 +36,7 @@ assets/bomb.png
 assets/bomb_pickup.png
 assets/crate.png
 assets/crate.svg
+assets/stone.png
 assets/flames.png
 assets/lightning.png
 assets/explosion_frame_1.png

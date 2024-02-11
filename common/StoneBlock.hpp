@@ -1,5 +1,4 @@
-#ifndef WOODENCRATE_HPP
-#define WOODENCRATE_HPP
+#pragma once
 
 #include <random>
 #include "staticSprite.hpp"
@@ -30,5 +29,3 @@ public:
 };
 
 CEREAL_REGISTER_TYPE(StoneBlock)
-
-#endif
