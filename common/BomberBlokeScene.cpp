@@ -186,27 +186,54 @@ BomberBlokeScene::BomberBlokeScene(unsigned int size_x, unsigned int size_y)
 
     std::vector<std::vector<int>> blocks{ size_x, std::vector<int>(size_y, 0) };
 
+    /* Lay down stone blocks */
+    int mapType = distrib(gen);
+    std::string mapTypeName;
+    if(mapType < 6)
+      mapTypeName = "Clear";
+    else if(mapType < 8) {
+      mapTypeName = "Walls";
+
+      // Top and bottom
+      for(int i = 2; i <= 7; i++) {
+        blocks[i][2] = STONE;
+        blocks[i][7] = STONE;
+      }
+      // Gates
+      blocks[2][3] = STONE;
+      blocks[7][3] = STONE;
+      blocks[2][6] = STONE;
+      blocks[7][6] = STONE;
+
+    } else {
+      mapTypeName = "Grid";
+
+      for(int i = 1; i < 9; i += 2) 
+        for(int j = 1; j < 9; j += 2) 
+          blocks[i][j] = STONE;
+    }
+    log_message(INFO, "Map type: " + mapTypeName);
+
+    /* Generate spawn points */
     for (unsigned int i = 0; i < 16; i++) {
       bool set = false;
       for (int j = 0; j < 10000; j++) {
         unsigned int xpos = distrib(gen);
         unsigned int ypos = distrib(gen);
-        if (blocks[xpos][ypos] != SPAWN_POINT) {
+        if (blocks[xpos][ypos] != SPAWN_POINT && blocks[xpos][ypos] != STONE) {
           blocks[xpos][ypos] = SPAWN_POINT;
           spawn_points.push_back({ xpos, ypos });
+
           /* make space around the spawn point */
-          if (xpos + 1 < size_x) {
+          if (xpos + 1 < size_x && blocks[xpos + 1][ypos] == EMPTY)
             blocks[xpos + 1][ypos] = RESERVED;
-          }
-          if (xpos >= 1) {
+          if (xpos >= 1 && blocks[xpos - 1][ypos] == EMPTY)
             blocks[xpos - 1][ypos] = RESERVED;
-          }
-          if (ypos + 1 < size_y) {
+          if (ypos + 1 < size_y && blocks[xpos][ypos + 1] == EMPTY)
             blocks[xpos][ypos + 1] = RESERVED;
-          }
-          if (ypos >= 1) {
+          if (ypos >= 1 && blocks[xpos][ypos - 1] == EMPTY)
             blocks[xpos][ypos - 1] = RESERVED;
-          }
+
           set = true;
           break;
         }
@@ -219,11 +246,13 @@ BomberBlokeScene::BomberBlokeScene(unsigned int size_x, unsigned int size_y)
     /* Fill in the other blocks - could be wooden crates or other types*/
     for (int i = 0; i < 10; i++) {
       for (int j = 0; j < 10; j++) {
-        if (blocks[i][j] == EMPTY) {
-          //blocks[i][j] = ACTOR_WOODEN_CRATE;
-          //addActor(std::shared_ptr<WoodenCrate>(new WoodenCrate(i, j)));
+        if (blocks[i][j] == STONE) {
           blocks[i][j] = ACTOR_STONE_BLOCK;
           addActor(std::shared_ptr<StoneBlock>(new StoneBlock(i, j)));
+        }
+        if (blocks[i][j] == EMPTY) {
+          blocks[i][j] = ACTOR_WOODEN_CRATE;
+          addActor(std::shared_ptr<WoodenCrate>(new WoodenCrate(i, j)));
         }
       }
     }

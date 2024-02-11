@@ -37,7 +37,8 @@ enum block_types
   EMPTY,
   RESERVED,
   SPAWN_POINT,
-  WOOD
+  WOOD,
+  STONE
 };
 
 #include "bomberbloke_actors.hpp"
