@@ -37,7 +37,8 @@ enum block_types
   EMPTY,
   RESERVED,
   SPAWN_POINT,
-  WOOD
+  WOOD,
+  STONE
 };
 
 #include "bomberbloke_actors.hpp"
@@ -45,7 +46,8 @@ enum block_types
 /* Cereal magic: include all actor types here so cereal knows about them */
 #include "bloke.hpp"
 #include "bomb.hpp"
-#include "woodenCrate.hpp"
+#include "WoodenCrate.hpp"
+#include "StoneBlock.hpp"
 
 #include "BomberBlokeScene.hpp"
 
