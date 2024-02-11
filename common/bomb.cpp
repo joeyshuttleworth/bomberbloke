@@ -112,17 +112,13 @@ bomb::explode()
     bool withSound = true;
     for(const auto& path : targets) {
       for(const auto& coord : path.squares) {
-        explosionEffects.push_back(
-          std::make_shared<Explosion>(coord.first, coord.second, 1, 1, false, 30, 64, 0, withSound)
-        );
-        if(withSound)
-          withSound = false; // Only one explosion needs to generate a sound effect
+        bool stopped = false; // Do not continue along blast path past this one
+        bool blocked = false; // Do not explode on current square
 
         auto square = std::make_shared<actor>(coord.first, coord.second,
                                               1, 1, false);
         std::list<std::shared_ptr<actor>> actor_list =
           _pScene->ActorsCollidingWith(square.get());
-        bool stopped = false;
         for (std::shared_ptr<actor> pActor : actor_list) {
           if (pActor.get() == this)
             continue;
@@ -134,12 +130,23 @@ bomb::explode()
               case ACTOR_BOMB:
                 stopped = true;
                 break;
+              case ACTOR_STONE_BLOCK:
+                blocked = true;
+                break;
               default:
                 break;
             }
           }
         }
-        if (stopped)
+
+        if(blocked)
+          break;
+        explosionEffects.push_back(
+          std::make_shared<Explosion>(coord.first, coord.second, 1, 1, false, 30, 64, 0, withSound)
+        );
+        if(withSound)
+          withSound = false; // Only one explosion needs to generate a sound effect
+        if(stopped)
           break;
       }
     }
