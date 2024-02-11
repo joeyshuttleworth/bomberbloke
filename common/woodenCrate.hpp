@@ -9,14 +9,14 @@
 #include "BombPickup.hpp"
 #include "BigBombPickup.hpp"
 
-class woodenCrate : public actor{
+class WoodenCrate : public actor{
 public:
 
   int getType() const{
     return ACTOR_WOODEN_CRATE;
   }
 
-  woodenCrate(int x=0, int y=0) : actor(double(x), double(y), true){
+  WoodenCrate(int x=0, int y=0) : actor(double(x), double(y), true){
   mpSpriteHandler = std::shared_ptr<staticSprite>(new staticSprite(double(x), double(y), 1.0, 1.0, "crate.png"));
     return;
   }
@@ -64,6 +64,6 @@ public:
   }
 };
 
-CEREAL_REGISTER_TYPE(woodenCrate)
+CEREAL_REGISTER_TYPE(WoodenCrate)
 
 #endif

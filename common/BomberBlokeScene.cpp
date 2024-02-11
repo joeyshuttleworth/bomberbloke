@@ -14,7 +14,8 @@
 #include "bomberbloke.h"
 #include "engine.hpp"
 #include "scene.hpp"
-#include "woodenCrate.hpp"
+#include "WoodenCrate.hpp"
+#include "StoneBlock.hpp"
 #include <algorithm>
 #include <functional>
 #include <memory>
@@ -220,7 +221,7 @@ BomberBlokeScene::BomberBlokeScene(unsigned int size_x, unsigned int size_y)
       for (int j = 0; j < 10; j++) {
         if (blocks[i][j] == EMPTY) {
           blocks[i][j] = ACTOR_WOODEN_CRATE;
-          addActor(std::shared_ptr<woodenCrate>(new woodenCrate(i, j)));
+          addActor(std::shared_ptr<WoodenCrate>(new WoodenCrate(i, j)));
         }
       }
     }
