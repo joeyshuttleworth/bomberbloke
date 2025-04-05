@@ -18,6 +18,8 @@ function(add_client_test name sources)
     add_test(${TestName} ${name})
 endfunction()
 
+add_subdirectory(unit)
+
 # Client tests
 add_client_test(run_and_close "run_and_close.cpp")
 add_client_test(serialise_event "serialise_event_test.cpp")
