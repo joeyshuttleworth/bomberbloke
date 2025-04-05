@@ -1,6 +1,6 @@
 # Define target
 add_executable(bomberbloke_client "client/bomberbloke.cpp" "engine/client.cpp" "engine/network/connector/EmscriptenConnector.cpp" ${SHARED_SOURCES})
-target_compile_features(bomberbloke_client PRIVATE cxx_std_11)
+target_compile_features(bomberbloke_client PRIVATE cxx_std_17)
 
 # Resources
 file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/assets.cmake ASSET_FILES)

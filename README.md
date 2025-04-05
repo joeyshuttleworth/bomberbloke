@@ -7,9 +7,9 @@ A multiplayer bomberman clone made in C++.
 #### Dependencies
 You will need the dependencies Cereal, SDL2, ENet and curl.
 
-For Ubuntu 20.04:
+For Ubuntu 22.04:
 ```
-sudo apt-get install libuv1-dev libsdl2-dev libsdl2-ttf-dev libsdl2-image-dev libenet-dev libsdl2-mixer-dev libcurl4-openssl-dev cmake make build-essential
+sudo apt-get install libuv1-dev libsdl2-dev libsdl2-ttf-dev libsdl2-image-dev libenet-dev libsdl2-mixer-dev libcurl4-openssl-dev cmake make build-essential ninja-build
 ```
 For MacOS:
 ```
@@ -22,7 +22,7 @@ brew install enet sdl2 sdl2_image sdl2_mixer sdl2_ttf
 The project is setup using CMake:
 ```
 git submodule update --init
-cmake -S . -B build && cmake --build build
+cmake -S . -B build -G Ninja && cmake --build build
 ```
 
 ##### Web
