@@ -1,13 +1,14 @@
-#include <catch2/catch_test_macros.hpp>
 #include "BomberBlokeScene.hpp"
 #include "bloke.hpp"
 #include "bomb.hpp"
 #include "bomberbloke.h"
 #include <SDL2/SDL.h>
+#include <catch2/catch_test_macros.hpp>
 
 extern int _log_message_level;
 
-TEST_CASE("Can make a game scene", "[engine]") {
+TEST_CASE("Can make a game scene", "[engine]")
+{
   _draw = false;
   _log_message_level = CRITICAL;
 
@@ -34,7 +35,8 @@ gameUpdate()
   return;
 }
 
-void new_game(std::string)
+void
+new_game(std::string)
 {
   return;
 }
