@@ -2,6 +2,7 @@
 #define NETWORKPLAYER_HPP
 
 #include "AbstractPlayer.hpp"
+#include "engine.hpp"
 
 class NetworkPlayer : public AbstractPlayer{
 public:
