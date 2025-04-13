@@ -8,6 +8,7 @@
 #include "SyncEvent.hpp"
 #include "QueryEvent.hpp"
 #include "bomberbloke.h"
+#include <catch2/catch_test_macros.hpp>
 
 void new_game(std::string)
 {
@@ -20,7 +21,7 @@ gameUpdate()
   return;
 }
 
-int test_query_event()
+TEST_CASE("Can make/deserialise QueryEvent", "[engine]")
 {
   // Generate a query event, serialise it, the deserialise it
 
@@ -44,11 +45,9 @@ int test_query_event()
   fout.open(out_path.string(), std::ios::out | std::ios::binary);
   fout.write(ss.str().data(), ss.str().size());
   fout.close();
-
-  return 0;
 }
 
-int test_sync_event()
+TEST_CASE("Can make/deserialise SyncEvent", "[engine]")
 {
   // Generate a bomberbloke scene and a corresponding sync event. Then serialise it, the deserialise it
 
@@ -97,15 +96,5 @@ int test_sync_event()
   _halt = true;
   SDL_Delay(1000);
   SDL_Quit();
-  return 0;
 }
 
-int main(int, char**){
-  int ret1 = test_query_event();
-  if(ret1)
-    return 1;
-  int ret2 = test_sync_event();
-  if(ret2)
-    return 1;
-  return 0;
-}

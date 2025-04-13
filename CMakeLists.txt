@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 project(BOMBERBLOKE)
 
-enable_testing()
 include(FetchContent)
 
 # Include directories
@@ -91,6 +90,8 @@ FetchContent_MakeAvailable(Catch2)
 include(CTest)
 include(Catch)
 
+enable_testing()
+add_subdirectory("tests")
 
 # Resources
 include(CMakeRC)
@@ -125,26 +126,6 @@ add_library(SERVER ${SHARED_SOURCES} "engine/server.cpp" "engine/network/NetServ
 target_link_libraries(CLIENT PUBLIC files::rc ${SDL2_LIBRARIES} ${CURL_LIBRARIES} NET_LIB)
 target_link_libraries(SERVER PUBLIC files::rc NET_LIB)
 
-# Tests
-# Get all test files in tests/
-file(GLOB TEST_FILES CONFIGURE_DEPENDS tests/unit/*.cpp)
-
-foreach(test_file ${TEST_FILES})
-    # Extract the filename without extension
-    get_filename_component(test_name ${test_file} NAME_WE)
-    add_executable(${test_name} ${test_file})
-    target_link_libraries(${test_name} PRIVATE Catch2::Catch2WithMain)
-    target_link_libraries(${test_name} PRIVATE CLIENT SERVER ${SDL2_LIBRARIES} ${CURL_LIBRARIES} NET_LIB)
-    target_compile_features(${test_name} PRIVATE cxx_std_17)
-
-    # Register with CTest
-    include(Catch)
-    catch_discover_tests(${test_name}
-    			PROPERTIES RUN_SERIAL TRUE)
-
-endforeach()
-
-include_directories(tests)
 
 # Client
 set(client_src "client/bomberbloke.cpp")
