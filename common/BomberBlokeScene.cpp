@@ -208,8 +208,8 @@ BomberBlokeScene::BomberBlokeScene(unsigned int size_x, unsigned int size_y)
     } else {
       mapTypeName = "Grid";
 
-      for(int i = 1; i < 9; i += 2) 
-        for(int j = 1; j < 9; j += 2) 
+      for(int i = 1; i < 9; i += 2)
+        for(int j = 1; j < 9; j += 2)
           blocks[i][j] = STONE;
     }
     log_message(INFO, "Map type: " + mapTypeName);

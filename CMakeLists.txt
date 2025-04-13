@@ -59,7 +59,6 @@ if(_WIN32)
 endif(_WIN32)
 
 # Dependencies
-
 find_package(SDL2 REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS})
 
@@ -81,8 +80,18 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(lws)
 
-# Resources
+FetchContent_Declare(
+  Catch2
+  GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+  GIT_TAG v3.5.2 # or whatever version
+)
+FetchContent_MakeAvailable(Catch2)
 
+include(CTest)
+include(Catch)
+
+
+# Resources
 include(CMakeRC)
 file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/assets.cmake ASSET_FILES)
 cmrc_add_resource_library(files ALIAS files::rc PREFIX files ${ASSET_FILES})
@@ -116,9 +125,25 @@ target_link_libraries(CLIENT PUBLIC files::rc ${SDL2_LIBRARIES} ${CURL_LIBRARIES
 target_link_libraries(SERVER PUBLIC files::rc NET_LIB)
 
 # Tests
-add_subdirectory(tests)
+# Get all test files in tests/
+file(GLOB TEST_FILES CONFIGURE_DEPENDS tests/**/*.cpp)
 
-# Client 
+foreach(test_file ${TEST_FILES})
+    # Extract the filename without extension
+    get_filename_component(test_name ${test_file} NAME_WE)
+    add_executable(${test_name} ${test_file})
+    target_link_libraries(${test_name} PRIVATE Catch2::Catch2WithMain)
+    target_link_libraries(${test_name} PRIVATE CLIENT SERVER ${SDL2_LIBRARIES} ${CURL_LIBRARIES} NET_LIB)
+    target_compile_features(${test_name} PRIVATE cxx_std_17)
+
+    # Register with CTest
+    include(Catch)
+    catch_discover_tests(${test_name})
+
+endforeach()
+
+
+# Client
 set(client_src "client/bomberbloke.cpp")
 add_executable(bomberbloke_client ${client_src} "engine/client.cpp")
 target_link_libraries(bomberbloke_client PUBLIC files::rc CLIENT)

@@ -53,19 +53,26 @@ int test_sync_event()
   // Generate a bomberbloke scene and a corresponding sync event. Then serialise it, the deserialise it
 
   _draw = false;
+  _server = true;
 
   SDL_Init(SDL_INIT_EVERYTHING);
-  init_engine(false);
-  // server_loop(0000, "xxx", false);
+  init_engine(true);
 
   NetServer net_server{};
-  unsigned int player_id = 227;
-  const std::string username = "big_beef";
-  _pScene = std::make_shared<BomberBlokeScene>(10, 10);
-  auto player = std::make_shared<NetworkPlayer>(username, player_id);
-  net_server.addPlayer(player);
+  int player_id = 0;
 
-  player_id = player->getId();
+  const std::vector<std::string> usernames = {"big_beef", "big_baz", "little_john", "maid_marian", "allan_a_dale_77", "nottz_sherrif_xX", "Frair_Tuck", "Will Scarlet", "merry_man_67"};
+  _pScene = std::make_shared<BomberBlokeScene>(25, 25);
+
+  for(auto i : usernames){
+	std::string username = i;
+  	auto player = std::make_shared<NetworkPlayer>(username, player_id);
+	player_id++;
+  	net_server.addPlayer(player);
+  }
+
+  sleep(1);
+  new_game("");
 
   std::shared_ptr<AbstractEvent> s_event(new SyncEvent(player_id));
   std::stringstream ss( std::ios::in | std::ios::out | std::ios::binary );
@@ -95,7 +102,10 @@ int test_sync_event()
 
 int main(int, char**){
   int ret1 = test_query_event();
+  if(ret1)
+    return 1;
   int ret2 = test_sync_event();
-
-  return (ret1 + ret2) > 0;
+  if(ret2)
+    return 1;
+  return 0;
 }
