@@ -45,6 +45,7 @@ endif (CMAKE_COMPILER_IS_MINGW)
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
   include(CTest)
 endif()
+
 message(STATUS "CMAKE_SYSTEM_NAME = ${CMAKE_SYSTEM_NAME}")
 message(STATUS "CMAKE_CXX_COMPILER_ID = ${CMAKE_CXX_COMPILER_ID}")
 message(STATUS "CMAKE_CXX_COMPILER_VERSION = ${CMAKE_CXX_COMPILER_VERSION}")
@@ -126,7 +127,7 @@ target_link_libraries(SERVER PUBLIC files::rc NET_LIB)
 
 # Tests
 # Get all test files in tests/
-file(GLOB TEST_FILES CONFIGURE_DEPENDS tests/**/*.cpp)
+file(GLOB TEST_FILES CONFIGURE_DEPENDS tests/unit/*.cpp)
 
 foreach(test_file ${TEST_FILES})
     # Extract the filename without extension
@@ -138,10 +139,12 @@ foreach(test_file ${TEST_FILES})
 
     # Register with CTest
     include(Catch)
-    catch_discover_tests(${test_name})
+    catch_discover_tests(${test_name}
+    			PROPERTIES RUN_SERIAL TRUE)
 
 endforeach()
 
+include_directories(tests)
 
 # Client
 set(client_src "client/bomberbloke.cpp")
