@@ -5,6 +5,7 @@
 #ifndef NETSERVER_HPP
 #define NETSERVER_HPP
 #include "AbstractPlayer.hpp"
+#include "NetworkPlayer.hpp"
 #include "ServerInfo.hpp"
 #include "Connector.hpp"
 #include <list>
@@ -21,6 +22,7 @@ public:
     ~NetServer();
 
     void init(int);
+    void addPlayer(std::shared_ptr<NetworkPlayer>);
     void handleJoinEvent(std::shared_ptr<JoinEvent> event, int from_id);
     void handleCommandEvent(std::shared_ptr<CommandEvent>, int from_id);
     bool stop();

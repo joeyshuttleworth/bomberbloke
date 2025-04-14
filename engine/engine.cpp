@@ -684,7 +684,8 @@ split_to_tokens(std::string str)
 void
 console_loop()
 {
-  std::cout << "Bomberbloke console...\n";
+  if (_log_message_level <= INFO)
+    std::cout << "Bomberbloke console...\n";
   while (!_halt) {
     std::string line;
     std::list<std::string> tokens;

@@ -22,7 +22,7 @@ std::string _masterServerAddress = "";
 void
 help()
 {
-  std::cout << std::endl 
+  std::cout << std::endl
             << "--debug:              Enable debug mode\n"
                "--port <n>:           Port to start server on\n"
                "--masterServer <url>: URL of the master server\n"

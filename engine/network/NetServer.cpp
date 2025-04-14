@@ -16,6 +16,7 @@
 #include "engine.hpp"
 #include <sstream>
 #include <string>
+#include <stdexcept>
 
 #ifndef __EMSCRIPTEN__
 #include <curl/curl.h>
@@ -62,7 +63,7 @@ NetServer::handleJoinEvent(std::shared_ptr<JoinEvent> event, int from_id)
   /* Add the player to _player_list */
   auto player = std::make_shared<NetworkPlayer>(nickname, from_id);
   player->setId(from_id);
-  _player_list.push_back(player);
+  addPlayer(player);
 
   /* Send an acceptEvent */
   std::unique_ptr<AbstractEvent> accept_event(new AcceptEvent());
@@ -77,6 +78,29 @@ NetServer::handleJoinEvent(std::shared_ptr<JoinEvent> event, int from_id)
   }
 
   return;
+}
+
+void
+NetServer::addPlayer(std::shared_ptr<NetworkPlayer> player) {
+  /* Or ID */
+  auto id = player->getId();
+  std::string nickname = player->getNickname();
+  if(findPlayer(id) != nullptr) {
+    log_message(ERR, "Tried to add player with duplicate ID");
+    throw std::runtime_error("Tried to add player with duplicate ID");
+  }
+
+  /* Check that no player has the same nickname */
+  auto iter = find_if(_player_list.begin(),
+                      _player_list.end(),
+                      [&](std::shared_ptr<AbstractPlayer> p) {
+                        return nickname == p->mNickname;
+                      });
+
+  if (iter != _player_list.end()) {
+    log_message(WARNING, "Player with duplicate nickname added to server");
+  }
+  _player_list.push_back(player);
 }
 
 std::shared_ptr<AbstractPlayer>
@@ -185,7 +209,9 @@ NetServer::init(int port)
 bool
 NetServer::stop()
 {
-  mConnector->close();
+  if(mConnector) {
+      mConnector->close();
+  }
 
   // TODO this needs cleaning up
   #ifndef __EMSCRIPTEN__

@@ -238,6 +238,10 @@ Camera::renderCopy(SDL_Texture* texture,
 {
   LOCK_GUARD(mMutex);
 
+  if(!_renderer || !srcRect || !dstRect){
+    return;
+  }
+
   // Copy the texture onto the appropriate frame buffer
   SDL_SetRenderTarget(_renderer, getFrameBuffer(isPostProcessed));
   SDL_RenderCopy(_renderer, texture, srcRect, dstRect);

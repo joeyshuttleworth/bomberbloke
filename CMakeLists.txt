@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 project(BOMBERBLOKE)
 
-enable_testing()
 include(FetchContent)
 
 # Include directories
@@ -45,6 +44,7 @@ endif (CMAKE_COMPILER_IS_MINGW)
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
   include(CTest)
 endif()
+
 message(STATUS "CMAKE_SYSTEM_NAME = ${CMAKE_SYSTEM_NAME}")
 message(STATUS "CMAKE_CXX_COMPILER_ID = ${CMAKE_CXX_COMPILER_ID}")
 message(STATUS "CMAKE_CXX_COMPILER_VERSION = ${CMAKE_CXX_COMPILER_VERSION}")
@@ -59,7 +59,6 @@ if(_WIN32)
 endif(_WIN32)
 
 # Dependencies
-
 find_package(SDL2 REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS})
 
@@ -81,8 +80,20 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(lws)
 
-# Resources
+FetchContent_Declare(
+  Catch2
+  GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+  GIT_TAG v3.5.2 # or whatever version
+)
+FetchContent_MakeAvailable(Catch2)
 
+include(CTest)
+include(Catch)
+
+enable_testing()
+add_subdirectory("tests")
+
+# Resources
 include(CMakeRC)
 file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/assets.cmake ASSET_FILES)
 cmrc_add_resource_library(files ALIAS files::rc PREFIX files ${ASSET_FILES})
@@ -111,18 +122,16 @@ endif()
 #
 
 add_library(CLIENT ${SHARED_SOURCES} "engine/client.cpp" "engine/network/NetClient.cpp")
+add_library(SERVER ${SHARED_SOURCES} "engine/server.cpp" "engine/network/NetServer.cpp")
 target_link_libraries(CLIENT PUBLIC files::rc ${SDL2_LIBRARIES} ${CURL_LIBRARIES} NET_LIB)
+target_link_libraries(SERVER PUBLIC files::rc NET_LIB)
 
-# Tests
-add_subdirectory(tests)
 
-# Client 
+# Client
 set(client_src "client/bomberbloke.cpp")
 add_executable(bomberbloke_client ${client_src} "engine/client.cpp")
 target_link_libraries(bomberbloke_client PUBLIC files::rc CLIENT)
 # Server
-add_library(SERVER ${SHARED_SOURCES} "engine/server.cpp" "engine/network/NetServer.cpp")
-target_link_libraries(SERVER PUBLIC files::rc NET_LIB)
 set(server_src "server/bomberbloke_server.cpp" "engine/server.cpp" "engine/network/NetServer.cpp")
 add_executable(bomberbloke_server ${server_src})
 set_target_properties(bomberbloke_server PROPERTIES PUBLIC_HEADER "engine/server.h")

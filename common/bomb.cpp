@@ -115,8 +115,12 @@ bomb::explode()
         bool stopped = false; // Do not continue along blast path past this one
         bool blocked = false; // Do not explode on current square
 
-        auto square = std::make_shared<actor>(coord.first, coord.second,
-                                              1, 1, false);
+        // Make square slightly smaller
+        auto square = std::make_shared<actor>(coord.first + _bomb_delta,
+                                              coord.second + _bomb_delta,
+                                              1.0 - _bomb_delta, 1.0 - _bomb_delta,
+                                              false);
+
         std::list<std::shared_ptr<actor>> actor_list =
           _pScene->ActorsCollidingWith(square.get());
         for (std::shared_ptr<actor> pActor : actor_list) {

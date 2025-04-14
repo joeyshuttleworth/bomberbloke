@@ -18,13 +18,6 @@ function(add_client_test name sources)
     add_test(${TestName} ${name})
 endfunction()
 
-# Client tests
-add_client_test(run_and_close "run_and_close.cpp")
-add_client_test(serialise_event "serialise_event_test.cpp")
-add_client_test(tokens_test "split_to_tokens_test.cpp")
-add_client_test(explosion_demo "ExplosionDemo.cpp")
-add_client_test(collision_sandbox "collision_sandbox.cpp")
-
 # Testing the connector implementation in order of increasing complexity
 add_connector_test(open_server "connector/open_server.cpp")
 add_connector_test(client_connect_server "connector/client_connect_server.cpp")
@@ -33,3 +26,21 @@ add_connector_test(client_send_message_server "connector/client_send_message_ser
 add_connector_test(client_send_many_message "connector/client_send_many_message.cpp")
 add_connector_test(leave_event_server "connector/leave_event_server.cpp")
 add_connector_test(client_kicked_event "connector/client_kicked_event.cpp")
+
+# Tests
+# Build and discover unit tests
+file(GLOB TEST_FILES CONFIGURE_DEPENDS unit/*.cpp)
+include_directories(tests)
+include(Catch)
+enable_testing()
+foreach(test_file ${TEST_FILES})
+    # Extract the filename without extension
+    get_filename_component(test_name ${test_file} NAME_WE)
+    add_executable(${test_name} ${test_file})
+    target_link_libraries(${test_name} PRIVATE CLIENT SERVER ${SDL2_LIBRARIES} ${CURL_LIBRARIES} NET_LIB Catch2::Catch2WithMain)
+    target_compile_features(${test_name} PRIVATE cxx_std_17)
+    string(CONCAT TestName ${test_name} "_TEST")
+    message(STATUS "Registering unit test: " ${TestName})
+    add_test(NAME ${TestName} COMMAND ${test_name})
+endforeach()
+

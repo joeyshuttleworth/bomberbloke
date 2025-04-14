@@ -18,6 +18,7 @@ class bomb : public actor {
   unsigned int mTimer = DEFAULT_BOMB_TIMER;
   Uint8 mPower = 2;
   int  mPlacedById = 0;
+  const double _bomb_delta = 0.01;
   bool mPenetration;
   bool mBigBomb;
   bool mSatellite;

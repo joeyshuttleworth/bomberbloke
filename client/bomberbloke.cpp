@@ -1,9 +1,11 @@
 #include "bomberbloke.h"
+#include "BomberBlokeScene.hpp"
 #include "Explosion.hpp"
 #include "MainMenuScene.hpp"
 #include "bloke.hpp"
 #include "bomb.hpp"
 #include <SDL2/SDL.h>
+#include <getopt.h>
 #include <network/NetClient.hpp>
 
 #ifdef __EMSCRIPTEN__
@@ -16,8 +18,34 @@ const bool EXPLOSION_INTRO = false;
 CEREAL_REGISTER_DYNAMIC_INIT(actor)
 
 int
-main()
+main(int argc, char** argv)
 {
+  std::string userName = "bloke";
+  std::string serverAddress = "";
+  bool autoConnect = false;
+
+  int iarg = 0;
+  const char* const short_opts = "u:s:";
+  const option long_opts[] = { { "username", required_argument, nullptr, 'u' },
+                               { "server", required_argument, nullptr, 's' },
+                               { nullptr, no_argument, nullptr, 0 } };
+
+  while (iarg != -1) {
+    iarg = getopt_long(argc, argv, short_opts, long_opts, nullptr);
+    switch (iarg) {
+      case 'u':
+        userName = std::string(optarg);
+        break;
+      case 's':
+        serverAddress = std::string(optarg);
+        break;
+    }
+  }
+
+  if (userName.length() > 0 && serverAddress.length() > 0) {
+    autoConnect = true;
+  }
+
   _default_bindings = { { SDL_SCANCODE_W, "up" },
                         { SDL_SCANCODE_S, "down" },
                         { SDL_SCANCODE_A, "left" },
@@ -30,7 +58,8 @@ main()
                         { SDL_SCANCODE_F, "zoom follow" },
                         { SDL_SCANCODE_0, "zoom all" } };
 
-  _local_player_list.push_back(LocalPlayer(std::string("big_beef")));
+  _local_player_list.push_back(LocalPlayer(userName));
+  _nickname = userName;
 
   SDL_Init(SDL_INIT_EVERYTHING);
   init_engine(false);
@@ -51,11 +80,19 @@ main()
     pIntroSound->mGroup = SOUND_FX;
   }
 
-  #ifndef __EMSCRIPTEN__
-    client_loop();
-  #else
-    emscripten_set_main_loop(client_entry, 0, true);
-  #endif
+  if (autoConnect) {
+    std::vector<std::string> commands = { "colour FFFFFFFF" };
+
+    if (_net_client->joinBlokeServer(serverAddress, userName, commands)) {
+      _pNewScene = std::make_shared<BomberBlokeScene>(10, 10);
+    }
+  }
+
+#ifndef __EMSCRIPTEN__
+  client_loop();
+#else
+  emscripten_set_main_loop(client_entry, 0, true);
+#endif
 
   return 0;
 }
@@ -66,7 +103,8 @@ gameUpdate()
   return;
 }
 
-void new_game(std::string)
+void
+new_game(std::string)
 {
   return;
 }

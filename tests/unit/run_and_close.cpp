@@ -2,32 +2,31 @@
 #include "bloke.hpp"
 #include "bomb.hpp"
 #include "bomberbloke.h"
-#include "cereal/archives/json.hpp"
 #include <SDL2/SDL.h>
+#include <catch2/catch_test_macros.hpp>
 
-/* Register our actors with cereal */
-CEREAL_REGISTER_DYNAMIC_INIT(actor)
+extern int _log_message_level;
 
-int
-main(int, char**)
+TEST_CASE("Can make a game scene", "[engine]")
 {
   _draw = false;
+  _log_message_level = CRITICAL;
 
-  SDL_Init(SDL_INIT_EVERYTHING);
+  REQUIRE(SDL_Init(SDL_INIT_EVERYTHING) == 0);
   init_engine(false);
 
   const std::string username = "big_beef";
   _local_player_list.push_back(LocalPlayer(username));
 
   _pScene = std::make_shared<BomberBlokeScene>(10, 10);
+  REQUIRE(_pScene != nullptr);
+  REQUIRE(_pScene->mDimmension[0] == 10);
+  REQUIRE(_pScene->mDimmension[1] == 10);
 
   _halt = true;
   client_loop();
 
-  SDL_Delay(2000);
   SDL_Quit();
-
-  return 0;
 }
 
 void
@@ -36,7 +35,8 @@ gameUpdate()
   return;
 }
 
-void new_game(std::string)
+void
+new_game(std::string)
 {
   return;
 }

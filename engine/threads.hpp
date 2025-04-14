@@ -15,10 +15,9 @@
 
 #else
 
-    #define DECLARE_MUTEX(name) 
-    #define DECLARE_EXTERN_MUTEX(name) 
+    #define DECLARE_MUTEX(name)
+    #define DECLARE_EXTERN_MUTEX(name)
     #define LOCK_GUARD(name) (void)0
     #define LAUNCH_THREAD_DETACH(func) (void)0
 
 #endif
-
