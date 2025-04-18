@@ -115,18 +115,6 @@ scene ::addActor(std::shared_ptr<actor> a)
   log_message(ERR, "Failed to add actor - too many actors in mActors");
 }
 
-static bool
-collides(AbstractCollider* a, AbstractCollider* b)
-{
-  dvector iAxesMtv = a->testNormalAxes(b);
-  if (iAxesMtv[0] == 0 && iAxesMtv[1] == 0)
-    return false;
-  dvector jAxesMtv = a->testNormalAxes(b);
-  if (jAxesMtv[0] == 0 && jAxesMtv[1] == 0)
-    return false;
-  else
-    return true;
-}
 
 void
 scene::physicsUpdate()

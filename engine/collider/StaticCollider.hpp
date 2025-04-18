@@ -18,6 +18,11 @@ public:
     int getType() const {
         return STATIC;
     }
+
+  StaticCollider(std::vector<dvector> vertices) : AbstractCollider(vertices){
+
+  }
+
 };
 
 #endif

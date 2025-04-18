@@ -80,4 +80,6 @@ public:
     AbstractCollider(std::vector<dvector> vertices);
 };
 
+bool collides(AbstractCollider*, AbstractCollider*);
+
 #endif

@@ -66,7 +66,7 @@ TEST_CASE("Can make/deserialise SyncEvent", "[engine]")
   for(auto i : usernames){
 	std::string username = i;
   	auto player = std::make_shared<NetworkPlayer>(username, player_id);
-	player_id++;
+    player_id++;
   	net_server.addPlayer(player);
   }
 

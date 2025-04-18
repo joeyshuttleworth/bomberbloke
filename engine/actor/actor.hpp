@@ -64,11 +64,6 @@ public:
 
   actor(double x = 0, double y = 0, double xdim = DEFAULT_ACTOR_SIZE, double ydim = DEFAULT_ACTOR_SIZE, bool collides = true);
 
-  /*Returns an enum defined by the game identifying what type of actor this is
-    e.g block, bloke.*/
-  virtual int getType() const {return -1;}
-
-
   /*Returns a pointer to the player object.
     This is found by searching _player_list
     if we haven't already*/

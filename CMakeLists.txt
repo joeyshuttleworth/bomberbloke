@@ -24,6 +24,7 @@ include_directories(${PROJECT_SOURCE_DIR}/engine/camera)
 include_directories(${PROJECT_SOURCE_DIR}/engine/sound)
 include_directories(${PROJECT_SOURCE_DIR}/engine/text)
 include_directories(${PROJECT_SOURCE_DIR}/engine/hud)
+include_directories(${PROJECT_SOURCE_DIR}/engine/navigation)
 
 # Source files
 
