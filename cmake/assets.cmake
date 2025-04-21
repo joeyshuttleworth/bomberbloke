@@ -45,3 +45,4 @@ assets/explosion_frame_3.png
 assets/explosion_frame_4.png
 assets/explosion_frame_5.png
 assets/explosion_frame_6.png
+dictionary.dict

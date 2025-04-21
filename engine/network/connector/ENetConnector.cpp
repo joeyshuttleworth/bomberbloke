@@ -7,6 +7,7 @@
 #include "KickEvent.hpp"
 #include "PlayerLeaveEvent.hpp"
 #include "Archive.hpp"
+#include "ZSTDCompress.hpp"
 
 #define ENET_SERVICE_TIMEOUT_MS 50
 
@@ -27,6 +28,8 @@ protected:
     
     // Business logic for what to do with ENetEvent
     void processENetEvent(ENetEvent &event, EventReceived &recieved);
+
+    ZstdCompressor compressor;
 public:
     ENetConnector(ConnectorDescriptor desc): desc(desc) {};
     ~ENetConnector();
@@ -34,6 +37,8 @@ public:
     bool open() override;
     void close() override;
     void sendEvent(std::shared_ptr<AbstractEvent> event, ConnectorPeer to_id) override;
+    std::string compressEventData(const std::shared_ptr<AbstractEvent>& event);
+    std::shared_ptr<AbstractEvent> decompressEventData(const std::string& data);
     void disconnectPeer(ConnectorPeer id, std::string reason) override;
     int latency(ConnectorPeer id) override;
     std::list<EventReceived> poll(int) override;
@@ -181,17 +186,16 @@ void ENetConnector::processENetEvent(ENetEvent &event, EventReceived &recieved)
             //printf("%i Enet : Receieve\n", desc.mode);
 
             // Parse AbstractEvent
-            std::stringstream data_in;
-            data_in.write((char*)event.packet->data, event.packet->dataLength);
+            std::string data_in((char*)event.packet->data,
+                                event.packet->dataLength);
             try {
-                std::shared_ptr<AbstractEvent> receive_event;
-                CEREAL_INPUT_ARCHIVE inArchive(data_in);
-                inArchive(receive_event);
-                recieved = { receive_event, from };
+              std::shared_ptr<AbstractEvent> receive_event =
+                decompressEventData(data_in);
+              recieved = { receive_event, from };
             } catch (std::exception& e) {
-                std::stringstream strstream;
-                strstream << "Received malformed network event.\n" << e.what();
-                printf("%s\n", strstream.str().c_str());
+              std::stringstream strstream;
+              strstream << "Received malformed network event.\n" << e.what();
+              printf("%s\n", strstream.str().c_str());
             }
             enet_packet_destroy(event.packet);
             break;
@@ -237,17 +241,37 @@ ENetConnector::sendEvent(std::shared_ptr<AbstractEvent> event, ConnectorPeer to_
         break;
     }
 
-    ENetPacket* packet;
-    std::string message = blob.str();
-    if (reliable)
-        packet = enet_packet_create(
-        message.c_str(), message.size(), ENET_PACKET_FLAG_RELIABLE);
-    else
-        packet = enet_packet_create(message.c_str(), message.size(), 0);
+    std::string compressed_data = compressEventData(event);
+    ENetPacket* packet =
+      enet_packet_create(compressed_data.c_str(),
+                         compressed_data.size(),
+                         reliable ? ENET_PACKET_FLAG_RELIABLE : 0);
 
     enet_peer_send(to, 0, packet);
     enet_host_flush(host);
 };
+
+std::string
+ENetConnector::compressEventData(const std::shared_ptr<AbstractEvent>& event)
+{
+  std::stringstream blob;
+  CEREAL_OUTPUT_ARCHIVE outputArchive(blob);
+  outputArchive(event);
+  std::string data = blob.str();
+  return compressor.compress(data);
+}
+
+std::shared_ptr<AbstractEvent>
+ENetConnector::decompressEventData(const std::string& data)
+{
+  std::stringstream data_in = compressor.decompress(data);
+
+  std::shared_ptr<AbstractEvent> event;
+  CEREAL_INPUT_ARCHIVE inArchive(data_in);
+  inArchive(event);
+
+  return event;
+}
 
 void 
 ENetConnector::broadcastEvent(std::shared_ptr<AbstractEvent> event) {

@@ -81,6 +81,28 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(lws)
 
+set(ZSTD_BUILD_STATIC ON)
+set(ZSTD_BUILD_SHARED OFF)
+
+FetchContent_Declare(
+    zstd
+    URL "https://github.com/facebook/zstd/releases/download/v1.5.7/zstd-1.5.7.tar.gz"
+    DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+    SOURCE_SUBDIR build/cmake
+)
+
+FetchContent_MakeAvailable(zstd)
+
+
+# On windows and macos this is needed
+# target_include_directories(
+#     ${PROJECT_NAME}
+#     PRIVATE
+#     ${zstd_SOURCE_DIR}/lib
+# )
+
+
+
 # Resources
 
 include(CMakeRC)
@@ -97,14 +119,27 @@ endif()
 
 message(STATUS "Using connector " ${NET_PROTOCOL})
 
+
+
 add_library(NET_LIB INTERFACE)
 if(NET_PROTOCOL STREQUAL "ENET")
+target_link_libraries(
+    NET_LIB
+    INTERFACE
+    libzstd_static
+)
   target_link_libraries(NET_LIB INTERFACE ${ENET_LIBRARIES})
   list(APPEND SHARED_SOURCES "engine/network/connector/ENetConnector.cpp")
 else()
   target_link_libraries(NET_LIB INTERFACE websockets)
   list(APPEND SHARED_SOURCES "engine/network/connector/WebSocketsConnector.cpp")
 endif()
+
+option(DUMP_NETWORK_REQUESTS "Enable ENET request dumping for zstd" OFF)
+if(DUMP_NETWORK_REQUESTS)
+  target_compile_definitions(NET_LIB INTERFACE DUMP_NETWORK_REQUESTS)
+endif()
+
 
 #
 # Build targets declared here
