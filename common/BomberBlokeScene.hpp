@@ -15,11 +15,15 @@ class TextHudElement;
 class actor;
 class Soundtrack;
 
+const unsigned int default_n_spawn_points = 16;
+
 class BomberBlokeScene : public scene{
 protected:
   std::weak_ptr<AbstractHudElement> mPowerIcons[10];
   std::weak_ptr<AbstractHudElement> mSpeedIcons[10];
   std::weak_ptr<AbstractHudElement> mBombIcons[10];
+
+  unsigned int mNSpawnPoints = 0;
 
   // Texture containing bakground tiles.
   SDL_Texture *mBackgroundTexture;
@@ -61,7 +65,8 @@ protected:
 public:
   void setBigBomb();
 
-  BomberBlokeScene(unsigned int size_x = 10, unsigned int size_y = 10);
+  BomberBlokeScene(unsigned int size_x = 10, unsigned int size_y = 10,
+                   unsigned int spawn_points=default_n_spawn_points);
   ~BomberBlokeScene();
 
   /**

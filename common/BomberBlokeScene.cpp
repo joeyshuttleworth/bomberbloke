@@ -170,7 +170,8 @@ BomberBlokeScene::logicUpdate()
   }
 }
 
-BomberBlokeScene::BomberBlokeScene(unsigned int size_x, unsigned int size_y)
+BomberBlokeScene::BomberBlokeScene(unsigned int size_x, unsigned int size_y,
+                                   unsigned int n_spawn_points)
   : scene(size_x, size_y)
 {
   mState = STOPPED;
@@ -178,13 +179,17 @@ BomberBlokeScene::BomberBlokeScene(unsigned int size_x, unsigned int size_y)
   std::random_device rd;
   std::mt19937 gen(rd());
 
+  mNSpawnPoints = n_spawn_points;
+
   if (_server) {
     /*  Initialisation for random number generation */
     std::uniform_int_distribution<> distrib(0, 9);
+    std::uniform_int_distribution<> distrib1(0, size_x - 1);
+    std::uniform_int_distribution<> distrib2(0, size_y - 1);
     std::vector<std::array<unsigned int, 2>> spawn_points;
-    spawn_points.reserve(16);
+    spawn_points.reserve(n_spawn_points);
 
-    std::vector<std::vector<int>> blocks{ size_x, std::vector<int>(size_y, 0) };
+    std::vector<std::vector<int>> blocks{size_x, std::vector<int>(size_y, 0) };
 
     /* Lay down stone blocks */
     int mapType = distrib(gen);
@@ -194,32 +199,40 @@ BomberBlokeScene::BomberBlokeScene(unsigned int size_x, unsigned int size_y)
     else if(mapType < 8) {
       mapTypeName = "Walls";
 
-      // Top and bottom
-      for(int i = 2; i <= 7; i++) {
-        blocks[i][2] = STONE;
-        blocks[i][7] = STONE;
+      if (size_x > 2 && size_y > 4 ){
+        // Top and bottom
+        for(unsigned int i = 2; i <= size_x - 3; i++) {
+          blocks[i][2] = STONE;
+          blocks[i][size_y - 4] = STONE;
+        }
+        // Gates
+        blocks[2][3] = STONE;
+        blocks[size_x - 3][3] = STONE;
+        blocks[2][size_y - 4] = STONE;
+        blocks[size_x - 3][size_y - 4] = STONE;
+
+      } else {
+        mapTypeName = "Grid";
+        for(unsigned int i = 1; i < size_x - 1; i += 2)
+          for(unsigned int j = 1; j < size_y - 1; j += 2)
+            blocks[i][j] = STONE;
       }
-      // Gates
-      blocks[2][3] = STONE;
-      blocks[7][3] = STONE;
-      blocks[2][6] = STONE;
-      blocks[7][6] = STONE;
-
-    } else {
-      mapTypeName = "Grid";
-
-      for(int i = 1; i < 9; i += 2)
-        for(int j = 1; j < 9; j += 2)
-          blocks[i][j] = STONE;
     }
     log_message(INFO, "Map type: " + mapTypeName);
 
     /* Generate spawn points */
-    for (unsigned int i = 0; i < 16; i++) {
+    for (unsigned int i = 0; i < mNSpawnPoints; i++) {
       bool set = false;
       for (int j = 0; j < 10000; j++) {
-        unsigned int xpos = distrib(gen);
-        unsigned int ypos = distrib(gen);
+        unsigned int xpos = distrib1(gen);
+        unsigned int ypos = distrib2(gen);
+
+        xpos = std::max(1u, xpos);
+        xpos = std::min(size_x - 2, xpos);
+
+        ypos = std::max(1u, ypos);
+        ypos = std::min(size_y - 2, ypos);
+
         if (blocks[xpos][ypos] != SPAWN_POINT && blocks[xpos][ypos] != STONE) {
           blocks[xpos][ypos] = SPAWN_POINT;
           spawn_points.push_back({ xpos, ypos });
@@ -244,8 +257,8 @@ BomberBlokeScene::BomberBlokeScene(unsigned int size_x, unsigned int size_y)
     }
 
     /* Fill in the other blocks - could be wooden crates or other types*/
-    for (int i = 0; i < 10; i++) {
-      for (int j = 0; j < 10; j++) {
+    for (unsigned int i = 0; i < size_x; i++) {
+      for (unsigned int j = 0; j < size_y; j++) {
         if (blocks[i][j] == STONE) {
           blocks[i][j] = ACTOR_STONE_BLOCK;
           addActor(std::shared_ptr<StoneBlock>(new StoneBlock(i, j)));
