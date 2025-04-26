@@ -32,10 +32,11 @@ public:
     return;
   }
 
-  std::vector<ivector> getNeighours(ivector node);
-
+  std::vector<ivector> getNeighbours(ivector, bool=false);
   std::vector<ivector> getConnectedComponentFromNode(ivector);
+  std::vector<std::vector<ivector>> getConnectedComponents();
 
   void computeGrid();
+};
 
 #endif

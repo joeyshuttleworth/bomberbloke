@@ -1,5 +1,7 @@
+#include <stdexcept>
 #include "NavGrid.hpp"
 
+void
 NavGrid::computeGrid(){
     int size_x = std::ceil(pScene->mDimmension[0] / mGridSize);
     int size_y = std::ceil(pScene->mDimmension[1] / mGridSize);
@@ -14,8 +16,8 @@ NavGrid::computeGrid(){
                      {
                        return std::find(mBlockingActorTypes.begin(),
                                         mBlockingActorTypes.end(),
-                                        typeid(*a.get()))
-                         != mBlockingActorTypes.end();
+                                        typeid(*(a.get())))
+                         == mBlockingActorTypes.end();
                      }
                      );
 
@@ -31,20 +33,11 @@ NavGrid::computeGrid(){
     StaticCollider test_square(vertices);
 
     for(int x = 0; x < size_x; x++){
-      test_square.mFrameVertices[0][0] += mGridSize;
-      test_square.mFrameVertices[1][0] += mGridSize;
-      test_square.mFrameVertices[2][0] += mGridSize;
-      test_square.mFrameVertices[3][0] += mGridSize;
-
-      for(int i = 0; i < 4; i++)
-        test_square.mFrameVertices[i][1] = 0;
-
+      test_square.mFrameVertices[0][1] = 0;
+      test_square.mFrameVertices[1][1] = 1;
+      test_square.mFrameVertices[2][1] = 1;
+      test_square.mFrameVertices[3][1] = 0;
       for(int y = 0; y < size_y; y++){
-        test_square.mFrameVertices[0][1] += mGridSize;
-        test_square.mFrameVertices[1][1] += mGridSize;
-        test_square.mFrameVertices[2][1] += mGridSize;
-        test_square.mFrameVertices[3][1] += mGridSize;
-
         auto it = std::find_if(blocking_actors.begin(), blocking_actors.end(),
                                [&](auto a){return collides(a.get(), &test_square);}
                                );
@@ -52,7 +45,22 @@ NavGrid::computeGrid(){
         if(it == blocking_actors.end()){
           mNodes.push_back(ivector{x, y});
         }
+        /* Print out test squares for debugging */
+        // std::cout << test_square.mFrameVertices[0][0] << ", " << test_square.mFrameVertices[0][1] << std::endl;
+        // std::cout << test_square.mFrameVertices[1][0] << ", " << test_square.mFrameVertices[1][1] << std::endl;
+        // std::cout << test_square.mFrameVertices[2][0] << ", " << test_square.mFrameVertices[2][1] << std::endl;
+        // std::cout << test_square.mFrameVertices[3][0] << ", " << test_square.mFrameVertices[3][1] << std::endl;
+        // std::cout << "==========" << std::endl;
+
+        test_square.mFrameVertices[0][1] += mGridSize;
+        test_square.mFrameVertices[1][1] += mGridSize;
+        test_square.mFrameVertices[2][1] += mGridSize;
+        test_square.mFrameVertices[3][1] += mGridSize;
       }
+      test_square.mFrameVertices[0][0] += mGridSize;
+      test_square.mFrameVertices[1][0] += mGridSize;
+      test_square.mFrameVertices[2][0] += mGridSize;
+      test_square.mFrameVertices[3][0] += mGridSize;
     }
   };
 
@@ -63,6 +71,12 @@ static bool are_neighbours(ivector a, ivector b, bool diagonal = false){
 
   bool horizontal_n = std::abs(a[0] - b[0]) == 1;
   bool vertical_n   = std::abs(a[1] - b[1]) == 1;
+
+  unsigned int max_diff = std::max(std::abs(a[1] - b[1]), std::abs(a[0] - b[0]));
+
+  if(max_diff > 1){
+    return false;
+  }
 
   if(diagonal && horizontal_n && vertical_n){
     return true;
@@ -75,56 +89,79 @@ static bool are_neighbours(ivector a, ivector b, bool diagonal = false){
   return false;
 }
 
-std::vector<ivector> NavGrid::getNeighours(ivector node, bool include_diagonal = false){
+static bool are_diagonal_neighbours(ivector a, ivector b){
+  /* Test if two cells are neighbouring either horizontally or vertically.
+     If diagonal=true, then return true if neighbours are diagonally adjacent also.
+  */
+
+  bool horizontal_n = std::abs(a[0] - b[0]) == 1;
+  bool vertical_n   = std::abs(a[1] - b[1]) == 1;
+
+  return horizontal_n && vertical_n;
+}
+
+std::vector<ivector> NavGrid::getNeighbours(ivector node, bool include_diagonal){
+  if(std::find(mNodes.begin(), mNodes.end(), node) == mNodes.end())
+    {
+      throw std::invalid_argument("Node isn't present in NavGrid");
+    }
+
   std::vector<ivector> neighbours = mNodes;
 
-  auto end_it = std:::remove_if(neighbours.begin(),
-                                neightbours.end(),
-                                [&](auto a){return are_neighbours(node, a);}
-                                );
-  neighbours.resize(std::distance(neighbours.begin(), end_it()));
+  {
+    auto end_it = std::remove_if(neighbours.begin(),
+                                 neighbours.end(),
+                                 [&](auto a){return !are_neighbours(node, a);}
+                                 );
+
+    neighbours.resize(std::distance(neighbours.begin(), end_it));
+  }
 
   /* Now add diagonal squares if the adjacent ones are free */
-  auto diagonal_squares = mNodes;
-  auto end_it = std:::remove_if(diagonal_squares.begin(),
-                                diagonal_squares.end(),
-                                [&](auto a){return are_neighbours(node, a, diagonal=true) && !are_neighbours(node, a);}
-                                );
+  if (include_diagonal)
+    {
+      auto diagonal_squares = mNodes;
+      auto end_it = std::remove_if(diagonal_squares.begin(),
+                                   diagonal_squares.end(),
+                                   [&](auto a){return !are_diagonal_neighbours(node, a);}
+                                   );
 
-  if (include_diagonal){
-    for(auto it = diagonal_squares.begin(); it != end_it; i++){
+      for(auto it = diagonal_squares.begin(); it != end_it; it++){
+        ivector adj_square_1 = {(*it)[0], node[1]};
+        ivector adj_square_2 = {node[0], (*it)[1]};
 
-      int xdiff = node[0] - *it[0];
-      int ydiff = node[1] - *it[1];
+        if(std::find(neighbours.begin(), neighbours.end(), adj_square_1) == neighbours.end()){
+          continue;
+        }
 
-      ivector adj_square_1 = {node[0] + xdiff, node[1]};
-      ivector adj_square_2 = {node[0], node[1] + ydiff};
-
-      if(std::find(neighbours.begin(), neighbours.end(), adj_square_1) != neighbours.end()){
-        continue;
+        if(std::find(neighbours.begin(), neighbours.end(), adj_square_2) == neighbours.end()){
+          continue;
+        }
+        neighbours.push_back(*it);
       }
-
-      if(std::find(neighbours.begin(), neighbours.end(), adj_square_1) != neighbours.end()){
-        continue;
-      }
-      neighbours.push_back(*it);
     }
-  }
   return neighbours;
 }
 
-std::vector<ivector> getConnectedComponentFromNode(ivector node){
-  std::vector<ivector> neighbours = this->getNeighours(node);
-  std::set<ivector> to_visit(comp.begin(), comp.end());
-  std::set<ivector> comp = to_visit;
+std::vector<ivector> NavGrid::getConnectedComponentFromNode(ivector node){
 
+  if (std::find(mNodes.begin(), mNodes.end(), node) == mNodes.end()){
+    throw std::invalid_argument("Node not found in NavGrid");
+  }
+
+  std::vector<ivector> neighbours = this->getNeighbours(node);
+
+  std::set<ivector> to_visit(neighbours.begin(), neighbours.end());
+  std::set<ivector> visited{node};
+
+  auto it = to_visit.begin();
   while(to_visit.size() > 0){
-    for(auto it = to_visit.begin(); it != to_visit.end(); it++){
-      if(!std::find(comp.begin(), comp.end(), *it)){
+    for(it = to_visit.begin(); it != to_visit.end(); it++){
+      if(std::find(visited.begin(), visited.end(), *it) == visited.end()){
         std::vector<ivector> current_neighbours = this->getNeighbours(*it);
-        for(auto it2 = current_neighbours.begin(); current_neighbours.end(); it2++)
+        for(auto it2 = current_neighbours.begin(); it2!=current_neighbours.end(); it2++)
           to_visit.insert(*it2);
-        comp.insert
+        visited.insert(*it);
       }
     }
     if(it == to_visit.end()){
@@ -132,28 +169,27 @@ std::vector<ivector> getConnectedComponentFromNode(ivector node){
     }
   }
   std::vector<ivector> ret_vec = {};
-  std::copy(comp.begin(), comp.end(), std::back_inserter(ret_vec));
+  std::copy(visited.begin(), visited.end(), std::back_inserter(ret_vec));
   return ret_vec;
 }
 
-std::vector<std::vector<ivector>> getConnectedComponents(){
+std::vector<std::vector<ivector>> NavGrid::getConnectedComponents(){
   /* Returns a vector of vectors: each connected component of the NavGrid,
      each of which is a vector of integer coordinates
    */
-  std::set<ivector> visited;
+  std::set<ivector> visited{};
   std::vector<std::vector<ivector>> return_vec = {};
   for(auto it = mNodes.begin(); it != mNodes.end(); it++){
     /* Check if node already visited */
-    if(std::find(visited.begin(), visited.end(),  *it)){
+    if(std::find(visited.begin(), visited.end(),  *it)!=visited.end()){
       continue;
     }
     /* Add node to visited, so we don't revisit then add this component */
-    else{
-      /* It doesn't matter whether we set include_diagonal to true or false */
-      std::vector<ivector> new_comp = getNeighbours(*it);
-      for(node : new_comp)
-        visited.insert(node);
-    }
+    /* It doesn't matter whether we set include_diagonal to true or false */
+    std::vector<ivector> new_comp = getConnectedComponentFromNode(*it);
+    for(auto node : new_comp)
+      visited.insert(node);
+
     return_vec.push_back(new_comp);
   }
   return return_vec;

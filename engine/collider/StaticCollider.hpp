@@ -9,7 +9,7 @@ public:
      * Registering and resolving colliders (see AbstractCollider.hpp).
      * This collider does not need to change anything based on collisions.
      */
-    void registerCollision(std::shared_ptr<AbstractCollider> collider, dvector mtv) {};
+    void registerCollision(std::shared_ptr<AbstractCollider>, dvector) {};
     void resolveCollision() {};
 
     /**

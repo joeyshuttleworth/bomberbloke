@@ -30,6 +30,13 @@ add_connector_test(client_kicked_event "connector/client_kicked_event.cpp")
 # Tests
 # Build and discover unit tests
 file(GLOB TEST_FILES CONFIGURE_DEPENDS unit/*.cpp)
+
+if(TEST_FILES)
+    message(STATUS "Found test files: ${TEST_FILES}")
+else()
+    message(WARNING "No unit tests found in 'unit/' folder!")
+endif()
+
 include_directories(tests)
 include(Catch)
 enable_testing()

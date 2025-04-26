@@ -4,7 +4,6 @@ project(BOMBERBLOKE)
 include(FetchContent)
 
 # Include directories
-
 include_directories(BEFORE SYSTEM ${PROJECT_SOURCE_DIR}/cereal/include)
 include_directories(${PROJECT_SOURCE_DIR}/engine/event)
 include_directories(${PROJECT_SOURCE_DIR}/engine/file)
@@ -27,7 +26,6 @@ include_directories(${PROJECT_SOURCE_DIR}/engine/hud)
 include_directories(${PROJECT_SOURCE_DIR}/engine/navigation)
 
 # Source files
-
 file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/sources.cmake SHARED_SOURCES)
 
 if(EMSCRIPTEN)
