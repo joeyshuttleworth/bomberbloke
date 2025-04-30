@@ -118,3 +118,27 @@ TEST_CASE("Components of disconnected level", "[engine]")
   assert(connected_comps[1].size() == 4*10);
 }
 
+
+TEST_CASE("Get A* route", "[engine]")
+{
+  _pScene = std::make_shared<BomberBlokeScene>(10, 10);
+  _pScene->mActors.clear();
+
+  /* Create WoodenCrates at each square */
+  int j = 5;
+  for(int i=0; i < 10; i++){
+    auto crate = std::make_shared<WoodenCrate>(i, j);
+    _pScene->addActor(crate);
+  }
+  NavGrid nav_grid(blocking_types, _pScene);
+  nav_grid.computeGrid();
+
+  assert(nav_grid.mNodes.size() == 10 * 10 - 10);
+
+  ivector start = {0, 0};
+  ivector goal = {1, 0};
+  auto route = nav_grid.findRoute(start, goal);
+  assert(route.size() == 2);
+}
+
+

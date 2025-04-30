@@ -1,4 +1,8 @@
 #include <stdexcept>
+#include <queue>
+#include <unordered_map>
+#include <unordered_set>
+
 #include "NavGrid.hpp"
 
 void
@@ -193,4 +197,62 @@ std::vector<std::vector<ivector>> NavGrid::getConnectedComponents(){
     return_vec.push_back(new_comp);
   }
   return return_vec;
+}
+
+inline unsigned int manhatton_distance(ivector x, ivector y){
+  return std::abs(x[0] - y[0]) + std::abs(x[1] - y[1]);
+}
+
+static std::vector<ivector> reconstruct_path(std::unordered_map<ivector, ivector, ivector_hash>& came_from, ivector current) {
+  std::vector<ivector> total_path = { current };
+  while (came_from.find(current) != came_from.end()) {
+    current = came_from[current];
+    total_path.push_back(current);
+  }
+  std::reverse(total_path.begin(), total_path.end());
+  return total_path;
+}
+
+std::vector<ivector> NavGrid::findRoute(ivector start, ivector goal, bool include_diagonal){
+  std::vector<ivector> comp = getConnectedComponentFromNode(start);
+
+  if(std::find(comp.begin(), comp.end(), goal) == comp.end()){
+    /* No route to goal */
+    return std::vector<ivector> {};
+  }
+
+  /* Use A* search algorithm */
+  using pq_element = std::pair<int, ivector>;
+  std::priority_queue<pq_element, std::vector<pq_element>, std::greater<pq_element>> open_set;
+
+  open_set.emplace(0, start);
+
+  std::unordered_map<ivector, ivector, ivector_hash> came_from;
+  std::unordered_map<ivector, int, ivector_hash> g_score;
+  g_score[start] = 0;
+
+  std::unordered_map<ivector, int, ivector_hash> f_score;
+  f_score[start] = manhatton_distance(start, goal);
+
+  while(!open_set.empty()){
+    ivector current = open_set.top().second;
+    open_set.pop();
+
+    if (current == goal) {
+      /* We're done */
+      return reconstruct_path(came_from, current);
+    }
+
+    for (const auto& neighbour : getNeighbours(current, include_diagonal=include_diagonal)) {
+      int tentative_g_score = g_score[current] + 1;
+      if (!g_score.count(neighbour) || tentative_g_score < g_score[neighbour]) {
+        came_from[neighbour] = current;
+        g_score[neighbour] = tentative_g_score;
+        f_score[neighbour] = tentative_g_score + manhatton_distance(neighbour, goal);
+        open_set.emplace(f_score[neighbour], neighbour);
+      }
+    }
+  }
+  /* Failed: return empty path */
+  return std::vector<ivector>{};
 }

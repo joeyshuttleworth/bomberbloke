@@ -9,6 +9,13 @@
 #include <typeinfo>
 
 using ivector = std::array<int, 2>;
+// Hash function for ivector (std::array<int, 2>)
+struct ivector_hash {
+  std::size_t operator()(const ivector& v) const {
+    return std::hash<int>()(v[0]) ^ (std::hash<int>()(v[1]) << 1);
+  }
+};
+
 
 class NavGrid{
 protected:
@@ -35,6 +42,8 @@ public:
   std::vector<ivector> getNeighbours(ivector, bool=false);
   std::vector<ivector> getConnectedComponentFromNode(ivector);
   std::vector<std::vector<ivector>> getConnectedComponents();
+
+  std::vector<ivector> findRoute(ivector, ivector, bool=true);
 
   void computeGrid();
 };
