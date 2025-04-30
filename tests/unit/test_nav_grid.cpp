@@ -155,6 +155,13 @@ TEST_CASE("Get A* route", "[engine]")
     auto route = nav_grid.findRoute(start, goal);
     assert(route.size() == 0);
   }
+
+  {
+    ivector start = {0, 0};
+    ivector goal = {100, 100};
+    auto route = nav_grid.findRoute(start, goal);
+    assert(route.size() == 0);
+  }
 }
 
 
