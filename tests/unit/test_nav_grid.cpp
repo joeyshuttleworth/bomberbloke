@@ -135,10 +135,26 @@ TEST_CASE("Get A* route", "[engine]")
 
   assert(nav_grid.mNodes.size() == 10 * 10 - 10);
 
-  ivector start = {0, 0};
-  ivector goal = {1, 0};
-  auto route = nav_grid.findRoute(start, goal);
-  assert(route.size() == 2);
+  {
+    ivector start = {0, 0};
+    ivector goal = {1, 0};
+    auto route = nav_grid.findRoute(start, goal);
+    assert(route.size() == 2);
+  }
+
+  {
+    ivector start = {0, 0};
+    ivector goal = {9, 0};
+    auto route = nav_grid.findRoute(start, goal);
+    assert(route.size() == 10);
+  }
+
+  {
+    ivector start = {0, 0};
+    ivector goal = {9, 9};
+    auto route = nav_grid.findRoute(start, goal);
+    assert(route.size() == 0);
+  }
 }
 
 
