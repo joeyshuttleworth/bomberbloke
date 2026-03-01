@@ -189,10 +189,7 @@ init_engine
 
   SDL_RenderClear(_renderer);
 
-  int *window_width, *window_hieght;
-  SDL_GetWindowSize(_window, window_width, window_height);
-
-  SDL_Rect dst = {(window_width / 2) - 128, (window_height / 2) - 128, 256, 256};
+  SDL_Rect dst = {(_window_size[0] / 2) - 128, (_window_size[1] / 2) - 128, 256, 256};
   auto sprite = get_sprite("crate.png");
   SDL_RenderCopy(_renderer,sprite,NULL,&dst);
 
