@@ -178,7 +178,7 @@ NetServer::handleCommandEvent(std::shared_ptr<CommandEvent> c_event, int from_id
         // Change the colour as requested
         p_player->setColour(colour);
         log_message(DEBUG,
-                    "Setting player " + std::to_string(p_player->getId()) + " to " + std::to_string(colour));
+                    "Setting player " + std::to_string(p_player->getId()) + " to colour " + std::to_string(colour));
 
       }
     }
