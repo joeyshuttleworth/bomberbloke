@@ -63,6 +63,8 @@ void engine_new_game(std::string);
 void engine_start_game();
 void client_loop(); // Perform client loop
 void client_entry(); // Perform one tick of client loop
+void bot_loop(); // Perform client loop
+void bot_entry(); // Perform one tick of client loop
 void server_loop(short port=8888, 
                  std::string masterServerAddress="", 
                  bool debug=false
@@ -108,10 +110,12 @@ extern TextManager textManager;
 
 typedef std::list<std::pair<std::string, SDL_Texture*>> SpriteList;
 
-typedef struct{
+ struct CommandBinding {
   SDL_Scancode scancode;
   std::string command;
-} CommandBinding;
+ };
+
+typedef struct CommandBinding CommandBinding;
 
 enum LOG_LEVEL{
   DEBUG = 0,

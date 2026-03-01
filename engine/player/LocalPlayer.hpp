@@ -1,6 +1,11 @@
 #ifndef LOCALPLAYER_HPP
 #define LOCALPLAYER_HPP
 #include "AbstractPlayer.hpp"
+#include <list>
+
+
+struct CommandBinding;
+extern std::vector<CommandBinding> _default_bindings;
 
 class LocalPlayer : public AbstractPlayer{
  public:

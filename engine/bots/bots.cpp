@@ -1,16 +1,10 @@
 #include "engine.hpp"
-#include "network/NetClient.hpp"
-#include <cereal/types/polymorphic.hpp>
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
 
-unsigned int _last_receive;
-bool _draw = true;
+bool _draw = false;
 bool _server = false;
 
 void
-client_loop()
+bot_loop()
 {
   timespec t1, t2;
   t2.tv_nsec = 0;
@@ -30,26 +24,7 @@ client_loop()
           1e9 * (t2.tv_sec - t1.tv_sec) < 1e9 / TICK_RATE);
 
     // Perform client tick
-    client_entry();
-  }
-}
-
-void client_entry() {
-  /* Lock _scene_mutex to protect _pScene from other threads */
-  LOCK_GUARD(_scene_mutex);
-
-  _net_client->pollServer();
-  if (_pScene) {
-    _pScene->update();
-    handle_input();
-  }
-  if (_draw)
-    draw_screen();
-  _tick++;
-
-  if (_pNewScene != nullptr) {
-    _pScene = _pNewScene;
-    _pNewScene = nullptr;
+    bot_entry();
   }
 }
 

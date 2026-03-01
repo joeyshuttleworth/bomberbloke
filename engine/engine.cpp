@@ -186,7 +186,7 @@ init_engine(bool server)
   _console_log_file.open("/tmp/bloke.log");
 
   loadAssets(textManager, soundManager, _sprite_list);
-  
+
   return;
 }
 
@@ -495,8 +495,15 @@ handle_system_command(std::list<std::string> tokens)
     }
   }
 
-    else if (!_server && command == "open") {
-      if (tokens.size() == 2) {
+  // else (command == "msg"){
+  //     std::string msg_string = std::accumulate(vec.begin(),
+  //                                              vec.end(),
+  //                                              std::string(" "));
+  //     std::shared_ptr<AbstractEvent> testEvent = std::make_shared<MessageEvent>("hello w0rld?");
+  //   }
+
+  else if (!_server && command == "open") {
+    if (tokens.size() == 2) {
         /**
            NetClient::connectClient returns true or false. Return
            this value

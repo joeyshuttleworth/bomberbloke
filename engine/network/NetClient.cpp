@@ -167,10 +167,12 @@ NetClient::pollServer()
     std::shared_ptr<AbstractEvent> event = event_received.event;
     switch (event->getType()) {
       case EVENT_SYNC: {
+        std::lock_guard<std::mutex> lock(mPlayerListMutex);
         std::shared_ptr<SyncEvent> s_event =
           std::dynamic_pointer_cast<SyncEvent>(event);
         mPlayers = s_event->getPlayers();
         _pScene->mState = s_event->mState;
+
         /* TODO move mPlayers to _player_list */
         auto iter =
           std::find_if(mPlayers.begin(),
@@ -239,8 +241,18 @@ NetClient::pollServer()
       case EVENT_CREATE: {
         std::shared_ptr<CreationEvent> c_event =
           std::dynamic_pointer_cast<CreationEvent>(event);
-        if (c_event->getActor())
-          _pScene->addActorWithId(c_event->getActor());
+        if (c_event->getActor()){
+          auto actor = c_event->getActor();
+          int this_id = actor->getId();
+          // If actor with this ID already exists, ignore
+          auto iter = std::find_if(
+                                   _pScene->mActors.begin(),
+                                   _pScene->mActors.end(),
+                                   [&](auto a) -> bool {return a->getId() == this_id;}
+                                   );
+          if(iter == _pScene->mActors.end())
+            _pScene->addActorWithId(c_event->getActor());
+        }
         else if (c_event->getParticle())
           _pScene->mParticleList.push_back(c_event->getParticle());
         else {
@@ -265,6 +277,9 @@ NetClient::pollServer()
         GamePlayerProperties props = p_event->getProperties();
         std::shared_ptr<AbstractPlayerProperties> p_properties =
           std::make_shared<GamePlayerProperties>(props);
+
+        // Warning: only resets properties of one local player, so this assumes
+        // only one local player can be connected at once.
         _local_player_list.back().resetPlayerProperties(p_properties);
         break;
       }
@@ -286,11 +301,18 @@ void
 NetClient::disconnectClient()
 {
   mConnector->close();
-  mConnector = nullptr; 
+  mConnector = nullptr;
 }
 
 bool
 NetClient::isConnected()
 {
   return mConnector != nullptr && mConnector->countPeers() == 1;
+}
+
+std::vector<serverPlayer>
+NetClient::getPlayers(){
+  std::lock_guard<std::mutex> lock(mPlayerListMutex);
+  auto copy = mPlayers;
+  return copy;
 }
