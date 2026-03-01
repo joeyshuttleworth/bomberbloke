@@ -58,6 +58,9 @@ refresh_sprites();
 void
 create_window();
 
+SDL_Texture*
+get_sprite(std::string);
+
 void
 set_draw(bool on)
 {
@@ -174,18 +177,28 @@ init_engine
   /*  Open a log file  */
   _console_log_file.open("/tmp/bloke.log");
 
-
-
   if (_draw) {
     create_window();
   }
-
-  loadAssets(textManager, soundManager, _sprite_list);
 
   if (_draw && _pScene)
     refresh_sprites();
 
   soundManager.init(channelFinishedForwarder);
+  loadAssets(textManager, soundManager, _sprite_list);
+
+  SDL_RenderClear(_renderer);
+
+  int *window_width, *window_hieght;
+  SDL_GetWindowSize(_window, window_width, window_height);
+
+  SDL_Rect dst = {(window_width / 2) - 128, (window_height / 2) - 128, 256, 256};
+  auto sprite = get_sprite("crate.png");
+  SDL_RenderCopy(_renderer,sprite,NULL,&dst);
+
+  SDL_RenderPresent(_renderer);
+  SDL_Delay(2000);
+
   /* Initialise the controller if it exists */
   _controller = handle_input_controller();
   _controller_connected = _controller != nullptr ? true : false;
