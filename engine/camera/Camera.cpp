@@ -238,11 +238,12 @@ Camera::renderCopy(SDL_Texture* texture,
 {
   LOCK_GUARD(mMutex);
 
-  if(!_renderer || !srcRect || !dstRect){
+  if(!_renderer){
     return;
   }
 
   // Copy the texture onto the appropriate frame buffer
+  SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
   SDL_SetRenderTarget(_renderer, getFrameBuffer(isPostProcessed));
   SDL_RenderCopy(_renderer, texture, srcRect, dstRect);
 
