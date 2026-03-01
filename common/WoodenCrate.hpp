@@ -18,7 +18,7 @@ public:
 
   WoodenCrate(int x=0, int y=0) : actor(double(x), double(y), true){
   mpSpriteHandler = std::shared_ptr<staticSprite>(new staticSprite(double(x), double(y), 1.0, 1.0, "crate.png"));
-    return;
+  return;
   }
 
   void handleCommand(std::string command){

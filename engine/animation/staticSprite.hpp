@@ -21,7 +21,6 @@ public:
     void draw(Camera *cam){
       SDL_Rect dstrect = cam->getScreenRect(mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]);
       cam->renderCopy(mpSprite, nullptr, &dstrect);
-
       return;
     }
 
