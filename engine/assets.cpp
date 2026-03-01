@@ -85,7 +85,12 @@ loadAssets(TextManager& textManager,
     }
     else if (file_extension == ".png"){
       SDL_Texture* sprite = IMG_LoadTexture_RW(_renderer, io, 1);
-      spriteList.push_back({ entry.filename(), sprite });
+      if(!sprite){
+        log_message(ERR, "Failed to load sprite: " + file_name + " " + IMG_GetError() + " Ignoring\n");
+      }
+      else{
+        spriteList.push_back({ entry.filename(), sprite });
+      }
     }
   }
 

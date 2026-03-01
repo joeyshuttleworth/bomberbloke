@@ -156,7 +156,8 @@ channelFinishedForwarder(int channel)
 }
 
 void
-init_engine(bool server)
+init_engine
+(bool server)
 {
   if(server)
     _net_server = std::unique_ptr<NetServer>(new NetServer());
@@ -165,14 +166,26 @@ init_engine(bool server)
 
   signal(SIGINT, exit_engine);
   SDL_Init(SDL_INIT_EVERYTHING);
-  soundManager.init(channelFinishedForwarder);
+
+  int flags = IMG_Init(IMG_INIT_PNG);
+  if(!(flags & IMG_INIT_PNG))
+    log_message(ERR, "PNG init failed: " + std::string(IMG_GetError()));
+
+  /*  Open a log file  */
+  _console_log_file.open("/tmp/bloke.log");
+
+
 
   if (_draw) {
     create_window();
-    if (_pScene)
-      refresh_sprites();
   }
 
+  loadAssets(textManager, soundManager, _sprite_list);
+
+  if (_draw && _pScene)
+    refresh_sprites();
+
+  soundManager.init(channelFinishedForwarder);
   /* Initialise the controller if it exists */
   _controller = handle_input_controller();
   _controller_connected = _controller != nullptr ? true : false;
@@ -181,11 +194,6 @@ init_engine(bool server)
   memset((void*)_kb_state, 0, sizeof(Uint8) * SDL_SCANCODE_APP2);
 
   LAUNCH_THREAD_DETACH(console_loop);
-
-  /*  Open a log file  */
-  _console_log_file.open("/tmp/bloke.log");
-
-  loadAssets(textManager, soundManager, _sprite_list);
 
   return;
 }
