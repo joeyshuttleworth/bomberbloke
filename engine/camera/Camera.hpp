@@ -10,7 +10,7 @@
 class scene;
 class IGraphicsInterface;
 
-class Camera : AbstractCamera{
+class Camera : public AbstractCamera{
   public:
   double mZoom = 0.1;
   std::array<double, 2> mPosition = {{ 0, 0 }};
@@ -84,7 +84,6 @@ protected:
    * @param passes  Quality of the blur, larger is higher quality.
    */
   void blurTexture(SDL_Texture *texture, double size, int passes=8);
-  SDL_Rect getScreenRect(double x, double y, double w, double h);
 
   std::mutex mMutex;
 

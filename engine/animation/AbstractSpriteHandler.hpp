@@ -5,6 +5,8 @@
 #include <cereal/cereal.hpp>
 #include <cereal/types/polymorphic.hpp>
 
+#include "IGraphicsManager.hpp"
+
 enum SpriteType{
                 SPRITE_PLACEHOLDER=1,
                 SPRITE_STATIC

@@ -2,10 +2,6 @@
 #define STATICSPRITE_HPP
 #include "AbstractSpriteHandler.hpp"
 #include <SDL_image.h>
-#include "engine.hpp"
-
-extern SDL_Renderer *_renderer;
-SDL_Texture* get_sprite(std::string);
 
 class staticSprite : public AbstractSpriteHandler{
 public:
@@ -19,8 +15,10 @@ public:
     }
 
     void draw(Camera *cam){
-      SDL_Rect dstrect = cam->getScreenRect(mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]);
-      cam->renderCopy(mpSprite, nullptr, &dstrect);
+      if(mpGraphicsManager){
+        auto dstrect = mpGraphicsManager->getScreenRect(mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]);
+        mpGraphicsManager->renderCopy(mpSprite, nullptr, &dstrect);
+      }
       return;
     }
 

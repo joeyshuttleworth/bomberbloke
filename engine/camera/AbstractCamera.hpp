@@ -5,13 +5,14 @@ class scene;
 class IGraphicsManager;
 
 class AbstractCamera{
- protected:
- std::shared_ptr<scene> mpScene = nullptr;
+protected:
+  std::shared_ptr<scene> mpScene = nullptr;
+  IGraphicsManager* mpGraphicsManager;
 
- public:
- AbstractCamera(std::shared_ptr<IGraphicsManager>,
-                std::shared_ptr<scene>){};
- virtual ~AbstractCamera(){};
+public:
+  AbstractCamera(std::shared_ptr<IGraphicsManager>,
+                 std::shared_ptr<scene>){};
+  virtual ~AbstractCamera(){};
 
   virtual void resetFrameBuffer(){};
   virtual void renderCopy(){};

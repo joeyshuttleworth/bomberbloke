@@ -10,11 +10,11 @@
 #include "IGraphicsManager.hpp"
 
 using SpriteList =  std::vector<std::pair<std::string, SDL_Texture*>>;
+class scene;
 
 class SDLGraphicsManager : IGraphicsManager{
 protected:
   SDL_Texture* getSprite(std::string);
-  void loadSprites();
   void createWindow();
 
   bool mDraw = true;
@@ -26,8 +26,9 @@ protected:
   SpriteList mSpriteList;
   int mWindowSize[2] = {0, 0};
   std::string mWindowTitle = "Bomberbloke";
-  scene mpScene;
+  scene* mpScene;
   std::mutex mMutex;
+  int mBrightness = 0;
 
   /**
    * Returns frame buffer for drawing to camera.
@@ -62,21 +63,6 @@ protected:
    */
   void setBrightness(int brightness);
 
-  /**
-   * Applies a blur effect to a given texture
-   *
-   * Creates a blur effect by drawing the texture onto itself slightly shifted
-   * in one direction and with alpha set to 50%. Performing this repeatedly
-   * (passes determines the number of times) in different directions yields an
-   * approximation to Gaussian convolution. The size parameter determines the
-   * maximum amount the texture is shifted creating a wider blur.
-   *
-   * @param texture Texture that blur is applied to.
-   * @param size    Size of the blur, larger is more blury.
-   * @param passes  Quality of the blur, larger is higher quality.
-   */
-  void blurTexture(SDL_Texture *texture, double size, int passes=8);
-
   void renderClear() override;
 
   /**
@@ -95,9 +81,11 @@ protected:
   void renderCopy(SDL_Texture *texture, SDL_Rect *srcRect=nullptr,
                        SDL_Rect *dstRect=nullptr, bool isPostProcessed=true, int bloomAmount=0);
 
-  SDL_Rect getScreenRect(double x, double y, double w, double h);
 
 public:
+
+  std::array<double, 4> getScreenRect(double x, double y, double w, double h);
+
   // Allows for SDL like function calls
    void renderCopy() override;
 
@@ -109,14 +97,25 @@ public:
 
   void setDraw(bool on) override;
 
-  void refreshSprites() override;
-
   void drawScreen() override;
 
   void loadSpriteFromPath(std::string) override;
 
   void resetFrameBuffers() override;
 
+  /**
+   * Applies a blur effect to a given texture
+   *
+   * Creates a blur effect by drawing the texture onto itself slightly shifted
+   * in one direction and with alpha set to 50%. Performing this repeatedly
+   * (passes determines the number of times) in different directions yields an
+   * approximation to Gaussian convolution. The size parameter determines the
+   * maximum amount the texture is shifted creating a wider blur.
+   *
+   * @param texture Texture that blur is applied to.
+   * @param size    Size of the blur, larger is more blury.
+   * @param passes  Quality of the blur, larger is higher quality.
+   */
   void blurTexture(SDL_Texture*, double, int) override;
 
   /**
@@ -130,12 +129,14 @@ public:
    * @param isPostProcessed Set to false to avoid post-processing effects.
    * @param bloomAmount     Determines the amount of bloom applied to texture.
    */
-  void renderFillRect(SDL_Rect *dstRect, SDL_Color colour, bool isPostProcessed=true, int bloomAmount=0);
+  void renderFillRect(std::array<double, 4>& dstRect, SDL_Color colour,
+                      bool isPostProcessed=true, int bloomAmount=0);
 
-  std::array<int, 2> getScreenDimensions() {
+  std::array<int, 2> getScreenDimensions() override{
     return {{ mWindowSize[0], mWindowSize[1] }};
   }
 
+  ~SDLGraphicsManager();
 
 };
 

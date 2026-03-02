@@ -20,6 +20,7 @@ class scene{
   friend NetClient;
   friend NetServer;
 protected:
+
   bool mNewGame = false;
   /*name and description are information about this scene*/
   std::string mName;

@@ -1,9 +1,15 @@
 #include "SDLGraphicsManager.hpp"
 
+#ifndef __EMSCRIPTEN__
+#include <cmrc/cmrc.hpp>
+CMRC_DECLARE(files);
+#endif
+
+#include "engine.hpp"
 
 void
 SDLGraphicsManager::renderSplashScreen(){
-  LOCK_GUARD(mMutex);
+  const std::lock_guard<std::mutex> lock(mMutex);
   SDL_Rect dst = {(mWindowSize[0] / 2) - 128, (mWindowSize[1] / 2) - 128, 256, 256};
   auto sprite = getSprite("crate.png");
   SDL_RenderCopy(mpRenderer, sprite, NULL, &dst);
@@ -14,14 +20,13 @@ SDLGraphicsManager::renderSplashScreen(){
 void
 SDLGraphicsManager::setDraw(bool on)
 {
-  LOCK_GUARD(mMutex);
+  const std::lock_guard<std::mutex> lock(mMutex);
   if (on == mDraw)
     return;
 
   else if (on == true) {
     mDraw = true;
     createWindow();
-    refreshSprites();
   }
 
   else {
@@ -38,7 +43,7 @@ SDLGraphicsManager::setDraw(bool on)
 void
 SDLGraphicsManager::createWindow()
 {
-  LOCK_GUARD(mMutex);
+  const std::lock_guard<std::mutex> lock(mMutex);
   mpWindow = SDL_CreateWindow(mWindowTitle.c_str(),
                              SDL_WINDOWPOS_UNDEFINED,
                              SDL_WINDOWPOS_UNDEFINED,
@@ -55,17 +60,9 @@ SDLGraphicsManager::createWindow()
 
 
 void
-SDLGraphicsManager::refreshSprites()
-{
-  _pScene->refreshSprites();
-  return;
-}
-
-
-void
 SDLGraphicsManager::resizeWindow(int x, int y)
 {
-  LOCK_GUARD(mMutex);
+  const std::lock_guard<std::mutex> lock(mMutex);
 
   if (!mDraw)
     return;
@@ -75,9 +72,6 @@ SDLGraphicsManager::resizeWindow(int x, int y)
 
   if (mpWindow) {
     SDL_SetWindowSize(mpWindow, x, y);
-  }
-  if (_pScene) {
-    refresh_sprites();
   }
 
   // Clear frame buffers
@@ -113,7 +107,7 @@ SDLGraphicsManager::resizeWindow(int x, int y)
 void
 SDLGraphicsManager::resetFrameBuffers()
 {
-  LOCK_GUARD(mMutex);
+  const std::lock_guard<std::mutex> lock(mMutex);
 
   // Set background colour
   SDL_SetRenderTarget(mpRenderer, mpFrameBuffer);
@@ -134,8 +128,8 @@ SDLGraphicsManager::resetFrameBuffers()
 }
 
 
-void renderClear(){
-  LOCK_GUARD(mMutex);
+void SDLGraphicsManager::renderClear(){
+  const std::lock_guard<std::mutex> lock(mMutex);
   SDL_SetRenderDrawColor(mpRenderer, 0x00, 0x00, 0x00, 0xFF);
   SDL_SetRenderDrawBlendMode(mpRenderer, SDL_BLENDMODE_NONE);
   SDL_RenderClear(mpRenderer);
@@ -145,9 +139,7 @@ void renderClear(){
 void
 SDLGraphicsManager::drawScreen()
 {
-  LOCK_GUARD(mMutex);
-  if (_pScene)
-    _pScene->draw();
+  const std::lock_guard<std::mutex> lock(mMutex);
 
   // Apply brightness effect to window
   if (mBrightness != 0) {
@@ -175,7 +167,7 @@ SDLGraphicsManager::drawScreen()
 }
 
 SDLGraphicsManager::~SDLGraphicsManager(){
-  LOCK_GUARD(mMutex);
+  const std::lock_guard<std::mutex> lock(mMutex);
   if(mpRenderer)
     SDL_DestroyRenderer(mpRenderer);
 
@@ -189,7 +181,7 @@ SDLGraphicsManager::~SDLGraphicsManager(){
 
 /* Lookup the name in our list of sprites and return a pointer to its texture if
  * it exists */
-std::shared_ptr<SDL_Texture>
+SDL_Texture*
 SDLGraphicsManager::getSprite(std::string asset_name)
 {
   auto iter =
@@ -208,10 +200,27 @@ SDLGraphicsManager::getSprite(std::string asset_name)
 
 void
 SDLGraphicsManager::loadSpriteFromPath(std::string path){
-  std::string full_path = "assets/" + entry;
+
+  #ifdef __ENSCRIPTEN__
+  std::string full_path = "assets/" + path;
   SDL_RWops *io = SDL_RWFromFile(full_path.c_str(), "rb");
+
+  #else
+  auto fs = cmrc::files::get_filesystem();
+  std::string file_name = path.substr(0, dot_pos);
+  std::string file_extension = path.substr(dot_pos);
+
+  auto file = fs.open("files/assets/" + path);
+  SDL_RWops *io = SDL_RWFromConstMem(file.begin(), file.end() - file.begin());
+  #endif
+
   SDL_Texture* sprite = IMG_LoadTexture_RW(mpRenderer, io, 1);
-  spriteList.push_back({entry, sprite})
+  if(sprite){
+    spriteList.push_back({path, sprite});
+    return;
+  }
+
+  log_message(ERR, "Failed to load sprite: " + file_name + " " + IMG_GetError() + " Ignoring\n");
 }
 
 
@@ -318,7 +327,7 @@ SDLGraphicsManager::renderCopy(SDL_Texture* texture,
                                bool isPostProcessed,
                                int bloomAmount)
 {
-  LOCK_GUARD(mMutex);
+  const std::lock_guard<std::mutex> lock(mMutex);
 
   if(!mpRenderer){
     return;
@@ -357,11 +366,12 @@ SDLGraphicsManager::renderCopy(SDL_Texture* texture,
 
 
 void
-SDLGraphicsManager::renderFillRect(SDL_Rect* dstRect,
-                       SDL_Color colour,
-                       bool isPostProcessed,
-                       int bloomAmount)
+SDLGraphicsManager::renderFillRect(std::array<double, 4>& _dstRect,
+                                   SDL_Color colour,
+                                   bool isPostProcessed,
+                                   int bloomAmount)
 {
+  SDL_Rect _dstRect = {_dstRect[0], _dstRect[1], _dstRect[2], _dstRect[3]};
   // Draw rect to the appropriate frame buffer
   SDL_SetRenderTarget(mpRenderer, getFrameBuffer(isPostProcessed));
   SDL_SetRenderDrawColor(mpRenderer, colour.r, colour.g, colour.b, colour.a);
@@ -388,15 +398,15 @@ SDLGraphicsManager::renderFillRect(SDL_Rect* dstRect,
   }
 }
 
-SDL_Rect
+std::array<double, 4>
 SDLGraphicsManager::getScreenRect(double x, double y, double w, double h)
 {
   SDL_Rect screenRect;
   int pxPerUnit = mZoom * mScreenRectangle.w;
-  screenRect.x = (x - mPosition[0]) * pxPerUnit + mScreenRectangle.w / 2;
-  screenRect.y = -(y + h - mPosition[1]) * pxPerUnit + mScreenRectangle.h / 2;
-  screenRect.w = w * pxPerUnit;
-  screenRect.h = h * pxPerUnit;
+  screenRect[0] = (x - mPosition[0]) * pxPerUnit + mScreenRectangle.w / 2;
+  screenRect[1] = -(y + h - mPosition[1]) * pxPerUnit + mScreenRectangle.h / 2;
+  screenRect[2] = w * pxPerUnit;
+  screenRect[3] = h * pxPerUnit;
 
   return screenRect;
 }

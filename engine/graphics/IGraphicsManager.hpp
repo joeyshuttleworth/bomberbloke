@@ -1,6 +1,7 @@
 #ifndef IGRAPHICSMANAGER_HPP
 #define IGRAPHICSMANAGER_HPP
 #include<string>
+#include<array>
 
 class scene;
 
@@ -18,7 +19,6 @@ public:
   // Different interfaces will use different Camera types
   virtual void renderSplashScreen();
   virtual void setDraw(bool){};
-  virtual void refreshSprites(){};
   virtual void drawScreen(){};
   virtual void loadSpriteFromPath(std::string){};
   virtual void applyBloom(double, int);
@@ -26,6 +26,8 @@ public:
   virtual void drawNoProcessingBuffer();
   virtual void resetFrameBuffers();
   virtual void blurTexture(SDL_Texture*, double, int);
+  virtual std::array<int, 2> getScreenDimensions();
+  virtual std::array<double, 4> getScreenRect(double, double, double, double);
 };
 
 #endif

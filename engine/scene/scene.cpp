@@ -186,8 +186,6 @@ scene::updateHudPositions()
 void
 scene::draw()
 {
-  mpGraphicsInterface->resetFrameBuffers();
-
   drawActors();
   drawParticles();
   drawHud();

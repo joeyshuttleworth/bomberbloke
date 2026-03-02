@@ -38,20 +38,23 @@ Explosion::draw_legacy(Camera* cam)
 
   /*  Set our blend mode so that our shapes blend nicely */
   SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
-  SDL_Color colour;
+
+  Uint32 colour = 0xffff00 ^ alpha
 
   if (frame_no < mAnimationSpeed / 2.0) {
     /*Set colour to white*/
     colour = SDL_Color({ 0xff, 0xff, 0xff, alpha });
+    colour = 0xffffff ^ alpha
   }
   else {
     /*Set colour to red*/
-    colour = SDL_Color({ 0xff, backAlpha, backAlpha, alpha });
+    colour = 0xff000000 ^ (backAlpha << 16) ^ (backAlpha << 8) << alpha;
   }
   /*  Copy our texture across to the window */
-  SDL_Rect dstrect = cam->getScreenRect(
-    mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]);
-  cam->renderFillRect(&dstrect, colour, true, glowAmount);
+  auto mpGraphicsManager->getScreenRect(mPosition[0], mPosition[1],
+                                                mDimmension[0], mDimmension[1]);
+
+  mpGraphicsManager->renderFillRect(dstrect, colour, true, glowAmount);
   return;
 }
 

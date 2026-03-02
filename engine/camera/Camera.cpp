@@ -3,6 +3,8 @@
 
 
 Camera::Camera(IGraphicsManager* p_graphics_interface, scene *lvl=nullptr){
+
+  mpGraphicsManager = p_graphics_interface;
   mpScene = lvl;
 
   /* Call this to get screen dimensions */

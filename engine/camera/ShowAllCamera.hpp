@@ -22,9 +22,15 @@ public:
     const double width = scene->mDimmension[0];
     const double height = scene->mDimmension[1];
 
-    int screen_dims[2] = {_window_size[0], _window_size[1]};
+    if(!mpGraphicsManager)
+      return;
 
-    mZoom = std::min(screen_dims[0]/width, screen_dims[1]/height);
+    auto dimensions = mpGraphicsManager->getScreenDimensions();
+
+    screen_width = dimensions[0];
+    screen_height = dimensions[1];
+
+    mZoom = std::min(screen_width/width, screen_height/height);
 
     mPosition[0]=width/2;
     mPosition[1]=height/2;
