@@ -10,7 +10,6 @@ scene::scene(double x, double y)
 {
   mDimmension[0] = x;
   mDimmension[1] = y;
-  mpCamera = std::make_shared<Camera>(this);
   mState = STOPPED;
   return;
 }
@@ -187,7 +186,7 @@ scene::updateHudPositions()
 void
 scene::draw()
 {
-  mpCamera->resetFrameBuffer();
+  mpGraphicsInterface->resetFrameBuffers();
 
   drawActors();
   drawParticles();

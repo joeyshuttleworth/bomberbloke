@@ -1,11 +1,13 @@
 #include "engine.hpp"
 #include "network/NetServer.hpp"
+#include "DummyGraphicsInterface"
 #include <memory>
 
 bool _server = true;
 bool _draw = false;
 bool _debug_player = false;
 unsigned int _ping_time = 0;
+
 
 void server_loop(short port, std::string masterServerAddress, bool debug){
   if(debug){
@@ -19,6 +21,15 @@ void server_loop(short port, std::string masterServerAddress, bool debug){
 
   _net_server->setMasterServerAddress(masterServerAddress);
   _net_server->init(port);
+
+  std::shared_ptr<AbstractGraphicsInterface> graphics_interface = std::make_shared<AbstractGraphicsInterface> (new DummyGraphicsInterface());
+
+  #ifdef SDL_h_
+  if(_draw){
+    std::shared_ptr<AbstractGraphicsInterface> graphics_interface = std::make_shared<AbstractGraphicsInterface> (new SDLGraphicsInterface());
+
+  }
+  #endif
 
   while (!_halt) {
     t1 = t2;
@@ -49,7 +60,10 @@ void server_loop(short port, std::string masterServerAddress, bool debug){
       if (!_pScene)
         _pScene = std::make_shared<scene>(10, 10);
       _pScene->update();
-      draw_screen();
+
+      if(_draw)
+        _graphics_interface->draw_screen();
+
       _tick++;
       if (_tick % 1000 == 0)
         _net_server->syncPlayers();

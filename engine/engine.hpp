@@ -64,9 +64,9 @@ void engine_start_game();
 void client_loop(); // Perform client loop
 void client_entry(); // Perform one tick of client loop
 void bot_loop(); // Perform client loop
-void bot_entry(); // Perform one tick of client loop
-void server_loop(short port=8888, 
-                 std::string masterServerAddress="", 
+void bot_entry(); // Perform one tick of bot loop
+void server_loop(short port=8888,
+                 std::string masterServerAddress="",
                  bool debug=false
                 );
 void log_message(int, std::string);
@@ -107,8 +107,6 @@ extern SoundManager soundManager;
 
 #include "TextManager.hpp"
 extern TextManager textManager;
-
-typedef std::list<std::pair<std::string, SDL_Texture*>> SpriteList;
 
  struct CommandBinding {
   SDL_Scancode scancode;
@@ -153,6 +151,9 @@ extern std::shared_ptr<scene> _pNewScene;
 extern unsigned int _tick;
 extern std::vector<CommandBinding> _default_bindings;
 extern std::list<LocalPlayer> _local_player_list;
+
+class IGraphicsManager;
+extern std::shared_ptr<IGraphicsManager> _graphics_interface;
 
 const std::array<std::string, 10> _system_commands  =
   {{"bind",

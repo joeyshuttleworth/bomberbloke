@@ -1,5 +1,12 @@
-#pragma once
+#ifndef ASSETS_HPP
+#define ASSETS_HPP
 
-#include "engine.hpp"
+#include<vector>
+#include "TextManager.hpp"
+#include "SoundManager.hpp"
+#include "IGraphicsManager.hpp"
 
-void loadAssets(TextManager &textManager, SoundManager &soundManager, SpriteList &spriteList);
+
+void loadAssets(TextManager&, SoundManager&, IGraphicsManager&);
+
+#endif

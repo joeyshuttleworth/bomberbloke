@@ -25,6 +25,7 @@ include_directories(${PROJECT_SOURCE_DIR}/engine/text)
 include_directories(${PROJECT_SOURCE_DIR}/engine/hud)
 include_directories(${PROJECT_SOURCE_DIR}/engine/bots)
 include_directories(${PROJECT_SOURCE_DIR}/engine/navigation)
+include_directories(${PROJECT_SOURCE_DIR}/engine/graphics)
 
 # Source files
 file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/sources.cmake SHARED_SOURCES)

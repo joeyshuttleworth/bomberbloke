@@ -1,4 +1,5 @@
 engine/actor/actor.cpp
+engine/graphics/SDLGraphicsManager.cpp
 engine/scene/scene.cpp
 engine/player/AbstractPlayer.cpp
 engine/engine.cpp

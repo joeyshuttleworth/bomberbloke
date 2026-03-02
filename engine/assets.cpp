@@ -12,7 +12,7 @@
 void
 loadAssets(TextManager& textManager,
            SoundManager& soundManager,
-           SpriteList& spriteList)
+           IGraphicsManager& graphicsManager)
 {
     // Collect assets
     std::vector<std::string> filenames;
@@ -44,8 +44,7 @@ loadAssets(TextManager& textManager,
         soundManager.loadFromPath(io, file_name);
         }
         else if (file_extension == ".png"){
-        SDL_Texture* sprite = IMG_LoadTexture_RW(_renderer, io, 1);
-        spriteList.push_back({ entry, sprite });
+          graphicsManager.loadSpriteFromPath(entry);
         }
     }
 }

@@ -19,69 +19,63 @@
 #include <fstream>
 #include <utility>
 
+#include "IGraphicsManager.hpp"
+
 
 /*  TODO: reduce number of globals */
 int _log_message_level = 0;
+
+/* Global variables tracking state */
 bool _bind_next_key = false;
 std::string _next_bind_command;
-int _window_size[] = { DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT };
-SDL_Window* _window;
+
 bool _halt = false;
+unsigned int _tick = 0;
+
 std::list<LocalPlayer> _local_player_list;
-SDL_Renderer* _renderer = NULL;
+
+/* Pointers to current scene and next scene for switching */
+std::shared_ptr<scene> _pScene;
+std::shared_ptr<scene> _pNewScene;
+
+// Shouldn't this be inside _pScene?
+// std::list<std::shared_ptr<AbstractSpriteHandler>> _particle_list;
+
+/* TODO move to input interface */
 SDL_Joystick* _controller = nullptr;
 bool _controller_connected = false;
 int DEADZONE = 9000;
 std::string dX = "0.1";
+
 Uint8* _kb_state = NULL;
-std::shared_ptr<scene> _pScene;
-std::shared_ptr<scene> _pNewScene;
-unsigned int _tick = 0;
+
+/* TODO Move to client code - this is only relevant to client */
 std::string _nickname = "bloke";
+
+/* Move to server.cpp */
 ServerInfo _server_info;
+
+/* TODO more logging options */
 std::ofstream _console_log_file;
-std::list<std::shared_ptr<AbstractSpriteHandler>> _particle_list;
+
+/* Move to input interface */
 std::vector<CommandBinding> _default_bindings;
+
+/* No need to be global. Similar variable already exists in NetServer and NetClient.*/
 std::list<std::shared_ptr<AbstractPlayer>> _player_list;
 
+/* Avoid different threads modifying the scene at the same time */
 DECLARE_MUTEX(_scene_mutex);
 
+/* Shouldn't be globals here. Move to client.cpp and server.cpp */
 std::unique_ptr<NetClient> _net_client;
 std::unique_ptr<NetServer> _net_server;
 
+/* TODO move this behind a sound inferface */
 SoundManager soundManager;
+
+/* Move these behind the graphics interface */
 TextManager textManager;
-SpriteList _sprite_list;
-
-void
-refresh_sprites();
-void
-create_window();
-
-SDL_Texture*
-get_sprite(std::string);
-
-void
-set_draw(bool on)
-{
-  if (on == _draw)
-    return;
-
-  else if (on == true) {
-    _draw = true;
-    create_window();
-    refresh_sprites();
-  }
-
-  else {
-    _draw = false;
-    SDL_DestroyWindow(_window);
-    SDL_DestroyRenderer(_renderer);
-    _renderer = nullptr;
-  }
-
-  return;
-}
 
 void
 exit_engine(int signum)
@@ -101,56 +95,6 @@ exit_engine(int signum)
   return;
 }
 
-void
-create_window()
-{
-  std::string window_name = "Bomberbloke Client";
-  if (_server)
-    window_name = "Bomberbloke Server";
-  _window = SDL_CreateWindow(window_name.c_str(),
-                             SDL_WINDOWPOS_UNDEFINED,
-                             SDL_WINDOWPOS_UNDEFINED,
-                             _window_size[0],
-                             _window_size[1],
-                             SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
-  if (_renderer) {
-    SDL_DestroyRenderer(_renderer);
-  }
-  _renderer = SDL_CreateRenderer(_window, -1, 0);
-
-  return;
-}
-
-/**  Refresh all of our sprites
- *
- *  This may be called when the window is resized.
- */
-
-void
-refresh_sprites()
-{
-  _pScene->refreshSprites();
-  return;
-}
-
-void
-resize_window(int x, int y)
-{
-  if (!_draw)
-    return;
-
-  _window_size[0] = x;
-  _window_size[1] = y;
-
-  if (_window) {
-    SDL_SetWindowSize(_window, x, y);
-  }
-  if (_pScene) {
-    _pScene->onResize();
-    refresh_sprites();
-  }
-  return;
-}
 
 void
 channelFinishedForwarder(int channel)
@@ -185,16 +129,14 @@ init_engine
     refresh_sprites();
 
   soundManager.init(channelFinishedForwarder);
-  loadAssets(textManager, soundManager, _sprite_list);
+  loadAssets(textManager, soundManager, *_graphics_interface);
 
-  SDL_RenderClear(_renderer);
+  _graphics_interface->loadSprites();
+  _graphics_interface->renderClear();
 
-  SDL_Rect dst = {(_window_size[0] / 2) - 128, (_window_size[1] / 2) - 128, 256, 256};
-  auto sprite = get_sprite("crate.png");
-  SDL_RenderCopy(_renderer,sprite,NULL,&dst);
-
-  SDL_RenderPresent(_renderer);
+  _graphics_interface->renderSplashScreen();
   SDL_Delay(2000);
+  std::this_thread::sleep_for(std::crhono::seconds(3));
 
   /* Initialise the controller if it exists */
   _controller = handle_input_controller();
@@ -208,6 +150,7 @@ init_engine
   return;
 }
 
+/* This function is here to allow other use cases where input is allowed on the server */
 void
 handle_input()
 {
@@ -241,6 +184,9 @@ handle_input()
           _window_size[0] = event.window.data1;
           _window_size[1] = event.window.data2;
           _pScene->onResize();
+          if(_graphics_interface){
+            _graphics_interface->resize_window
+          }
         }
       }
     }
@@ -328,25 +274,12 @@ handle_input_controller()
 }
 
 void
-draw_screen()
-{
-  if (_halt || !_renderer || !_window || !_draw)
-    return;
-  SDL_SetRenderDrawColor(_renderer, 0x00, 0x00, 0x00, 0xFF);
-  SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_NONE);
-  SDL_RenderClear(_renderer);
-  if (_pScene)
-    _pScene->draw();
-  SDL_RenderPresent(_renderer);
-  return;
-}
-
-void
 logic_loop()
 {
   return;
 }
 
+/* TODO move elsewhere */
 void
 log_message(int scene, std::string str)
 {
@@ -737,23 +670,6 @@ findPlayer(int id) {
   return *it;
 }
 
-/* Lookup the name in our list of assets and return a pointer to its texture if
- * it exists */
-SDL_Texture*
-get_sprite(std::string asset_name)
-{
-  auto iter =
-    std::find_if(_sprite_list.begin(),
-                 _sprite_list.end(),
-                 [&](std::pair<std::string, SDL_Texture*> entry) -> bool {
-                   return entry.first == asset_name;
-                 });
-  if (iter == _sprite_list.end()) {
-    log_message(ERR, "Requested sprite, " + asset_name + " does not exist.");
-    return nullptr;
-  } else
-    return iter->second;
-}
 
 void
 server_add_debug_player()
