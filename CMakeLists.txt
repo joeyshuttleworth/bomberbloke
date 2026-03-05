@@ -125,7 +125,7 @@ endif()
 # Build targets declared here
 #
 
-add_library(CLIENT ${SHARED_SOURCES} "engine/client.cpp" "engine/network/NetClient.cpp")
+add_library(CLIENT ${SHARED_SOURCES} "engine/client.cpp" "engine/network/NetClient.cpp" "engine/graphics/SDLGraphicsManager.cpp")
 add_library(SERVER ${SHARED_SOURCES} "engine/server.cpp" "engine/network/NetServer.cpp")
 
 target_link_libraries(CLIENT PUBLIC files::rc ${SDL2_LIBRARIES} ${SDL2_IMAGE_LIBRARIES} ${CURL_LIBRARIES} NET_LIB)
