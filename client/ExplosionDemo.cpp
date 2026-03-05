@@ -30,7 +30,7 @@ main()
 
   for (unsigned int i = 0; i < 10; i++)
     for (unsigned int j = 0; j < 10; j++) {
-      _pScene->mParticleList.push_back(std::shared_ptr<Explosion>(
+      _pScene->mParticles.push_back(std::shared_ptr<Explosion>(
         new Explosion(i, j, 1, 1, false, 60 + i + 2 * j, 600 - 2 * i - j)));
     }
 

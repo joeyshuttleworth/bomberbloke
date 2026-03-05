@@ -6,7 +6,6 @@
 #include "NetServer.hpp"
 #include "LocalPlayer.hpp"
 
-extern std::list<std::shared_ptr<AbstractSpriteHandler>> _particle_list;
 
 scene::scene(IGraphicsManager* gfx_manager, double x, double y)
 {
@@ -24,11 +23,10 @@ scene ::refreshSprites()
     (*i)->refreshSprite();
   }
 
-  for (auto i = _particle_list.begin(); i != _particle_list.end(); i++) {
+  for (auto i = mParticles.begin(); i != mParticles.end(); i++) {
     (*i)->refreshSprite();
   }
 
-  SDL_SetRenderTarget(_renderer, NULL);
   return;
 }
 
@@ -51,7 +49,7 @@ void
 scene::cleanUp()
 {
   /* Remove particles with mRemove set! */
-  mParticleList.remove_if(
+  mParticles.remove_if(
     [](std::shared_ptr<AbstractSpriteHandler> s) { return s->ToRemove(); });
   /* Now clean up actors */
   mActors.remove_if(
@@ -223,7 +221,7 @@ scene::drawParticles()
 
   // SDL_SetRenderTarget(_renderer, mpCamera->getFrameBuffer());
   /*  Draw all particles.*/
-  for (auto i = mParticleList.begin(); i != mParticleList.end(); i++) {
+  for (auto i = mParticles.begin(); i != mParticles.end(); i++) {
     (*i)->draw(mpCamera.get());
   }
 }
@@ -279,7 +277,7 @@ scene::updateSprites()
     (*i)->updateSprite();
   }
 
-  for (auto i = mParticleList.begin(); i != mParticleList.end(); i++) {
+  for (auto i = mParticles.begin(); i != mParticles.end(); i++) {
     (*i)->update();
   }
 

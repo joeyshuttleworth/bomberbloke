@@ -255,7 +255,7 @@ NetClient::pollServer()
             _pScene->addActorWithId(c_event->getActor());
         }
         else if (c_event->getParticle())
-          _pScene->mParticleList.push_back(c_event->getParticle());
+          _pScene->mParticles.push_back(c_event->getParticle());
         else {
           log_message(ERR, "Received malformed create event");
         }

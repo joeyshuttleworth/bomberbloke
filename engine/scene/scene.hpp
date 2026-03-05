@@ -102,12 +102,7 @@ public:
   void drawParticles();
   void refreshSprites();
 
-  /*
-   * mParticleList lists our particles e.g explosions.
-   * These won't be sent over the internet
-   */
-
-  std::list<std::shared_ptr<AbstractSpriteHandler>> mParticleList;
+  std::list<std::shared_ptr<AbstractSpriteHandler>> mParticles;
 
   /*  Return the midpoint of the scene. This is used by the Camera class. */
 
@@ -129,10 +124,10 @@ public:
   /*  Clean up sprites and actors from the scene
   *
   *   Remove all actors in mActors with mRemove set to true,
-  *   remove all AbstractSpriteHandlers in mParticleList with
+  *   remove all AbstractSpriteHandlers in mParticles with
   *   mRemove set to true.
   *
-  *   TODO: Make mParticleList protected
+  *   TODO: Make mParticles protected
   */
 
   void cleanUp();

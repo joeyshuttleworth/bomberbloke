@@ -19,7 +19,7 @@ MainMenuScene::MainMenuScene(IGraphicsManager* gfx_manager, int size_x, int size
                                     std::numeric_limits<int>::max(), 0, false, false, 0
                                     );
 
-      mParticleList.push_back(explosion);
+      mParticles.push_back(explosion);
     }
   }
 
