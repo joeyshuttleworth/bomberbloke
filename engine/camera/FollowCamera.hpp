@@ -21,9 +21,9 @@ public:
 
     ~FollowCamera(){
       /* We will get a double free if we destroy the texture after SDL_Quit is called */
-      if(mpFrameBuffer && !_halt){
-        SDL_DestroyTexture(mpFrameBuffer);
-      }
+      // if(mpFrameBuffer && !_halt){
+      //   // SDL_DestroyTexture(mpFrameBuffer);
+      // }
     }
 
     /**

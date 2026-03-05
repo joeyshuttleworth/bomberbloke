@@ -7,8 +7,12 @@
 #include "Interpolator.hpp"
 #include "KinematicCollider.hpp"
 #include "Camera.hpp"
+#include "IGraphicsManager.hpp"
+#include "AbstractSpriteHandler.hpp"
+#include "scene.hpp"
 #include <cereal/types/polymorphic.hpp>
 
+class IGraphicsManager;
 class AbstractPlayer; class AbstractSpriteHandler;
 
 class actor: public KinematicCollider {
@@ -35,9 +39,15 @@ protected:
   void setPlayerId(int id){mPlayerId = id;}
 
   /*The id of this actor. Used by  scene::mActors*/
-  int mId;
+  int mId = -1;
 
   Interpolator mInterpolator;
+
+  scene* mpScene = nullptr;
+
+  void setScene(scene* scene){mpScene = scene;}
+
+  IGraphicsManager* mpGraphicsManager = nullptr;
 
 public:
 
@@ -45,9 +55,8 @@ public:
 
   void interpolate();
 
-
   /* TODO replace this */
-  dvector mDimmension;
+  dvector mDimension;
 
   void draw(Camera *cam){
     if(mpSpriteHandler)
@@ -62,7 +71,7 @@ public:
 
   virtual ~actor(){}
 
-  actor(double x = 0, double y = 0, double xdim = DEFAULT_ACTOR_SIZE, double ydim = DEFAULT_ACTOR_SIZE, bool collides = true);
+  actor(scene* scene=nullptr, double x = 0, double y = 0, double xdim = DEFAULT_ACTOR_SIZE, double ydim = DEFAULT_ACTOR_SIZE, bool collides = true);
 
   /*Returns a pointer to the player object.
     This is found by searching _player_list
@@ -99,16 +108,25 @@ public:
 
   virtual void handleCommand(std::string){}
 
-  /*Serialise this class using cereal.
-    NB: We don't send the size of the actor (dimmension) as this should
-    be handled by the properties stored in a child of this class. To see why,
-    consider a game where the player's character model can only be one of two sizes,
-    it seems silly to send a double[2] in this case.*/
+  /*Serialise this class using cereal.*/
 
   template<class Archive>
   void serialize(Archive &archive){
-    archive(cereal::make_nvp("actorId", mId), cereal::make_nvp("playerId", mPlayerId), mPosition[0], mPosition[1], mVelocity[0], mVelocity[1]);
+    archive(cereal::make_nvp("actorId", mId),
+            cereal::make_nvp("playerId", mPlayerId),
+            mPosition[0], mPosition[1],
+            mVelocity[0], mVelocity[1],
+            mDimension[0], mDimension[1]
+            );
   }
+
+  IGraphicsManager* getGraphicsManager(){
+    if(mpScene){
+      return mpScene->getGraphicsManager();
+    }
+    return nullptr;
+  };
+
 };
 
 CEREAL_REGISTER_TYPE(actor)

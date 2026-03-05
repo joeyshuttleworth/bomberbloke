@@ -11,9 +11,9 @@ const std::string SOUND_2_NAME = "countdown_2";
 const std::string SOUND_1_NAME = "countdown_1";
 const std::string SOUND_COMMENCE_NAME = "countdown_commence";
 
-CountdownHudGroup::CountdownHudGroup(std::function<void()> onFinished,
+CountdownHudGroup::CountdownHudGroup(scene &r_scene, std::function<void()> onFinished,
                                      int maxGlowAmount)
-  : AbstractHudGroup(0, 0)
+  : AbstractHudGroup(r_scene, 0, 0)
 {
   mOnFinished = onFinished;
   mMaxGlowAmount = maxGlowAmount;
@@ -24,7 +24,7 @@ CountdownHudGroup::CountdownHudGroup(std::function<void()> onFinished,
   text->setTextColour({ 255, 255, 255, 255 });
   text->setTextScale(4.);
   std::shared_ptr<TextHudElement> countdownText =
-    std::make_shared<TextHudElement>(
+    std::make_shared<TextHudElement>(r_scene,
       text, 0, 0, 100, 100, ALIGN_CENTER, ALIGN_CENTER);
   addElement(countdownText);
   mCountdownText = countdownText;

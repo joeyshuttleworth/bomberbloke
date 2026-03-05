@@ -1,5 +1,9 @@
 #include "config.hpp"
+#include "engine.hpp"
+#include "LocalPlayer.hpp"
 #include <iostream>
+#include <vector>
+
 
 bool
 ExecFile(std::string fname)

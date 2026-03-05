@@ -6,12 +6,15 @@ class IGraphicsManager;
 
 class AbstractCamera{
 protected:
-  std::shared_ptr<scene> mpScene = nullptr;
+  scene* mpScene = nullptr;
   IGraphicsManager* mpGraphicsManager;
 
 public:
-  AbstractCamera(std::shared_ptr<IGraphicsManager>,
-                 std::shared_ptr<scene>){};
+  AbstractCamera(IGraphicsManager* gfx=nullptr,
+                 scene* scn=nullptr){
+    mpScene = scn;
+    mpGraphicsManager = gfx;
+  };
   virtual ~AbstractCamera(){};
 
   virtual void resetFrameBuffer(){};
@@ -27,9 +30,11 @@ public:
   virtual void setZoom(double){};
   virtual double getZoom(){return 0;};
 
-  std::shared_ptr<scene> getScene(){
+  scene* getScene(){
     return mpScene;
   }
+
+  IGraphicsManager* getGraphicsManager(){return mpGraphicsManager;};
 };
 
 #endif

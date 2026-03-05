@@ -7,8 +7,8 @@
 
 void
 NavGrid::computeGrid(){
-    int size_x = std::ceil(pScene->mDimmension[0] / mGridSize);
-    int size_y = std::ceil(pScene->mDimmension[1] / mGridSize);
+    int size_x = std::ceil(pScene->mDimension[0] / mGridSize);
+    int size_y = std::ceil(pScene->mDimension[1] / mGridSize);
 
     auto actor_list = pScene->mActors;
     /* The instances of the mBlockingActorTypes which are actually in the level */

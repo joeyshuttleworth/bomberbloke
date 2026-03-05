@@ -19,16 +19,16 @@ public:
     if(!scene)
       return;
 
-    const double width = scene->mDimmension[0];
-    const double height = scene->mDimmension[1];
+    const double width = scene->mDimension[0];
+    const double height = scene->mDimension[1];
 
     if(!mpGraphicsManager)
       return;
 
     auto dimensions = mpGraphicsManager->getScreenDimensions();
 
-    screen_width = dimensions[0];
-    screen_height = dimensions[1];
+    auto screen_width = dimensions[0];
+    auto screen_height = dimensions[1];
 
     mZoom = std::min(screen_width/width, screen_height/height);
 

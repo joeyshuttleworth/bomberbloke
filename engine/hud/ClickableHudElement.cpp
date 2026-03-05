@@ -2,14 +2,15 @@
 
 #include <SDL.h>
 
-ClickableHudElement::ClickableHudElement(int xPos,
+ClickableHudElement::ClickableHudElement(scene& rscene,
+                                         int xPos,
                                          int yPos,
                                          int xDim,
                                          int yDim,
                                          std::function<void()> onClickFn,
                                          AlignFlag xAlignFlag,
                                          AlignFlag yAlignFlag)
-  : AbstractHudElement(xPos, yPos, xDim, yDim, xAlignFlag, yAlignFlag)
+  : AbstractHudElement(rscene, xPos, yPos, xDim, yDim, xAlignFlag, yAlignFlag)
 {
   // Base class constructor must be called
   mOnClickFn = onClickFn;

@@ -16,7 +16,7 @@ public:
   /**
    * Constructor for PauseMenuHudGroup.
    */
-  PauseMenuHudGroup();
+  PauseMenuHudGroup(scene&);
 
   virtual ~PauseMenuHudGroup(){}
 private:

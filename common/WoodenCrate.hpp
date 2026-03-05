@@ -8,6 +8,7 @@
 #include "PowerPickup.hpp"
 #include "BombPickup.hpp"
 #include "BigBombPickup.hpp"
+#include "IGraphicsManager.hpp"
 
 class WoodenCrate : public actor{
 public:
@@ -16,8 +17,9 @@ public:
     return ACTOR_WOODEN_CRATE;
   }
 
-  WoodenCrate(int x=0, int y=0) : actor(double(x), double(y), true){
-  mpSpriteHandler = std::shared_ptr<staticSprite>(new staticSprite(double(x), double(y), 1.0, 1.0, "crate.png"));
+  WoodenCrate(scene *scn=nullptr, int x=0, int y=0) : actor(scn, double(x), double(y), true){
+    auto gfx_manager = scn->getGraphicsManager();
+    mpSpriteHandler = std::shared_ptr<staticSprite>(new staticSprite(gfx_manager, double(x), double(y), 1.0, 1.0, "crate.png"));
   return;
   }
 
@@ -35,21 +37,21 @@ public:
 
       switch(distrib(gen)){
       case PICKUP_SPEED:{
-        _pScene->addActor(std::make_shared<SpeedPickup>(mPosition[0], mPosition[1]));
+        _pScene->addActor(std::make_shared<SpeedPickup>(mpScene, mPosition[0], mPosition[1]));
         break;
       }
       case PICKUP_BOMB:{
-        std::shared_ptr<actor> act = std::make_shared<BombPickup>(mPosition[0], mPosition[1]);
+        std::shared_ptr<actor> act = std::make_shared<BombPickup>(mpScene, mPosition[0], mPosition[1]);
         _pScene->addActor(act);
         break;
       }
       case PICKUP_POWER:{
-        std::shared_ptr<actor> act = std::make_shared<PowerPickup>(mPosition[0], mPosition[1]);
+        std::shared_ptr<actor> act = std::make_shared<PowerPickup>(mpScene, mPosition[0], mPosition[1]);
         _pScene->addActor(act);
         break;
       }
       case PICKUP_BIG_BOMB:{
-        std::shared_ptr<actor> act = std::make_shared<BigBombPickup>(mPosition[0], mPosition[1]);
+        std::shared_ptr<actor> act = std::make_shared<BigBombPickup>(mpScene, mPosition[0], mPosition[1]);
         _pScene->addActor(act);
       }
       case PICKUP_NONE:

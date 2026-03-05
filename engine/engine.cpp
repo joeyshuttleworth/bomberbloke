@@ -9,15 +9,17 @@
 #include "QueryEvent.hpp"
 #include "ServerInfo.hpp"
 #include "ShowAllCamera.hpp"
+#include "LocalPlayer.hpp"
 #include "SyncEvent.hpp"
 #include "assets.hpp"
 #include "scene.hpp"
-#include <SDL_image.h>
 #include <cereal/archives/json.hpp>
 #include <dirent.h>
 #include <exception>
 #include <fstream>
 #include <utility>
+#include <chrono>
+#include <SDL2/SDL_image.h>
 
 #include "IGraphicsManager.hpp"
 
@@ -32,7 +34,7 @@ std::string _next_bind_command;
 bool _halt = false;
 unsigned int _tick = 0;
 
-std::list<LocalPlayer> _local_player_list;
+std::vector<LocalPlayer> _local_player_list;
 
 /* Pointers to current scene and next scene for switching */
 std::shared_ptr<scene> _pScene;
@@ -122,21 +124,17 @@ init_engine
   _console_log_file.open("/tmp/bloke.log");
 
   if (_draw) {
-    create_window();
+    _graphics_interface->createWindow();
   }
-
-  if (_draw && _pScene)
-    refresh_sprites();
 
   soundManager.init(channelFinishedForwarder);
   loadAssets(textManager, soundManager, *_graphics_interface);
 
-  _graphics_interface->loadSprites();
   _graphics_interface->renderClear();
 
   _graphics_interface->renderSplashScreen();
   SDL_Delay(2000);
-  std::this_thread::sleep_for(std::crhono::seconds(3));
+  std::this_thread::sleep_for(std::chrono::seconds(3));
 
   /* Initialise the controller if it exists */
   _controller = handle_input_controller();
@@ -181,11 +179,9 @@ handle_input()
       }
       case SDL_WINDOWEVENT: {
         if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
-          _window_size[0] = event.window.data1;
-          _window_size[1] = event.window.data2;
           _pScene->onResize();
           if(_graphics_interface){
-            _graphics_interface->resize_window
+            _graphics_interface->resizeWindow();
           }
         }
       }
@@ -367,7 +363,7 @@ handle_system_command(std::list<std::string> tokens)
       double zoom = DOUBLE_UNSET;
 
       if (camera)
-        zoom = camera->GetZoom();
+        zoom = camera->getZoom();
 
       double val = DOUBLE_UNSET;
 
@@ -398,7 +394,7 @@ handle_system_command(std::list<std::string> tokens)
         }
         if (camera) {
           log_message(DEBUG, "setting zoom to " + std::to_string(zoom));
-          camera->SetZoom(zoom);
+          camera->setZoom(zoom);
         } else {
           // TODO
         }
@@ -422,7 +418,7 @@ handle_system_command(std::list<std::string> tokens)
 
     } else {
       _net_client->disconnectClient();
-      _pScene = std::make_shared<MainMenuScene>(15, 15);
+      _pScene = std::make_unique<MainMenuScene>(_graphics_interface.get(), 15, 15);
     }
   }
 
@@ -519,7 +515,7 @@ handle_system_command(std::list<std::string> tokens)
       i++;
       int y = std::stoi(*i);
 
-      resize_window(x, y);
+      _graphics_interface->resizeWindow(x, y);
     } else {
       log_message(ERR, "Incorrect number of arguments for resize");
     }

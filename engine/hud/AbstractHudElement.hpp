@@ -2,6 +2,7 @@
 #define ABSTRACTHUDElEMENT_HPP
 
 #include <array>
+#include "scene.hpp"
 
 class Camera;
 union SDL_Event;
@@ -45,8 +46,8 @@ public:
       * @param xAlignFlag    Determines the alignment of the bounding box.
       * @param yAlignFlag    DetermineS the alignment of the bounding box.
       */
-    AbstractHudElement(int xPos, int yPos, int xDim, int yDim,
-            AlignFlag xAlignFlag=ALIGN_LEFT, AlignFlag yAlignFlag=ALIGN_TOP);
+    AbstractHudElement(scene& scn, int xPos, int yPos, int xDim, int yDim,
+                       AlignFlag xAlignFlag=ALIGN_LEFT, AlignFlag yAlignFlag=ALIGN_TOP);
 
     /**
      * Sets the (relative) screen position of the bounding box.
@@ -182,6 +183,8 @@ protected:
     // Boolean value which is set to true whenever a property is changed that
     // may effect the render. Set back to false when draw is called.
     bool mPropertiesUpdated;
+
+    scene &mrScene;
 
 };
 

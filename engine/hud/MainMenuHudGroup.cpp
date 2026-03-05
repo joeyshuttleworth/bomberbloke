@@ -19,8 +19,8 @@ quitFn()
   handle_system_command({ "quit" });
 }
 
-MainMenuHudGroup::MainMenuHudGroup()
-  : AbstractHudGroup(0, 0)
+MainMenuHudGroup::MainMenuHudGroup(scene& r_scene)
+  : AbstractHudGroup(r_scene, 0, 0)
 {
   // Create title
   std::shared_ptr<Text> titleText =
@@ -33,7 +33,7 @@ MainMenuHudGroup::MainMenuHudGroup()
 
   std::shared_ptr<TextHudElement> titleElement =
     std::make_shared<TextHudElement>(
-      titleText, 0, -100, 600, 100, ALIGN_CENTER, ALIGN_CENTER);
+                                     r_scene, titleText, 0, -100, 600, 100, ALIGN_CENTER, ALIGN_CENTER);
   titleElement->setIsPostProcessed(false);
 
   addElement(titleElement);
@@ -48,7 +48,7 @@ MainMenuHudGroup::MainMenuHudGroup()
   }
   // Create start game button element
   auto startGameFunction = std::bind(&MainMenuHudGroup::showJoinMenu, this);
-  std::shared_ptr<TextButton> startElement = std::make_shared<TextButton>(
+  std::shared_ptr<TextButton> startElement = std::make_shared<TextButton>(r_scene,
     startText, 0, -20, 200, 30, startGameFunction, ALIGN_CENTER, ALIGN_CENTER);
   startElement->setMouseOverColour({ 200, 200, 200, 255 });
   startElement->setOnClickOffset(-1, 2);
@@ -64,7 +64,7 @@ MainMenuHudGroup::MainMenuHudGroup()
   }
   // Create options button element
   auto optionsFunction = std::bind(&MainMenuHudGroup::showOptionsMenu, this);
-  std::shared_ptr<TextButton> optionsElement = std::make_shared<TextButton>(
+  std::shared_ptr<TextButton> optionsElement = std::make_shared<TextButton>(r_scene,
     optionsText, 0, 20, 200, 30, optionsFunction, ALIGN_CENTER, ALIGN_CENTER);
   optionsElement->setMouseOverColour({ 200, 200, 200, 255 });
   optionsElement->setOnClickOffset(-1, 2);
@@ -79,7 +79,7 @@ MainMenuHudGroup::MainMenuHudGroup()
     quitText->setTextScale(1.5);
   }
   // Create exit button element
-  std::shared_ptr<TextButton> quitElement = std::make_shared<TextButton>(
+  std::shared_ptr<TextButton> quitElement = std::make_shared<TextButton>(r_scene,
     quitText, 0, 60, 200, 30, quitFn, ALIGN_CENTER, ALIGN_CENTER);
   quitElement->setMouseOverColour({ 200, 200, 200, 255 });
   quitElement->setOnClickOffset(-1, 2);
@@ -88,7 +88,7 @@ MainMenuHudGroup::MainMenuHudGroup()
   // Create options menu HUD group
   auto returnToMainMenu = std::bind(&MainMenuHudGroup::showMainMenu, this);
   std::shared_ptr<OptionsMenuHudGroup> optionsMenu =
-    std::make_shared<OptionsMenuHudGroup>(returnToMainMenu);
+    std::make_shared<OptionsMenuHudGroup>(r_scene, returnToMainMenu);
   if (optionsMenu) {
     optionsMenu->setIsVisible(false);
     optionsMenu->mIsInteractive = false;
@@ -99,7 +99,7 @@ MainMenuHudGroup::MainMenuHudGroup()
 
   // Create join menu HUD group
   std::shared_ptr<JoinMenuHudGroup> joinMenu =
-    std::make_shared<JoinMenuHudGroup>(returnToMainMenu);
+    std::make_shared<JoinMenuHudGroup>(r_scene, returnToMainMenu);
   if (joinMenu) {
     joinMenu->setIsVisible(false);
     joinMenu->mIsInteractive = false;

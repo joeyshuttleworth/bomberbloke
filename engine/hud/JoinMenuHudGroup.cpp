@@ -11,8 +11,8 @@
 #include "engine.hpp"
 #include <sstream>
 
-JoinMenuHudGroup::JoinMenuHudGroup(std::function<void()> goBackFn)
-  : AbstractHudGroup(0, 0), mGoBackFn(goBackFn)
+JoinMenuHudGroup::JoinMenuHudGroup(scene& r_scene, std::function<void()> goBackFn)
+  : AbstractHudGroup(r_scene, 0, 0), mGoBackFn(goBackFn)
 {
   // Create nickname text
   std::shared_ptr<Text> nicknameFieldText =
@@ -25,7 +25,7 @@ JoinMenuHudGroup::JoinMenuHudGroup(std::function<void()> goBackFn)
     nicknameFieldText->setTextScale(1.5);
   }
   // Create nickname input field
-  std::shared_ptr<InputField> nicknameField = std::make_shared<InputField>(
+  std::shared_ptr<InputField> nicknameField = std::make_shared<InputField>(mrScene,
     nicknameFieldText, 0, -60, 300, 50, ALIGN_CENTER, ALIGN_CENTER);
   nicknameField->setInputColour({ 255, 255, 255, 255 });
   nicknameField->setInputText(_nickname);
@@ -43,7 +43,7 @@ JoinMenuHudGroup::JoinMenuHudGroup(std::function<void()> goBackFn)
     redFieldText->setTextScale(1.5);
   }
   // Create red input field
-  std::shared_ptr<InputField> redField = std::make_shared<InputField>(
+  std::shared_ptr<InputField> redField = std::make_shared<InputField>(mrScene,
     redFieldText, -(66+12)/2*3, 0, 66, 50, ALIGN_CENTER, ALIGN_CENTER);
   redField->setInputColour({ 255, 255, 255, 255 });
   addElement(redField);
@@ -60,7 +60,7 @@ JoinMenuHudGroup::JoinMenuHudGroup(std::function<void()> goBackFn)
     greenFieldText->setTextScale(1.5);
   }
   // Create green input field
-  std::shared_ptr<InputField> greenField = std::make_shared<InputField>(
+  std::shared_ptr<InputField> greenField = std::make_shared<InputField>(mrScene,
     greenFieldText, -(66+12)/2, 0, 66, 50, ALIGN_CENTER, ALIGN_CENTER);
   greenField->setInputColour({ 255, 255, 255, 255 });
   addElement(greenField);
@@ -77,7 +77,7 @@ JoinMenuHudGroup::JoinMenuHudGroup(std::function<void()> goBackFn)
     blueFieldText->setTextScale(1.5);
   }
   // Create blue input field
-  std::shared_ptr<InputField> blueField = std::make_shared<InputField>(
+  std::shared_ptr<InputField> blueField = std::make_shared<InputField>(mrScene,
     blueFieldText, (66+12)/2, 0, 66, 50, ALIGN_CENTER, ALIGN_CENTER);
   blueField->setInputColour({ 255, 255, 255, 255 });
   addElement(blueField);
@@ -90,7 +90,7 @@ JoinMenuHudGroup::JoinMenuHudGroup(std::function<void()> goBackFn)
   }
   // Create colour button element
   auto randomColourFunction = std::bind(&JoinMenuHudGroup::pickRandomColour, this);
-  std::shared_ptr<TextButton> colourButton = std::make_shared<TextButton>(
+  std::shared_ptr<TextButton> colourButton = std::make_shared<TextButton>(mrScene,
     colourText, (66+12)/2*3, 0, 66, 50, randomColourFunction, ALIGN_CENTER, ALIGN_CENTER);
   addElement(colourButton);
   mColourButton = colourButton;
@@ -98,8 +98,11 @@ JoinMenuHudGroup::JoinMenuHudGroup(std::function<void()> goBackFn)
   // Create detect click button
   // TODO: find a better solution for detecting clicks
   auto updateColourFunction = std::bind(&JoinMenuHudGroup::updateColourButton, this);
-  std::shared_ptr<ClickableHudElement> detectClickButton = std::make_shared<ClickableHudElement>(
-    0, 0, 500, 240, updateColourFunction, ALIGN_CENTER, ALIGN_CENTER);
+  std::shared_ptr<ClickableHudElement> detectClickButton =
+    std::make_shared<ClickableHudElement>(
+                                          mrScene, 0, 0, 500, 240, updateColourFunction,
+                                          ALIGN_CENTER, ALIGN_CENTER
+                                          );
   addElement(detectClickButton);
 
   // Create address text
@@ -113,7 +116,7 @@ JoinMenuHudGroup::JoinMenuHudGroup(std::function<void()> goBackFn)
     addressFieldText->setTextScale(1.5);
   }
   // Create address input field
-  std::shared_ptr<InputField> addressField = std::make_shared<InputField>(
+  std::shared_ptr<InputField> addressField = std::make_shared<InputField>(mrScene,
     addressFieldText, 0, 60, 300, 50, ALIGN_CENTER, ALIGN_CENTER);
   addressField->setInputColour({ 255, 255, 255, 255 });
   addressField->setInputText(_net_client->mServerAddress);
@@ -130,8 +133,11 @@ JoinMenuHudGroup::JoinMenuHudGroup(std::function<void()> goBackFn)
   }
   // Create join button
   auto joinFn = std::bind(&JoinMenuHudGroup::joinServer, this);
-  std::shared_ptr<TextButton> joinElement = std::make_shared<TextButton>(
-    joinText, 0, 120, 100, 50, joinFn, ALIGN_CENTER, ALIGN_CENTER);
+  std::shared_ptr<TextButton> joinElement =
+    std::make_shared<TextButton>(mrScene,
+                                 joinText, 0, 120, 100, 50, joinFn,
+                                 ALIGN_CENTER, ALIGN_CENTER
+                                 );
   joinElement->setMouseOverColour({ 200, 200, 200, 255 });
   joinElement->setOnClickOffset(-1, 2);
   addElement(joinElement);
@@ -145,7 +151,7 @@ JoinMenuHudGroup::JoinMenuHudGroup(std::function<void()> goBackFn)
     backText->setTextScale(1.5);
   }
   // Create go back button element
-  std::shared_ptr<TextButton> backElement = std::make_shared<TextButton>(
+  std::shared_ptr<TextButton> backElement = std::make_shared<TextButton>(mrScene,
     backText, 50, -50, 200, 30, goBackFn, ALIGN_LEFT, ALIGN_BOTTOM);
   backElement->setMouseOverColour({ 200, 200, 200, 255 });
   backElement->setOnClickOffset(-1, 2);
@@ -162,7 +168,7 @@ JoinMenuHudGroup::JoinMenuHudGroup(std::function<void()> goBackFn)
 
   // Create loading text element
   std::shared_ptr<TextHudElement> loadingElement =
-    std::make_shared<TextHudElement>(
+    std::make_shared<TextHudElement>(mrScene,
       loadingText, 0, 0, 400, 80, ALIGN_CENTER, ALIGN_CENTER);
   loadingElement->setIsPostProcessed(false);
   loadingElement->setIsVisible(false);
@@ -239,7 +245,7 @@ JoinMenuHudGroup::update()
 
     if(_net_client->joinBlokeServer(address, _nickname, commands)){
     // If successful move to bomberbloke scene
-    _pNewScene = std::make_shared<BomberBlokeScene>(10, 10);
+      auto mpNextScene = std::make_shared<BomberBlokeScene>(mrScene.getGraphicsManager(), 10, 10);
     } else{
       // If failed go back to main menu
       showJoinMenu();

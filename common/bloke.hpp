@@ -55,7 +55,7 @@ protected:
   void init();
 
 public:
-  bloke(double x=1, double y=1, bool collides = true, uint64_t colour = 0xFF00FFFF);
+  bloke(scene* =nullptr, double=1, double=1, bool=true, uint64_t=0xFF00FFFF);
 
   int getType() const{
     return ACTOR_BLOKE;

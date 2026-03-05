@@ -37,6 +37,7 @@ protected:
 
   // When true, the game is paused.
   bool mIsPaused = false;
+
   // Weak pointer to the pause menu HUD group (contained in mHudElements).
   std::weak_ptr<PauseMenuHudGroup> mPauseMenuHud;
 
@@ -65,7 +66,7 @@ protected:
 public:
   void setBigBomb();
 
-  BomberBlokeScene(unsigned int size_x = 10, unsigned int size_y = 10,
+  BomberBlokeScene(IGraphicsManager* =nullptr, unsigned int size_x = 10, unsigned int size_y = 10,
                    unsigned int spawn_points=default_n_spawn_points);
   ~BomberBlokeScene();
 
@@ -123,6 +124,8 @@ public:
    *  Update the camera to reflect the new window size.
    */
   void onResize() override;
+
+  void setPause(bool);
 
   template<class Archive>
   void serialize(Archive &archive){

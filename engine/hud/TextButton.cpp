@@ -8,7 +8,8 @@
 
 const std::string CLICK_SOUND_NAME = "click";
 
-TextButton::TextButton(std::shared_ptr<Text> text,
+TextButton::TextButton(scene& r_scene,
+                       std::shared_ptr<Text> text,
                        int xPos,
                        int yPos,
                        int xDim,
@@ -16,15 +17,16 @@ TextButton::TextButton(std::shared_ptr<Text> text,
                        std::function<void()> onClickFn,
                        AlignFlag xAlignFlag,
                        AlignFlag yAlignFlag)
-  : AbstractHudElement(xPos, yPos, xDim, yDim, xAlignFlag, yAlignFlag)
-  , ClickableHudElement(xPos,
+  :
+  AbstractHudElement(r_scene, xPos, yPos, xDim, yDim,xAlignFlag, yAlignFlag),
+  ClickableHudElement(r_scene, xPos,
                         yPos,
                         xDim,
                         yDim,
                         onClickFn,
                         xAlignFlag,
                         yAlignFlag)
-  , TextHudElement(text, xPos, yPos, xDim, yDim, xAlignFlag, yAlignFlag)
+  , TextHudElement(r_scene, text, xPos, yPos, xDim, yDim, xAlignFlag, yAlignFlag)
 {
   // Use text colour as default colour.
   if (text)

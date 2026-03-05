@@ -150,10 +150,10 @@ extern std::shared_ptr<scene> _pNewScene;
 
 extern unsigned int _tick;
 extern std::vector<CommandBinding> _default_bindings;
-extern std::list<LocalPlayer> _local_player_list;
+extern std::vector<LocalPlayer> _local_player_list;
 
 class IGraphicsManager;
-extern std::shared_ptr<IGraphicsManager> _graphics_interface;
+extern std::unique_ptr<IGraphicsManager> _graphics_interface;
 
 const std::array<std::string, 10> _system_commands  =
   {{"bind",
@@ -173,8 +173,6 @@ void gameUpdate();
 class NetClient;
 class NetServer;
 
-#include "NetClient.hpp"
-#include "NetServer.hpp"
 extern std::unique_ptr<NetClient> _net_client;
 extern std::unique_ptr<NetServer> _net_server;
 
@@ -188,11 +186,4 @@ const std::string PATHSEPARATOR =
 
 #include <cereal/archives/json.hpp>
 #include <cereal/archives/portable_binary.hpp>
-
-#include "AbstractSpriteHandler.hpp"
-#include "NetworkPlayer.hpp"
-#include "LocalPlayer.hpp"
-#include "scene.hpp"
-#include "actor.hpp"
-#include "config.hpp"
 #endif

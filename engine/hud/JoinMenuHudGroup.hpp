@@ -20,7 +20,7 @@ public:
   /**
    * Constructor for JoinMenuHudGroup.
    */
-  JoinMenuHudGroup(std::function<void()> goBackFn);
+  JoinMenuHudGroup(scene&, std::function<void()> goBackFn);
 
   void onInput(SDL_Event* event) override;
 

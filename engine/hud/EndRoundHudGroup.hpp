@@ -16,7 +16,7 @@ public:
   /**
    * Constructor for EndRoundHudGroup.
    */
-  EndRoundHudGroup();
+  EndRoundHudGroup(scene&);
 
   /**
    * Update scores presented by HUD group.

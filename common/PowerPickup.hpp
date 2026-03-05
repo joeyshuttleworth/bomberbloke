@@ -12,9 +12,9 @@ public:
 
   /* Need a default constructor for cereal */
 
-  PowerPickup(double xpos = 0, double ypos = 0) : AbstractPickup(xpos, ypos){
+  PowerPickup(scene *scn=nullptr, double xpos = 0, double ypos = 0) : AbstractPickup(scn, xpos, ypos){
     /*TODO: draw asset*/
-    mpSpriteHandler = std::make_shared<PickupAnimation>(mPosition[0], mPosition[1], mDimmension[0], mDimmension[1], "flames.png");
+    mpSpriteHandler = std::make_shared<PickupAnimation>(mpGraphicsManager, mPosition[0], mPosition[1], mDimension[0], mDimension[1], "flames.png");
     return;
   }
 

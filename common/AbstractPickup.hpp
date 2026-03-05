@@ -19,7 +19,7 @@ enum{
 
 class AbstractPickup : public actor{
 public:
-  AbstractPickup(double xpos = 0, double ypos = 0) : actor(xpos, ypos, PICKUP_SIZE, PICKUP_SIZE, false){
+  AbstractPickup(scene* scn, double xpos = 0, double ypos = 0) : actor(scn, xpos, ypos, PICKUP_SIZE, PICKUP_SIZE, false){
     /*Centralise*/
     const int square[] = {int(xpos), int(ypos)};
 

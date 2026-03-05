@@ -1,5 +1,6 @@
 #include "engine.hpp"
 #include "network/NetClient.hpp"
+#include "SDLGraphicsManager.hpp"
 #include <cereal/types/polymorphic.hpp>
 #include <stdio.h>
 #include <string.h>
@@ -12,6 +13,10 @@ bool _server = false;
 void
 client_loop()
 {
+
+  /* TODO move to init function */
+  _graphics_interface = std::make_unique<SDLGraphicsManager>();
+
   timespec t1, t2;
   t2.tv_nsec = 0;
   t2.tv_sec = 0;

@@ -7,13 +7,13 @@
 #include <SDL.h>
 #include <cereal/types/list.hpp>
 #include <memory>
-#include "AbstractSpriteHandler.hpp"
 #include "AbstractCollider.hpp"
+#include "IGraphicsManager.hpp"
 #include "threads.hpp"
 
 extern double _zoom;
 
-class actor; class Camera; class AbstractHudElement; class NetServer; class NetClient;
+class actor; class Camera; class AbstractHudElement; class NetServer; class NetClient; class AbstractSpriteHandler;
 
 /* Class which stores information about the scene including the actors present and methods for updating and drawing the scene */
 class scene{
@@ -34,7 +34,17 @@ protected:
    */
   std::shared_ptr<Camera> mpCamera;
 
+  IGraphicsManager* mpGraphicsManager = nullptr;
+
+  std::mutex mMutex;
+
+  std::shared_ptr<scene> mpNextScene;
+
 public:
+
+  IGraphicsManager* getGraphicsManager(){return mpGraphicsManager;};
+
+  std::array<double, 2> getDimension(){return mDimension;}
 
   bool getNewGame(){return mNewGame;}
 
@@ -65,7 +75,7 @@ public:
   void addActor(std::shared_ptr<actor> a);
 
   /* dim_x and dim_y are the size of our scene in the x and y axis respectively */
-  double mDimmension[2];
+  std::array<double, 2> mDimension = {0, 0};
 
   /*
    * mActors holds each object in the scene. For example, the player object,
@@ -102,13 +112,13 @@ public:
   /*  Return the midpoint of the scene. This is used by the Camera class. */
 
   std::array<double,2> getMidpoint(){
-    std::array<double,2> ret = {{ mDimmension[0] / 2, mDimmension[1]/2 }};
+    std::array<double,2> ret = {{ mDimension[0] / 2, mDimension[1]/2 }};
     return ret;
   }
 
   virtual void init();
 
-  scene(double x=10, double y=10);
+  scene(IGraphicsManager* gfx_manager, double x=10, double y=10);
 
   virtual ~scene(){
       LOCK_GUARD(mMutex);
@@ -171,12 +181,6 @@ public:
    */
   std::list<std::shared_ptr<actor>> ActorsCollidingWith(AbstractCollider* p_collider);
 
-  /*We only need to send mDimmension and the mActorList*/
-  template <class Archive>
-  void serialize(Archive &archive){
-    archive(mDimmension, mActors);
-  }
-
   /**
    * Called by the engine whenever any input is detected.
    * Used primarily to update interactive HUD elements.
@@ -187,8 +191,14 @@ public:
 
   bool linkActorToPlayer(std::shared_ptr<actor>&, int);
 
+  /*We only need to send mDimension and the mActorList*/
+  template <class Archive>
+  void serialize(Archive &archive){
+    archive(mDimension[0], mDimension[1], mActors);
+  }
 
-    std::mutex mMutex;
 };
+
+
 
 #endif

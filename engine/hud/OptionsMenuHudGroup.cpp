@@ -9,8 +9,8 @@
 #include "TextHudElement.hpp"
 #include "engine.hpp"
 
-OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
-  : AbstractHudGroup(0, 0)
+OptionsMenuHudGroup::OptionsMenuHudGroup(scene& r_scene, std::function<void()> goBackFn)
+  : AbstractHudGroup(r_scene, 0, 0)
 {
   // Create title
   std::shared_ptr<Text> titleText =
@@ -22,7 +22,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
   }
 
   std::shared_ptr<TextHudElement> titleElement =
-    std::make_shared<TextHudElement>(
+    std::make_shared<TextHudElement>(mrScene,
       titleText, 0, -100, 200, 50, ALIGN_CENTER, ALIGN_CENTER);
   titleElement->setIsPostProcessed(false);
   addElement(titleElement);
@@ -37,7 +37,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
   }
 
   // Create go back button element
-  std::shared_ptr<TextButton> backElement = std::make_shared<TextButton>(
+  std::shared_ptr<TextButton> backElement = std::make_shared<TextButton>(mrScene,
     backText, 50, -50, 200, 30, goBackFn, ALIGN_LEFT, ALIGN_BOTTOM);
   if (backElement) {
     backElement->setMouseOverColour({ 200, 200, 200, 255 });
@@ -55,7 +55,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
     volumeTitleText->setTextScale(1.);
   }
   std::shared_ptr<TextHudElement> volumeTitleElement =
-    std::make_shared<TextHudElement>(
+    std::make_shared<TextHudElement>(mrScene,
       volumeTitleText, -105, 0, 200, 50, ALIGN_CENTER, ALIGN_CENTER);
   volumeTitleElement->setIsPostProcessed(false);
   addElement(volumeTitleElement);
@@ -72,7 +72,8 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
   auto reduceVolumeFn =
     std::bind(&OptionsMenuHudGroup::reduceMasterVolume, this);
   std::shared_ptr<TextButton> reduceVolumeElement =
-    std::make_shared<TextButton>(reduceVolumeText,
+    std::make_shared<TextButton>(mrScene,
+                                 reduceVolumeText,
                                  15,
                                  0,
                                  20,
@@ -94,7 +95,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
     volumeLabelText->setTextScale(1.);
   }
   std::shared_ptr<TextHudElement> volumeLabelElement =
-    std::make_shared<TextHudElement>(
+    std::make_shared<TextHudElement>(mrScene,
       volumeLabelText, 40, 0, 20, 20, ALIGN_CENTER, ALIGN_CENTER);
   volumeLabelElement->setIsPostProcessed(false);
   addElement(volumeLabelElement);
@@ -112,7 +113,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
   auto increaseVolumeFn =
     std::bind(&OptionsMenuHudGroup::increaseMasterVolume, this);
   std::shared_ptr<TextButton> increaseVolumeElement =
-    std::make_shared<TextButton>(increaseVolumeText,
+    std::make_shared<TextButton>(mrScene, increaseVolumeText,
                                  65,
                                  0,
                                  20,
@@ -134,7 +135,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
     musicTitleText->setTextScale(1.);
   }
   std::shared_ptr<TextHudElement> musicTitleElement =
-    std::make_shared<TextHudElement>(
+    std::make_shared<TextHudElement>(mrScene,
       musicTitleText, -105, 50, 200, 50, ALIGN_CENTER, ALIGN_CENTER);
   musicTitleElement->setIsPostProcessed(false);
   addElement(musicTitleElement);
@@ -150,7 +151,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
 
   // Create reduce volume element
   auto reduceMusicFn = std::bind(&OptionsMenuHudGroup::reduceMusicVolume, this);
-  std::shared_ptr<TextButton> reduceMusicElement = std::make_shared<TextButton>(
+  std::shared_ptr<TextButton> reduceMusicElement = std::make_shared<TextButton>(mrScene,
     reduceMusicText, 15, 50, 20, 20, reduceMusicFn, ALIGN_CENTER, ALIGN_CENTER);
   if (reduceMusicElement) {
     reduceMusicElement->setMouseOverColour({ 200, 200, 200, 255 });
@@ -167,7 +168,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
     musicLabelText->setTextColour({ 255, 255, 255, 255 });
     musicLabelText->setTextScale(1.);
     std::shared_ptr<TextHudElement> musicLabelElement =
-      std::make_shared<TextHudElement>(
+      std::make_shared<TextHudElement>(mrScene,
         musicLabelText, 40, 50, 20, 20, ALIGN_CENTER, ALIGN_CENTER);
     musicLabelElement->setIsPostProcessed(false);
     addElement(musicLabelElement);
@@ -186,7 +187,8 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
   auto increaseMusicFn =
     std::bind(&OptionsMenuHudGroup::increaseMusicVolume, this);
   std::shared_ptr<TextButton> increaseMusicElement =
-    std::make_shared<TextButton>(increaseMusicText,
+    std::make_shared<TextButton>(mrScene,
+                                 increaseMusicText,
                                  65,
                                  50,
                                  20,
@@ -208,7 +210,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
     windowLabelText->setTextScale(1.);
   }
   std::shared_ptr<TextHudElement> windowLabelElement =
-    std::make_shared<TextHudElement>(
+    std::make_shared<TextHudElement>(mrScene,
       windowLabelText, -105, 100, 200, 50, ALIGN_CENTER, ALIGN_CENTER);
   windowLabelElement->setIsPostProcessed(false);
   addElement(windowLabelElement);
@@ -228,7 +230,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
     windowModeText->setTextScale(1.);
   }
   auto windowModeFn = std::bind(&OptionsMenuHudGroup::toggleWindowMode, this);
-  std::shared_ptr<TextButton> windowModeButton = std::make_shared<TextButton>(
+  std::shared_ptr<TextButton> windowModeButton = std::make_shared<TextButton>(mrScene,
     windowModeText, 55, 100, 100, 50, windowModeFn, ALIGN_CENTER, ALIGN_CENTER);
   windowModeButton->setMouseOverColour({ 200, 200, 200, 255 });
   windowModeButton->setOnClickOffset(-1, 2);
@@ -247,7 +249,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
     consoleText->setTextScale(1.);
   }
   // Create console input field
-  std::shared_ptr<InputField> consoleField = std::make_shared<InputField>(
+  std::shared_ptr<InputField> consoleField = std::make_shared<InputField>(mrScene,
     consoleText, -25, 150, 400, 30, ALIGN_CENTER, ALIGN_CENTER);
   consoleField->setInputColour({ 255, 255, 255, 255 });
   addElement(consoleField);
@@ -265,7 +267,8 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(std::function<void()> goBackFn)
   auto consoleEnterFn =
     std::bind(&OptionsMenuHudGroup::handleConsoleInput, this);
   std::shared_ptr<TextButton> consoleEnterButton =
-    std::make_shared<TextButton>(consoleEnterText,
+    std::make_shared<TextButton>(mrScene,
+                                 consoleEnterText,
                                  190,
                                  150,
                                  20,

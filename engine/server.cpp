@@ -1,6 +1,6 @@
 #include "engine.hpp"
 #include "network/NetServer.hpp"
-#include "DummyGraphicsInterface"
+#include "DummyGraphicsManager.hpp"
 #include <memory>
 
 bool _server = true;
@@ -8,8 +8,13 @@ bool _draw = false;
 bool _debug_player = false;
 unsigned int _ping_time = 0;
 
+std::unique_ptr<IGraphicsManager> _graphics_interface = std::make_unique<DummyGraphicsManager>();
 
 void server_loop(short port, std::string masterServerAddress, bool debug){
+
+  /* TODO put init code in init func */
+
+
   if(debug){
     _debug_player = true;
     log_message(INFO, "DEBUG Mode: On");
@@ -21,15 +26,6 @@ void server_loop(short port, std::string masterServerAddress, bool debug){
 
   _net_server->setMasterServerAddress(masterServerAddress);
   _net_server->init(port);
-
-  std::shared_ptr<AbstractGraphicsInterface> graphics_interface = std::make_shared<AbstractGraphicsInterface> (new DummyGraphicsInterface());
-
-  #ifdef SDL_h_
-  if(_draw){
-    std::shared_ptr<AbstractGraphicsInterface> graphics_interface = std::make_shared<AbstractGraphicsInterface> (new SDLGraphicsInterface());
-
-  }
-  #endif
 
   while (!_halt) {
     t1 = t2;
@@ -58,11 +54,11 @@ void server_loop(short port, std::string masterServerAddress, bool debug){
       LOCK_GUARD(_scene_mutex);
 
       if (!_pScene)
-        _pScene = std::make_shared<scene>(10, 10);
+        _pScene = std::make_shared<scene>(_graphics_interface.get(), 10, 10);
       _pScene->update();
 
       if(_draw)
-        _graphics_interface->draw_screen();
+        _graphics_interface->drawScreen();
 
       _tick++;
       if (_tick % 1000 == 0)

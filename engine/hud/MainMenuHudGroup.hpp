@@ -14,7 +14,7 @@ public:
   /**
    * Constructor for PauseMenuHudGroup.
    */
-  MainMenuHudGroup();
+  MainMenuHudGroup(scene&);
 
 protected:
   // Weak pointer to the options menu HUD group stored in mHudElements.

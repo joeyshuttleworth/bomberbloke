@@ -64,13 +64,13 @@ main(int argc, char** argv)
   SDL_Init(SDL_INIT_EVERYTHING);
   init_engine(false);
 
-  _pScene = std::make_shared<MainMenuScene>(15, 15);
+  _pScene = std::make_shared<MainMenuScene>(_graphics_interface.get(), 15, 15);
 
   if (EXPLOSION_INTRO) {
     for (unsigned int i = 0; i < 10; i++) {
       for (unsigned int j = 0; j < 10; j++)
         _pScene->mParticleList.push_back(std::shared_ptr<Explosion>(
-          new Explosion(i, j, 1, 1, 60 + i + 2 * j, 600 - 2 * i - j, 0)));
+                                                                    new Explosion(_graphics_interface.get(), i, j, 1, 1, 60 + i + 2 * j, 600 - 2 * i - j, 0)));
     }
 
     // Play intro music

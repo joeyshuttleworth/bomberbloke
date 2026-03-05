@@ -9,12 +9,15 @@ public:
     return ACTOR_BIG_BOMB;
   }
 
-  BigBomb() : bomb(){
-    mpSpriteHandler = std::make_shared<staticSprite>(mPosition[0], mPosition[1], BOMB_SIZE, BOMB_SIZE, "bigredbomb.png");
+  BigBomb(scene *scn=nullptr, double x=0, double y=0) : bomb(){
+    IGraphicsManager* gfx_manager = nullptr;
+    if(scn)
+      gfx_manager = scn->getGraphicsManager();
+    mpSpriteHandler = std::make_shared<staticSprite>(gfx_manager, x, y, BOMB_SIZE, BOMB_SIZE, "bigredbomb.png");
     mPower = 100;
   }
 
-  BigBomb(bloke* b) : bomb(b){
+  BigBomb(scene *scn, bloke& b) : bomb(scn, b){
     BigBomb();
     mPower = 100;
   }

@@ -6,6 +6,7 @@
 #include <cereal/types/polymorphic.hpp>
 
 #include "IGraphicsManager.hpp"
+#include "Camera.hpp"
 
 enum SpriteType{
                 SPRITE_PLACEHOLDER=1,
@@ -19,7 +20,10 @@ extern unsigned int _tick;
 class AbstractSpriteHandler{
 public:
   // TODO: move all flashing stuff to a subclass
-  AbstractSpriteHandler(double x_pos=0, double y_pos=0, double x_dim=0, double y_dim=0, int speed = 300, int timeout = 0, int delay = 0){
+  AbstractSpriteHandler(IGraphicsManager* gfx_manager=nullptr, double x_pos=0, double y_pos=0, double x_dim=0, double y_dim=0, int speed = 300, int timeout = 0, int delay = 0){
+
+    mpGraphicsManager = gfx_manager;
+
     mPosition[0] = x_pos;
     mPosition[1] = y_pos;
     mDimmension[0] = x_dim;
@@ -85,8 +89,6 @@ public:
 
 protected:
   bool mInitialised = false;
-
-protected:
   double mPosition[2];
   double mDimmension[2];
   unsigned int mStartTick;
@@ -94,6 +96,7 @@ protected:
   unsigned int mTimeout;
   unsigned int mDelay;
   bool mRemove;
+  IGraphicsManager* mpGraphicsManager;
 };
 
 CEREAL_REGISTER_TYPE(AbstractSpriteHandler)

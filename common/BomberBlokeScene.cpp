@@ -22,6 +22,8 @@
 #include <random>
 #include <string>
 
+#include "IGraphicsManager.hpp"
+
 const std::string BACKGROUND_TILE_PREFIX = "background_tile_";
 const int N_BACKGROUND_TILES = 10;
 
@@ -36,7 +38,7 @@ BomberBlokeScene::setBigBomb()
   std::shared_ptr<AbstractHudElement> observe = mBombIcons[0].lock();
   mHudElements.remove(observe);
   std::shared_ptr<SpriteHudElement> hudElement =
-    std::make_shared<SpriteHudElement>(
+    std::make_shared<SpriteHudElement>(*this,
       "bigredbomb.png", 9 + 0 * 34, 91, 32, 32);
   hudElement->setGlowAmount(100);
   mBombIcons[0] = hudElement;
@@ -53,13 +55,15 @@ BomberBlokeScene::~BomberBlokeScene()
 void
 BomberBlokeScene::draw()
 {
-  // Reset the frame buffer
-  mpCamera->resetFrameBuffer();
-
   // Draw background
-  SDL_Rect sceneScreenRect =
-    mpCamera->getScreenRect(0, 0, mDimmension[0], mDimmension[1]);
-  mpCamera->renderCopy(mBackgroundTexture, nullptr, &sceneScreenRect);
+  // auto sceneScreenRect =
+  //   mpCamera->getScreenRect(0, 0, mDimension[0], mDimension[1]);
+
+  if(mpGraphicsManager)
+    return;
+
+  /* TODO Fix background texture */
+  // mpGraphicsManager->renderCopy(mBackgroundTexture, nullptr, sceneScreenRect);
 
   // Draw actors, particles and HUD
   drawActors();
@@ -98,9 +102,6 @@ BomberBlokeScene::draw()
   }
 
   drawHud();
-
-  // Draw camera to window
-  mpCamera->draw();
 }
 
 void
@@ -170,9 +171,10 @@ BomberBlokeScene::logicUpdate()
   }
 }
 
-BomberBlokeScene::BomberBlokeScene(unsigned int size_x, unsigned int size_y,
+BomberBlokeScene::BomberBlokeScene(IGraphicsManager* gfx_manager,
+                                   unsigned int size_x, unsigned int size_y,
                                    unsigned int n_spawn_points)
-  : scene(size_x, size_y)
+  : scene(gfx_manager, size_x, size_y)
 {
   mState = STOPPED;
   /*  Initialisation for random number generation */
@@ -261,11 +263,11 @@ BomberBlokeScene::BomberBlokeScene(unsigned int size_x, unsigned int size_y,
       for (unsigned int j = 0; j < size_y; j++) {
         if (blocks[i][j] == STONE) {
           blocks[i][j] = ACTOR_STONE_BLOCK;
-          addActor(std::shared_ptr<StoneBlock>(new StoneBlock(i, j)));
+          addActor(std::shared_ptr<StoneBlock>(new StoneBlock(this, i, j)));
         }
         if (blocks[i][j] == EMPTY) {
           blocks[i][j] = ACTOR_WOODEN_CRATE;
-          addActor(std::shared_ptr<WoodenCrate>(new WoodenCrate(i, j)));
+          addActor(std::shared_ptr<WoodenCrate>(new WoodenCrate(this, i, j)));
         }
       }
     }
@@ -278,7 +280,7 @@ BomberBlokeScene::BomberBlokeScene(unsigned int size_x, unsigned int size_y,
       uint64_t colour = (*iter)->getColour();
       log_message(DEBUG, "Colour of bloke is " + std::to_string(colour));
       addActor(
-               std::make_shared<bloke>(spawn_points[i][0], spawn_points[i][1], true, colour));
+               std::make_shared<bloke>(this, spawn_points[i][0], spawn_points[i][1], true, colour));
 
       linkActorToPlayer(mActors.back(), (*iter)->getId());
 
@@ -288,44 +290,48 @@ BomberBlokeScene::BomberBlokeScene(unsigned int size_x, unsigned int size_y,
 
   log_message(INFO, "no. actors " + std::to_string(mActors.size()));
 
+  /* TODO implement this functionality in SDLGraphicsManager */
   /* Create tiled background texture */
-  mBackgroundTexture = SDL_CreateTexture(_renderer,
-                                         SDL_PIXELFORMAT_RGBA8888,
-                                         SDL_TEXTUREACCESS_TARGET,
-                                         size_x * 64,
-                                         size_y * 64);
-  SDL_SetRenderTarget(_renderer, mBackgroundTexture);
-  SDL_Texture* tileTexture;
-  SDL_Rect tileRect({ 0, 0, 64, 64 });
+  // mBackgroundTexture = SDL_CreateTexture(_renderer,
+  //                                        SDL_PIXELFORMAT_RGBA8888,
+  //                                        SDL_TEXTUREACCESS_TARGET,
+  //                                        size_x * 64,
+  //                                        size_y * 64);
+  // SDL_SetRenderTarget(_renderer, mBackgroundTexture);
+  // SDL_Texture* tileTexture;
+  // SDL_Rect tileRect({ 0, 0, 64, 64 });
   std::uniform_int_distribution<> tileDistribution(0, N_BACKGROUND_TILES - 1);
   std::uniform_int_distribution<> flipDistribution(0, 1);
   for (unsigned int i = 0; i < size_x; i++) {
     for (unsigned int j = 0; j < size_y; j++) {
-      tileRect.x = i * 64;
-      tileRect.y = j * 64;
+      // tileRect.x = i * 64;
+      // tileRect.y = j * 64;
       // Randomly choose tile
-      int tileIndex = tileDistribution(gen);
-      tileTexture =
-        get_sprite(BACKGROUND_TILE_PREFIX + std::to_string(tileIndex) + ".png");
+
+      // int tileIndex = tileDistribution(gen);
+      // tileTexture =
+      //   get_sprite(BACKGROUND_TILE_PREFIX + std::to_string(tileIndex) + ".png");
       // Randomly choose whether to flip the texture
-      if (flipDistribution(gen) == 1)
-        // Flip and rotate in such a way that the top-right corner is static
-        SDL_RenderCopyEx(_renderer,
-                         tileTexture,
-                         nullptr,
-                         &tileRect,
-                         90,
-                         nullptr,
-                         SDL_FLIP_HORIZONTAL);
-      else
+      if (flipDistribution(gen) == 1){
+        // // Flip and rotate in such a way that the top-right corner is static
+        // SDL_RenderCopyEx(_renderer,
+        //                  tileTexture,
+        //                  nullptr,
+        //                  &tileRect,
+        //                  90,
+        //                  nullptr,
+        //                  SDL_FLIP_HORIZONTAL);
+      }
+      else{
         // Don't flip the texture
-        SDL_RenderCopy(_renderer, tileTexture, nullptr, &tileRect);
+        // SDL_RenderCopy(_renderer, tileTexture, nullptr, &tileRect);
+      }
     }
   }
-  SDL_SetRenderTarget(_renderer, mpCamera->getFrameBuffer());
+  // SDL_SetRenderTarget(_renderer, mpCamera->getFrameBuffer());
 
   std::shared_ptr<PauseMenuHudGroup> pPauseMenu =
-    std::make_shared<PauseMenuHudGroup>();
+    std::make_shared<PauseMenuHudGroup>(*this);
   pPauseMenu->setIsVisible(false);
   pPauseMenu->mIsInteractive = false;
   mHudElements.push_back(pPauseMenu);
@@ -333,12 +339,12 @@ BomberBlokeScene::BomberBlokeScene(unsigned int size_x, unsigned int size_y,
 
   auto countdownFn = std::bind(&BomberBlokeScene::onCountdownFinished, this);
   std::shared_ptr<CountdownHudGroup> pCountdown =
-    std::make_shared<CountdownHudGroup>(countdownFn, 150);
+    std::make_shared<CountdownHudGroup>(*this, countdownFn, 150);
   mHudElements.push_back(pCountdown);
   mCountdownHud = pCountdown;
 
   std::shared_ptr<EndRoundHudGroup> endRoundHud =
-    std::make_shared<EndRoundHudGroup>();
+    std::make_shared<EndRoundHudGroup>(*this);
   endRoundHud->setIsVisible(false);
   mHudElements.push_back(endRoundHud);
   mEndRoundHud = endRoundHud;
@@ -346,7 +352,7 @@ BomberBlokeScene::BomberBlokeScene(unsigned int size_x, unsigned int size_y,
   // Speed HUD demo
   for (int i = 0; i < 10; i++) {
     std::shared_ptr<SpriteHudElement> hudElement =
-      std::make_shared<SpriteHudElement>(
+      std::make_shared<SpriteHudElement>(*this,
         "lightning.png", 9 + i * 34, 9, 32, 32);
     hudElement->setGlowAmount(100);
     mSpeedIcons[i] = hudElement;
@@ -356,7 +362,7 @@ BomberBlokeScene::BomberBlokeScene(unsigned int size_x, unsigned int size_y,
   // Power HUD demo
   for (int i = 0; i < 10; i++) {
     std::shared_ptr<SpriteHudElement> hudElement =
-      std::make_shared<SpriteHudElement>("flames.png", 9 + i * 34, 43, 32, 32);
+      std::make_shared<SpriteHudElement>(*this, "flames.png", 9 + i * 34, 43, 32, 32);
     hudElement->setGlowAmount(100);
     mPowerIcons[i] = hudElement;
     mHudElements.push_back(hudElement);
@@ -365,7 +371,7 @@ BomberBlokeScene::BomberBlokeScene(unsigned int size_x, unsigned int size_y,
   // Bomb HUD demo
   for (int i = 0; i < 10; i++) {
     std::shared_ptr<SpriteHudElement> hudElement =
-      std::make_shared<SpriteHudElement>(
+      std::make_shared<SpriteHudElement>(*this,
         "bomb_pickup.png", 9 + i * 34, 91, 32, 32);
     hudElement->setGlowAmount(100);
     mBombIcons[i] = hudElement;
@@ -373,8 +379,8 @@ BomberBlokeScene::BomberBlokeScene(unsigned int size_x, unsigned int size_y,
   }
 
   // Create bloke camera
-  mBlokeCamera = std::make_shared<FollowCamera>(this);
-  mSceneCamera = std::make_shared<ShowAllCamera>(this);
+  mBlokeCamera = std::make_shared<FollowCamera>(mpGraphicsManager, this);
+  mSceneCamera = std::make_shared<ShowAllCamera>(mpGraphicsManager, this);
 
   showEntireScene();
 
@@ -410,12 +416,20 @@ BomberBlokeScene::followBloke(std::shared_ptr<actor> subject)
 void
 BomberBlokeScene::showEntireScene()
 {
-  mSceneCamera->mPosition[0] = ((double)mDimmension[0]) / 2;
-  mSceneCamera->mPosition[1] = ((double)mDimmension[1]) / 2;
-  mSceneCamera->mZoom = 1 / std::fmax(mDimmension[0], mDimmension[1]);
+  mSceneCamera->mPosition[0] = ((double)mDimension[0]) / 2;
+  mSceneCamera->mPosition[1] = ((double)mDimension[1]) / 2;
+  mSceneCamera->mZoom = 1 / std::fmax(mDimension[0], mDimension[1]);
 
   mpCamera = mSceneCamera;
   mIsFollowingBloke = false;
+}
+
+void BomberBlokeScene::setPause(bool pause){
+  if(pause == mIsPaused)
+    return;
+
+  togglePause();
+
 }
 
 void
@@ -482,6 +496,14 @@ BomberBlokeScene::handleCommand(std::string str)
   if (str == "all")
     SetCamera(mSceneCamera);
 
+  else if (tokens.front() == "pause"){
+      setPause(true);
+  }
+
+  else if (tokens.front() == "unpause"){
+    setPause(false);
+  }
+
   else if (str == "follow") {
     if (tokens.size() == 1)
       SetCamera(mBlokeCamera);
@@ -511,7 +533,7 @@ BomberBlokeScene::handleCommand(std::string str)
     mHudElements.remove(observe);
     std::shared_ptr<SpriteHudElement> hudElement =
       std::make_shared<SpriteHudElement>(
-        "bomb_pickup.png", 9 + 0 * 34, 91, 32, 32);
+                                         *this, "bomb_pickup.png", 9 + 0 * 34, 91, 32, 32);
     hudElement->setGlowAmount(100);
     mBombIcons[0] = hudElement;
     if (mSoundtrack)

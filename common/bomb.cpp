@@ -5,12 +5,13 @@
 #include "bloke.hpp"
 #include "bomberbloke.h"
 #include "engine.hpp"
+#include "NetServer.hpp"
 
 void
 bomb::init(bloke* bloke)
 {
-  mDimmension[0] = BOMB_SIZE;
-  mDimmension[1] = BOMB_SIZE;
+  mDimension[0] = BOMB_SIZE;
+  mDimension[1] = BOMB_SIZE;
   if (bloke) {
     mPlacedById = bloke->mId;
     mPower = bloke->mPower;
@@ -42,10 +43,10 @@ bomb::update()
       /*TODO this is wrong. Use a corner or midpoint here*/
       if (placed_by) {
         if (std::abs(mPosition[0] - placed_by->mPosition[0]) >
-            0.5 * (mDimmension[0] + placed_by->mDimmension[0])) {
+            0.5 * (mDimension[0] + placed_by->mDimension[0])) {
           mCollides = true;
         } else if (std::abs(mPosition[1] - placed_by->mPosition[1]) >
-                   0.5 * (mDimmension[1] + placed_by->mDimmension[1])) {
+                   0.5 * (mDimension[1] + placed_by->mDimension[1])) {
           mCollides = true;
         }
       }
@@ -103,6 +104,7 @@ bomb::explode()
   if (getType() == ACTOR_BIG_BOMB)
     mPower = 100;
 
+  /* TODO include build macro here */
   if (_server) {
     std::vector<std::shared_ptr<AbstractSpriteHandler>> explosionEffects;
 
@@ -116,13 +118,15 @@ bomb::explode()
         bool blocked = false; // Do not explode on current square
 
         // Make square slightly smaller
-        auto square = std::make_shared<actor>(coord.first + _bomb_delta,
+        auto square = std::make_shared<actor>(mpScene, coord.first + _bomb_delta,
                                               coord.second + _bomb_delta,
                                               1.0 - _bomb_delta, 1.0 - _bomb_delta,
                                               false);
 
         std::list<std::shared_ptr<actor>> actor_list =
           _pScene->ActorsCollidingWith(square.get());
+
+        auto gfx_manager = getGraphicsManager();
         for (std::shared_ptr<actor> pActor : actor_list) {
           if (pActor.get() == this)
             continue;
@@ -145,9 +149,11 @@ bomb::explode()
 
         if(blocked)
           break;
+
         explosionEffects.push_back(
-          std::make_shared<Explosion>(coord.first, coord.second, 1, 1, false, 30, 64, 0, withSound)
-        );
+                                   std::make_shared<Explosion>(gfx_manager,
+                                                               coord.first, coord.second, 1, 1, false, 30, 64, 0, withSound)
+                                   );
         if(withSound)
           withSound = false; // Only one explosion needs to generate a sound effect
         if(stopped)

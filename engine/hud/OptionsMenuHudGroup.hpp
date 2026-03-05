@@ -21,7 +21,7 @@ public:
   /**
    * Constructor for OptionsMenuHudGroup.
    */
-  OptionsMenuHudGroup(std::function<void()> goBackFn);
+  OptionsMenuHudGroup(scene& r_scene, std::function<void()> goBackFn);
 
 protected:
   // Weak pointer to the text HUD element displaying the current master volume.

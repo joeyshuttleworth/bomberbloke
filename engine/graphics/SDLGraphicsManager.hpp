@@ -4,18 +4,19 @@
 #include <SDL.h>
 #include <string>
 #include <vector>
+#include <map>
 #include <memory>
 #include <mutex>
+#include <SDL_image.h>
 
 #include "IGraphicsManager.hpp"
 
-using SpriteList =  std::vector<std::pair<std::string, SDL_Texture*>>;
+using SpriteList =  std::map<std::string, SDL_Texture*>;
 class scene;
 
-class SDLGraphicsManager : IGraphicsManager{
+class SDLGraphicsManager : public IGraphicsManager{
 protected:
   SDL_Texture* getSprite(std::string);
-  void createWindow();
 
   bool mDraw = true;
   SDL_Renderer* mpRenderer;
@@ -29,6 +30,8 @@ protected:
   scene* mpScene;
   std::mutex mMutex;
   int mBrightness = 0;
+
+  SDL_Rect mScreenRectangle = {0, 0, 0, 0};
 
   /**
    * Returns frame buffer for drawing to camera.
@@ -45,7 +48,7 @@ protected:
 
   void resetFrameBuffer();
 
- void setBlur(double size, int passes=0);
+ void setBlur(double size, int passes=0) override;
 
   /**
    * Sets the parameters for the post-processing bloom.
@@ -54,14 +57,14 @@ protected:
    * @param alpha   Opacity of the blur, 0-255 where 0 is transparent.
    * @param passes  Quality of the bloom, larger is higher quality.
    */
-  void setBloom(double size, int alpha=255, int passes=0);
+  void setBloom(double size, int alpha=255, int passes=0) override;
 
   /**
    * Sets the parameter for the post-processing brightness effect.
    *
    * @param brightness  Amount of brightness added to the image.
    */
-  void setBrightness(int brightness);
+  void setBrightness(int brightness) override;
 
   void renderClear() override;
 
@@ -78,18 +81,14 @@ protected:
    * @param isPostProcessed Set to false to avoid post-processing effects.
    * @param bloomAmount     Determines the amount of bloom applied to texture.
    */
-  void renderCopy(SDL_Texture *texture, SDL_Rect *srcRect=nullptr,
-                       SDL_Rect *dstRect=nullptr, bool isPostProcessed=true, int bloomAmount=0);
-
 
 public:
 
-  std::array<double, 4> getScreenRect(double x, double y, double w, double h);
+  void renderCopy(SDL_Texture *texture, SDL_Rect *srcRect=nullptr,
+                  SDL_Rect *dstRect=nullptr, bool isPostProcessed=true, int bloomAmount=0);
 
   // Allows for SDL like function calls
-   void renderCopy() override;
-
-  void resizeWindow(int w, int h) override;
+  void resizeWindow(int, int) override;
 
   void init() override;
 
@@ -116,7 +115,7 @@ public:
    * @param size    Size of the blur, larger is more blury.
    * @param passes  Quality of the blur, larger is higher quality.
    */
-  void blurTexture(SDL_Texture*, double, int) override;
+  void blurTexture(SDL_Texture*, double, int);
 
   /**
    * Draws a rectangle onto the appropriate frame buffer.
@@ -129,13 +128,21 @@ public:
    * @param isPostProcessed Set to false to avoid post-processing effects.
    * @param bloomAmount     Determines the amount of bloom applied to texture.
    */
-  void renderFillRect(std::array<double, 4>& dstRect, SDL_Color colour,
-                      bool isPostProcessed=true, int bloomAmount=0);
+  void renderFillRect(std::array<int, 4>&, Uint32,
+                      bool isPostProcessed=true, int bloomAmount=0) override;
 
   std::array<int, 2> getScreenDimensions() override{
     return {{ mWindowSize[0], mWindowSize[1] }};
   }
 
+  void drawSprite(std::string, std::array<int, 4>, bool=true, int=0) override;
+
+  void applyBloom(double, double, int) override;
+  void applyBlur(double, int) override;
+
+  void createWindow() override;
+
+  SDLGraphicsManager();
   ~SDLGraphicsManager();
 
 };

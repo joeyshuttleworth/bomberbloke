@@ -3,13 +3,16 @@
 #include "CreationEvent.hpp"
 #include "actor.hpp"
 #include "engine.hpp"
+#include "NetServer.hpp"
+#include "LocalPlayer.hpp"
 
 extern std::list<std::shared_ptr<AbstractSpriteHandler>> _particle_list;
 
-scene::scene(double x, double y)
+scene::scene(IGraphicsManager* gfx_manager, double x, double y)
 {
-  mDimmension[0] = x;
-  mDimmension[1] = y;
+  mpGraphicsManager = gfx_manager;
+  mDimension[0] = x;
+  mDimension[1] = y;
   mState = STOPPED;
   return;
 }
@@ -103,6 +106,8 @@ scene ::addActor(std::shared_ptr<actor> a)
       a->setId(j);
       mActors.push_back(a);
       a->init();
+
+      /* TODO use macro to ignore this if we're not building a server */
       if (_server) {
         /* Broadcast a EVENT_CREATE event */
         std::unique_ptr<AbstractEvent> c_event(new CreationEvent(a));

@@ -25,7 +25,7 @@ public:
      * @param xAlignFlag    Determines the alignment of the bounding box.
      * @param yAlignFlag    DetermineS the alignment of the bounding box.
      */
-    TextButton(std::shared_ptr<Text> text, int xPos, int yPos, int xDim,
+     TextButton(scene& r_scene, std::shared_ptr<Text> text, int xPos, int yPos, int xDim,
         int yDim, std::function<void()> onClickFn, AlignFlag xAlignFlag=ALIGN_LEFT,
         AlignFlag yAlignFlag=ALIGN_TOP);
 

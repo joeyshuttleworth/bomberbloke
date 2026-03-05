@@ -3,14 +3,15 @@
 #include "CommandEvent.hpp"
 #include "bomb.hpp"
 #include "bomberbloke.h"
+#include "AbstractPlayer.hpp"
 #include <cereal/archives/json.hpp>
 #include <sstream>
 #include <string>
 
 const std::string PLACE_BOMB_SOUND_NAME = "place_bomb";
 
-bloke::bloke(double x, double y, bool collides, uint64_t colour)
-  : actor(x, y, DEFAULT_BLOKE_SIZE, DEFAULT_BLOKE_SIZE, true)
+bloke::bloke(scene *scn, double x, double y, bool collides, uint64_t colour)
+  : actor(scn, x, y, DEFAULT_BLOKE_SIZE, DEFAULT_BLOKE_SIZE, true)
 {
   mCollides = collides;
   mColour = colour;
@@ -123,8 +124,8 @@ bloke ::update()
 }
 
 void bloke ::init(){
-  auto sprite = std::make_shared<PlaceHolderSprite>(
-                                                    mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]);
+  auto sprite = std::make_shared<PlaceHolderSprite>(mpGraphicsManager,
+                                                    mPosition[0], mPosition[1], mDimension[0], mDimension[1]);
 
   auto p_player = getPlayer();
 
@@ -148,14 +149,17 @@ void bloke ::init(){
 void
 bloke ::place_bomb()
 {
+  if(!mpScene)
+    return;
+
   if (mBombs < mMaxBombs + 1) {
-    std::shared_ptr<bomb> new_bomb = std::make_shared<bomb>(this);
+    std::shared_ptr<bomb> new_bomb = std::make_shared<bomb>(mpScene, *this);
     if (mBigBomb && !mBigBombPlaced) {
-      new_bomb = std::make_shared<BigBomb>(this);
+      new_bomb = std::make_shared<BigBomb>(mpScene, *this);
       mBigBombPlaced = true;
     }
     new_bomb->init(this);
-    _pScene->addActor(new_bomb);
+    mpScene->addActor(new_bomb);
     mBombs++;
   }
   return;

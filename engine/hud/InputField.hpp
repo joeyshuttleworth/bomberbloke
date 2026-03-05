@@ -21,7 +21,7 @@ public:
      * @param xAlignFlag    Determines the alignment of the bounding box.
      * @param yAlignFlag    DetermineS the alignment of the bounding box.
      */
-    InputField(std::shared_ptr<Text> text, int xPos, int yPos, int xDim,
+     InputField(scene&, std::shared_ptr<Text> text, int xPos, int yPos, int xDim,
         int yDim, AlignFlag xAlignFlag=ALIGN_LEFT, AlignFlag yAlignFlag=ALIGN_TOP);
 
     /**

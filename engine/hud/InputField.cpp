@@ -7,16 +7,17 @@
 
 const int CURSOR_UPDATE_TICKS = TICK_RATE / 4;
 
-InputField::InputField(std::shared_ptr<Text> text,
+InputField::InputField(scene& r_scene,
+                       std::shared_ptr<Text> text,
                        int xPos,
                        int yPos,
                        int xDim,
                        int yDim,
                        AlignFlag xAlignFlag,
                        AlignFlag yAlignFlag)
-  : AbstractHudElement(xPos, yPos, xDim, yDim, xAlignFlag, yAlignFlag)
-  , ClickableHudElement(xPos, yPos, xDim, yDim, nullptr, xAlignFlag, yAlignFlag)
-  , TextHudElement(text, xPos, yPos, xDim, yDim, xAlignFlag, yAlignFlag)
+  : AbstractHudElement(r_scene, xPos, yPos, xDim, yDim, xAlignFlag, yAlignFlag)
+  , ClickableHudElement(r_scene, xPos, yPos, xDim, yDim, nullptr, xAlignFlag, yAlignFlag)
+  , TextHudElement(r_scene, text, xPos, yPos, xDim, yDim, xAlignFlag, yAlignFlag)
 {
   // Use text colour as default colour.
   if (text)

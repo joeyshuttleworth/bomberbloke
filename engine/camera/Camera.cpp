@@ -1,17 +1,15 @@
+#include "engine.hpp"
 #include "Camera.hpp"
 #include <algorithm>
 
 
-Camera::Camera(IGraphicsManager* p_graphics_interface, scene *lvl=nullptr){
+Camera::Camera(IGraphicsManager* p_graphics_manager, scene *lvl){
 
-  mpGraphicsManager = p_graphics_interface;
+  mpGraphicsManager = p_graphics_manager;
   mpScene = lvl;
 
   /* Call this to get screen dimensions */
   onResize();
-
-  mScreenRectangle.x=0;
-  mScreenRectangle.y=0;
 
   /* Different buffers processing effects
    * mpFrameBuffer - current buffer with post processing effects
@@ -21,11 +19,25 @@ Camera::Camera(IGraphicsManager* p_graphics_interface, scene *lvl=nullptr){
 
   mpScene->updateHudPositions();
 
-  mpGraphicsInterface = graphics_interface
-
   init();
   return;
 }
+
+std::array<int, 4>
+Camera::getScreenRect(double x, double y, double w, double h)
+{
+  std::array<int, 2> screen_dims = mpGraphicsManager->getScreenDimensions();
+  int pxPerUnit = mZoom * screen_dims[0];
+
+  std::array<int, 4> screen_rect;
+  screen_rect[0] = (x - mPosition[0]) * pxPerUnit + screen_dims[0] / 2;
+  screen_rect[1] = -(y + h - mPosition[1]) * pxPerUnit + screen_dims[1] / 2;
+  screen_rect[2] = w * pxPerUnit;
+  screen_rect[3] = h * pxPerUnit;
+
+  return screen_rect;
+}
+
 
 void
 Camera::rumble(double amplitude, double timeout)
@@ -66,27 +78,31 @@ Camera::onResize()
 void
 Camera::draw()
 {
-  if(!mpGraphicsInterface){
+  if(!mpGraphicsManager){
     return;
   }
 
   LOCK_GUARD(mMutex);
 
-  // Update the screen rectangle for applying the rumble effect
-  mScreenRectangle.x = mRumbleOffset[0];
-  mScreenRectangle.y = mRumbleOffset[1];
-
   /* Do postprocessing */
-  mpGraphicsInterface->applyBloom(mBloomAlpha, mBloomSize, mBlurPasses);
-  mpGraphicsInterface->applyBrightness(mBrightness);
+  mpGraphicsManager->applyBloom(mBloomAlpha, mBloomSize, mBlurPasses);
+  mpGraphicsManager->applyBrightness(mBrightness);
 }
 
 void
 Camera::update()
 {
   /*  Rumble effect */
-  const int width = mScreenRectangle.w;
-  const int height = mScreenRectangle.h;
+
+  std::array<int, 2> screen_dims = {0, 0};
+
+  if(mpGraphicsManager){
+    screen_dims = mpGraphicsManager->getScreenDimensions();
+  }
+
+  const int width = screen_dims[0];
+  const int height = screen_dims[1];
+
   if (mRumbleTimeout > 0) {
     mRumbleTimeout--;
     mRumbleOffset[0] =
@@ -102,7 +118,7 @@ Camera::update()
 
 
 void
-Camera::SetZoom(double zoom)
+Camera::setZoom(double zoom)
 {
   zoom = std::max(zoom, mMinZoom);
   zoom = std::min(zoom, mMaxZoom);

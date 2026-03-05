@@ -18,10 +18,10 @@ Explosion::Explosion()
   }
 
   /* We need to tell the BLOKE engine to get textures ready if we need them */
+  /* TODO fix or remove */
   if(!mRenderLegacy) {
     for (int i = 1; i <= N_SPRITESHEET_SIZE; i++)
-      mSpritesheet[i-1] =
-        get_sprite("explosion_frame_" + std::to_string(i) + ".png");
+      mSpriteNames[i-1] = "explosion_frame_" + std::to_string(i) + ".png";
   }
 
   return;
@@ -36,25 +36,26 @@ Explosion::draw_legacy(Camera* cam)
   Uint8 backAlpha = 0xFF - alpha;
   int glowAmount = mMaxGlowAmount * (1 - (_tick - mStartTick) / mTimeout);
 
-  /*  Set our blend mode so that our shapes blend nicely */
-  SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
+  /*  Do we need to set blend mode i.e.: */
+  // SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
 
-  Uint32 colour = 0xffff00 ^ alpha
+  Uint32 colour = 0xffff00 ^ alpha;
 
   if (frame_no < mAnimationSpeed / 2.0) {
     /*Set colour to white*/
-    colour = SDL_Color({ 0xff, 0xff, 0xff, alpha });
-    colour = 0xffffff ^ alpha
+    colour = 0xffffff ^ alpha;
   }
   else {
     /*Set colour to red*/
     colour = 0xff000000 ^ (backAlpha << 16) ^ (backAlpha << 8) << alpha;
   }
   /*  Copy our texture across to the window */
-  auto mpGraphicsManager->getScreenRect(mPosition[0], mPosition[1],
-                                                mDimmension[0], mDimmension[1]);
+  if(mpGraphicsManager){
+    auto dstrect = cam->getScreenRect(mPosition[0], mPosition[1],
+                                                    mDimmension[0], mDimmension[1]);
 
-  mpGraphicsManager->renderFillRect(dstrect, colour, true, glowAmount);
+    mpGraphicsManager->renderFillRect(dstrect, colour, true, glowAmount);
+  }
   return;
 }
 
@@ -75,7 +76,7 @@ Explosion::draw(Camera* cam)
       soundManager.playSound(bomb_sound);
     }
     if (mRumble)
-      _pScene->getCamera()->rumble();
+      cam->rumble();
   }
 
   if (_tick - mStartTick >= mTimeout) {
@@ -90,9 +91,13 @@ Explosion::draw(Camera* cam)
   // frame_no in [0, ... , N_SPRITESHEET_SIZE - 1]
   int frame_no = (int) ( (float) N_SPRITESHEET_SIZE * ( (float) (_tick - mStartTick) / (float) mTimeout) );
 
-  SDL_Texture *texture = mSpritesheet[frame_no];
-  SDL_Rect dstrect = cam->getScreenRect(mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]);
-  cam->renderCopy(texture, nullptr, &dstrect, false, 0);
+  std::string asset_name = mSpriteNames[frame_no];
+  auto dstrect = cam->getScreenRect(mPosition[0], mPosition[1],
+                                    mDimmension[0], mDimmension[1]);
+  mpGraphicsManager->drawSprite(
+                                asset_name,
+                                dstrect
+                                );
 
   return;
 }

@@ -20,9 +20,9 @@ public:
      * @param xAlignFlag    Determines the alignment of the bounding box.
      * @param yAlignFlag    DetermineS the alignment of the bounding box.
      */
-    ClickableHudElement(int xPos, int yPos, int xDim, int yDim,
-        std::function<void()> onClickFn, AlignFlag xAlignFlag=ALIGN_LEFT,
-        AlignFlag yAlignFlag=ALIGN_BOTTOM);
+    ClickableHudElement(scene& rscene, int xPos, int yPos, int xDim, int yDim,
+                        std::function<void()> onClickFn, AlignFlag xAlignFlag=ALIGN_LEFT,
+                        AlignFlag yAlignFlag=ALIGN_BOTTOM);
 
     /**
      * Called by the handle input function.

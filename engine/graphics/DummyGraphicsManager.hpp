@@ -1,23 +1,19 @@
 #ifndef DUMMYGRAPHICSMANAGER_HPP
 #define DUMMYGRAPHICSMANAGER_HPP
 
+#include <vector>
+#include <string>
+
 #include "IGraphicsManager.hpp"
 #include "AbstractCamera.hpp"
-#incldue "DummyCamera.hpp"
+#include "DummyCamera.hpp"
 
-class DummyGraphicsManager : IGraphicsManager{
+class DummyGraphicsManager : public IGraphicsManager{
 protected:
-  std::vector mLoadedSpriteNames{};
+  std::vector<std::string> mLoadedSpriteNames{};
 public:
-  void renderClear() override {};
-  void init() override {};
-  void renderCopy() override {};
-
-  std::shared_ptr<AbstractCamera> createCamera(scene*) override{
-    return std::make_shared<AbstractCamera>(new DummyCamera());
-  };
   void loadSpriteFromPath(std::string p){
-    mLoadedSpriteNames.push_back(p)
+    mLoadedSpriteNames.push_back(p);
   }
 };
 
