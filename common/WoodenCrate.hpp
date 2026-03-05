@@ -36,25 +36,25 @@ public:
       std::uniform_int_distribution<> distrib(0, 4);
 
       switch(distrib(gen)){
-      case PICKUP_SPEED:{
+      case AbstractPickup::PICKUP_SPEED:{
         _pScene->addActor(std::make_shared<SpeedPickup>(mpScene, mPosition[0], mPosition[1]));
         break;
       }
-      case PICKUP_BOMB:{
+      case AbstractPickup::PICKUP_BOMB:{
         std::shared_ptr<actor> act = std::make_shared<BombPickup>(mpScene, mPosition[0], mPosition[1]);
         _pScene->addActor(act);
         break;
       }
-      case PICKUP_POWER:{
+      case AbstractPickup::PICKUP_POWER:{
         std::shared_ptr<actor> act = std::make_shared<PowerPickup>(mpScene, mPosition[0], mPosition[1]);
         _pScene->addActor(act);
         break;
       }
-      case PICKUP_BIG_BOMB:{
+      case AbstractPickup::PICKUP_BIG_BOMB:{
         std::shared_ptr<actor> act = std::make_shared<BigBombPickup>(mpScene, mPosition[0], mPosition[1]);
         _pScene->addActor(act);
       }
-      case PICKUP_NONE:
+      case AbstractPickup::PICKUP_NONE:
       default: break;
       }
     }

@@ -142,6 +142,12 @@ public:
 
   void createWindow() override;
 
+  int getWindowFlags();
+
+  void setWindowFullScreen(bool) override;
+
+  bool isWindowFullScreen() override;
+
   SDLGraphicsManager();
   ~SDLGraphicsManager();
 

@@ -16,6 +16,8 @@
 #include "scene.hpp"
 #include "WoodenCrate.hpp"
 #include "StoneBlock.hpp"
+#include "LocalPlayer.hpp"
+#include "NetServer.hpp"
 #include <algorithm>
 #include <functional>
 #include <memory>

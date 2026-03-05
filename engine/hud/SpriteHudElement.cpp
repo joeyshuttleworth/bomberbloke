@@ -1,6 +1,7 @@
 #include "SpriteHudElement.hpp"
 
 #include "engine.hpp"
+#include "Camera.hpp"
 
 SpriteHudElement::SpriteHudElement(
                                    scene &r_scene,

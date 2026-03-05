@@ -1,4 +1,5 @@
 #include "AbstractPickup.hpp"
+#include "NetServer.hpp"
 #include "bloke.hpp"
 
 void

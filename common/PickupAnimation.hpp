@@ -10,7 +10,7 @@ class PickupAnimation : public AbstractSpriteHandler{
 private:
   std::string mAssetName;
 public:
-  int getType() const{return PICKUP_SPEED;}
+  int getType() const{return AbstractPickup::PICKUP_NONE;}
 
 
   PickupAnimation(){}

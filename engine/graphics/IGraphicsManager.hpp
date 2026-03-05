@@ -36,6 +36,14 @@ public:
   virtual void setBlur(double, int=0){};
   virtual void setBrightness(int){};
   virtual void setBloom(double, int=255, int=0){};
+
+  virtual bool isWindowFullScreen(){return false;};
+  virtual void setWindowFullScreen(bool=true);
+
+  virtual ~IGraphicsManager();
 };
+
+IGraphicsManager::~IGraphicsManager(){}
+
 
 #endif

@@ -1,4 +1,5 @@
 #include "bomberbloke.h"
+#include "LocalPlayer.hpp"
 #include "BomberBlokeScene.hpp"
 #include "Explosion.hpp"
 #include "MainMenuScene.hpp"
@@ -84,7 +85,7 @@ main(int argc, char** argv)
     std::vector<std::string> commands = { "colour FFFFFFFF" };
 
     if (_net_client->joinBlokeServer(serverAddress, userName, commands)) {
-      _pNewScene = std::make_shared<BomberBlokeScene>(10, 10);
+      _pNewScene = std::make_shared<BomberBlokeScene>(_graphics_interface.get(), 10, 10);
     }
   }
 

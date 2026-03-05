@@ -217,11 +217,16 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(scene& r_scene, std::function<void()> g
 
   // Create window mode button
   std::string buttonString = "";
-  if (SDL_GetWindowFlags(_window) & SDL_WINDOW_FULLSCREEN_DESKTOP) {
-    buttonString = "FULLSCREEN";
-  } else {
-    buttonString = "WINDOWED";
+
+  auto gfx = mrScene.getGraphicsManager();
+  if(gfx){
+    if (gfx->isWindowFullScreen()) {
+      buttonString = "FULLSCREEN";
+    } else {
+      buttonString = "WINDOWED";
+    }
   }
+
   std::shared_ptr<Text> windowModeText =
     textManager.createText(buttonString);
   if (windowModeText) {
@@ -355,18 +360,23 @@ void
 OptionsMenuHudGroup::toggleWindowMode()
 {
   std::shared_ptr<TextButton> windowModeButton = mWindowModeButton.lock();
-  if (SDL_GetWindowFlags(_window) & SDL_WINDOW_FULLSCREEN_DESKTOP) {
+
+  auto gfx = mrScene.getGraphicsManager();
+
+  if(!gfx)
+    return;
+
+  bool set_fullscreen = true;
+  if (gfx->isWindowFullScreen()) {
     // Window is full screen, make it windowed
-    SDL_SetWindowFullscreen(_window, 0);
+    set_fullscreen = false;
     windowModeButton->setText("WINDOWED");
   } else {
     // Window is not full screen, make it full screen
-    SDL_SetWindowFullscreen(_window, SDL_WINDOW_FULLSCREEN_DESKTOP);
-    int w, h;
-    SDL_GetWindowSize(_window, &w, &h);
-    handle_system_command({ "resize", std::to_string(w), std::to_string(h) });
     windowModeButton->setText("FULLSCREEN");
   }
+
+  gfx->setWindowFullScreen(set_fullscreen);
 }
 
 void

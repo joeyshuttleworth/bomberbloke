@@ -421,3 +421,32 @@ void SDLGraphicsManager::drawSprite(std::string asset_name, std::array<int, 4> _
 SDLGraphicsManager::SDLGraphicsManager(){
   SDL_Init(SDL_INIT_VIDEO);
 }
+
+
+int SDLGraphicsManager::getWindowFlags(){
+  int flags = SDL_GetWindowFlags(mpWindow);
+  return flags;
+}
+
+bool SDLGraphicsManager::isWindowFullScreen(){
+  auto flags = getWindowFlags();
+
+  return flags & SDL_WINDOW_FULLSCREEN_DESKTOP;
+}
+
+void SDLGraphicsManager::setWindowFullScreen(bool fullscreen){
+
+  if (fullscreen == isWindowFullScreen())
+    return;
+
+  if(fullscreen){
+    SDL_SetWindowFullscreen(mpWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
+  }
+
+  else{
+    SDL_SetWindowFullscreen(mpWindow, 0);
+  }
+
+  auto screen_dims = getScreenDimensions();
+  handle_system_command({ "resize", std::to_string(screen_dims[0]), std::to_string(screen_dims[1]) });
+}

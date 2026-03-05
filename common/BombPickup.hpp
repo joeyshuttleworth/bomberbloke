@@ -4,7 +4,6 @@
 #include "AbstractPickup.hpp"
 #include "bomberbloke_actors.hpp"
 #include "staticSprite.hpp"
-#include "BombPickup.hpp"
 #include "PickupAnimation.hpp"
 
 class BombPickup : public AbstractPickup{

@@ -2,8 +2,6 @@
 #define SPEEDPICKUP_HPP
 #include "AbstractPickup.hpp"
 #include "staticSprite.hpp"
-#include "bomberbloke_actors.hpp"
-#include "SpeedPickup.hpp"
 #include "PickupAnimation.hpp"
 
 class SpeedPickup : public AbstractPickup{

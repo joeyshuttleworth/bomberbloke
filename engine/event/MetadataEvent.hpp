@@ -12,6 +12,7 @@
 #include <engine.hpp>
 #include <cereal/types/map.hpp>
 #include "AbstractEvent.hpp"
+#include "AbstractPlayer.hpp"
 #include "Metadata.hpp"
 #include <map>
 

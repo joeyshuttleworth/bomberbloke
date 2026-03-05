@@ -5,20 +5,23 @@
 
 #include "PlaceHolderSprite.hpp"
 #include "bomberbloke_actors.hpp"
-#include "scene.hpp"
 #include "actor.hpp"
+#include "AbstractPlayer.hpp"
 
-enum{
-     PICKUP_NONE,
-     PICKUP_SPEED,
-     PICKUP_BOMB,
-     PICKUP_POWER,
-     PICKUP_BIG_BOMB
-};
-
+class bloke;
+class scene;
 
 class AbstractPickup : public actor{
 public:
+
+  enum{
+    PICKUP_NONE,
+    PICKUP_SPEED,
+    PICKUP_BOMB,
+    PICKUP_POWER,
+    PICKUP_BIG_BOMB
+  };
+
   AbstractPickup(scene* scn, double xpos = 0, double ypos = 0) : actor(scn, xpos, ypos, PICKUP_SIZE, PICKUP_SIZE, false){
     /*Centralise*/
     const int square[] = {int(xpos), int(ypos)};

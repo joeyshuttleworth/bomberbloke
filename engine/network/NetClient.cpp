@@ -3,6 +3,7 @@
 //
 
 #include "NetClient.hpp"
+#include "LocalPlayer.hpp"
 #include "AbstractEvent.hpp"
 #include "CommandEvent.hpp"
 #include "CreationEvent.hpp"

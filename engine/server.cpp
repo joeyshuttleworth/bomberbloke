@@ -1,4 +1,5 @@
 #include "engine.hpp"
+#include "scene.hpp"
 #include "network/NetServer.hpp"
 #include "DummyGraphicsManager.hpp"
 #include <memory>
