@@ -14,7 +14,7 @@ public:
 
   virtual void resizeWindow(int=0, int=0){};
 
-  virtual void init();
+  virtual void init(){};
 
   virtual void renderSplashScreen(){};
   virtual void setDraw(bool){};
@@ -30,7 +30,7 @@ public:
 
   virtual std::array<int, 2> getScreenDimensions(){return std::array<int, 2>{0, 0};};
 
-  virtual void renderFillRect(std::array<int, 4>&, Uint32,
+  virtual void renderFillRect(std::array<int, 4>&, uint32_t,
                               bool=true, int=0){};
 
   virtual void setBlur(double, int=0){};
@@ -42,8 +42,6 @@ public:
 
   virtual ~IGraphicsManager();
 };
-
-IGraphicsManager::~IGraphicsManager(){}
 
 
 #endif

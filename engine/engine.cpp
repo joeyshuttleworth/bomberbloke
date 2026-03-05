@@ -83,7 +83,10 @@ TextManager textManager;
 void
 exit_engine(int signum)
 {
-  set_draw(false);
+  if(_graphics_interface){
+    _graphics_interface->setDraw(false);
+  }
+
   SDL_Delay(500);
   SDL_Quit();
   _halt = true;

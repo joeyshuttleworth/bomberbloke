@@ -149,7 +149,7 @@ public:
   bool isWindowFullScreen() override;
 
   SDLGraphicsManager();
-  ~SDLGraphicsManager();
+  virtual ~SDLGraphicsManager();
 
 };
 
