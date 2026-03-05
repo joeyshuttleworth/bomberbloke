@@ -48,7 +48,12 @@ protected:
 
   void resetFrameBuffer();
 
- void setBlur(double size, int passes=0) override;
+  double mBlurSize;
+  int mBlurPasses;
+  void setBlur(double size, int passes) override{
+    mBlurSize = size;
+    mBlurPasses = passes;
+  };
 
   /**
    * Sets the parameters for the post-processing bloom.
