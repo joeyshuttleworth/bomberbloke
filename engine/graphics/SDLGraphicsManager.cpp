@@ -429,7 +429,7 @@ void SDLGraphicsManager::drawSprite(std::string asset_name, std::array<int, 4> _
 }
 
 SDLGraphicsManager::SDLGraphicsManager(){
-  SDL_Init(SDL_INIT_ALL);
+  SDL_Init(SDL_INIT_VIDEO);
 }
 
 
