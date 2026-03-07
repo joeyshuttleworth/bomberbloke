@@ -27,6 +27,7 @@ TEST_CASE("Can make a game scene", "[engine]")
   _halt = true;
   client_loop();
 
+  _graphics_interface = nullptr;
   SDL_Quit();
 }
 

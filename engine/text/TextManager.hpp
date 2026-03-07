@@ -37,7 +37,7 @@ public:
      * Creates a text object given a specified font.
      *
      * Font must first be loaded using loadFontFromPath.
-     * 
+     *
      * @see TextManager::loadFontFromPath
      *
      * @param text  String that is rendered.

@@ -20,7 +20,6 @@ SDLGraphicsManager::renderSplashScreen(){
 void
 SDLGraphicsManager::setDraw(bool on)
 {
-  const std::lock_guard<std::mutex> lock(mMutex);
   if (on == mDraw)
     return;
 
@@ -31,32 +30,40 @@ SDLGraphicsManager::setDraw(bool on)
 
   else {
     mDraw = false;
-    SDL_DestroyWindow(mpWindow);
-    SDL_DestroyRenderer(mpRenderer);
-    mpRenderer = nullptr;
+    destroyBuffers();
+    destroyWindow();
   }
 
   return;
 }
 
+void SDLGraphicsManager::destroyWindow(){
+  SDL_DestroyWindow(mpWindow);
+}
+
 
 void
-SDLGraphicsManager::createWindow()
+SDLGraphicsManager::createWindow(int w, int h)
 {
-  const std::lock_guard<std::mutex> lock(mMutex);
-  mpWindow = SDL_CreateWindow(mWindowTitle.c_str(),
+
+  if(w == -1 || h == -1){
+    w = mDefaultWindowSize[0];
+    h = mDefaultWindowSize[1];
+  }
+
+  mWindowSize = {w, h};
+
+  destroyBuffers();
+  {
+    const std::lock_guard<std::mutex> lock(mMutex);
+    mpWindow = SDL_CreateWindow(mWindowTitle.c_str(),
                              SDL_WINDOWPOS_UNDEFINED,
                              SDL_WINDOWPOS_UNDEFINED,
                              mWindowSize[0],
                              mWindowSize[1],
                              SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
-  if (mpRenderer) {
-    SDL_DestroyRenderer(mpRenderer);
   }
-  mpRenderer = SDL_CreateRenderer(mpWindow, -1, 0);
-
   resizeWindow(mWindowSize[0], mWindowSize[1]);
-
   return;
 }
 
@@ -64,6 +71,8 @@ SDLGraphicsManager::createWindow()
 void
 SDLGraphicsManager::resizeWindow(int x=0, int y=0)
 {
+  destroyBuffers();
+  {
   const std::lock_guard<std::mutex> lock(mMutex);
 
   if (!mDraw)
@@ -80,26 +89,32 @@ SDLGraphicsManager::resizeWindow(int x=0, int y=0)
   mWindowSize[0] = x;
   mWindowSize[1] = y;
 
-  // Clear frame buffers
-  if (mpFrameBuffer)
-    SDL_DestroyTexture(mpFrameBuffer);
-  if (mpNoProcessingBuffer)
-    SDL_DestroyTexture(mpNoProcessingBuffer);
-  if (mpBloomBuffer)
-    SDL_DestroyTexture(mpBloomBuffer);
+  if(mpRenderer){
+    SDL_DestroyRenderer(mpRenderer);
+  }
+  mpRenderer = SDL_CreateRenderer(mpWindow, -1, mRendererFlags);
 
+  if(mpFrameBuffer){
+    SDL_DestroyTexture(mpFrameBuffer);
+  }
   mpFrameBuffer = SDL_CreateTexture(mpRenderer,
                                     SDL_PIXELFORMAT_RGBA8888,
                                     SDL_TEXTUREACCESS_TARGET,
                                     mWindowSize[0],
                                     mWindowSize[1]);
 
+  if(mpNoProcessingBuffer){
+    SDL_DestroyTexture(mpNoProcessingBuffer);
+  }
   mpNoProcessingBuffer = SDL_CreateTexture(mpRenderer,
                                            SDL_PIXELFORMAT_RGBA8888,
                                            SDL_TEXTUREACCESS_TARGET,
                                            mWindowSize[0],
                                            mWindowSize[1]);
 
+  if(mpFrameBuffer){
+    SDL_DestroyTexture(mpFrameBuffer);
+  }
   mpBloomBuffer = SDL_CreateTexture(mpRenderer,
                                     SDL_PIXELFORMAT_RGBA8888,
                                     SDL_TEXTUREACCESS_TARGET,
@@ -107,7 +122,7 @@ SDLGraphicsManager::resizeWindow(int x=0, int y=0)
                                     mWindowSize[1]);
 
   mScreenRectangle = {0, 0, mWindowSize[0], mWindowSize[1]};
-
+  }
   return;
 }
 
@@ -147,7 +162,14 @@ void SDLGraphicsManager::renderClear(){
 void
 SDLGraphicsManager::drawScreen()
 {
+  renderClear();
+
+  {
   const std::lock_guard<std::mutex> lock(mMutex);
+
+  SDL_RenderCopy(mpRenderer, mpFrameBuffer, nullptr, nullptr);
+
+  // Do bloom and blur
 
   // Apply brightness effect to window
   if (mBrightness != 0) {
@@ -171,21 +193,9 @@ SDLGraphicsManager::drawScreen()
   SDL_RenderCopy(mpRenderer, mpNoProcessingBuffer, nullptr, nullptr);
 
   SDL_RenderPresent(mpRenderer);
+  }
   return;
 }
-
-SDLGraphicsManager::~SDLGraphicsManager(){
-  const std::lock_guard<std::mutex> lock(mMutex);
-  if(mpRenderer)
-    SDL_DestroyRenderer(mpRenderer);
-
-  if(mpFrameBuffer)
-    SDL_DestroyTexture(mpFrameBuffer);
-
-  if(mpNoProcessingBuffer)
-    SDL_DestroyTexture(mpNoProcessingBuffer);
-}
-
 
 /* Lookup the name in our list of sprites and return a pointer to its texture if
  * it exists */
@@ -385,7 +395,7 @@ SDLGraphicsManager::renderFillRect(std::array<int, 4>& _dstRect,
   SDL_SetRenderTarget(mpRenderer, getFrameBuffer(isPostProcessed));
 
   SDL_Color color = {Uint8 (_colour >> 24), Uint8 (_colour >> 16),
-                     Uint8 (_colour >> 8), Uint8 (_colour & 0xFF)};
+                     Uint8 (_colour >> 8), Uint8 (_colour)};
   SDL_SetRenderDrawColor(mpRenderer, color.r, color.g, color.b, color.a);
   SDL_RenderFillRect(mpRenderer, &dstRect);
 
@@ -419,7 +429,7 @@ void SDLGraphicsManager::drawSprite(std::string asset_name, std::array<int, 4> _
 }
 
 SDLGraphicsManager::SDLGraphicsManager(){
-  SDL_Init(SDL_INIT_VIDEO);
+  SDL_Init(SDL_INIT_ALL);
 }
 
 
@@ -450,3 +460,24 @@ void SDLGraphicsManager::setWindowFullScreen(bool fullscreen){
   auto screen_dims = getScreenDimensions();
   handle_system_command({ "resize", std::to_string(screen_dims[0]), std::to_string(screen_dims[1]) });
 }
+
+
+SDLGraphicsManager::~SDLGraphicsManager(){
+  destroyBuffers();
+  SDL_QuitSubSystem(SDL_INIT_VIDEO);
+}
+
+void SDLGraphicsManager::destroyBuffers(){
+  if(mpFrameBuffer)
+    SDL_DestroyTexture(mpFrameBuffer);
+
+  if(mpNoProcessingBuffer)
+    SDL_DestroyTexture(mpNoProcessingBuffer);
+
+  if(mpBloomBuffer)
+    SDL_DestroyTexture(mpBloomBuffer);
+
+  if(mpRenderer)
+    SDL_DestroyRenderer(mpRenderer);
+}
+

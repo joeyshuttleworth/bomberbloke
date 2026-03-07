@@ -44,33 +44,6 @@ PauseMenuHudGroup::PauseMenuHudGroup(scene &r_scene)
   resumeElement->setOnClickOffset(-1, 2);
   addElement(resumeElement);
 
-  // Create leave button text
-  std::shared_ptr<Text> leaveText =
-    textManager.createText("LEAVE GAME");
-  leaveText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-  leaveText->setTextColour({ 255, 255, 255, 255 });
-  leaveText->setTextScale(1.5);
-  // Create leave button element
-  std::shared_ptr<TextButton> leaveElement = std::make_shared<TextButton>(mrScene,
-    leaveText, 0, 0, 200, 30, disconnectFn, ALIGN_CENTER, ALIGN_CENTER);
-  leaveElement->setMouseOverColour({ 200, 200, 200, 255 });
-  leaveElement->setOnClickOffset(-1, 2);
-  addElement(leaveElement);
-
-  // Create options menu button
-  std::shared_ptr<Text> optionsText =
-    textManager.createText("OPTIONS");
-  optionsText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-  optionsText->setTextColour({ 255, 255, 255, 255 });
-  optionsText->setTextScale(1.5);
-  // Create options button element
-  auto optionsFunction = std::bind(&PauseMenuHudGroup::openOptionsMenu, this);
-  std::shared_ptr<TextButton> optionsElement = std::make_shared<TextButton>(mrScene,
-    optionsText, 0, 40, 200, 30, optionsFunction, ALIGN_CENTER, ALIGN_CENTER);
-  optionsElement->setMouseOverColour({ 200, 200, 200, 255 });
-  optionsElement->setOnClickOffset(-1, 2);
-  addElement(optionsElement);
-
   // Create options menu HUD group
   auto closeOptionsFunction =
     std::bind(&PauseMenuHudGroup::closeOptionsMenu, this);
@@ -87,6 +60,45 @@ PauseMenuHudGroup::PauseMenuHudGroup(scene &r_scene)
 
   // Make entire group avoid post-processing
   setIsPostProcessed(false);
+
+  // Create leave button text
+  std::shared_ptr<Text> leaveText =
+    textManager.createText("LEAVE GAME");
+
+  std::shared_ptr<Text> optionsText =
+    textManager.createText("OPTIONS");
+
+  if (!leaveText || !optionsText){
+    log_message(ERR, "Failed to create pause menu text");
+  }
+
+  if(leaveText){
+    leaveText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
+    leaveText->setTextColour({ 255, 255, 255, 255 });
+    leaveText->setTextScale(1.5);
+  }
+  // Create leave button element
+  std::shared_ptr<TextButton> leaveElement = std::make_shared<TextButton>(mrScene,
+    leaveText, 0, 0, 200, 30, disconnectFn, ALIGN_CENTER, ALIGN_CENTER);
+  leaveElement->setMouseOverColour({ 200, 200, 200, 255 });
+  leaveElement->setOnClickOffset(-1, 2);
+  addElement(leaveElement);
+
+  // Create options menu button
+  if(optionsText){
+    optionsText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
+    optionsText->setTextColour({ 255, 255, 255, 255 });
+    optionsText->setTextScale(1.5);
+  }
+
+  // Create options button element
+  auto optionsFunction = std::bind(&PauseMenuHudGroup::openOptionsMenu, this);
+  std::shared_ptr<TextButton> optionsElement = std::make_shared<TextButton>(mrScene,
+    optionsText, 0, 40, 200, 30, optionsFunction, ALIGN_CENTER, ALIGN_CENTER);
+  optionsElement->setMouseOverColour({ 200, 200, 200, 255 });
+  optionsElement->setOnClickOffset(-1, 2);
+  addElement(optionsElement);
+
 }
 
 void

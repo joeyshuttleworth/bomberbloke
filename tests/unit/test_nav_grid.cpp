@@ -5,6 +5,7 @@
 #include "engine.hpp"
 #include "bomberbloke.h"
 #include "NavGrid.hpp"
+#include "NetworkPlayer.hpp"
 #include <catch2/catch_test_macros.hpp>
 
 
@@ -39,11 +40,11 @@ TEST_CASE("Can create NavGrid", "[engine]")
   int player_id = 0;
 
   const std::vector<std::string> usernames = {"big_beef", "big_baz", "little_john", "maid_marian", "allan_a_dale_77", "nottz_sherrif_xX", "Frair_Tuck", "Will Scarlet", "merry_man_67"};
-  _pScene = std::make_shared<BomberBlokeScene>(25, 25);
+  _pScene = std::make_shared<BomberBlokeScene>(nullptr, 25, 25);
 
   for(auto i : usernames){
     std::string username = i;
-  	auto player = std::make_shared<NetworkPlayer>(username, player_id);
+    std::shared_ptr<AbstractPlayer> player = std::make_shared<NetworkPlayer>(username, player_id);
     player_id++;
     _player_list.push_back(player);
   }
@@ -60,11 +61,11 @@ TEST_CASE("Can create NavGrid", "[engine]")
 
 TEST_CASE("Full NavGrid for empty level", "[engine]")
 {
-  _pScene = std::make_shared<BomberBlokeScene>(10, 10);
+  _pScene = std::make_shared<BomberBlokeScene>(nullptr, 10, 10);
   _pScene->mActors.clear();
   NavGrid nav_grid(blocking_types, _pScene);
   nav_grid.computeGrid();
-  assert(nav_grid.mNodes.size() == _pScene->mDimmension[0] * _pScene->mDimmension[1]);
+  assert(nav_grid.mNodes.size() == _pScene->mDimension[0] * _pScene->mDimension[1]);
   assert(nav_grid.getNeighbours(ivector{0, 0}, false).size() == 2);
 
   assert(nav_grid.getNeighbours(ivector{0, 0}, true).size() == 3);
@@ -74,13 +75,13 @@ TEST_CASE("Full NavGrid for empty level", "[engine]")
 
 TEST_CASE("Empty NavGrid for full level", "[engine]")
 {
-  _pScene = std::make_shared<BomberBlokeScene>(10, 10);
+  _pScene = std::make_shared<BomberBlokeScene>(nullptr, 10, 10);
   _pScene->mActors.clear();
 
   /* Create WoodenCrates at each square */
   for(int i=0; i < 10; i++){
     for(int j=0; j< 10; j++){
-      auto crate = std::make_shared<WoodenCrate>(i, j);
+      auto crate = std::make_shared<WoodenCrate>(_pScene.get(), i, j);
       _pScene->addActor(crate);
     }
   }
@@ -97,13 +98,13 @@ TEST_CASE("Empty NavGrid for full level", "[engine]")
 
 TEST_CASE("Components of disconnected level", "[engine]")
 {
-  _pScene = std::make_shared<BomberBlokeScene>(10, 10);
+  _pScene = std::make_shared<BomberBlokeScene>(nullptr, 10, 10);
   _pScene->mActors.clear();
 
   /* Create WoodenCrates at each square */
   int j = 5;
   for(int i=0; i < 10; i++){
-    auto crate = std::make_shared<WoodenCrate>(i, j);
+    auto crate = std::make_shared<WoodenCrate>(_pScene.get(), i, j);
     _pScene->addActor(crate);
   }
   NavGrid nav_grid(blocking_types, _pScene);
@@ -121,13 +122,13 @@ TEST_CASE("Components of disconnected level", "[engine]")
 
 TEST_CASE("Get A* route", "[engine]")
 {
-  _pScene = std::make_shared<BomberBlokeScene>(10, 10);
+  _pScene = std::make_shared<BomberBlokeScene>(nullptr, 10, 10);
   _pScene->mActors.clear();
 
   /* Create WoodenCrates at each square */
   int j = 5;
   for(int i=0; i < 10; i++){
-    auto crate = std::make_shared<WoodenCrate>(i, j);
+    auto crate = std::make_shared<WoodenCrate>(_pScene.get(), i, j);
     _pScene->addActor(crate);
   }
   NavGrid nav_grid(blocking_types, _pScene);

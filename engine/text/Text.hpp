@@ -10,11 +10,12 @@ extern SDL_Renderer *_renderer;
 
 // Enum for text alignment (see setTextAlignment).
 enum TextAlignFlag {
-    TEXT_ALIGN_LEFT,
-    TEXT_ALIGN_CENTER,
-    TEXT_ALIGN_RIGHT,
-    TEXT_ALIGN_BOTTOM,
-    TEXT_ALIGN_TOP
+  TEXT_ALIGN_NONE,
+  TEXT_ALIGN_LEFT,
+  TEXT_ALIGN_CENTER,
+  TEXT_ALIGN_RIGHT,
+  TEXT_ALIGN_BOTTOM,
+  TEXT_ALIGN_TOP
 };
 
 /**
@@ -264,7 +265,7 @@ protected:
     // Colour of background colour;
     SDL_Color mBackColour;
     // Text alignment flags in x and y direction (see setTextAlignment).
-    TextAlignFlag mAlignment[2];
+    TextAlignFlag mAlignment[2] = {TEXT_ALIGN_LEFT, TEXT_ALIGN_LEFT};
     // Amount of glow applied (0-255).
     int mGlowAmount = 0;
 

@@ -127,18 +127,8 @@ init_engine
   /*  Open a log file  */
   _console_log_file.open("/tmp/bloke.log");
 
-  if (_draw) {
-    _graphics_interface->createWindow();
-  }
-
   soundManager.init(channelFinishedForwarder);
   loadAssets(textManager, soundManager, *_graphics_interface);
-
-  _graphics_interface->renderClear();
-
-  _graphics_interface->renderSplashScreen();
-  SDL_Delay(2000);
-  std::this_thread::sleep_for(std::chrono::seconds(3));
 
   /* Initialise the controller if it exists */
   _controller = handle_input_controller();
@@ -428,10 +418,10 @@ handle_system_command(std::list<std::string> tokens)
 
   else if (command == "draw") {
     if (tokens.size() == 2) {
-      if (tokens.back() == "on") {
-        set_draw(true);
-      } else if (tokens.back() == "off") {
-        set_draw(false);
+      if (tokens.back() == "on" && _graphics_interface) {
+        _graphics_interface->setDraw(true);
+      } else if (tokens.back() == "off" && _graphics_interface) {
+        _graphics_interface->setDraw(false);
       } else {
         log_message(ERR,
                     "Couldn't parse command - " + command + tokens.back() +

@@ -58,7 +58,7 @@ TextButton::draw(Camera* camera)
   if (!mIsVisible)
     return;
 
-  if (mPropertiesUpdated) {
+  if (mPropertiesUpdated && mText) {
     // Set colour and text offset according to mIsClicked and mIsMouseOver
     if (mIsClicked) {
       mText->setTextColour(mOnClickColour);

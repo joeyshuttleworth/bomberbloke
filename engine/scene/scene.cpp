@@ -234,7 +234,6 @@ scene::drawActors()
     return;
   }
 
-  // SDL_SetRenderTarget(_renderer, mpCamera->getFrameBuffer());
   // Next draw each actor
   for (auto i = mActors.begin(); i != mActors.end(); i++) {
     (*i)->draw(mpCamera.get());

@@ -57,6 +57,7 @@ class LocalPlayer;
 class NetworkPlayer;
 class AbstractPlayer;
 
+void client_init();
 void exit_engine(int);
 void new_game(std::string);
 void engine_new_game(std::string);

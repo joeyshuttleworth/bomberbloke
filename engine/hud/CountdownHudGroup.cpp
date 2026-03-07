@@ -20,9 +20,12 @@ CountdownHudGroup::CountdownHudGroup(scene &r_scene, std::function<void()> onFin
 
   // Create countdown text
   std::shared_ptr<Text> text = textManager.createText("");
-  text->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-  text->setTextColour({ 255, 255, 255, 255 });
-  text->setTextScale(4.);
+  if(text){
+    text->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
+    text->setTextColour({ 255, 255, 255, 255 });
+    text->setTextScale(4.);
+  }
+
   std::shared_ptr<TextHudElement> countdownText =
     std::make_shared<TextHudElement>(r_scene,
       text, 0, 0, 100, 100, ALIGN_CENTER, ALIGN_CENTER);
@@ -43,10 +46,12 @@ void
 CountdownHudGroup::start(int nSecs)
 {
   mTicksLeft = nSecs * TICK_RATE + 1;
-  std::shared_ptr<TextHudElement> text = mCountdownText.lock();
+  std::shared_ptr<TextHudElement> text_element = mCountdownText.lock();
   setIsVisible(true);
-  text->setText(std::to_string(nSecs));
-  text->mText->setGlowAmount(mMaxGlowAmount);
+
+  text_element->setText(std::to_string(nSecs));
+  if(text_element->mText)
+    text_element->mText->setGlowAmount(mMaxGlowAmount);
 }
 
 void
@@ -58,8 +63,11 @@ CountdownHudGroup::update()
     mTicksLeft--;
 
     std::shared_ptr<TextHudElement> text = mCountdownText.lock();
-    text->mText->setGlowAmount(mMaxGlowAmount * (mTicksLeft % TICK_RATE) /
-                               TICK_RATE);
+
+    /* TODO make TextHudElement member function for this */
+    if(text->mText)
+      text->mText->setGlowAmount(mMaxGlowAmount * (mTicksLeft % TICK_RATE) /
+                                 TICK_RATE);
 
     // Update every second
     if (mTicksLeft % TICK_RATE == 0) {

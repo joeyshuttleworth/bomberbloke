@@ -2,6 +2,7 @@
 #include <limits>
 #include "Explosion.hpp"
 #include "MainMenuHudGroup.hpp"
+#include "ShowAllCamera.hpp"
 
 MainMenuScene::MainMenuScene(IGraphicsManager* gfx_manager, int size_x, int size_y) : scene(gfx_manager, size_x, size_y)
 {
@@ -9,10 +10,11 @@ MainMenuScene::MainMenuScene(IGraphicsManager* gfx_manager, int size_x, int size
     std::make_shared<MainMenuHudGroup>(*this);
   mHudElements.push_back(menuHud);
 
+  mpCamera = std::make_shared<ShowAllCamera>(gfx_manager, this);
+
   for (int i = 0; i < size_x; i++) {
     for (int j = 0; j < size_y; j++) {
       int speed = (30 + i + 2 * j);
-      auto gfx_manager = getGraphicsManager();
       std::shared_ptr<Explosion> explosion =
         std::make_shared<Explosion>(
                                     gfx_manager, i, j, 1, 1, true, speed,
@@ -34,6 +36,6 @@ MainMenuScene::MainMenuScene(IGraphicsManager* gfx_manager, int size_x, int size
   if(!gfx_manager)
     return;
 
-  gfx_manager->setBlur(20);
+  // gfx_manager->setBlur(20);
   gfx_manager->setBrightness(-80);
 }

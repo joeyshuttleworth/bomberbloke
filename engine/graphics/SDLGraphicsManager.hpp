@@ -18,6 +18,9 @@ class SDLGraphicsManager : public IGraphicsManager{
 protected:
   SDL_Texture* getSprite(std::string);
 
+  const Uint32 mRendererFlags = SDL_RENDERER_TARGETTEXTURE;
+  const std::array<int, 2> mDefaultWindowSize = {600, 800};
+
   bool mDraw = true;
   SDL_Renderer* mpRenderer;
   SDL_Window* mpWindow;
@@ -25,7 +28,7 @@ protected:
   SDL_Texture* mpFrameBuffer;
   SDL_Texture* mpBloomBuffer;
   SpriteList mSpriteList;
-  int mWindowSize[2] = {0, 0};
+  std::array<int, 2> mWindowSize = {0, 0};
   std::string mWindowTitle = "Bomberbloke";
   scene* mpScene;
   std::mutex mMutex;
@@ -48,28 +51,18 @@ protected:
 
   void resetFrameBuffer();
 
-  double mBlurSize;
-  int mBlurPasses;
-  void setBlur(double size, int passes) override{
-    mBlurSize = size;
-    mBlurPasses = passes;
-  };
-
-  /**
-   * Sets the parameters for the post-processing bloom.
-   *
-   * @param size    Size of the bloom, larger is more blury.
-   * @param alpha   Opacity of the blur, 0-255 where 0 is transparent.
-   * @param passes  Quality of the bloom, larger is higher quality.
-   */
-  void setBloom(double size, int alpha=255, int passes=0) override;
-
   /**
    * Sets the parameter for the post-processing brightness effect.
    *
    * @param brightness  Amount of brightness added to the image.
    */
-  void setBrightness(int brightness) override;
+  void setBrightness(int brightness) override {mBrightness = brightness;};
+
+
+
+  void destroyBuffers();
+
+public:
 
   void renderClear() override;
 
@@ -86,16 +79,11 @@ protected:
    * @param isPostProcessed Set to false to avoid post-processing effects.
    * @param bloomAmount     Determines the amount of bloom applied to texture.
    */
-
-public:
-
   void renderCopy(SDL_Texture *texture, SDL_Rect *srcRect=nullptr,
                   SDL_Rect *dstRect=nullptr, bool isPostProcessed=true, int bloomAmount=0);
 
   // Allows for SDL like function calls
   void resizeWindow(int, int) override;
-
-  void init() override;
 
   void renderSplashScreen() override;
 
@@ -145,13 +133,15 @@ public:
   void applyBloom(double, double, int) override;
   void applyBlur(double, int) override;
 
-  void createWindow() override;
+  void createWindow(int=-1, int=-1) override;
 
   int getWindowFlags();
 
   void setWindowFullScreen(bool) override;
 
   bool isWindowFullScreen() override;
+
+  void destroyWindow() override;
 
   SDLGraphicsManager();
   virtual ~SDLGraphicsManager();

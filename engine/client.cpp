@@ -13,12 +13,20 @@ bool _server = false;
 
 std::unique_ptr<IGraphicsManager> _graphics_interface = std::make_unique<SDLGraphicsManager>();
 
+
+void client_init(){
+  _graphics_interface->destroyWindow();
+  _graphics_interface->createWindow(600, 800);
+  _graphics_interface->setDraw(true);
+
+  _graphics_interface->renderSplashScreen();
+  std::this_thread::sleep_for(std::chrono::seconds(3));
+}
+
+
 void
 client_loop()
 {
-
-  /* TODO move to init function */
-  _graphics_interface = std::make_unique<SDLGraphicsManager>();
 
   timespec t1, t2;
   t2.tv_nsec = 0;
@@ -51,8 +59,11 @@ void client_entry() {
     _pScene->update();
     handle_input();
   }
-  if (_draw)
-    draw_screen();
+  if (_draw && _graphics_interface){
+    _graphics_interface->resetFrameBuffers();
+    _pScene->draw();
+    _graphics_interface->drawScreen();
+  }
   _tick++;
 
   if (_pNewScene != nullptr) {

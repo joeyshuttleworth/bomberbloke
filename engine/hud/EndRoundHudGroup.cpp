@@ -21,9 +21,13 @@ EndRoundHudGroup::EndRoundHudGroup(scene &r_scene)
   // Create round winner label
   std::shared_ptr<Text> winnerLabelText =
     textManager.createText("ROUND WINNER");
-  winnerLabelText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-  winnerLabelText->setTextColour({ 255, 255, 255, 255 });
-  winnerLabelText->setTextScale(1.5);
+
+  if(winnerLabelText){
+    winnerLabelText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
+    winnerLabelText->setTextColour({ 255, 255, 255, 255 });
+    winnerLabelText->setTextScale(1.5);
+  }
+
   std::shared_ptr<TextHudElement> winnerLabelElement =
     std::make_shared<TextHudElement>(mrScene,
       winnerLabelText, 0, -200, 300, 50, ALIGN_CENTER, ALIGN_CENTER);
@@ -32,9 +36,13 @@ EndRoundHudGroup::EndRoundHudGroup(scene &r_scene)
   // Create round winner text
   std::shared_ptr<Text> winnerText =
     textManager.createText("");
-  winnerText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-  winnerText->setTextColour({ 255, 255, 255, 255 });
-  winnerText->setTextScale(4.);
+
+  if(winnerText){
+    winnerText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
+    winnerText->setTextColour({ 255, 255, 255, 255 });
+    winnerText->setTextScale(4.);
+  }
+
   std::shared_ptr<TextHudElement> winnerElement =
     std::make_shared<TextHudElement>(mrScene,
       winnerText, 0, -100, 500, 150, ALIGN_CENTER, ALIGN_CENTER);
@@ -50,9 +58,13 @@ EndRoundHudGroup::createBlankScoreText(int index)
 {
   std::shared_ptr<Text> playerText =
     textManager.createText("");
-  playerText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-  playerText->setTextColour({ 255, 255, 255, 255 });
-  playerText->setTextScale(1.5);
+
+  if(playerText){
+    playerText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
+    playerText->setTextColour({ 255, 255, 255, 255 });
+    playerText->setTextScale(1.5);
+  }
+
   std::shared_ptr<TextHudElement> playerElement =
     std::make_shared<TextHudElement>(mrScene,
       playerText, -100, index * 50 + 25, 250, 50, ALIGN_CENTER, ALIGN_CENTER);
@@ -60,9 +72,11 @@ EndRoundHudGroup::createBlankScoreText(int index)
 
    std::shared_ptr<Text> scoreText =
     textManager.createText("");
-   scoreText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-   scoreText->setTextColour({ 255, 255, 255, 255 });
-   scoreText->setTextScale(1.5);
+   if(scoreText){
+     scoreText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
+     scoreText->setTextColour({ 255, 255, 255, 255 });
+     scoreText->setTextScale(1.5);
+   }
    std::shared_ptr<TextHudElement> scoreElement =
      std::make_shared<TextHudElement>(mrScene,
        scoreText, -300, index * 50 + 25, 50, 50, ALIGN_CENTER, ALIGN_CENTER);

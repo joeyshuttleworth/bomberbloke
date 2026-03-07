@@ -89,6 +89,7 @@ main(int argc, char** argv)
     }
   }
 
+  client_init();
 #ifndef __EMSCRIPTEN__
   client_loop();
 #else

@@ -14,8 +14,6 @@ public:
 
   virtual void resizeWindow(int=0, int=0){};
 
-  virtual void init(){};
-
   virtual void renderSplashScreen(){};
   virtual void setDraw(bool){};
   virtual void drawScreen(){};
@@ -26,19 +24,19 @@ public:
   virtual void drawNoProcessingBuffer(){};
   virtual void resetFrameBuffers(){};
   virtual void drawSprite(std::string, std::array<int, 4>, bool=true, int=0){};
-  virtual void createWindow(){};
+  virtual void createWindow(int=-1, int=-1){};
 
   virtual std::array<int, 2> getScreenDimensions(){return std::array<int, 2>{0, 0};};
 
   virtual void renderFillRect(std::array<int, 4>&, uint32_t,
                               bool=true, int=0){};
 
-  virtual void setBlur(double, int=0){};
   virtual void setBrightness(int){};
-  virtual void setBloom(double, int=255, int=0){};
 
   virtual bool isWindowFullScreen(){return false;};
-  virtual void setWindowFullScreen(bool=true);
+  virtual void setWindowFullScreen(bool=true){};
+
+  virtual void destroyWindow(){};
 
   virtual ~IGraphicsManager();
 };

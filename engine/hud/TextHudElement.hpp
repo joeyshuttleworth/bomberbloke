@@ -53,8 +53,10 @@ public:
      * @param newText New string.
      */
     void setText(std::string newText) {
-        mText->setText(newText);
-        mPropertiesUpdated = true;
+      if(!mText)
+        return;
+      mText->setText(newText);
+      mPropertiesUpdated = true;
     }
 };
 

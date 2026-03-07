@@ -282,6 +282,10 @@ JoinMenuHudGroup::updateColourButton()
 
   int redValue, greenValue, blueValue;
 
+  if(!redField->mText || !greenField->mText || !blueField->mText){
+    return;
+  }
+
   // TODO : find a better solution
   try {
     redValue = std::stoi(redField->mText->getText());

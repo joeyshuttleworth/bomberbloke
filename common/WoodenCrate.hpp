@@ -18,8 +18,7 @@ public:
   }
 
   WoodenCrate(scene *scn=nullptr, int x=0, int y=0) : actor(scn, double(x), double(y), true){
-    auto gfx_manager = scn->getGraphicsManager();
-    mpSpriteHandler = std::shared_ptr<staticSprite>(new staticSprite(gfx_manager, double(x), double(y), 1.0, 1.0, "crate.png"));
+    mpSpriteHandler = std::shared_ptr<staticSprite>(new staticSprite(mpGraphicsManager, double(x), double(y), 1.0, 1.0, "crate.png"));
   return;
   }
 
