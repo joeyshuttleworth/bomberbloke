@@ -191,9 +191,8 @@ scene::draw()
 {
   drawActors();
   drawParticles();
-  drawHud();
-
-  mpCamera->draw();
+  // drawHud();
+  // mpCamera->draw();
 }
 
 void

@@ -43,11 +43,12 @@ Explosion::draw_legacy(Camera* cam)
 
   if (frame_no < mAnimationSpeed / 2.0) {
     /*Set colour to white*/
-    colour = 0xffffff ^ alpha;
+    colour = 0xffffff;
+    colour = colour ^ alpha;
   }
   else {
     /*Set colour to red*/
-    colour = 0xff000000 ^ (backAlpha << 16) ^ (backAlpha << 8) << alpha;
+    colour = 0xff000000 ^ (backAlpha << 16) ^ (backAlpha << 8) ^ alpha;
   }
   /*  Copy our texture across to the window */
   if(mpGraphicsManager){

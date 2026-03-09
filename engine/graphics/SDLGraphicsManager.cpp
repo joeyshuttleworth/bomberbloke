@@ -1,4 +1,5 @@
 #include "SDLGraphicsManager.hpp"
+#include "SDLTexture.hpp"
 
 #ifndef __EMSCRIPTEN__
 #include <cmrc/cmrc.hpp>
@@ -12,8 +13,10 @@ SDLGraphicsManager::renderSplashScreen(){
   const std::lock_guard<std::mutex> lock(mMutex);
   SDL_Rect dst = {(mWindowSize[0] / 2) - 128, (mWindowSize[1] / 2) - 128, 256, 256};
   auto sprite = getSprite("crate.png");
-  SDL_RenderCopy(mpRenderer, sprite, NULL, &dst);
-  SDL_RenderPresent(mpRenderer);
+  if(sprite){
+    SDL_RenderCopy(mpRenderer, sprite->getRawTexture(), NULL, &dst);
+    SDL_RenderPresent(mpRenderer);
+  }
 }
 
 
@@ -69,7 +72,7 @@ SDLGraphicsManager::createWindow(int w, int h)
 
 
 void
-SDLGraphicsManager::resizeWindow(int x=0, int y=0)
+SDLGraphicsManager::resizeWindow(int x=-1, int y=-1)
 {
   destroyBuffers();
   {
@@ -80,7 +83,7 @@ SDLGraphicsManager::resizeWindow(int x=0, int y=0)
 
   if (mpWindow) {
     // If no size provided, get it from SDL
-    if(x==0 && y==0)
+    if(x<=0 || y<=0)
       SDL_GetWindowSize(mpWindow, &x, &y);
 
     SDL_SetWindowSize(mpWindow, x, y);
@@ -92,34 +95,12 @@ SDLGraphicsManager::resizeWindow(int x=0, int y=0)
   if(mpRenderer){
     SDL_DestroyRenderer(mpRenderer);
   }
+
   mpRenderer = SDL_CreateRenderer(mpWindow, -1, mRendererFlags);
 
-  if(mpFrameBuffer){
-    SDL_DestroyTexture(mpFrameBuffer);
-  }
-  mpFrameBuffer = SDL_CreateTexture(mpRenderer,
-                                    SDL_PIXELFORMAT_RGBA8888,
-                                    SDL_TEXTUREACCESS_TARGET,
-                                    mWindowSize[0],
-                                    mWindowSize[1]);
-
-  if(mpNoProcessingBuffer){
-    SDL_DestroyTexture(mpNoProcessingBuffer);
-  }
-  mpNoProcessingBuffer = SDL_CreateTexture(mpRenderer,
-                                           SDL_PIXELFORMAT_RGBA8888,
-                                           SDL_TEXTUREACCESS_TARGET,
-                                           mWindowSize[0],
-                                           mWindowSize[1]);
-
-  if(mpFrameBuffer){
-    SDL_DestroyTexture(mpFrameBuffer);
-  }
-  mpBloomBuffer = SDL_CreateTexture(mpRenderer,
-                                    SDL_PIXELFORMAT_RGBA8888,
-                                    SDL_TEXTUREACCESS_TARGET,
-                                    mWindowSize[0],
-                                    mWindowSize[1]);
+  mpFrameBuffer = (SDLTexture*) createTexture(mWindowSize[0], mWindowSize[1]);
+  mpNoProcessingBuffer = (SDLTexture*) createTexture(mWindowSize[0], mWindowSize[1]);
+  mpBloomBuffer = (SDLTexture*) createTexture(mWindowSize[0], mWindowSize[1]);
 
   mScreenRectangle = {0, 0, mWindowSize[0], mWindowSize[1]};
   }
@@ -132,29 +113,43 @@ SDLGraphicsManager::resetFrameBuffers()
 {
   const std::lock_guard<std::mutex> lock(mMutex);
 
-  // Set background colour
-  SDL_SetRenderTarget(mpRenderer, mpFrameBuffer);
-  SDL_SetRenderDrawColor(mpRenderer, 0x00, 0x10, 0xff, 0xff);
-  SDL_RenderFillRect(mpRenderer, nullptr);
+  if(mpFrameBuffer){
+    // Set background colour
+    SDL_SetRenderTarget(mpRenderer, mpFrameBuffer->getRawTexture());
+    SDL_SetRenderDrawColor(mpRenderer, 0x00, 0x10, 0xff, 0xff);
+    SDL_RenderFillRect(mpRenderer, nullptr);
+  }
 
   // Clear bloom buffer
-  SDL_SetRenderTarget(mpRenderer, mpBloomBuffer);
-  SDL_SetTextureBlendMode(mpBloomBuffer, SDL_BLENDMODE_BLEND);
-  SDL_SetRenderDrawColor(mpRenderer, 0, 0, 0, 0);
-  SDL_RenderClear(mpRenderer);
+  if(mpBloomBuffer){
+    SDL_SetRenderTarget(mpRenderer, mpBloomBuffer->getRawTexture());
+    SDL_SetTextureBlendMode(mpBloomBuffer->getRawTexture(), SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(mpRenderer, 0, 0, 0, 0xff);
+    SDL_RenderClear(mpRenderer);
+  }
 
   // Clear no-processing-buffer
-  SDL_SetRenderTarget(mpRenderer, mpNoProcessingBuffer);
-  SDL_SetRenderDrawBlendMode(mpRenderer, SDL_BLENDMODE_BLEND);
-  SDL_SetRenderDrawColor(mpRenderer, 0, 0, 0, 0);
-  SDL_RenderClear(mpRenderer);
+  if(mpNoProcessingBuffer){
+    SDL_SetRenderTarget(mpRenderer, mpNoProcessingBuffer->getRawTexture());
+    SDL_SetRenderDrawBlendMode(mpRenderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(mpRenderer, 0, 0, 0, 0x00);
+    SDL_RenderClear(mpRenderer);
+  }
+
+  if(mpFrameBuffer){
+    SDL_SetRenderTarget(mpRenderer, mpFrameBuffer->getRawTexture());
+  }
 }
 
 
 void SDLGraphicsManager::renderClear(){
+  if(!mpFrameBuffer)
+    return;
+
   const std::lock_guard<std::mutex> lock(mMutex);
-  SDL_SetRenderDrawColor(mpRenderer, 0x00, 0x00, 0x00, 0xFF);
+  SDL_SetRenderDrawColor(mpRenderer, 0x00, 0x00, 0xFF, 0xFF);
   SDL_SetRenderDrawBlendMode(mpRenderer, SDL_BLENDMODE_NONE);
+  SDL_SetRenderTarget(mpRenderer, mpFrameBuffer->getRawTexture());
   SDL_RenderClear(mpRenderer);
 }
 
@@ -162,14 +157,16 @@ void SDLGraphicsManager::renderClear(){
 void
 SDLGraphicsManager::drawScreen()
 {
-  renderClear();
-
   {
   const std::lock_guard<std::mutex> lock(mMutex);
 
-  SDL_RenderCopy(mpRenderer, mpFrameBuffer, nullptr, nullptr);
+  if(!mpFrameBuffer)
+    return;
 
-  // Do bloom and blur
+  SDL_SetRenderTarget(mpRenderer, nullptr);
+  SDL_RenderCopy(mpRenderer, mpFrameBuffer->getRawTexture(), nullptr, nullptr);
+
+  // // Do bloom and blur
 
   // Apply brightness effect to window
   if (mBrightness != 0) {
@@ -189,9 +186,10 @@ SDLGraphicsManager::drawScreen()
   }
 
   // Draw processing-free buffer
-  SDL_SetTextureBlendMode(mpNoProcessingBuffer, SDL_BLENDMODE_BLEND);
-  SDL_RenderCopy(mpRenderer, mpNoProcessingBuffer, nullptr, nullptr);
-
+  if(mpNoProcessingBuffer){
+    SDL_SetTextureBlendMode(mpNoProcessingBuffer->getRawTexture(), SDL_BLENDMODE_BLEND);
+    SDL_RenderCopy(mpRenderer, mpNoProcessingBuffer->getRawTexture(), nullptr, nullptr);
+  }
   SDL_RenderPresent(mpRenderer);
   }
   return;
@@ -199,7 +197,7 @@ SDLGraphicsManager::drawScreen()
 
 /* Lookup the name in our list of sprites and return a pointer to its texture if
  * it exists */
-SDL_Texture*
+SDLTexture*
 SDLGraphicsManager::getSprite(std::string asset_name)
 {
   auto iter = mSpriteList.find(asset_name);
@@ -208,7 +206,8 @@ SDLGraphicsManager::getSprite(std::string asset_name)
     log_message(ERR, "Requested sprite, " + asset_name + " does not exist.");
     return nullptr;
   }
-  return iter->second;
+
+  return iter->second.get();
 }
 
 
@@ -229,9 +228,9 @@ SDLGraphicsManager::loadSpriteFromPath(std::string path){
   SDL_RWops *io = SDL_RWFromConstMem(file.begin(), file.end() - file.begin());
   #endif
 
-  SDL_Texture* sprite = IMG_LoadTexture_RW(mpRenderer, io, 1);
-  if(sprite){
-    mSpriteList[path] = sprite;
+  SDL_Texture* _sprite = IMG_LoadTexture_RW(mpRenderer, io, 1);
+  if(_sprite){
+    mSpriteList[path] = std::make_unique<SDLTexture>(this, _sprite);
     return;
   }
 
@@ -247,7 +246,6 @@ SDLGraphicsManager::blurTexture(SDL_Texture* texture, double size, int passes)
 
   if (!texture)
     return;
-
 
   // Get width and height of texture
   int width, height;
@@ -292,24 +290,24 @@ SDLGraphicsManager::blurTexture(SDL_Texture* texture, double size, int passes)
     dstRect.x = offset;
     dstRect.y = 0;
     SDL_SetRenderTarget(mpRenderer, tmpTexture);
-    SDL_SetTextureAlphaMod(texture, 127);
-    SDL_RenderCopy(mpRenderer, texture, nullptr, &dstRect);
+    SDL_SetTextureAlphaMod(tmpTexture, 127);
+    SDL_RenderCopy(mpRenderer, tmpTexture, nullptr, &dstRect);
 
     // Copy tmpTexture back onto texture
-    SDL_SetRenderTarget(mpRenderer, texture);
-    SDL_SetTextureAlphaMod(texture, 255);
+    SDL_SetRenderTarget(mpRenderer, tmpTexture);
+    SDL_SetTextureAlphaMod(tmpTexture, 255);
     SDL_RenderCopy(mpRenderer, tmpTexture, nullptr, nullptr);
 
     // Copy texture onto tmpTexture shifted vertically with 50% alpha
     dstRect.x = 0;
     dstRect.y = offset;
     SDL_SetRenderTarget(mpRenderer, tmpTexture);
-    SDL_SetTextureAlphaMod(texture, 127);
-    SDL_RenderCopy(mpRenderer, texture, nullptr, &dstRect);
+    SDL_SetTextureAlphaMod(tmpTexture, 127);
+    SDL_RenderCopy(mpRenderer, tmpTexture, nullptr, &dstRect);
 
     // Copy tmpTexture back onto texture
-    SDL_SetRenderTarget(mpRenderer, texture);
-    SDL_SetTextureAlphaMod(texture, 255);
+    SDL_SetRenderTarget(mpRenderer, tmpTexture);
+    SDL_SetTextureAlphaMod(tmpTexture, 255);
     SDL_RenderCopy(mpRenderer, tmpTexture, nullptr, nullptr);
   }
 
@@ -320,37 +318,62 @@ SDLGraphicsManager::blurTexture(SDL_Texture* texture, double size, int passes)
 // Apply blur to mpBloomBuffer and "add" to frame buffer to create a bloom
 void SDLGraphicsManager::applyBloom(double bloom_alpha, double bloom_size,
                                     int passes){
-  blurTexture(mpBloomBuffer, bloom_size, passes);
-  SDL_SetRenderTarget(mpRenderer, mpFrameBuffer);
-  SDL_SetTextureBlendMode(mpBloomBuffer, SDL_BLENDMODE_ADD);
-  SDL_SetTextureAlphaMod(mpBloomBuffer, bloom_alpha);
-  SDL_RenderCopy(mpRenderer, mpBloomBuffer, nullptr, nullptr);
+  if(!mpBloomBuffer)
+    return;
+  blurTexture(mpBloomBuffer->getRawTexture(), bloom_size, passes);
+  SDL_SetRenderTarget(mpRenderer, mpFrameBuffer->getRawTexture());
+  SDL_SetTextureBlendMode(mpBloomBuffer->getRawTexture(), SDL_BLENDMODE_ADD);
+  SDL_SetTextureAlphaMod(mpBloomBuffer->getRawTexture(), bloom_alpha);
+  SDL_RenderCopy(mpRenderer, mpBloomBuffer->getRawTexture(), nullptr, nullptr);
 }
 
 // Apply blur to mpFrameBuffer
 void SDLGraphicsManager::applyBlur(double blur_size, int passes){
-  blurTexture(mpFrameBuffer, blur_size, passes);
+  blurTexture(mpFrameBuffer->getRawTexture(), blur_size, passes);
   SDL_SetRenderTarget(mpRenderer, nullptr);
   renderCopy(mpFrameBuffer, nullptr, &mScreenRectangle);
 }
 
+void SDLGraphicsManager::renderCopy(AbstractTexture* texture,
+                                    Rect *_srcRect,
+                                    Rect *_dstRect,
+                                    bool isPostProcessed,
+                                    int bloomamount){
+  renderCopy(texture, _srcRect, _dstRect, isPostProcessed, bloomamount);
+}
 
 void
 SDLGraphicsManager::renderCopy(SDL_Texture* texture,
-                               SDL_Rect* srcRect,
-                               SDL_Rect* dstRect,
+                               Rect* _srcRect,
+                               Rect* _dstRect,
                                bool isPostProcessed,
                                int bloomAmount)
 {
   const std::lock_guard<std::mutex> lock(mMutex);
 
-  if(!mpRenderer){
-    return;
-  }
+  SDL_Rect *srcRect = nullptr;
+  SDL_Rect *dstRect = nullptr;
+
+  *srcRect = {0, 0, 0, 0};
+  *dstRect = {0, 0, 0, 0};
+
+  if(_srcRect)
+    *srcRect = SDL_Rect{(*_srcRect)[0], (*_srcRect)[1], (*_srcRect)[2], (*_srcRect)[3]};
+  if(_dstRect)
+    *dstRect = SDL_Rect{(*_dstRect)[0], (*_dstRect)[1], (*_dstRect)[2], (*_dstRect)[3]};
+
+  if(srcRect->w == 0 && srcRect->h == 0)
+    srcRect = nullptr;
+
+  if(dstRect->w == 0 && dstRect->h == 0)
+    dstRect = nullptr;
 
   // Copy the texture onto the appropriate frame buffer
   SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-  SDL_SetRenderTarget(mpRenderer, getFrameBuffer(isPostProcessed));
+
+  auto fb = ((SDLTexture*) getFrameBuffer(isPostProcessed))->getRawTexture();
+
+  SDL_SetRenderTarget(mpRenderer, fb);
   SDL_RenderCopy(mpRenderer, texture, srcRect, dstRect);
 
   if (isPostProcessed) {
@@ -364,7 +387,7 @@ SDLGraphicsManager::renderCopy(SDL_Texture* texture,
                                  SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
                                  SDL_BLENDOPERATION_ADD);
     SDL_SetTextureBlendMode(texture, subtractBlendMode);
-    SDL_SetRenderTarget(mpRenderer, mpBloomBuffer);
+    SDL_SetRenderTarget(mpRenderer, mpBloomBuffer->getRawTexture());
     SDL_RenderCopy(mpRenderer, texture, srcRect, dstRect);
 
     if (bloomAmount > 0) {
@@ -392,17 +415,23 @@ SDLGraphicsManager::renderFillRect(std::array<int, 4>& _dstRect,
                       (_dstRect[3])};
 
   // Draw rect to the appropriate frame buffer
-  SDL_SetRenderTarget(mpRenderer, getFrameBuffer(isPostProcessed));
+  auto _fb = (SDLTexture*) getFrameBuffer(isPostProcessed);
+  SDL_Texture* fb = nullptr;
+  if(_fb)
+    fb = _fb->getRawTexture();
+
+  SDL_SetRenderTarget(mpRenderer, fb);
+  SDL_SetRenderDrawBlendMode(mpRenderer, SDL_BLENDMODE_BLEND);
 
   SDL_Color color = {Uint8 (_colour >> 24), Uint8 (_colour >> 16),
                      Uint8 (_colour >> 8), Uint8 (_colour)};
   SDL_SetRenderDrawColor(mpRenderer, color.r, color.g, color.b, color.a);
   SDL_RenderFillRect(mpRenderer, &dstRect);
 
-  if (isPostProcessed) {
+  if (isPostProcessed && mpBloomBuffer) {
     if (bloomAmount > 0) {
       // Add rect to bloom buffer to create a glowing effect
-      SDL_SetRenderTarget(mpRenderer, mpBloomBuffer);
+      SDL_SetRenderTarget(mpRenderer, mpBloomBuffer->getRawTexture());
       SDL_SetRenderDrawBlendMode(mpRenderer, SDL_BLENDMODE_BLEND);
       SDL_SetRenderDrawColor(
         mpRenderer, color.r, color.g, color.b, color.a * bloomAmount / 255);
@@ -411,24 +440,44 @@ SDLGraphicsManager::renderFillRect(std::array<int, 4>& _dstRect,
       // Subtract rect from bloom buffer - this creates the effect that
       // the rect is obscuring the glowing object behind it
       SDL_SetRenderDrawBlendMode(mpRenderer, SDL_BLENDMODE_BLEND);
-      SDL_SetRenderTarget(mpRenderer, mpBloomBuffer);
+      SDL_SetRenderTarget(mpRenderer, mpBloomBuffer->getRawTexture());
       SDL_SetRenderDrawColor(mpRenderer, 0, 0, 0, color.a);
       SDL_RenderFillRect(mpRenderer, &dstRect);
     }
 
     SDL_SetRenderDrawBlendMode(mpRenderer, SDL_BLENDMODE_BLEND);
+
+    if(mDebug){
+    // Useful for debugging with breakpoints
+      SDL_SetRenderTarget(mpRenderer, nullptr);
+      SDL_RenderCopy(mpRenderer, fb, nullptr, nullptr);
+      SDL_RenderPresent(mpRenderer);
+      // SDL_RenderClear(mpRenderer);
+    }
   }
 }
 
-void SDLGraphicsManager::drawSprite(std::string asset_name, std::array<int, 4> _dstrect,
+void SDLGraphicsManager::drawSprite(std::string asset_name, Rect _dstrect,
                                     bool isPostProcessed, int bloomAmount){
   auto sprite = getSprite(asset_name);
-  SDL_Rect dstrect = {_dstrect[0], _dstrect[1], _dstrect[2], _dstrect[3]};
-  renderCopy(sprite, nullptr, &dstrect, isPostProcessed=isPostProcessed,
+
+  if(!sprite)
+    return;
+
+  renderCopy(sprite->getRawTexture(), nullptr, &_dstrect, isPostProcessed=isPostProcessed,
              bloomAmount=bloomAmount);
+
+  if(mDebug){
+    // Useful for debugging with breakpoints
+    auto fb = ((SDLTexture*)getFrameBuffer(false))->getRawTexture();
+    SDL_SetRenderTarget(mpRenderer, nullptr);
+    SDL_RenderCopy(mpRenderer, fb, nullptr, nullptr);
+    SDL_RenderPresent(mpRenderer);
+    // SDL_RenderClear();
+  }
 }
 
-SDLGraphicsManager::SDLGraphicsManager(){
+SDLGraphicsManager::SDLGraphicsManager(bool debug) : mDebug(debug){
   SDL_Init(SDL_INIT_VIDEO);
 }
 
@@ -468,16 +517,35 @@ SDLGraphicsManager::~SDLGraphicsManager(){
 }
 
 void SDLGraphicsManager::destroyBuffers(){
-  if(mpFrameBuffer)
-    SDL_DestroyTexture(mpFrameBuffer);
-
-  if(mpNoProcessingBuffer)
-    SDL_DestroyTexture(mpNoProcessingBuffer);
-
-  if(mpBloomBuffer)
-    SDL_DestroyTexture(mpBloomBuffer);
-
-  if(mpRenderer)
-    SDL_DestroyRenderer(mpRenderer);
 }
 
+
+SDL_Texture* SDLGraphicsManager::createRawTexture(int width, int height){
+  // Create temporary texture for blurring passes
+  SDL_Texture* texture =  SDL_CreateTexture(mpRenderer,
+                                            SDL_PIXELFORMAT_RGBA8888,
+                                            SDL_TEXTUREACCESS_TARGET,
+                                            width,
+                                            height);
+
+  return texture;
+}
+
+AbstractTexture* SDLGraphicsManager::createTexture(int width, int height){
+  auto tex = createRawTexture(width, height);
+  std::unique_ptr<SDLTexture> tex_ptr = std::make_unique<SDLTexture>(this, tex);
+
+  auto raw_ptr = tex_ptr.get();
+
+  mTextures[raw_ptr] = std::move(tex_ptr);
+
+  return raw_ptr;
+}
+
+
+void SDLGraphicsManager::destroyTexture(AbstractTexture* _texture){
+  SDLTexture* tex = (SDLTexture*) _texture;
+  if(mTextures.contains(tex)){
+    mTextures.erase(tex);
+  }
+}

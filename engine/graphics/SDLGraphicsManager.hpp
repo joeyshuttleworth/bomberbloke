@@ -7,26 +7,32 @@
 #include <map>
 #include <memory>
 #include <mutex>
+#include <set>
 #include <SDL_image.h>
 
 #include "IGraphicsManager.hpp"
+#include "SDLTexture.hpp"
 
-using SpriteList =  std::map<std::string, SDL_Texture*>;
+using SpriteList =  std::map<std::string, std::unique_ptr<SDLTexture>>;
 class scene;
 
 class SDLGraphicsManager : public IGraphicsManager{
 protected:
-  SDL_Texture* getSprite(std::string);
+  SDLTexture* getSprite(std::string);
+
+  SDL_Texture* createRawTexture(int width, int height);
 
   const Uint32 mRendererFlags = SDL_RENDERER_TARGETTEXTURE;
   const std::array<int, 2> mDefaultWindowSize = {600, 800};
 
+  std::map<SDLTexture*, std::unique_ptr<SDLTexture>> mTextures;
+
   bool mDraw = true;
   SDL_Renderer* mpRenderer;
   SDL_Window* mpWindow;
-  SDL_Texture* mpNoProcessingBuffer;
-  SDL_Texture* mpFrameBuffer;
-  SDL_Texture* mpBloomBuffer;
+  SDLTexture* mpNoProcessingBuffer;
+  SDLTexture* mpFrameBuffer;
+  SDLTexture* mpBloomBuffer;
   SpriteList mSpriteList;
   std::array<int, 2> mWindowSize = {0, 0};
   std::string mWindowTitle = "Bomberbloke";
@@ -34,7 +40,9 @@ protected:
   std::mutex mMutex;
   int mBrightness = 0;
 
-  SDL_Rect mScreenRectangle = {0, 0, 0, 0};
+  bool mDebug = true;
+
+  Rect mScreenRectangle = {0, 0, 0, 0};
 
   /**
    * Returns frame buffer for drawing to camera.
@@ -42,11 +50,14 @@ protected:
    * @param isPostProcessed Setting this to true returns a buffer that post
    *                        processing effects are applied to.
    */
-  SDL_Texture *getFrameBuffer(bool isPostProcessed=true){
+  AbstractTexture* getFrameBuffer(bool isPostProcessed=true){
+    SDLTexture* ret_val = nullptr;
     if (isPostProcessed)
-      return mpFrameBuffer;
+      ret_val = mpFrameBuffer;
     else
-      return mpNoProcessingBuffer;
+      ret_val = mpNoProcessingBuffer;
+
+    return (AbstractTexture*) ret_val;
   }
 
   void resetFrameBuffer();
@@ -58,9 +69,11 @@ protected:
    */
   void setBrightness(int brightness) override {mBrightness = brightness;};
 
-
-
   void destroyBuffers();
+
+
+  void renderCopy(SDL_Texture* texture, Rect* srcRect=nullptr,
+                  Rect* dstRect=nullptr, bool isPostProcessed=true, int bloomAmount=0);
 
 public:
 
@@ -79,8 +92,10 @@ public:
    * @param isPostProcessed Set to false to avoid post-processing effects.
    * @param bloomAmount     Determines the amount of bloom applied to texture.
    */
-  void renderCopy(SDL_Texture *texture, SDL_Rect *srcRect=nullptr,
-                  SDL_Rect *dstRect=nullptr, bool isPostProcessed=true, int bloomAmount=0);
+  void renderCopy(AbstractTexture* texture, Rect* srcRect=nullptr,
+                  Rect* dstRect=nullptr, bool isPostProcessed=true, int bloomAmount=0) override;
+
+  // mDebug = debug;
 
   // Allows for SDL like function calls
   void resizeWindow(int, int) override;
@@ -108,7 +123,7 @@ public:
    * @param size    Size of the blur, larger is more blury.
    * @param passes  Quality of the blur, larger is higher quality.
    */
-  void blurTexture(SDL_Texture*, double, int);
+  void blurTexture(SDL_Texture* texture, double size, int passes);
 
   /**
    * Draws a rectangle onto the appropriate frame buffer.
@@ -143,7 +158,11 @@ public:
 
   void destroyWindow() override;
 
-  SDLGraphicsManager();
+  AbstractTexture* createTexture(int=0, int=0) override;
+
+  void destroyTexture(AbstractTexture*) override;
+
+  SDLGraphicsManager(bool debug=false);
   virtual ~SDLGraphicsManager();
 
 };

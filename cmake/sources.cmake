@@ -45,3 +45,4 @@ engine/event/ServerInfoEvent.cpp
 engine/navigation/NavGrid.cpp
 engine/bots/AbstractBot.cpp
 engine/graphics/IGraphicsManager.cpp
+engine/graphics/SDLTexture.cpp

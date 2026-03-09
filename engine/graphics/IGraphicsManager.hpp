@@ -1,10 +1,14 @@
 #ifndef IGRAPHICSMANAGER_HPP
 #define IGRAPHICSMANAGER_HPP
+
 #include<string>
 #include<array>
 #include<map>
+#include "AbstractTexture.hpp"
 
 class scene;
+
+using Rect = std::array<int, 4>;
 
 class IGraphicsManager{
 public:
@@ -23,12 +27,12 @@ public:
   virtual void applyBrightness(double){};
   virtual void drawNoProcessingBuffer(){};
   virtual void resetFrameBuffers(){};
-  virtual void drawSprite(std::string, std::array<int, 4>, bool=true, int=0){};
+  virtual void drawSprite(std::string, Rect, bool=true, int=0){};
   virtual void createWindow(int=-1, int=-1){};
 
   virtual std::array<int, 2> getScreenDimensions(){return std::array<int, 2>{0, 0};};
 
-  virtual void renderFillRect(std::array<int, 4>&, uint32_t,
+  virtual void renderFillRect(Rect&, uint32_t,
                               bool=true, int=0){};
 
   virtual void setBrightness(int){};
@@ -37,6 +41,12 @@ public:
   virtual void setWindowFullScreen(bool=true){};
 
   virtual void destroyWindow(){};
+
+  virtual void renderCopy(AbstractTexture*, Rect*, Rect*, bool, int){};
+
+  virtual void destroyTexture(AbstractTexture*){};
+
+  virtual AbstractTexture* createTexture(int=0, int=0){return nullptr;};
 
   virtual ~IGraphicsManager();
 };

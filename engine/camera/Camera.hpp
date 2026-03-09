@@ -26,6 +26,8 @@ class Camera : public AbstractCamera{
     return mZoom;
   }
 
+  std::unique_ptr<AbstractTexture> mpFrameBuffer;
+
   void setZoom(double);
 
   /**

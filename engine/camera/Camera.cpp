@@ -28,7 +28,7 @@ Camera::getScreenRect(double x, double y, double w, double h)
 {
   std::array<int, 2> screen_dims = {0, 0};
   if(mpGraphicsManager)
-    mpGraphicsManager->getScreenDimensions();
+    screen_dims = mpGraphicsManager->getScreenDimensions();
 
   int pxPerUnit = mZoom * screen_dims[0];
 
@@ -88,8 +88,8 @@ Camera::draw()
   LOCK_GUARD(mMutex);
 
   /* Do postprocessing */
-  mpGraphicsManager->applyBloom(mBloomAlpha, mBloomSize, mBlurPasses);
-  mpGraphicsManager->applyBrightness(mBrightness);
+  // mpGraphicsManager->applyBloom(mBloomAlpha, mBloomSize, mBlurPasses);
+  // mpGraphicsManager->applyBrightness(mBrightness);
 }
 
 void
