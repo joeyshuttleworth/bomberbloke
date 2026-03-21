@@ -8,10 +8,7 @@
 * toolchain to bundle them together.
 */
 
-#ifndef __EMSCRIPTEN__
-#include <cmrc/cmrc.hpp>
-CMRC_DECLARE(files);
-#endif
+#ifdef __EMSCRIPTEN__
 
 void
 loadAssets(TextManager&, //textManager,
@@ -52,3 +49,42 @@ loadAssets(TextManager&, //textManager,
         }
     }
 }
+
+#else
+#include <cmrc/cmrc.hpp>
+CMRC_DECLARE(files);
+
+void
+loadAssets(TextManager&,
+           SoundManager&,
+           IGraphicsManager& graphicsManager)
+{
+  auto fs = cmrc::files::get_filesystem();
+  for (auto &&entry : fs.iterate_directory("files/assets/"))
+  {
+    auto dot_pos = entry.filename().find('.');
+    if (dot_pos == std::string::npos)
+    {
+      continue;
+    } // no file extension
+
+    std::string file_name = entry.filename().substr(0, dot_pos);
+    std::string file_extension = entry.filename().substr(dot_pos);
+
+    auto fname = entry.filename();
+    if (file_extension == ".ttf")
+    {
+      // textManager.loadFontFromPath(io, file_name);
+    }
+    else if (file_extension == ".ogg")
+    {
+      // soundManager.loadFromPath(io, file_name);
+    }
+    else if (file_extension == ".png"){
+      graphicsManager.loadSpriteFromPath(fname);
+    }
+  }
+
+}
+
+#endif

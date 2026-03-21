@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include "assets.hpp"
 
 unsigned int _last_receive;
 bool _draw = true;
@@ -18,6 +19,8 @@ void client_init(){
   _graphics_interface->destroyWindow();
   _graphics_interface->createWindow(600, 800);
   _graphics_interface->setDraw(true);
+
+  loadAssets(textManager, soundManager, *_graphics_interface);
 
   _graphics_interface->renderSplashScreen();
   std::this_thread::sleep_for(std::chrono::seconds(3));
