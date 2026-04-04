@@ -53,6 +53,8 @@ protected:
   std::weak_ptr<InputField> mGreenField;
   std::weak_ptr<TextButton> mColourButton;
 
+  std::string mFont = "Aileron-Black";
+
   // Weak pointer to loading text.
   std::weak_ptr<TextHudElement> mLoadingText;
 

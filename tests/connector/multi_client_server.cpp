@@ -55,7 +55,7 @@ main(int, char**)
   std::vector<std::thread> threads;
   for(int i = 0; i < N_CLIENTS; i++)
     threads.emplace_back(run_client); // Launch clients
-  
+
   server.join();
   for(auto &thread : threads)
     thread.join();

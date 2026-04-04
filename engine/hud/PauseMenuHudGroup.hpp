@@ -23,6 +23,8 @@ private:
   // Weak pointer to the options menu HUD group stored in mHudElements.
   std::weak_ptr<OptionsMenuHudGroup> mOptionsMenu;
 
+  std::string mFont = "Aileron-Black";
+
   /**
    * Opens the options menu HUD group.
    */

@@ -17,6 +17,7 @@ Text::draw(Camera*, bool)
     return;
 
   if (mPropertiesUpdated) {
+    updateTexture();
     mPropertiesUpdated = false;
   }
 
@@ -147,56 +148,58 @@ Text::draw(Camera*, bool)
       }
     }
 
-      // top-left corner of the text box
-      int xDisplacement = 0;
-      int yDisplacement = 0;
+    // top-left corner of the text box
+    int xDisplacement = 0;
+    int yDisplacement = 0;
 
-      // Note that mTextScale is used to scale the texture dimensions and the
-      // source rectangle such that the render of the text is scaled
+    // Note that mTextScale is used to scale the texture dimensions and the
+    // source rectangle such that the render of the text is scaled
 
-      // Displacement in the x-direction
-      switch (mAlignment[0]) {
-      case TEXT_ALIGN_RIGHT:
-        xDisplacement = mDimensions[0] - width * mTextScale[0] + mOffset[0];
-        break;
-      case TEXT_ALIGN_CENTER:
-        xDisplacement = (mDimensions[0] - width * mTextScale[0]) / 2 + mOffset[0];
-        break;
-      default:
-        xDisplacement = mOffset[0];
-      }
-      // Displacement in the y-direction
-      switch (mAlignment[1]) {
-      case TEXT_ALIGN_BOTTOM:
-        yDisplacement = mDimensions[1] - height * mTextScale[1] + mOffset[1];
-        break;
-      case TEXT_ALIGN_CENTER:
-        yDisplacement =
-          (mDimensions[1] - height * mTextScale[1]) / 2 + mOffset[1];
-        break;
-      default:
-        yDisplacement = mOffset[1];
-      }
-      // If displacement is negative, change the start position of the source
-      // rectangle
-      mSrcRect[0] = std::max(0, -xDisplacement) / mTextScale[0];
-      mSrcRect[1] = std::max(0, -yDisplacement) / mTextScale[0];
+    // Displacement in the x-direction
+    switch (mAlignment[0]) {
+    case TEXT_ALIGN_RIGHT:
+      xDisplacement = mDimensions[0] - width * mTextScale[0] + mOffset[0];
+      break;
+    case TEXT_ALIGN_CENTER:
+      xDisplacement = (mDimensions[0] - width * mTextScale[0]) / 2 + mOffset[0];
+      break;
+    default:
+      xDisplacement = mOffset[0];
+    }
+    // Displacement in the y-direction
+    switch (mAlignment[1]) {
+    case TEXT_ALIGN_BOTTOM:
+      yDisplacement = mDimensions[1] - height * mTextScale[1] + mOffset[1];
+      break;
+    case TEXT_ALIGN_CENTER:
+      yDisplacement =
+        (mDimensions[1] - height * mTextScale[1]) / 2 + mOffset[1];
+      break;
+    default:
+      yDisplacement = mOffset[1];
+    }
 
-      // Crop the texture according to the dimensions of the text box and the
-      // displacement
-      mSrcRect[2] = std::min(double(width) - mSrcRect[0], mDimensions[0] / mTextScale[0]);
-      mSrcRect[3] = std::min(double(height) - mSrcRect[1], mDimensions[1] / mTextScale[1]);
+    // If displacement is negative, change the start position of the source
+    // rectangle
+    mSrcRect[0] = std::max(0, -xDisplacement) / mTextScale[0];
+    mSrcRect[1] = std::max(0, -yDisplacement) / mTextScale[0];
 
-      // If displacement is positive, change the start position of the
-      // destination rectangle
-      mDstRect[0] = mPosition[0] + std::max(0, xDisplacement);
-      mDstRect[1] = mPosition[1] + std::max(0, yDisplacement);
+    // Crop the texture according to the dimensions of the text box and the
+    // displacement
+    mSrcRect[2] = std::min(double(width) - mSrcRect[0], mDimensions[0] / mTextScale[0]);
+    mSrcRect[3] = std::min(double(height) - mSrcRect[1], mDimensions[1] / mTextScale[1]);
 
-      // Scale the source rectangle dimensions
-      mDstRect[2] = mSrcRect[2] * mTextScale[0];
-      mDstRect[3] = mSrcRect[3] * mTextScale[1];
-      // Texture has been updated - set boolean back to false.
-      mPropertiesUpdated = false;
+    // If displacement is positive, change the start position of the
+    // destination rectangle
+    mDstRect[0] = mPosition[0] + std::max(0, xDisplacement);
+    mDstRect[1] = mPosition[1] + std::max(0, yDisplacement);
+
+    // Scale the source rectangle dimensions
+    mDstRect[2] = mSrcRect[2] * mTextScale[0];
+    mDstRect[3] = mSrcRect[3] * mTextScale[1];
+
+    // Texture has been updated - set boolean back to false.
+    mPropertiesUpdated = false;
   }
 
 int

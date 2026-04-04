@@ -15,7 +15,7 @@ protected:
     ConnectorDescriptor desc;
     bool isOpen = false;
 
-    std::map<ConnectorPeer, ENetPeer*> peers; 
+    std::map<ConnectorPeer, ENetPeer*> peers;
 
     ENetHost *host = nullptr;
     ENetAddress addr;
@@ -24,7 +24,7 @@ protected:
 
     // Services the enet host, needs to be called 'regularly' to keep things moving
     void serviceENet(int);
-    
+
     // Business logic for what to do with ENetEvent
     void processENetEvent(ENetEvent &event, EventReceived &recieved);
 public:
@@ -133,7 +133,7 @@ void ENetConnector::serviceENet(int timeout) {
         EventReceived recieved;
         processENetEvent(event, recieved);
         if(recieved != EVENT_RECEIVED_NONE)
-            cache.push_back(recieved); 
+            cache.push_back(recieved);
     }
 }
 
@@ -143,7 +143,7 @@ void ENetConnector::processENetEvent(ENetEvent &event, EventReceived &recieved)
 
     // Recover ConnectorPeer ID
     ConnectorPeer from = event.peer->data == NULL ? -1 : *((ConnectorPeer*) event.peer->data);
-    
+
     // Business logic
     switch(event.type) {
         case ENET_EVENT_TYPE_CONNECT: {
@@ -201,7 +201,7 @@ void ENetConnector::processENetEvent(ENetEvent &event, EventReceived &recieved)
     }
 }
 
-void 
+void
 ENetConnector::sendEvent(std::shared_ptr<AbstractEvent> event, ConnectorPeer to_id) {
     if(to_id < 0) {
         printf("Attempted to sendEvent to debug player\n");
@@ -249,13 +249,13 @@ ENetConnector::sendEvent(std::shared_ptr<AbstractEvent> event, ConnectorPeer to_
     enet_host_flush(host);
 };
 
-void 
+void
 ENetConnector::broadcastEvent(std::shared_ptr<AbstractEvent> event) {
     for(auto peer : peers)
         sendEvent(event, peer.first);
 };
 
-void 
+void
 ENetConnector::disconnectPeer(ConnectorPeer id, std::string reason) {
     if(!peers.count(id))
         return;
@@ -278,14 +278,14 @@ ENetConnector::disconnectPeer(ConnectorPeer id, std::string reason) {
         cache.push_back({std::make_shared<PlayerLeaveEvent>(), id});
 };
 
-int 
+int
 ENetConnector::latency(ConnectorPeer id) {
     if(peers.count(id) == 0)
         return -1;
     return (int) peers[id]->lastRoundTripTime;
 };
 
-std::list<EventReceived> 
+std::list<EventReceived>
 ENetConnector::poll(int timeout) {
     std::list<EventReceived> events = cache;
     cache.clear();
@@ -308,7 +308,7 @@ ENetConnector::poll(int timeout) {
     return events;
 };
 
-EventReceived 
+EventReceived
 ENetConnector::pollFor(int timeout, std::set<EventType>& lookFor) {
     // Finds and removes matching event
     auto scanCache = [&]() {
@@ -336,7 +336,7 @@ ENetConnector::pollFor(int timeout, std::set<EventType>& lookFor) {
     return EVENT_RECEIVED_NONE;
 };
 
-int 
+int
 ENetConnector::countPeers() {
     return (int) peers.size();
 };

@@ -84,12 +84,14 @@ NetClient::attemptJoin(std::string address, const std::string &nickname,
   mConnector->broadcastEvent(std::move(q_event));
 
   /* We expect ServerInfoEvent */
-  log_message(DEBUG, "night: wait for server info event");
+  log_message(DEBUG, "wait for server info event");
   std::set<EventType> outcomes = { EVENT_INFO };
   auto response = mConnector->pollFor(10000, outcomes);
   log_message(DEBUG, "lets see if we got it");
-  if(response == EVENT_RECEIVED_NONE)
+  if(response == EVENT_RECEIVED_NONE){
+    log_message(DEBUG, "No event received");
     return false;
+  }
 
   std::shared_ptr<ServerInfoEvent> info_event =
     std::dynamic_pointer_cast<ServerInfoEvent>(response.event);

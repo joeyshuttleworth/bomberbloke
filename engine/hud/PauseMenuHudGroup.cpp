@@ -30,7 +30,7 @@ PauseMenuHudGroup::PauseMenuHudGroup(scene &r_scene)
 {
   // Create resume button text
   std::shared_ptr<Text> resumeText =
-    mpGraphicsManager->createText("RESUME GAME");
+    mpGraphicsManager->createText("RESUME GAME", mFont);
   if(resumeText){
     resumeText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
     resumeText->setTextColour(0xFFFFFFFF);
@@ -63,10 +63,10 @@ PauseMenuHudGroup::PauseMenuHudGroup(scene &r_scene)
 
   // Create leave button text
   std::shared_ptr<Text> leaveText =
-    mpGraphicsManager->createText("LEAVE GAME");
+    mpGraphicsManager->createText("LEAVE GAME", mFont);
 
   std::shared_ptr<Text> optionsText =
-    mpGraphicsManager->createText("OPTIONS");
+    mpGraphicsManager->createText("OPTIONS", mFont);
 
   if (!leaveText || !optionsText){
     log_message(ERR, "Failed to create pause menu text");

@@ -11,6 +11,7 @@ MainMenuScene::MainMenuScene(IGraphicsManager* gfx_manager, int size_x, int size
   mHudElements.push_back(menuHud);
 
   mpCamera = std::make_shared<ShowAllCamera>(gfx_manager, this);
+  SetCamera(mpCamera);
 
   for (int i = 0; i < size_x; i++) {
     for (int j = 0; j < size_y; j++) {

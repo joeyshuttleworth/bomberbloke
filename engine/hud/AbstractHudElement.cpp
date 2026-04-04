@@ -45,6 +45,7 @@ AbstractHudElement::draw(Camera* camera)
 void
 AbstractHudElement::updatePosition(Camera* camera)
 {
+
   if(!camera)
     return;
 

@@ -15,7 +15,7 @@ JoinMenuHudGroup::JoinMenuHudGroup(scene& r_scene, std::function<void()> goBackF
 {
   // Create nickname text
   std::shared_ptr<Text> nicknameFieldText =
-    mpGraphicsManager->createText("NICKNAME");
+    mpGraphicsManager->createText("NICKNAME", mFont);
   if (nicknameFieldText) {
     nicknameFieldText->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
     nicknameFieldText->setTextColour(0xFFFFFF80);
@@ -33,7 +33,7 @@ JoinMenuHudGroup::JoinMenuHudGroup(scene& r_scene, std::function<void()> goBackF
 
   // Create red text
   std::shared_ptr<Text> redFieldText =
-    mpGraphicsManager->createText("R");
+    mpGraphicsManager->createText("R", mFont);
   if (redFieldText) {
     redFieldText->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
     redFieldText->setTextColour(0xFFFFFF80);
@@ -50,7 +50,7 @@ JoinMenuHudGroup::JoinMenuHudGroup(scene& r_scene, std::function<void()> goBackF
 
   // Create green text
   std::shared_ptr<Text> greenFieldText =
-    mpGraphicsManager->createText("G");
+    mpGraphicsManager->createText("G", mFont);
   if (greenFieldText) {
     greenFieldText->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
     greenFieldText->setTextColour(0xFFFFFF80);
@@ -67,7 +67,7 @@ JoinMenuHudGroup::JoinMenuHudGroup(scene& r_scene, std::function<void()> goBackF
 
   // Create blue text
   std::shared_ptr<Text> blueFieldText =
-    mpGraphicsManager->createText("B");
+    mpGraphicsManager->createText("B", mFont);
   if (blueFieldText) {
     blueFieldText->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
     blueFieldText->setTextColour(0xFFFFFF80);
@@ -106,7 +106,7 @@ JoinMenuHudGroup::JoinMenuHudGroup(scene& r_scene, std::function<void()> goBackF
 
   // Create address text
   std::shared_ptr<Text> addressFieldText =
-    mpGraphicsManager->createText("ADDRESS");
+    mpGraphicsManager->createText("ADDRESS", mFont);
   if (addressFieldText) {
     addressFieldText->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
     addressFieldText->setTextColour(0xFFFFFF80);
@@ -124,7 +124,7 @@ JoinMenuHudGroup::JoinMenuHudGroup(scene& r_scene, std::function<void()> goBackF
 
   // Create join text
   std::shared_ptr<Text> joinText =
-    mpGraphicsManager->createText("JOIN");
+    mpGraphicsManager->createText("JOIN", mFont);
   if (joinText) {
     joinText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
     joinText->setTextColour(0xFFFFFFFF);
@@ -143,7 +143,7 @@ JoinMenuHudGroup::JoinMenuHudGroup(scene& r_scene, std::function<void()> goBackF
 
   // Create go back button text
   std::shared_ptr<Text> backText =
-    mpGraphicsManager->createText("BACK");
+    mpGraphicsManager->createText("BACK", mFont);
   if (backText) {
     backText->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM);
     backText->setTextColour(0xFFFFFFFF);
@@ -158,7 +158,7 @@ JoinMenuHudGroup::JoinMenuHudGroup(scene& r_scene, std::function<void()> goBackF
 
   // Create loading text
   std::shared_ptr<Text> loadingText =
-    mpGraphicsManager->createText("LOADING...");
+    mpGraphicsManager->createText("LOADING...", mFont);
   if (loadingText) {
     loadingText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
     loadingText->setTextColour(0xFFFFFFFF);

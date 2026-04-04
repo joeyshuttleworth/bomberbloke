@@ -9,8 +9,6 @@
 #include "assets.hpp"
 
 unsigned int _last_receive;
-bool _draw = true;
-bool _server = false;
 
 std::unique_ptr<IGraphicsManager> _graphics_interface = std::make_unique<SDLGraphicsManager>();
 

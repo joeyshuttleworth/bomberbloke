@@ -14,7 +14,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(scene& r_scene, std::function<void()> g
 {
   // Create title
   std::shared_ptr<Text> titleText =
-    mpGraphicsManager->createText(mFont, "OPTIONS", 12);
+    mpGraphicsManager->createText("OPTIONS", mFont, 12);
   if (titleText) {
     titleText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
     titleText->setTextColour(0xFFFFFFFF);
@@ -29,7 +29,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(scene& r_scene, std::function<void()> g
 
   // Create go back button text
   std::shared_ptr<Text> backText =
-    mpGraphicsManager->createText(mFont, "BACK");
+    mpGraphicsManager->createText("BACK", mFont);
   if (backText) {
     backText->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM);
     backText->setTextColour(0xFFFFFFFF);
@@ -48,7 +48,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(scene& r_scene, std::function<void()> g
   /* Master Volume */
   // Master volume option title
   std::shared_ptr<Text> volumeTitleText =
-    mpGraphicsManager->createText(mFont, "MASTER VOLUME:");
+    mpGraphicsManager->createText("MASTER VOLUME:", mFont);
   if (volumeTitleText) {
     volumeTitleText->setTextAlignment(TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER);
     volumeTitleText->setTextColour(0xFFFFFFFF);
@@ -62,7 +62,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(scene& r_scene, std::function<void()> g
 
   // Create reduce volume text
   std::shared_ptr<Text> reduceVolumeText =
-    mpGraphicsManager->createText(mFont, "-");
+    mpGraphicsManager->createText("-", mFont);
   if (reduceVolumeText) {
     reduceVolumeText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
     reduceVolumeText->setTextColour(0xFFFFFFFF);
@@ -88,7 +88,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(scene& r_scene, std::function<void()> g
   // Master volume option label
   int currentVolumeLabel = soundManager.getVolume(SOUND_MASTER) * 8 / 128;
   std::shared_ptr<Text> volumeLabelText =
-    mpGraphicsManager->createText(mFont, std::to_string(currentVolumeLabel));
+    mpGraphicsManager->createText(std::to_string(currentVolumeLabel), mFont);
   if (volumeLabelText) {
     volumeLabelText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
     volumeLabelText->setTextColour(0xFFFFFFFF);
@@ -103,7 +103,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(scene& r_scene, std::function<void()> g
 
   // Create increase volume text
   std::shared_ptr<Text> increaseVolumeText =
-    mpGraphicsManager->createText(mFont, "+");
+    mpGraphicsManager->createText("+", mFont);
   if (increaseVolumeText) {
     increaseVolumeText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
     increaseVolumeText->setTextColour(0xFFFFFFFF);
@@ -128,7 +128,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(scene& r_scene, std::function<void()> g
   /* Music Volume */
   // Music volume option title
   std::shared_ptr<Text> musicTitleText =
-    mpGraphicsManager->createText(mFont, "MUSIC VOLUME:");
+    mpGraphicsManager->createText("MUSIC VOLUME:", mFont);
   if (musicTitleText) {
     musicTitleText->setTextAlignment(TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER);
     musicTitleText->setTextColour(0xFFFFFFFF);
@@ -142,7 +142,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(scene& r_scene, std::function<void()> g
 
   // Create reduce volume text
   std::shared_ptr<Text> reduceMusicText =
-    mpGraphicsManager->createText(mFont, "-");
+    mpGraphicsManager->createText("-", mFont);
   if (reduceMusicText) {
     reduceMusicText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
     reduceMusicText->setTextColour(0xFFFFFFFF);
@@ -175,7 +175,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(scene& r_scene, std::function<void()> g
 
   // Create increase volume text
   std::shared_ptr<Text> increaseMusicText =
-    mpGraphicsManager->createText(mFont, "+");
+    mpGraphicsManager->createText("+", mFont);
   if (increaseMusicText) {
     increaseMusicText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
     increaseMusicText->setTextColour(0xFFFFFFFF);
@@ -201,7 +201,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(scene& r_scene, std::function<void()> g
   /* Window mode setting */
   // Create window mode label
   std::shared_ptr<Text> windowLabelText =
-    mpGraphicsManager->createText(mFont, "WINDOW MODE:");
+    mpGraphicsManager->createText("WINDOW MODE:", mFont);
   if (windowLabelText) {
     windowLabelText->setTextAlignment(TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER);
     windowLabelText->setTextColour(0xFFFFFFFF);
@@ -243,7 +243,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(scene& r_scene, std::function<void()> g
   /* debug console */
   // Create debug console text
   std::shared_ptr<Text> consoleText =
-    mpGraphicsManager->createText(mFont, "CONSOLE");
+    mpGraphicsManager->createText("CONSOLE", mFont);
   if (consoleText) {
     consoleText->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
     consoleText->setTextColour(0xFFFFFF80);
@@ -260,7 +260,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(scene& r_scene, std::function<void()> g
 
   // Create debug console enter button
   std::shared_ptr<Text> consoleEnterText =
-    mpGraphicsManager->createText(mFont, "->");
+    mpGraphicsManager->createText("->", mFont);
   if (consoleEnterText) {
     consoleEnterText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
     consoleEnterText->setTextColour(0xFFFFFFFF);

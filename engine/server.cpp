@@ -15,7 +15,6 @@ void server_loop(short port, std::string masterServerAddress, bool debug){
 
   /* TODO put init code in init func */
 
-
   if(debug){
     _debug_player = true;
     log_message(INFO, "DEBUG Mode: On");
@@ -46,7 +45,9 @@ void server_loop(short port, std::string masterServerAddress, bool debug){
         log_message(ERR, "Failed to get time");
     } while (t2.tv_nsec - t1.tv_nsec +
                1e9 * (t2.tv_sec - t1.tv_sec) < 1e9 / TICK_RATE);
+
     _net_server->update();
+
     if (_tick % (5 * TICK_RATE) == 0) {
       _ping_time = _tick;
     }
