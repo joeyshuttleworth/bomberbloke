@@ -18,6 +18,7 @@ enum TextAlignFlag {
   TEXT_ALIGN_TOP
 };
 
+
 class AbstractTexture;
 
 /**

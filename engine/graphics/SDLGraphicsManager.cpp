@@ -11,6 +11,8 @@ CMRC_DECLARE(files);
 #endif
 
 #include "engine.hpp"
+#include "Text.hpp"
+
 
 void
 SDLGraphicsManager::renderSplashScreen(){
@@ -19,8 +21,12 @@ SDLGraphicsManager::renderSplashScreen(){
   auto sprite = getSprite("crate.png");
   if(sprite){
     SDL_RenderCopy(mpRenderer, sprite->getRawTexture(), nullptr, &dst);
-    SDL_RenderPresent(mpRenderer);
   }
+
+  // auto text = createText("Loading...", "Aileron-Black", 12);
+  // text->draw(nullptr, false);
+  SDL_RenderPresent(mpRenderer);
+
 }
 
 
@@ -577,7 +583,7 @@ SDLGraphicsManager::~SDLGraphicsManager(){
 
   // Unload fonts
   for(auto font : mFonts){
-    TTF_CloseFont(font.second);
+    TTF_CloseFont(font.second.font);
   }
 
   SDL_QuitSubSystem(SDL_INIT_VIDEO);
@@ -586,19 +592,21 @@ SDLGraphicsManager::~SDLGraphicsManager(){
 void
 SDLGraphicsManager::loadFont(std::string path, int size){
   // TODO Add error checking
-  TTF_Font* font;
+  SDLFontResoruce res;
 #ifdef __ENSCRIPTEN__
   std::string full_path = "assets/" + path + ".ttf";
-  font = TTF_OpenFont(full_path.c_str(), size);
+  res.font = TTF_OpenFont(full_path.c_str(), size);
 #else
   std::string full_path = "files/assets/" + path + ".ttf";
-
   try{
   auto fs = cmrc::files::get_filesystem();
   auto file = fs.open(full_path);
+
   std::vector<char> buffer(file.begin(), file.end());
-  SDL_RWops* rw = SDL_RWFromConstMem(buffer.data(), file.end() - file.begin());
-  font = TTF_OpenFontRW(rw, 1, size);
+  res.data = std::vector<unsigned char>(file.begin(), file.end());
+
+  SDL_RWops* rw = SDL_RWFromConstMem(res.data.data(), res.data.end() - res.data.begin());
+  res.font = TTF_OpenFontRW(rw, 1, size);
   }
   catch (const std::exception& e){
     std::ostringstream err;
@@ -607,10 +615,9 @@ SDLGraphicsManager::loadFont(std::string path, int size){
     return;
   }
 #endif
-
   std::ostringstream font_name;
   font_name <<  path << "_" << size;
-  mFonts[font_name.str()] = font;
+  mFonts[font_name.str()] = std::move(res);
 }
 
 TTF_Font* SDLGraphicsManager::getFont(std::string path, int size){
@@ -624,7 +631,7 @@ TTF_Font* SDLGraphicsManager::getFont(std::string path, int size){
   }
 
   if(mFonts.contains(font_name.str()))
-    return mFonts[font_name.str()];
+    return mFonts[font_name.str()].font;
 
   return nullptr;
 }

@@ -14,6 +14,12 @@
 #include "IGraphicsManager.hpp"
 #include "SDLTexture.hpp"
 
+
+struct SDLFontResoruce{
+  TTF_Font* font;
+  std::vector<unsigned char> data;
+};
+
 using SpriteList =  std::map<std::string, std::unique_ptr<SDLTexture>>;
 class scene;
 
@@ -41,7 +47,7 @@ protected:
   std::mutex mMutex;
   int mBrightness = 0;
 
-  std::map<std::string, TTF_Font*> mFonts;
+  std::map<std::string, SDLFontResoruce> mFonts;
 
   bool mDebug = true;
 
