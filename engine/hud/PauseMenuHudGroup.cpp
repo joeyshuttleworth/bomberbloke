@@ -30,17 +30,17 @@ PauseMenuHudGroup::PauseMenuHudGroup(scene &r_scene)
 {
   // Create resume button text
   std::shared_ptr<Text> resumeText =
-    textManager.createText("RESUME GAME");
+    mpGraphicsManager->createText("RESUME GAME");
   if(resumeText){
     resumeText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-    resumeText->setTextColour({ 255, 255, 255, 255 });
+    resumeText->setTextColour(0xFFFFFFFF);
     resumeText->setTextScale(1.5);
   }
   // Create resume button element
   auto resume_fn = [&](){resumeFn(mrScene);};
   std::shared_ptr<TextButton> resumeElement = std::make_shared<TextButton>(mrScene,
     resumeText, 0, -40, 200, 30, resume_fn, ALIGN_CENTER, ALIGN_CENTER);
-  resumeElement->setMouseOverColour({ 200, 200, 200, 255 });
+  resumeElement->setMouseOverColour(0xC0C0C0FF);
   resumeElement->setOnClickOffset(-1, 2);
   addElement(resumeElement);
 
@@ -63,10 +63,10 @@ PauseMenuHudGroup::PauseMenuHudGroup(scene &r_scene)
 
   // Create leave button text
   std::shared_ptr<Text> leaveText =
-    textManager.createText("LEAVE GAME");
+    mpGraphicsManager->createText("LEAVE GAME");
 
   std::shared_ptr<Text> optionsText =
-    textManager.createText("OPTIONS");
+    mpGraphicsManager->createText("OPTIONS");
 
   if (!leaveText || !optionsText){
     log_message(ERR, "Failed to create pause menu text");
@@ -74,20 +74,20 @@ PauseMenuHudGroup::PauseMenuHudGroup(scene &r_scene)
 
   if(leaveText){
     leaveText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-    leaveText->setTextColour({ 255, 255, 255, 255 });
+    leaveText->setTextColour(0xFFFFFFFF);
     leaveText->setTextScale(1.5);
   }
   // Create leave button element
   std::shared_ptr<TextButton> leaveElement = std::make_shared<TextButton>(mrScene,
     leaveText, 0, 0, 200, 30, disconnectFn, ALIGN_CENTER, ALIGN_CENTER);
-  leaveElement->setMouseOverColour({ 200, 200, 200, 255 });
+  leaveElement->setMouseOverColour(0xC0C0C0FF);
   leaveElement->setOnClickOffset(-1, 2);
   addElement(leaveElement);
 
   // Create options menu button
   if(optionsText){
     optionsText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-    optionsText->setTextColour({ 255, 255, 255, 255 });
+    optionsText->setTextColour(0xFFFFFFFF);
     optionsText->setTextScale(1.5);
   }
 
@@ -95,7 +95,7 @@ PauseMenuHudGroup::PauseMenuHudGroup(scene &r_scene)
   auto optionsFunction = std::bind(&PauseMenuHudGroup::openOptionsMenu, this);
   std::shared_ptr<TextButton> optionsElement = std::make_shared<TextButton>(mrScene,
     optionsText, 0, 40, 200, 30, optionsFunction, ALIGN_CENTER, ALIGN_CENTER);
-  optionsElement->setMouseOverColour({ 200, 200, 200, 255 });
+  optionsElement->setMouseOverColour(0xC0C0C0FF);
   optionsElement->setOnClickOffset(-1, 2);
   addElement(optionsElement);
 

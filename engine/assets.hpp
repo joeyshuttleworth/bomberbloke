@@ -2,11 +2,10 @@
 #define ASSETS_HPP
 
 #include<vector>
-#include "TextManager.hpp"
 #include "SoundManager.hpp"
 #include "IGraphicsManager.hpp"
 
 
-void loadAssets(TextManager&, SoundManager&, IGraphicsManager&);
+void loadAssets(SoundManager&, IGraphicsManager&);
 
 #endif

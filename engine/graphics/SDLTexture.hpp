@@ -13,6 +13,13 @@ public:
     return mpTexture;
   };
 
+  std::array<int, 2> getDimensions() override{
+    int w, h;
+    SDL_QueryTexture(mpTexture, NULL, NULL, &w, &h);
+
+    return std::array<int, 2>{w, h};
+  }
+
 protected:
   IGraphicsManager* mpGraphicsManager=nullptr;
   SDL_Texture* mpTexture=nullptr;

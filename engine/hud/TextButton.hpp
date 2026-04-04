@@ -34,7 +34,7 @@ public:
      *
      * @param colour    New colour object.
      */
-    void setMouseOverColour(SDL_Color colour) {
+    void setMouseOverColour(uint32_t colour) {
         mMouseOverColour = colour;
         mPropertiesUpdated = true;
     }
@@ -44,7 +44,7 @@ public:
      *
      * @param colour    New colour object.
      */
-    void setOnClickColour(SDL_Color colour) {
+    void setOnClickColour(uint32_t colour) {
         mOnClickColour = colour;
         mPropertiesUpdated = true;
     }
@@ -82,11 +82,11 @@ public:
 
 protected:
     // Text colour when neither a mouse-over or left-click is detected.
-    SDL_Color mDefaultColour;
+    uint32_t mDefaultColour;
     // Text colour when a mouse over is detected.
-    SDL_Color mMouseOverColour;
+    uint32_t mMouseOverColour;
     // Text colour when a click is detected.
-    SDL_Color mOnClickColour;
+    uint32_t mOnClickColour;
 
     // Text offset when neither a mouse-over or left-click is detected.
     int mDefaultOffset[2] = { 0, 0 };

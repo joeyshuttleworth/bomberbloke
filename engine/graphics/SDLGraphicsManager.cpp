@@ -1,5 +1,9 @@
+#include <sstream>
+#include <SDL2/SDL_ttf.h>
+
 #include "SDLGraphicsManager.hpp"
 #include "SDLTexture.hpp"
+#include "Text.hpp"
 
 #ifndef __EMSCRIPTEN__
 #include <cmrc/cmrc.hpp>
@@ -14,9 +18,56 @@ SDLGraphicsManager::renderSplashScreen(){
   SDL_Rect dst = {(mWindowSize[0] / 2) - 128, (mWindowSize[1] / 2) - 128, 256, 256};
   auto sprite = getSprite("crate.png");
   if(sprite){
-    SDL_RenderCopy(mpRenderer, sprite->getRawTexture(), NULL, &dst);
+    SDL_RenderCopy(mpRenderer, sprite->getRawTexture(), nullptr, &dst);
     SDL_RenderPresent(mpRenderer);
   }
+}
+
+
+AbstractTexture*
+SDLGraphicsManager::renderSolidText(std::string font_name, int font_size, std::string text, uint32_t colour, AbstractTexture* target){
+  // Render to surface
+
+  TTF_Font* font = getFont(font_name, font_size);
+
+  SDL_Color sdl_colour = {(Uint8) (colour >> 24), (Uint8) (colour >> 16), (Uint8) (colour >> 8),
+                         (Uint8) colour};
+
+  SDL_Surface* surface = TTF_RenderText_Blended(font, text.c_str(), sdl_colour);
+  if (!surface) {
+    std::ostringstream e_msg;
+    e_msg << "Unable to render text surface: " << TTF_GetError();
+    log_message(WARNING, e_msg.str());
+    return nullptr;
+  }
+
+  // Create texture from surface
+  SDL_Texture* raw_texture = SDL_CreateTextureFromSurface(mpRenderer, surface);
+
+  std::ostringstream e_msg;
+  e_msg << "Unable to create text texture: " << TTF_GetError();
+  if (!raw_texture) {
+    log_message(WARNING, e_msg.str());
+  }
+
+  SDLTexture *raw_ptr = nullptr;
+  if(!target){
+    std::unique_ptr<SDLTexture> texture = std::make_unique<SDLTexture>(this, raw_texture);
+    raw_ptr = texture.get();
+    mTextures[raw_ptr] = std::move(texture);
+  }
+  else{
+    auto raw_target_texture = ((SDLTexture*) target)->getRawTexture();
+    SDL_SetRenderTarget(mpRenderer, raw_target_texture);
+    SDL_RenderCopy(mpRenderer, raw_texture, nullptr, nullptr);
+    SDL_SetRenderTarget(mpRenderer, raw_target_texture);
+    raw_ptr = (SDLTexture*) target;
+  }
+
+  // Cleanup
+  SDL_FreeSurface(surface);
+
+  return (AbstractTexture*) raw_ptr;
 }
 
 
@@ -338,8 +389,14 @@ void SDLGraphicsManager::renderCopy(AbstractTexture* texture,
                                     Rect *_srcRect,
                                     Rect *_dstRect,
                                     bool isPostProcessed,
-                                    int bloomamount){
-  renderCopy(texture, _srcRect, _dstRect, isPostProcessed, bloomamount);
+                                    int bloomamount,
+                                    AbstractTexture* target
+                                    ){
+
+  SDL_Texture* _texture = texture ? ((SDLTexture*) texture)->getRawTexture() : nullptr;
+  SDL_Texture* _target = target ? ((SDLTexture*) target)->getRawTexture() : nullptr;
+
+  renderCopy(_texture, _srcRect, _dstRect, isPostProcessed, bloomamount, _target);
 }
 
 void
@@ -347,15 +404,13 @@ SDLGraphicsManager::renderCopy(SDL_Texture* texture,
                                Rect* _srcRect,
                                Rect* _dstRect,
                                bool isPostProcessed,
-                               int bloomAmount)
+                               int bloomAmount,
+                               SDL_Texture* target)
 {
   const std::lock_guard<std::mutex> lock(mMutex);
 
-  SDL_Rect *srcRect = nullptr;
-  SDL_Rect *dstRect = nullptr;
-
-  *srcRect = {0, 0, 0, 0};
-  *dstRect = {0, 0, 0, 0};
+  SDL_Rect *srcRect = new SDL_Rect{0, 0, 0, 0};
+  SDL_Rect *dstRect = new SDL_Rect{0, 0, 0, 0};
 
   if(_srcRect)
     *srcRect = SDL_Rect{(*_srcRect)[0], (*_srcRect)[1], (*_srcRect)[2], (*_srcRect)[3]};
@@ -371,9 +426,10 @@ SDLGraphicsManager::renderCopy(SDL_Texture* texture,
   // Copy the texture onto the appropriate frame buffer
   SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
 
-  auto fb = ((SDLTexture*) getFrameBuffer(isPostProcessed))->getRawTexture();
+  if(!target)
+    target = ((SDLTexture*) getFrameBuffer(isPostProcessed))->getRawTexture();
 
-  SDL_SetRenderTarget(mpRenderer, fb);
+  SDL_SetRenderTarget(mpRenderer, target);
   SDL_RenderCopy(mpRenderer, texture, srcRect, dstRect);
 
   if (isPostProcessed) {
@@ -400,6 +456,11 @@ SDLGraphicsManager::renderCopy(SDL_Texture* texture,
 
     SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
   }
+
+  delete srcRect;
+  delete dstRect;
+
+  SDL_SetRenderTarget(mpRenderer, nullptr);
 }
 
 
@@ -513,7 +574,59 @@ void SDLGraphicsManager::setWindowFullScreen(bool fullscreen){
 
 SDLGraphicsManager::~SDLGraphicsManager(){
   destroyBuffers();
+
+  // Unload fonts
+  for(auto font : mFonts){
+    TTF_CloseFont(font.second);
+  }
+
   SDL_QuitSubSystem(SDL_INIT_VIDEO);
+}
+
+void
+SDLGraphicsManager::loadFont(std::string path, int size){
+  // TODO Add error checking
+  TTF_Font* font;
+#ifdef __ENSCRIPTEN__
+  std::string full_path = "assets/" + path + ".ttf";
+  font = TTF_OpenFont(full_path.c_str(), size);
+#else
+  std::string full_path = "files/assets/" + path + ".ttf";
+
+  try{
+  auto fs = cmrc::files::get_filesystem();
+  auto file = fs.open(full_path);
+  std::vector<char> buffer(file.begin(), file.end());
+  SDL_RWops* rw = SDL_RWFromConstMem(buffer.data(), file.end() - file.begin());
+  font = TTF_OpenFontRW(rw, 1, size);
+  }
+  catch (const std::exception& e){
+    std::ostringstream err;
+    err << "Couldn't open font file " << full_path;
+    log_message(ERR, err.str());
+    return;
+  }
+#endif
+
+  std::ostringstream font_name;
+  font_name <<  path << "_" << size;
+  mFonts[font_name.str()] = font;
+}
+
+TTF_Font* SDLGraphicsManager::getFont(std::string path, int size){
+  // First check if font in mFonts
+  std::ostringstream font_name;
+  font_name << path << "_" << size;
+
+  if(!mFonts.contains(font_name.str())){
+    // Font not loaded in the right size, load it first
+    loadFont(path, size);
+  }
+
+  if(mFonts.contains(font_name.str()))
+    return mFonts[font_name.str()];
+
+  return nullptr;
 }
 
 void SDLGraphicsManager::destroyBuffers(){
@@ -548,4 +661,18 @@ void SDLGraphicsManager::destroyTexture(AbstractTexture* _texture){
   if(mTextures.contains(tex)){
     mTextures.erase(tex);
   }
+}
+
+std::array<int, 2> SDLGraphicsManager::sizeText(std::string font, int font_size,
+                                                std::string render_text){
+  int w = 0;
+  int h = 0;
+
+  TTF_SizeText(getFont(font, font_size), render_text.c_str(), &w, &h);
+
+  return std::array<int, 2>{w, h};
+}
+
+std::shared_ptr<Text> SDLGraphicsManager::createText(std::string render_text, std::string font, int font_size){
+  return std::make_shared<Text>(this, font, font_size, render_text);
 }

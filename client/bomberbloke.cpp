@@ -6,6 +6,7 @@
 #include "bloke.hpp"
 #include "bomb.hpp"
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include <getopt.h>
 #include <network/NetClient.hpp>
 
@@ -62,9 +63,7 @@ main(int argc, char** argv)
   _local_player_list.push_back(LocalPlayer(userName));
   _nickname = userName;
 
-  SDL_Init(SDL_INIT_EVERYTHING);
-  init_engine(false);
-
+  client_init();
   _pScene = std::make_shared<MainMenuScene>(_graphics_interface.get(), 15, 15);
 
   if (EXPLOSION_INTRO) {
@@ -89,7 +88,6 @@ main(int argc, char** argv)
     }
   }
 
-  client_init();
 #ifndef __EMSCRIPTEN__
   client_loop();
 #else

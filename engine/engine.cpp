@@ -71,14 +71,11 @@ std::list<std::shared_ptr<AbstractPlayer>> _player_list;
 DECLARE_MUTEX(_scene_mutex);
 
 /* Shouldn't be globals here. Move to client.cpp and server.cpp */
-std::unique_ptr<NetClient> _net_client;
-std::unique_ptr<NetServer> _net_server;
+std::unique_ptr<NetClient> _net_client = std::make_unique<NetClient>();
+std::unique_ptr<NetServer> _net_server = std::make_unique<NetServer>();
 
 /* TODO move this behind a sound inferface */
 SoundManager soundManager;
-
-/* Move these behind the graphics interface */
-TextManager textManager;
 
 void
 exit_engine(int signum)
@@ -128,7 +125,6 @@ init_engine
   _console_log_file.open("/tmp/bloke.log");
 
   soundManager.init(channelFinishedForwarder);
-  loadAssets(textManager, soundManager, *_graphics_interface);
 
   /* Initialise the controller if it exists */
   _controller = handle_input_controller();

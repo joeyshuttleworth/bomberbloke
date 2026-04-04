@@ -7,7 +7,6 @@
 #include "NetClient.hpp"
 #include "Text.hpp"
 #include "TextButton.hpp"
-#include "TextManager.hpp"
 #include "engine.hpp"
 #include <sstream>
 
@@ -16,77 +15,77 @@ JoinMenuHudGroup::JoinMenuHudGroup(scene& r_scene, std::function<void()> goBackF
 {
   // Create nickname text
   std::shared_ptr<Text> nicknameFieldText =
-    textManager.createText("NICKNAME");
+    mpGraphicsManager->createText("NICKNAME");
   if (nicknameFieldText) {
     nicknameFieldText->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
-    nicknameFieldText->setTextColour({ 255, 255, 255, 128 });
-    nicknameFieldText->setBackgroundColour({ 63, 63, 63, 191 });
+    nicknameFieldText->setTextColour(0xFFFFFF80);
+    nicknameFieldText->setBackgroundColour(0x3F3F3FBF);
     nicknameFieldText->setTextOffset(10, 0);
     nicknameFieldText->setTextScale(1.5);
   }
   // Create nickname input field
   std::shared_ptr<InputField> nicknameField = std::make_shared<InputField>(mrScene,
     nicknameFieldText, 0, -60, 300, 50, ALIGN_CENTER, ALIGN_CENTER);
-  nicknameField->setInputColour({ 255, 255, 255, 255 });
+  nicknameField->setInputColour(0xFFFFFFFF);
   nicknameField->setInputText(_nickname);
   addElement(nicknameField);
   mNicknameField = nicknameField;
 
   // Create red text
   std::shared_ptr<Text> redFieldText =
-    textManager.createText("R");
+    mpGraphicsManager->createText("R");
   if (redFieldText) {
     redFieldText->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
-    redFieldText->setTextColour({ 255, 255, 255, 128 });
-    redFieldText->setBackgroundColour({ 63, 63, 63, 191 });
+    redFieldText->setTextColour(0xFFFFFF80);
+    redFieldText->setBackgroundColour(0x3F3F3FBF);
     redFieldText->setTextOffset(10, 0);
     redFieldText->setTextScale(1.5);
   }
   // Create red input field
   std::shared_ptr<InputField> redField = std::make_shared<InputField>(mrScene,
     redFieldText, -(66+12)/2*3, 0, 66, 50, ALIGN_CENTER, ALIGN_CENTER);
-  redField->setInputColour({ 255, 255, 255, 255 });
+  redField->setInputColour(0xFFFFFFFF);
   addElement(redField);
   mRedField = redField;
 
   // Create green text
   std::shared_ptr<Text> greenFieldText =
-    textManager.createText("G");
+    mpGraphicsManager->createText("G");
   if (greenFieldText) {
     greenFieldText->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
-    greenFieldText->setTextColour({ 255, 255, 255, 128 });
-    greenFieldText->setBackgroundColour({ 63, 63, 63, 191 });
+    greenFieldText->setTextColour(0xFFFFFF80);
+    greenFieldText->setBackgroundColour(0x3F3F3FBF);
     greenFieldText->setTextOffset(10, 0);
     greenFieldText->setTextScale(1.5);
   }
   // Create green input field
   std::shared_ptr<InputField> greenField = std::make_shared<InputField>(mrScene,
     greenFieldText, -(66+12)/2, 0, 66, 50, ALIGN_CENTER, ALIGN_CENTER);
-  greenField->setInputColour({ 255, 255, 255, 255 });
+  greenField->setInputColour(0xFFFFFFFF);
   addElement(greenField);
   mGreenField = greenField;
 
   // Create blue text
   std::shared_ptr<Text> blueFieldText =
-    textManager.createText("B");
+    mpGraphicsManager->createText("B");
   if (blueFieldText) {
     blueFieldText->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
-    blueFieldText->setTextColour({ 255, 255, 255, 128 });
-    blueFieldText->setBackgroundColour({ 63, 63, 63, 191 });
+    blueFieldText->setTextColour(0xFFFFFF80);
+    blueFieldText->setBackgroundColour(0x3F3F3FBF);
     blueFieldText->setTextOffset(10, 0);
     blueFieldText->setTextScale(1.5);
   }
   // Create blue input field
   std::shared_ptr<InputField> blueField = std::make_shared<InputField>(mrScene,
     blueFieldText, (66+12)/2, 0, 66, 50, ALIGN_CENTER, ALIGN_CENTER);
-  blueField->setInputColour({ 255, 255, 255, 255 });
+  blueField->setInputColour(0xFFFFFFFF);
   addElement(blueField);
   mBlueField = blueField;
 
   // Create colour button text
-  std::shared_ptr<Text> colourText = textManager.createText("");
+  std::shared_ptr<Text> colourText = mpGraphicsManager->createText("");
   if (colourText) {
-    colourText->setBackgroundColour({ 255, 255, 255, 255 });
+    colourText->setBackgroundColour(0xFFFFFFFF);
   }
   // Create colour button element
   auto randomColourFunction = std::bind(&JoinMenuHudGroup::pickRandomColour, this);
@@ -107,28 +106,28 @@ JoinMenuHudGroup::JoinMenuHudGroup(scene& r_scene, std::function<void()> goBackF
 
   // Create address text
   std::shared_ptr<Text> addressFieldText =
-    textManager.createText("ADDRESS");
+    mpGraphicsManager->createText("ADDRESS");
   if (addressFieldText) {
     addressFieldText->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
-    addressFieldText->setTextColour({ 255, 255, 255, 128 });
-    addressFieldText->setBackgroundColour({ 63, 63, 63, 191 });
+    addressFieldText->setTextColour(0xFFFFFF80);
+    addressFieldText->setBackgroundColour(0x3F3F3FBF);
     addressFieldText->setTextOffset(10, 0);
     addressFieldText->setTextScale(1.5);
   }
   // Create address input field
   std::shared_ptr<InputField> addressField = std::make_shared<InputField>(mrScene,
     addressFieldText, 0, 60, 300, 50, ALIGN_CENTER, ALIGN_CENTER);
-  addressField->setInputColour({ 255, 255, 255, 255 });
+  addressField->setInputColour(0xFFFFFFFF);
   addressField->setInputText(_net_client->mServerAddress);
   addElement(addressField);
   mAddressField = addressField;
 
   // Create join text
   std::shared_ptr<Text> joinText =
-    textManager.createText("JOIN");
+    mpGraphicsManager->createText("JOIN");
   if (joinText) {
     joinText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-    joinText->setTextColour({ 255, 255, 255, 255 });
+    joinText->setTextColour(0xFFFFFFFF);
     joinText->setTextScale(1.5);
   }
   // Create join button
@@ -138,31 +137,31 @@ JoinMenuHudGroup::JoinMenuHudGroup(scene& r_scene, std::function<void()> goBackF
                                  joinText, 0, 120, 100, 50, joinFn,
                                  ALIGN_CENTER, ALIGN_CENTER
                                  );
-  joinElement->setMouseOverColour({ 200, 200, 200, 255 });
+  joinElement->setMouseOverColour(0xC8C8C8FF);
   joinElement->setOnClickOffset(-1, 2);
   addElement(joinElement);
 
   // Create go back button text
   std::shared_ptr<Text> backText =
-    textManager.createText("BACK");
+    mpGraphicsManager->createText("BACK");
   if (backText) {
     backText->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM);
-    backText->setTextColour({ 255, 255, 255, 255 });
+    backText->setTextColour(0xFFFFFFFF);
     backText->setTextScale(1.5);
   }
   // Create go back button element
   std::shared_ptr<TextButton> backElement = std::make_shared<TextButton>(mrScene,
     backText, 50, -50, 200, 30, goBackFn, ALIGN_LEFT, ALIGN_BOTTOM);
-  backElement->setMouseOverColour({ 200, 200, 200, 255 });
+  backElement->setMouseOverColour(0xC8C8C8FF);
   backElement->setOnClickOffset(-1, 2);
   addElement(backElement);
 
   // Create loading text
   std::shared_ptr<Text> loadingText =
-    textManager.createText("LOADING...");
+    mpGraphicsManager->createText("LOADING...");
   if (loadingText) {
     loadingText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-    loadingText->setTextColour({ 255, 255, 255, 255 });
+    loadingText->setTextColour(0xFFFFFFFF);
     loadingText->setTextScale(3.);
   }
 
@@ -299,7 +298,8 @@ JoinMenuHudGroup::updateColourButton()
       && greenValue < 256 && greenValue >= 0
       && blueValue < 256 && blueValue >= 0) {
     std::shared_ptr<TextButton> colourButton = mColourButton.lock();
-    SDL_Color colour({(Uint8) redValue, (Uint8) greenValue, (Uint8) blueValue, 255});
+    uint32_t colour(((Uint8) redValue << 24) ^ ((Uint8) greenValue << 16) ^
+                    ((Uint8) blueValue << 8) ^ 0xFF);
     colourButton->mText->setBackgroundColour(colour);
   }
 }

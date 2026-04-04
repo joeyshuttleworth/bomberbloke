@@ -184,6 +184,8 @@ protected:
     // may effect the render. Set back to false when draw is called.
     bool mPropertiesUpdated;
 
+    IGraphicsManager* mpGraphicsManager;
+
     scene &mrScene;
 
 };

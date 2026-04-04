@@ -29,7 +29,7 @@ public:
      *
      * @param colour    New colour object.
      */
-    void setInputColour(SDL_Color colour) {
+    void setInputColour(uint32_t colour) {
         mInputColour = colour;
         mPropertiesUpdated = true;
     }
@@ -67,9 +67,9 @@ public:
 
 protected:
     // Text colour of default text for when input field is empty
-    SDL_Color mDefaultColour;
+    uint32_t mDefaultColour;
     // Text colour when input is given.
-    SDL_Color mInputColour;
+    uint32_t mInputColour;
 
     // Current text in field
     std::string mTextInput = "";

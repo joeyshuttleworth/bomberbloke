@@ -3,10 +3,10 @@
 
 #include <string>
 #include <array>
-#include <SDL_ttf.h>
+
+#include "IGraphicsManager.hpp"
 
 class Camera;
-extern SDL_Renderer *_renderer;
 
 // Enum for text alignment (see setTextAlignment).
 enum TextAlignFlag {
@@ -17,6 +17,8 @@ enum TextAlignFlag {
   TEXT_ALIGN_BOTTOM,
   TEXT_ALIGN_TOP
 };
+
+class AbstractTexture;
 
 /**
  * Class for rendering text.
@@ -41,10 +43,11 @@ public:
      * @param yAlign    Horizontal alignment of the text. Accepts TEXT_ALIGN_TOP,
      *                  TEXT_ALIGN_BOTTOM and TEXT_ALIGN_CENTER (default).
      */
-    Text(TTF_Font *font=nullptr, std::string text="", int posX=0, int posY=0,
-            int xDim = 0, int yDim=0, TextAlignFlag xAlign=TEXT_ALIGN_LEFT,
-            TextAlignFlag yAlign=TEXT_ALIGN_TOP) {
+  Text(IGraphicsManager* _gfx_manager, std::string font="", int font_size = 12, std::string text="", int posX=0, int posY=0,
+       int xDim = 0, int yDim=0, TextAlignFlag xAlign=TEXT_ALIGN_LEFT,
+       TextAlignFlag yAlign=TEXT_ALIGN_TOP) {
         mFont = font;
+        mFontSize = font_size;
         mTextString = text;
         mPosition[0] = posX;
         mPosition[1] = posY;
@@ -54,8 +57,15 @@ public:
         mAlignment[1] = yAlign;
         mPropertiesUpdated = true;
 
-        mColour = SDL_Color({255, 255, 255, 255});
-        mBackColour = SDL_Color({0, 0, 0, 0});
+        mpGraphicsManager = _gfx_manager;
+
+        mColour = 0xffffffff;
+        mBackColour = 0x0;
+
+        if(_gfx_manager)
+          mTextTexture = mpGraphicsManager->createTexture(xDim, yDim);
+
+        updateTexture();
     }
 
     /**
@@ -174,7 +184,7 @@ public:
      *
      * @param colour    The new colour.
      */
-    void setTextColour(SDL_Color colour) {
+    void setTextColour(uint32_t colour) {
         mColour = colour;
         mPropertiesUpdated = true;
     }
@@ -184,7 +194,7 @@ public:
     *
     * @param colour    The new colour.
     */
-    void setBackgroundColour(SDL_Color colour) {
+    void setBackgroundColour(uint32_t colour) {
         mBackColour = colour;
         mPropertiesUpdated = true;
     }
@@ -192,9 +202,9 @@ public:
     /**
      * Gets the text colour.
      *
-     * @return  SDL_Color object.
+     * @return  uint32_t colour.
      */
-    SDL_Color getTextColour() {
+    uint32_t getTextColour() {
         return mColour;
     }
 
@@ -246,9 +256,11 @@ public:
      */
     void draw(Camera *camera, bool isPostProcessed=true);
 
+    ~Text();
+
 protected:
     // Text font given on construction (typically by the text manager).
-    TTF_Font *mFont;
+    std::string mFont;
 
     // String that is rendered.
     std::string mTextString;
@@ -261,9 +273,9 @@ protected:
     // Ratio by which text is scaled.
     double mTextScale[2] = { 1., 1. };
     // Colour of rendered text.
-    SDL_Color mColour;
+    uint32_t mColour;
     // Colour of background colour;
-    SDL_Color mBackColour;
+    uint32_t mBackColour;
     // Text alignment flags in x and y direction (see setTextAlignment).
     TextAlignFlag mAlignment[2] = {TEXT_ALIGN_LEFT, TEXT_ALIGN_LEFT};
     // Amount of glow applied (0-255).
@@ -276,11 +288,11 @@ protected:
 
     // Texture containing rendered text. Updated only when mPropertiesUpdated
     // is set to True (see draw).
-    SDL_Texture *mTextTexture = nullptr;
+    AbstractTexture *mTextTexture = nullptr;
     // Source rectangle.
-    SDL_Rect mSrcRect;
+    std::array<int, 4> mSrcRect;
     // Destination rectangle - corresponds to the text box in screen coordinates.
-    SDL_Rect mDstRect;
+    std::array<int, 4> mDstRect;
     // Boolean value which is set to true whenever a property is changed that
     // may effect the render. Set back to false when draw is called.
     bool mPropertiesUpdated;
@@ -289,7 +301,11 @@ protected:
      *
      * @param camera    Current scene camera.
      */
-    void updateTexture(Camera *camera);
+    void updateTexture();
+
+    int mFontSize;
+
+    IGraphicsManager* mpGraphicsManager = nullptr;
 };
 
 #endif

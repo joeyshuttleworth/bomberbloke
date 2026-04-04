@@ -89,10 +89,6 @@ void add_player(std::shared_ptr<AbstractPlayer>);
 */
 std::list<std::string> split_to_tokens(std::string);
 
-
-extern SDL_Window  *_window;
-extern SDL_Surface *_surface;
-extern SDL_Renderer *_renderer;
 extern double _screen_offset[2];
 extern bool _draw;
 extern bool _server;
@@ -106,10 +102,7 @@ extern bool _controller_connected;
 #include "SoundManager.hpp"
 extern SoundManager soundManager;
 
-#include "TextManager.hpp"
-extern TextManager textManager;
-
- struct CommandBinding {
+struct CommandBinding {
   SDL_Scancode scancode;
   std::string command;
  };

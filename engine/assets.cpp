@@ -11,7 +11,7 @@
 #ifdef __EMSCRIPTEN__
 
 void
-loadAssets(TextManager&, //textManager,
+loadAssets(
            SoundManager&, // soundManager,
            IGraphicsManager& graphicsManager)
 {
@@ -55,7 +55,7 @@ loadAssets(TextManager&, //textManager,
 CMRC_DECLARE(files);
 
 void
-loadAssets(TextManager&,
+loadAssets(
            SoundManager&,
            IGraphicsManager& graphicsManager)
 {

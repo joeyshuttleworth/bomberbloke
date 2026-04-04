@@ -40,6 +40,9 @@ protected:
    * Closes the options and join menu HUD group and shows the main menu.
    */
   void showMainMenu();
+
+  std::string mFont = "Aileron-Black";
+  int mFontSize = 12;
 };
 
 #endif

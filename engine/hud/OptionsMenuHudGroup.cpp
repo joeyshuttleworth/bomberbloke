@@ -14,10 +14,10 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(scene& r_scene, std::function<void()> g
 {
   // Create title
   std::shared_ptr<Text> titleText =
-    textManager.createText("OPTIONS");
+    mpGraphicsManager->createText(mFont, "OPTIONS", 12);
   if (titleText) {
     titleText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-    titleText->setTextColour({ 255, 255, 255, 255 });
+    titleText->setTextColour(0xFFFFFFFF);
     titleText->setTextScale(2.);
   }
 
@@ -29,10 +29,10 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(scene& r_scene, std::function<void()> g
 
   // Create go back button text
   std::shared_ptr<Text> backText =
-    textManager.createText("BACK");
+    mpGraphicsManager->createText(mFont, "BACK");
   if (backText) {
     backText->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM);
-    backText->setTextColour({ 255, 255, 255, 255 });
+    backText->setTextColour(0xFFFFFFFF);
     backText->setTextScale(1.5);
   }
 
@@ -40,7 +40,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(scene& r_scene, std::function<void()> g
   std::shared_ptr<TextButton> backElement = std::make_shared<TextButton>(mrScene,
     backText, 50, -50, 200, 30, goBackFn, ALIGN_LEFT, ALIGN_BOTTOM);
   if (backElement) {
-    backElement->setMouseOverColour({ 200, 200, 200, 255 });
+    backElement->setMouseOverColour(0xC8C8C8FF);
     backElement->setOnClickOffset(-1, 2);
     addElement(backElement);
   }
@@ -48,10 +48,10 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(scene& r_scene, std::function<void()> g
   /* Master Volume */
   // Master volume option title
   std::shared_ptr<Text> volumeTitleText =
-    textManager.createText("MASTER VOLUME:");
+    mpGraphicsManager->createText(mFont, "MASTER VOLUME:");
   if (volumeTitleText) {
     volumeTitleText->setTextAlignment(TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER);
-    volumeTitleText->setTextColour({ 255, 255, 255, 255 });
+    volumeTitleText->setTextColour(0xFFFFFFFF);
     volumeTitleText->setTextScale(1.);
   }
   std::shared_ptr<TextHudElement> volumeTitleElement =
@@ -62,10 +62,10 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(scene& r_scene, std::function<void()> g
 
   // Create reduce volume text
   std::shared_ptr<Text> reduceVolumeText =
-    textManager.createText("-");
+    mpGraphicsManager->createText(mFont, "-");
   if (reduceVolumeText) {
     reduceVolumeText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-    reduceVolumeText->setTextColour({ 255, 255, 255, 255 });
+    reduceVolumeText->setTextColour(0xFFFFFFFF);
     reduceVolumeText->setTextScale(1.);
   }
   // Create reduce volume element
@@ -81,17 +81,17 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(scene& r_scene, std::function<void()> g
                                  reduceVolumeFn,
                                  ALIGN_CENTER,
                                  ALIGN_CENTER);
-  reduceVolumeElement->setMouseOverColour({ 200, 200, 200, 255 });
+  reduceVolumeElement->setMouseOverColour(0xC8C8C8FF);
   reduceVolumeElement->setOnClickOffset(-1, 2);
   addElement(reduceVolumeElement);
 
   // Master volume option label
   int currentVolumeLabel = soundManager.getVolume(SOUND_MASTER) * 8 / 128;
   std::shared_ptr<Text> volumeLabelText =
-    textManager.createText(std::to_string(currentVolumeLabel));
+    mpGraphicsManager->createText(mFont, std::to_string(currentVolumeLabel));
   if (volumeLabelText) {
     volumeLabelText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-    volumeLabelText->setTextColour({ 255, 255, 255, 255 });
+    volumeLabelText->setTextColour(0xFFFFFFFF);
     volumeLabelText->setTextScale(1.);
   }
   std::shared_ptr<TextHudElement> volumeLabelElement =
@@ -103,10 +103,10 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(scene& r_scene, std::function<void()> g
 
   // Create increase volume text
   std::shared_ptr<Text> increaseVolumeText =
-    textManager.createText("+");
+    mpGraphicsManager->createText(mFont, "+");
   if (increaseVolumeText) {
     increaseVolumeText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-    increaseVolumeText->setTextColour({ 255, 255, 255, 255 });
+    increaseVolumeText->setTextColour(0xFFFFFFFF);
     increaseVolumeText->setTextScale(1.);
   }
   // Create go back button element
@@ -121,17 +121,17 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(scene& r_scene, std::function<void()> g
                                  increaseVolumeFn,
                                  ALIGN_CENTER,
                                  ALIGN_CENTER);
-  increaseVolumeElement->setMouseOverColour({ 200, 200, 200, 255 });
+  increaseVolumeElement->setMouseOverColour(0xC8C8C8FF);
   increaseVolumeElement->setOnClickOffset(-1, 2);
   addElement(increaseVolumeElement);
 
   /* Music Volume */
   // Music volume option title
   std::shared_ptr<Text> musicTitleText =
-    textManager.createText("MUSIC VOLUME:");
+    mpGraphicsManager->createText(mFont, "MUSIC VOLUME:");
   if (musicTitleText) {
     musicTitleText->setTextAlignment(TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER);
-    musicTitleText->setTextColour({ 255, 255, 255, 255 });
+    musicTitleText->setTextColour(0xFFFFFFFF);
     musicTitleText->setTextScale(1.);
   }
   std::shared_ptr<TextHudElement> musicTitleElement =
@@ -142,10 +142,10 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(scene& r_scene, std::function<void()> g
 
   // Create reduce volume text
   std::shared_ptr<Text> reduceMusicText =
-    textManager.createText("-");
+    mpGraphicsManager->createText(mFont, "-");
   if (reduceMusicText) {
     reduceMusicText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-    reduceMusicText->setTextColour({ 255, 255, 255, 255 });
+    reduceMusicText->setTextColour(0xFFFFFFFF);
     reduceMusicText->setTextScale(1.);
   }
 
@@ -154,18 +154,16 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(scene& r_scene, std::function<void()> g
   std::shared_ptr<TextButton> reduceMusicElement = std::make_shared<TextButton>(mrScene,
     reduceMusicText, 15, 50, 20, 20, reduceMusicFn, ALIGN_CENTER, ALIGN_CENTER);
   if (reduceMusicElement) {
-    reduceMusicElement->setMouseOverColour({ 200, 200, 200, 255 });
-    reduceMusicElement->setOnClickOffset(-1, 2);
-    addElement(reduceMusicElement);
+    reduceMusicElement->setMouseOverColour(0xC8C8C8FF);
   }
 
   // Master volume option label
   int currentMusicLabel = soundManager.getVolume(SOUND_MUSIC) * 8 / 128;
   std::shared_ptr<Text> musicLabelText =
-    textManager.createText(std::to_string(currentMusicLabel));
+    mpGraphicsManager->createText(mFont, std::to_string(currentMusicLabel));
   if (musicLabelText) {
     musicLabelText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-    musicLabelText->setTextColour({ 255, 255, 255, 255 });
+    musicLabelText->setTextColour(0xFFFFFFFF);
     musicLabelText->setTextScale(1.);
     std::shared_ptr<TextHudElement> musicLabelElement =
       std::make_shared<TextHudElement>(mrScene,
@@ -177,10 +175,10 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(scene& r_scene, std::function<void()> g
 
   // Create increase volume text
   std::shared_ptr<Text> increaseMusicText =
-    textManager.createText("+");
+    mpGraphicsManager->createText(mFont, "+");
   if (increaseMusicText) {
     increaseMusicText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-    increaseMusicText->setTextColour({ 255, 255, 255, 255 });
+    increaseMusicText->setTextColour(0xFFFFFFFF);
     increaseMusicText->setTextScale(1.);
   }
   // Create go back button element
@@ -196,17 +194,17 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(scene& r_scene, std::function<void()> g
                                  increaseMusicFn,
                                  ALIGN_CENTER,
                                  ALIGN_CENTER);
-  increaseMusicElement->setMouseOverColour({ 200, 200, 200, 255 });
+  increaseMusicElement->setMouseOverColour(0xC8C8C8FF);
   increaseMusicElement->setOnClickOffset(-1, 2);
   addElement(increaseMusicElement);
 
   /* Window mode setting */
   // Create window mode label
   std::shared_ptr<Text> windowLabelText =
-    textManager.createText("WINDOW MODE:");
+    mpGraphicsManager->createText(mFont, "WINDOW MODE:");
   if (windowLabelText) {
     windowLabelText->setTextAlignment(TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER);
-    windowLabelText->setTextColour({ 255, 255, 255, 255 });
+    windowLabelText->setTextColour(0xFFFFFFFF);
     windowLabelText->setTextScale(1.);
   }
   std::shared_ptr<TextHudElement> windowLabelElement =
@@ -228,16 +226,16 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(scene& r_scene, std::function<void()> g
   }
 
   std::shared_ptr<Text> windowModeText =
-    textManager.createText(buttonString);
+    mpGraphicsManager->createText(mFont, buttonString);
   if (windowModeText) {
     windowModeText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-    windowModeText->setTextColour({ 255, 255, 255, 255 });
+    windowModeText->setTextColour(0xFFFFFFFF);
     windowModeText->setTextScale(1.);
   }
   auto windowModeFn = std::bind(&OptionsMenuHudGroup::toggleWindowMode, this);
   std::shared_ptr<TextButton> windowModeButton = std::make_shared<TextButton>(mrScene,
     windowModeText, 55, 100, 100, 50, windowModeFn, ALIGN_CENTER, ALIGN_CENTER);
-  windowModeButton->setMouseOverColour({ 200, 200, 200, 255 });
+  windowModeButton->setMouseOverColour(0xC8C8C8FF);
   windowModeButton->setOnClickOffset(-1, 2);
   addElement(windowModeButton);
   mWindowModeButton = windowModeButton;
@@ -245,27 +243,27 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(scene& r_scene, std::function<void()> g
   /* debug console */
   // Create debug console text
   std::shared_ptr<Text> consoleText =
-    textManager.createText("CONSOLE");
+    mpGraphicsManager->createText(mFont, "CONSOLE");
   if (consoleText) {
     consoleText->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
-    consoleText->setTextColour({ 255, 255, 255, 128 });
-    consoleText->setBackgroundColour({ 63, 63, 63, 191 });
+    consoleText->setTextColour(0xFFFFFF80);
+    consoleText->setBackgroundColour(0x3F3F3FBF);
     consoleText->setTextOffset(6, 0);
     consoleText->setTextScale(1.);
   }
   // Create console input field
   std::shared_ptr<InputField> consoleField = std::make_shared<InputField>(mrScene,
     consoleText, -25, 150, 400, 30, ALIGN_CENTER, ALIGN_CENTER);
-  consoleField->setInputColour({ 255, 255, 255, 255 });
+  consoleField->setInputColour(0xFFFFFFFF);
   addElement(consoleField);
   mConsoleField = consoleField;
 
   // Create debug console enter button
   std::shared_ptr<Text> consoleEnterText =
-    textManager.createText("->");
+    mpGraphicsManager->createText(mFont, "->");
   if (consoleEnterText) {
     consoleEnterText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-    consoleEnterText->setTextColour({ 255, 255, 255, 255 });
+    consoleEnterText->setTextColour(0xFFFFFFFF);
     consoleEnterText->setTextScale(1.);
   }
   // Create go back button element
@@ -281,7 +279,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(scene& r_scene, std::function<void()> g
                                  consoleEnterFn,
                                  ALIGN_CENTER,
                                  ALIGN_CENTER);
-  consoleEnterButton->setMouseOverColour({ 200, 200, 200, 255 });
+  consoleEnterButton->setMouseOverColour(0xC8C8C8FF);
   consoleEnterButton->setOnClickOffset(-1, 2);
   addElement(consoleEnterButton);
 
@@ -290,7 +288,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(scene& r_scene, std::function<void()> g
 
   // Make entire group avoid post-processing
   setIsPostProcessed(false);
-}
+  }
 
 void
 OptionsMenuHudGroup::reduceMasterVolume()

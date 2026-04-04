@@ -9,6 +9,7 @@
 #include <mutex>
 #include <set>
 #include <SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 
 #include "IGraphicsManager.hpp"
 #include "SDLTexture.hpp"
@@ -39,6 +40,8 @@ protected:
   scene* mpScene;
   std::mutex mMutex;
   int mBrightness = 0;
+
+  std::map<std::string, TTF_Font*> mFonts;
 
   bool mDebug = true;
 
@@ -73,7 +76,8 @@ protected:
 
 
   void renderCopy(SDL_Texture* texture, Rect* srcRect=nullptr,
-                  Rect* dstRect=nullptr, bool isPostProcessed=true, int bloomAmount=0);
+                  Rect* dstRect=nullptr, bool isPostProcessed=true, int bloomAmount=0,
+                  SDL_Texture* target=nullptr);
 
 public:
 
@@ -93,7 +97,8 @@ public:
    * @param bloomAmount     Determines the amount of bloom applied to texture.
    */
   void renderCopy(AbstractTexture* texture, Rect* srcRect=nullptr,
-                  Rect* dstRect=nullptr, bool isPostProcessed=true, int bloomAmount=0) override;
+                  Rect* dstRect=nullptr, bool isPostProcessed=true, int bloomAmount=0,
+                  AbstractTexture* target=nullptr) override;
 
   // mDebug = debug;
 
@@ -109,6 +114,8 @@ public:
   void loadSpriteFromPath(std::string) override;
 
   void resetFrameBuffers() override;
+
+  virtual AbstractTexture* renderSolidText(std::string, int, std::string, uint32_t, AbstractTexture*) override;
 
   /**
    * Applies a blur effect to a given texture
@@ -161,6 +168,14 @@ public:
   AbstractTexture* createTexture(int=0, int=0) override;
 
   void destroyTexture(AbstractTexture*) override;
+
+  void loadFont(std::string, int) override;
+
+  TTF_Font* getFont(std::string, int);
+
+  std::array<int, 2> sizeText(std::string, int, std::string) override;
+
+  std::shared_ptr<Text> createText(std::string, std::string, int) override;
 
   SDLGraphicsManager(bool debug=false);
   virtual ~SDLGraphicsManager();

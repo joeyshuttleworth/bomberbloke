@@ -16,11 +16,14 @@ std::unique_ptr<IGraphicsManager> _graphics_interface = std::make_unique<SDLGrap
 
 
 void client_init(){
+  SDL_Init(SDL_INIT_EVERYTHING);
+  TTF_Init();
   _graphics_interface->destroyWindow();
   _graphics_interface->createWindow(600, 800);
   _graphics_interface->setDraw(true);
 
-  loadAssets(textManager, soundManager, *_graphics_interface);
+  loadAssets(soundManager, *_graphics_interface);
+  init_engine(false);
 
   _graphics_interface->renderSplashScreen();
   std::this_thread::sleep_for(std::chrono::seconds(3));

@@ -25,6 +25,8 @@ AbstractHudElement::AbstractHudElement(scene& r_scene,
   mAlignFlags[1] = yAlignFlag;
 
   mPropertiesUpdated = true;
+
+  mpGraphicsManager = r_scene.getGraphicsManager();
 }
 
 void

@@ -1,201 +1,232 @@
 #include "Text.hpp"
-
-#include <SDL.h>
 #include <algorithm>
+#include <array>
 
+#include "IGraphicsManager.hpp"
 #include "Camera.hpp"
+#include "AbstractTexture.hpp"
 
 const std::string CURSOR_CHAR = "|";
+
+using rect = std::array<int, 4>;
 
 void
 Text::draw(Camera*, bool)
 {
-  // if (mPropertiesUpdated) {
-  //   updateTexture(camera);
-  //   mPropertiesUpdated = false;
-  // }
+  if(!mpGraphicsManager)
+    return;
 
-  // // Copy rendered text into the text box
-  // if (mBackColour.a > 0) {
-  //   SDL_Rect backgroundRect(
-  //     { mPosition[0], mPosition[1], mDimensions[0], mDimensions[1] });
-  //   camera->renderFillRect(
-  //     &backgroundRect, mBackColour, isPostProcessed, mGlowAmount);
-  // }
+  if (mPropertiesUpdated) {
+    mPropertiesUpdated = false;
+  }
 
-  // if (mTextTexture) {
-  //   camera->renderCopy(
-  //     mTextTexture, &mSrcRect, &mDstRect, isPostProcessed, mGlowAmount);
-  // }
+  // Copy rendered text into the text box
+  if ((mBackColour & 0xFF) > 0) {
+    rect backgroundRect{mPosition[0], mPosition[1], mDimensions[0], mDimensions[1]};
+    mpGraphicsManager->renderFillRect(
+                                      backgroundRect, mBackColour, false, mGlowAmount);
+  }
+
+  if (mTextTexture) {
+    mpGraphicsManager->renderCopy(
+                                  mTextTexture, &mSrcRect, &mDstRect, false, mGlowAmount);
+  }
 }
 
-void
-Text::updateTexture(Camera*)
-{
-  // int width = 0;
-  // int height = 0;
+  void
+  Text::updateTexture()
+  {
+    int width = 0;
+    int height = 0;
 
-  // if (!mFont)
-  //   return;
+    if(!mpGraphicsManager)
+      return;
 
+    if (mCursorVisible) {
+      // Render text to texture
+      std::string textBefore = mTextString.substr(0, mCursorIndex);
+      AbstractTexture* textBeforeTexture =
+        mpGraphicsManager->renderSolidText(mFont, mFontSize, textBefore, mColour,
+                                           mTextTexture);
+      if (textBeforeTexture) {
+        auto dims = textBeforeTexture->getDimensions();
+        int w = dims[0];
+        int h = dims[1];
+        width = w;
+        height = h;
+      }
 
-  // if (mCursorVisible) {
-  //   // Render text to texture
-  //   std::string textBefore = mTextString.substr(0, mCursorIndex);
-  //   SDL_Surface* textBeforeSurface =
-  //     TTF_RenderText_Solid(mFont, textBefore.c_str(), mColour);
-  //   if (textBeforeSurface) {
-  //     width = textBeforeSurface->w;
-  //     height = textBeforeSurface->h;
-  //   }
+      std::string textAfter = mTextString.substr(mCursorIndex);
+      AbstractTexture* textAfterTexture =
+        mpGraphicsManager->renderSolidText(mFont, mFontSize, textAfter, mColour, mTextTexture);
+      if (textAfterTexture) {
+        auto dims = textAfterTexture->getDimensions();
+        int w = dims[0];
+        int h = dims[1];
+        height = std::max(h, height);
+        width += w;
+      }
 
-  //   std::string textAfter = mTextString.substr(mCursorIndex);
-  //   SDL_Surface* textAfterSurface =
-  //     mFont ? TTF_RenderText_Solid(mFont, textAfter.c_str(), mColour) : nullptr;
-  //   if (textAfterSurface) {
-  //     width += textAfterSurface->w;
-  //     height = std::max(textAfterSurface->h, height);
-  //   }
+      AbstractTexture* textCursorTexture =
+        mpGraphicsManager->renderSolidText(mFont, mFontSize, CURSOR_CHAR, mColour);
+      if (textCursorTexture) {
+        auto dims = textAfterTexture->getDimensions();
+        int w = dims[0];
+        int h = dims[1];
 
-  //   SDL_Surface* textCursorSurface =
-  //     mFont ? TTF_RenderText_Solid(mFont, CURSOR_CHAR.c_str(), mColour)
-  //           : nullptr;
-  //   if (textCursorSurface) {
-  //     height = std::max(textCursorSurface->h, height);
-  //     width += textCursorSurface->w;
-  //   }
+        height = std::max(h, height);
+        width += w;
+      }
 
-  //   // Combine surfaces onto one text surface
-  //   SDL_Surface* fullSurface = SDL_CreateRGBSurface(
-  //     0, width, height, 32, 0xff000000, 0x00ff0000, 0x0000ff00, 0x000000ff);
-  //   if (textBeforeSurface) {
-  //     SDL_BlitSurface(textBeforeSurface, nullptr, fullSurface, nullptr);
-  //   }
-  //   if (textAfterSurface) {
-  //     if (textBeforeSurface) {
-  //       SDL_Rect afterRect = SDL_Rect({ textBeforeSurface->w,
-  //                                       0,
-  //                                       textAfterSurface->w,
-  //                                       textAfterSurface->h });
-  //       SDL_BlitSurface(textAfterSurface, nullptr, fullSurface, &afterRect);
-  //     } else {
-  //       SDL_BlitSurface(textAfterSurface, nullptr, fullSurface, nullptr);
-  //     }
-  //   }
-  //   if (textCursorSurface) {
-  //     if (textBeforeSurface) {
-  //       SDL_Rect cursorRect =
-  //         SDL_Rect({ textBeforeSurface->w - textCursorSurface->w / 2,
-  //                    0,
-  //                    textCursorSurface->w,
-  //                    textCursorSurface->h });
-  //       SDL_BlitSurface(textCursorSurface, nullptr, fullSurface, &cursorRect);
-  //     } else {
-  //       SDL_BlitSurface(textCursorSurface, nullptr, fullSurface, nullptr);
-  //     }
-  //   }
+      // Create a render target texture
+      auto fullTexture = mpGraphicsManager->createTexture(
+                                                          width,
+                                                          height
+                                                          );
 
-  //   // Create texture from combined surface
-  //   mTextTexture = SDL_CreateTextureFromSurface(_renderer, fullSurface);
+      if (textBeforeTexture) {
+        auto dims = textBeforeTexture->getDimensions();
+        auto w = dims[0];
+        auto h = dims[1];
+        std::array<int, 4> dst = {0, 0, w, h};
+        mpGraphicsManager->renderCopy(textBeforeTexture, nullptr, &dst, false, 0,
+                                      fullTexture);
+      }
 
-  //   SDL_FreeSurface(textBeforeSurface);
-  //   SDL_FreeSurface(textAfterSurface);
-  //   SDL_FreeSurface(textCursorSurface);
-  //   SDL_FreeSurface(fullSurface);
-  // } else {
-  //   // Render text to texture
-  //   SDL_Surface* mTextSurface =
-  //     mFont ? TTF_RenderText_Solid(mFont, mTextString.c_str(), mColour)
-  //           : nullptr;
-  //   if (mTextSurface) {
-  //     mTextTexture = SDL_CreateTextureFromSurface(_renderer, mTextSurface);
-  //     width = mTextSurface->w;
-  //     height = mTextSurface->h;
-  //     SDL_FreeSurface(mTextSurface);
-  //   } else {
-  //     mTextTexture = nullptr;
-  //     width = 0;
-  //     height = 0;
-  //   }
-  // }
+      if (textAfterTexture) {
+        auto dims = textAfterTexture->getDimensions();
+        auto w = dims[0];
+        auto h = dims[1];
+        std::array<int, 4> dst = {0, 0, w, h};
 
-  // // Convert alignment and texture dimensions to displacement from the
-  // // top-left corner of the text box
-  // int xDisplacement = 0;
-  // int yDisplacement = 0;
+        if (textBeforeTexture) {
+          auto dims = textBeforeTexture->getDimensions();
+          auto beforeW = dims[0];
+          dst[0] = beforeW;
+        }
 
-  // // Note that mTextScale is used to scale the texture dimensions and the
-  // // source rectangle such that the render of the text is scaled
+        mpGraphicsManager->renderCopy(textAfterTexture, nullptr, &dst, false, 0,
+                                      fullTexture);
+      }
 
-  // // Displacement in the x-direction
-  // switch (mAlignment[0]) {
-  //   case TEXT_ALIGN_RIGHT:
-  //     xDisplacement = mDimensions[0] - width * mTextScale[0] + mOffset[0];
-  //     break;
-  //   case TEXT_ALIGN_CENTER:
-  //     xDisplacement = (mDimensions[0] - width * mTextScale[0]) / 2 + mOffset[0];
-  //     break;
-  //   default:
-  //     xDisplacement = mOffset[0];
-  // }
-  // // Displacement in the y-direction
-  // switch (mAlignment[1]) {
-  //   case TEXT_ALIGN_BOTTOM:
-  //     yDisplacement = mDimensions[1] - height * mTextScale[1] + mOffset[1];
-  //     break;
-  //   case TEXT_ALIGN_CENTER:
-  //     yDisplacement =
-  //       (mDimensions[1] - height * mTextScale[1]) / 2 + mOffset[1];
-  //     break;
-  //   default:
-  //     yDisplacement = mOffset[1];
-  // }
-  // // If displacement is negative, change the start position of the source
-  // // rectangle
-  // mSrcRect.x = std::max(0, -xDisplacement) / mTextScale[0];
-  // mSrcRect.y = std::max(0, -yDisplacement) / mTextScale[0];
+      if (textCursorTexture) {
 
-  // // Crop the texture according to the dimensions of the text box and the
-  // // displacement
-  // mSrcRect.w = std::min(double(width) - mSrcRect.x, mDimensions[0] / mTextScale[0]);
-  // mSrcRect.h = std::min(double(height) - mSrcRect.y, mDimensions[1] / mTextScale[1]);
+        auto dims = textCursorTexture->getDimensions();
+        auto w = dims[0];
+        auto h = dims[1];
+        std::array<int, 4> dst = {0, 0, w, h};
 
-  // // If displacement is positive, change the start position of the
-  // // destination rectangle
-  // mDstRect.x = mPosition[0] + std::max(0, xDisplacement);
-  // mDstRect.y = mPosition[1] + std::max(0, yDisplacement);
+        if (textBeforeTexture) {
+          auto dims = textBeforeTexture->getDimensions();
+          auto beforeW = dims[0];
+          dst[0] = beforeW - dst[2] / 2;
+        }
 
-  // // Scale the source rectangle dimensions
-  // mDstRect.w = mSrcRect.w * mTextScale[0];
-  // mDstRect.h = mSrcRect.h * mTextScale[1];
-  // // Texture has been updated - set boolean back to false.
-  // mPropertiesUpdated = false;
-}
+        mpGraphicsManager->renderCopy(textCursorTexture, nullptr, &dst, false, 0,
+                                      fullTexture);
+        if(mTextTexture)
+          mpGraphicsManager->destroyTexture(mTextTexture);
+        // Store final texture
+        mTextTexture = fullTexture;
+      }
+    }
+
+    else {
+      if(mTextTexture)
+        mpGraphicsManager->destroyTexture(mTextTexture);
+      mTextTexture =
+        mpGraphicsManager->renderSolidText(mFont, mFontSize, mTextString.c_str(), mColour);
+
+      if (mTextTexture) {
+        auto dims = mTextTexture->getDimensions();
+        width = dims[0];
+        height = dims[1];
+      } else {
+        width = 0;
+        height = 0;
+      }
+    }
+
+      // top-left corner of the text box
+      int xDisplacement = 0;
+      int yDisplacement = 0;
+
+      // Note that mTextScale is used to scale the texture dimensions and the
+      // source rectangle such that the render of the text is scaled
+
+      // Displacement in the x-direction
+      switch (mAlignment[0]) {
+      case TEXT_ALIGN_RIGHT:
+        xDisplacement = mDimensions[0] - width * mTextScale[0] + mOffset[0];
+        break;
+      case TEXT_ALIGN_CENTER:
+        xDisplacement = (mDimensions[0] - width * mTextScale[0]) / 2 + mOffset[0];
+        break;
+      default:
+        xDisplacement = mOffset[0];
+      }
+      // Displacement in the y-direction
+      switch (mAlignment[1]) {
+      case TEXT_ALIGN_BOTTOM:
+        yDisplacement = mDimensions[1] - height * mTextScale[1] + mOffset[1];
+        break;
+      case TEXT_ALIGN_CENTER:
+        yDisplacement =
+          (mDimensions[1] - height * mTextScale[1]) / 2 + mOffset[1];
+        break;
+      default:
+        yDisplacement = mOffset[1];
+      }
+      // If displacement is negative, change the start position of the source
+      // rectangle
+      mSrcRect[0] = std::max(0, -xDisplacement) / mTextScale[0];
+      mSrcRect[1] = std::max(0, -yDisplacement) / mTextScale[0];
+
+      // Crop the texture according to the dimensions of the text box and the
+      // displacement
+      mSrcRect[2] = std::min(double(width) - mSrcRect[0], mDimensions[0] / mTextScale[0]);
+      mSrcRect[3] = std::min(double(height) - mSrcRect[1], mDimensions[1] / mTextScale[1]);
+
+      // If displacement is positive, change the start position of the
+      // destination rectangle
+      mDstRect[0] = mPosition[0] + std::max(0, xDisplacement);
+      mDstRect[1] = mPosition[1] + std::max(0, yDisplacement);
+
+      // Scale the source rectangle dimensions
+      mDstRect[2] = mSrcRect[2] * mTextScale[0];
+      mDstRect[3] = mSrcRect[3] * mTextScale[1];
+      // Texture has been updated - set boolean back to false.
+      mPropertiesUpdated = false;
+  }
 
 int
-Text::getCursorIndex(int)
+Text::getCursorIndex(int x)
 {
-  return 0;
-  // double targetX = ((double)(x - mDstRect.x)) / mTextScale[0];
-  // std::string renderText = "";
-  // int lastWidth = 0;
+  double targetX = ((double)(x - mDstRect[0])) / mTextScale[0];
+  int lastWidth = 0;
 
-  // // TODO: Make this more efficient
-  // for (std::string::size_type i = 0; i < mTextString.size(); i++) {
-  //   // Render character and add width to toal
-  //   renderText += mTextString[i];
-  //   SDL_Surface* substrSurface =
-  //     mFont ? TTF_RenderText_Solid(mFont, renderText.c_str(), mColour)
-  //           : nullptr;
-  //   if (substrSurface && substrSurface->w > targetX) {
-  //     // Check if the cursor is closer to the right or left of the new character
-  //     if (2 * (substrSurface->w - targetX) < (substrSurface->w - lastWidth)) {
-  //       return i + 1;
-  //     } else {
-  //       return i;
-  //     }
-  //     lastWidth = substrSurface->w;
-  //   }
-  // }
-  // return mTextString.size();
+  for (std::string::size_type i = 0; i < mTextString.size(); i++) {
+
+    std::string render_text = mTextString.substr(0, i + 1);
+    int w = 0;
+
+    auto dims = mpGraphicsManager->sizeText(mFont, mFontSize, render_text);
+    w = dims[0];
+
+    if (w > targetX) {
+      // Check if the cursor is closer to the right or left of the new character
+      if (2 * (w - targetX) < (w - lastWidth)) {
+        return i + 1;
+      } else {
+        return i;
+      }
+    }
+    lastWidth = w;
+  }
+  return mTextString.size();
+}
+
+Text::~Text(){
+  if(mpGraphicsManager)
+    mpGraphicsManager->destroyTexture(mTextTexture);
 }

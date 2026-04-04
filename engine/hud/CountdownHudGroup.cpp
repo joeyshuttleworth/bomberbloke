@@ -19,10 +19,10 @@ CountdownHudGroup::CountdownHudGroup(scene &r_scene, std::function<void()> onFin
   mMaxGlowAmount = maxGlowAmount;
 
   // Create countdown text
-  std::shared_ptr<Text> text = textManager.createText("");
+  std::shared_ptr<Text> text = mpGraphicsManager->createText("");
   if(text){
     text->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-    text->setTextColour({ 255, 255, 255, 255 });
+    text->setTextColour(0xFFFFFFFF);
     text->setTextScale(4.);
   }
 
