@@ -2,10 +2,14 @@
 #include "Sound.hpp"
 #include "engine.hpp"
 
-Explosion::Explosion()
+class IGraphicsManager;
+
+Explosion::Explosion(IGraphicsManager* gfx_manager)
 {
   if(_server)
     return;
+
+  mpGraphicsManager = gfx_manager;
 
   /* Create sound objects for explosion sound effects */
   if(mSound) {
@@ -95,10 +99,11 @@ Explosion::draw(Camera* cam)
   std::string asset_name = mSpriteNames[frame_no];
   auto dstrect = cam->getScreenRect(mPosition[0], mPosition[1],
                                     mDimmension[0], mDimmension[1]);
-  mpGraphicsManager->drawSprite(
-                                asset_name,
-                                dstrect
-                                );
+  if(mpGraphicsManager)
+    mpGraphicsManager->drawSprite(
+                                  asset_name,
+                                  dstrect
+                                  );
 
   return;
 }

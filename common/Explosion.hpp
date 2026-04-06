@@ -31,7 +31,7 @@ public:
     return SPRITE_EXPLOSION;
   }
 
-  Explosion();
+  Explosion(IGraphicsManager* = nullptr);
 
   /*  Use the default constructor for everything except creating the texture */
   Explosion(IGraphicsManager* gfx_manager, double x_pos, double y_pos, double x_dim, double y_dim, bool legacy, int speed = 30, int timeout = 64, int start_delay = 0, bool sound_on = true, bool rumble_on = true, int max_glow=255)

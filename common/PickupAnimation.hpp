@@ -22,6 +22,9 @@ public:
   }
 
   void draw(Camera* cam){
+    if (!mpGraphicsManager)
+      return;
+
     int bloom = std::abs((int)(_tick - mStartTick) % (2*50) - 50);
     auto dstrect = cam->getScreenRect(mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]);
     mpGraphicsManager->drawSprite(mAssetName, dstrect, true, bloom);
