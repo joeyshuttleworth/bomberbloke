@@ -1,7 +1,5 @@
 #include "engine.hpp"
 
-bool _draw = false;
-bool _server = false;
 
 void
 bot_loop()
@@ -28,8 +26,3 @@ bot_loop()
   }
 }
 
-void
-engine_start_game()
-{
-  return;
-}

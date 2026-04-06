@@ -171,10 +171,18 @@ NetClient::pollServer()
     switch (event->getType()) {
       case EVENT_SYNC: {
         std::lock_guard<std::mutex> lock(mPlayerListMutex);
+        std::lock_guard<std::mutex> lock2(_pScene->mMutex);
+
         std::shared_ptr<SyncEvent> s_event =
           std::dynamic_pointer_cast<SyncEvent>(event);
         mPlayers = s_event->getPlayers();
         _pScene->mState = s_event->mState;
+
+        /* Completely remake all actors in scene */
+        _pScene->removeAllActors();
+        for(auto act : s_event->mActors){
+          _pScene->addActorWithId(act);
+        }
 
         /* TODO move mPlayers to _player_list */
         auto iter =
@@ -203,6 +211,7 @@ NetClient::pollServer()
               _pScene->linkActorToPlayer((*i), player_id);
           }
         }
+
         _pScene->init();
         auto p_list = s_event->getPlayers();
         for (auto i = p_list.begin(); i != p_list.end(); i++) {

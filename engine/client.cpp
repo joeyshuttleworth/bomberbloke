@@ -11,7 +11,8 @@
 unsigned int _last_receive;
 
 std::unique_ptr<IGraphicsManager> _graphics_interface = std::make_unique<SDLGraphicsManager>();
-
+bool _server = false;
+bool _draw = true;
 
 void client_init(){
   SDL_Init(SDL_INIT_EVERYTHING);
@@ -70,6 +71,7 @@ void client_entry() {
   }
   _tick++;
 
+  _pNewScene = _pScene->getNextScene();
   if (_pNewScene != nullptr) {
     _pScene = _pNewScene;
     _pNewScene = nullptr;

@@ -81,6 +81,12 @@ void server_loop(short port, std::string masterServerAddress, bool debug){
     }
     */
 
+    _pNewScene = _pScene->getNextScene();
+    if (_pNewScene != nullptr) {
+      _pScene = _pNewScene;
+      _pNewScene = nullptr;
+    }
+
     if (_pScene->getNewGame() && _player_list.size() > 1) {
       new_game("");
     }

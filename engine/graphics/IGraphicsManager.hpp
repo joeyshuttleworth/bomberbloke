@@ -31,6 +31,8 @@ public:
   virtual void drawSprite(std::string, Rect, bool=true, int=0){};
   virtual void createWindow(int=-1, int=-1){};
 
+  virtual AbstractTexture* getSprite(std::string){return nullptr;};
+
   virtual std::array<int, 2> getScreenDimensions(){return std::array<int, 2>{0, 0};};
 
   virtual void renderFillRect(Rect&, uint32_t,

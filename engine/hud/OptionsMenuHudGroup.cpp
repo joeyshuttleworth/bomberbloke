@@ -160,7 +160,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(scene& r_scene, std::function<void()> g
   // Master volume option label
   int currentMusicLabel = soundManager.getVolume(SOUND_MUSIC) * 8 / 128;
   std::shared_ptr<Text> musicLabelText =
-    mpGraphicsManager->createText(mFont, std::to_string(currentMusicLabel));
+    mpGraphicsManager->createText(std::to_string(currentMusicLabel), mFont);
   if (musicLabelText) {
     musicLabelText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
     musicLabelText->setTextColour(0xFFFFFFFF);
@@ -226,7 +226,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(scene& r_scene, std::function<void()> g
   }
 
   std::shared_ptr<Text> windowModeText =
-    mpGraphicsManager->createText(mFont, buttonString);
+    mpGraphicsManager->createText(buttonString, mFont);
   if (windowModeText) {
     windowModeText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
     windowModeText->setTextColour(0xFFFFFFFF);

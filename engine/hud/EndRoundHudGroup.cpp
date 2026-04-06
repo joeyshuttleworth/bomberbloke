@@ -20,7 +20,7 @@ EndRoundHudGroup::EndRoundHudGroup(scene &r_scene)
 {
   // Create round winner label
   std::shared_ptr<Text> winnerLabelText =
-    mpGraphicsManager->createText("ROUND WINNER");
+    mpGraphicsManager->createText("ROUND WINNER", mFont);
 
   if(winnerLabelText){
     winnerLabelText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
@@ -35,7 +35,7 @@ EndRoundHudGroup::EndRoundHudGroup(scene &r_scene)
 
   // Create round winner text
   std::shared_ptr<Text> winnerText =
-    mpGraphicsManager->createText("");
+    mpGraphicsManager->createText("", mFont);
 
   if(winnerText){
     winnerText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
@@ -57,7 +57,7 @@ std::pair<std::shared_ptr<TextHudElement>, std::shared_ptr<TextHudElement>>
 EndRoundHudGroup::createBlankScoreText(int index)
 {
   std::shared_ptr<Text> playerText =
-    mpGraphicsManager->createText("");
+    mpGraphicsManager->createText("", mFont);
 
   if(playerText){
     playerText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
@@ -71,7 +71,7 @@ EndRoundHudGroup::createBlankScoreText(int index)
   addElement(playerElement);
 
    std::shared_ptr<Text> scoreText =
-    mpGraphicsManager->createText("");
+     mpGraphicsManager->createText("", mFont);
    if(scoreText){
      scoreText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
      scoreText->setTextColour(0xFFFFFFFF);

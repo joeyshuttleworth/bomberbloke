@@ -49,6 +49,9 @@ BomberBlokeScene::setBigBomb()
 
 BomberBlokeScene::~BomberBlokeScene()
 {
+
+  mpGraphicsManager->destroyTexture(mpBackgroundTexture);
+
   mNewGame = false;
   if (mSoundtrack)
     mSoundtrack->stop();
@@ -58,14 +61,13 @@ void
 BomberBlokeScene::draw()
 {
   // Draw background
-  // auto sceneScreenRect =
-  //   mpCamera->getScreenRect(0, 0, mDimension[0], mDimension[1]);
+  auto sceneScreenRect =
+    mpCamera->getScreenRect(0, 0, mDimension[0], mDimension[1]);
 
-  if(mpGraphicsManager)
+  if(!mpGraphicsManager)
     return;
 
-  /* TODO Fix background texture */
-  // mpGraphicsManager->renderCopy(mBackgroundTexture, nullptr, sceneScreenRect);
+  mpGraphicsManager->renderCopy(mpBackgroundTexture, nullptr, &sceneScreenRect);
 
   // Draw actors, particles and HUD
   drawActors();
@@ -293,44 +295,46 @@ BomberBlokeScene::BomberBlokeScene(IGraphicsManager* gfx_manager,
   log_message(INFO, "no. actors " + std::to_string(mActors.size()));
 
   /* TODO implement this functionality in SDLGraphicsManager */
+
+  mpBackgroundTexture = mpGraphicsManager->createTexture(size_x * 64, size_y * 64);
+
   /* Create tiled background texture */
-  // mBackgroundTexture = SDL_CreateTexture(_renderer,
-  //                                        SDL_PIXELFORMAT_RGBA8888,
-  //                                        SDL_TEXTUREACCESS_TARGET,
-  //                                        size_x * 64,
-  //                                        size_y * 64);
-  // SDL_SetRenderTarget(_renderer, mBackgroundTexture);
-  // SDL_Texture* tileTexture;
-  // SDL_Rect tileRect({ 0, 0, 64, 64 });
   std::uniform_int_distribution<> tileDistribution(0, N_BACKGROUND_TILES - 1);
   std::uniform_int_distribution<> flipDistribution(0, 1);
+
+  std::array<int, 4> tile_rect = {0, 0 , 64, 64};
+
   for (unsigned int i = 0; i < size_x; i++) {
     for (unsigned int j = 0; j < size_y; j++) {
-      // tileRect.x = i * 64;
-      // tileRect.y = j * 64;
+      tile_rect[0] = i * 64;
+      tile_rect[1] = j * 64;
       // Randomly choose tile
 
-      // int tileIndex = tileDistribution(gen);
-      // tileTexture =
-      //   get_sprite(BACKGROUND_TILE_PREFIX + std::to_string(tileIndex) + ".png");
+      int tileIndex = tileDistribution(gen);
+      auto tileTexture =
+        mpGraphicsManager->getSprite(BACKGROUND_TILE_PREFIX + std::to_string(tileIndex) + ".png");
       // Randomly choose whether to flip the texture
       if (flipDistribution(gen) == 1){
-        // // Flip and rotate in such a way that the top-right corner is static
+        // TODO implement rotation /flipping in graphics interface
         // SDL_RenderCopyEx(_renderer,
         //                  tileTexture,
         //                  nullptr,
-        //                  &tileRect,
+        //                  &tile_rect,
         //                  90,
         //                  nullptr,
         //                  SDL_FLIP_HORIZONTAL);
+        mpGraphicsManager->renderCopy(tileTexture, nullptr, &tile_rect, true, 0, mpBackgroundTexture);
       }
       else{
         // Don't flip the texture
-        // SDL_RenderCopy(_renderer, tileTexture, nullptr, &tileRect);
+        // SDL_RenderCopy(_renderer, tileTexture, nullptr, &tile_rect);
+        mpGraphicsManager->renderCopy(tileTexture, nullptr, &tile_rect, true, 0, mpBackgroundTexture);
       }
+
+      // This is inefficient, can create all the textures first, then delete after
+      mpGraphicsManager->destroyTexture(tileTexture);
     }
   }
-  // SDL_SetRenderTarget(_renderer, mpCamera->getFrameBuffer());
 
   std::shared_ptr<PauseMenuHudGroup> pPauseMenu =
     std::make_shared<PauseMenuHudGroup>(*this);
@@ -471,7 +475,7 @@ BomberBlokeScene::togglePause()
 void
 BomberBlokeScene::startCountdown(int nSecs)
 {
-  mState = PLAYING;
+  mState = PAUSED;
   std::shared_ptr<CountdownHudGroup> countdown = mCountdownHud.lock();
   countdown->start(nSecs);
   if (_server) {

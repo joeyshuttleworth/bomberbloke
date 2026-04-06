@@ -21,6 +21,8 @@ class scene{
   friend NetServer;
 protected:
 
+  void removeAllActors();
+
   bool mNewGame = false;
   /*name and description are information about this scene*/
   std::string mName;
@@ -38,9 +40,12 @@ protected:
 
   std::mutex mMutex;
 
-  std::shared_ptr<scene> mpNextScene;
+  std::shared_ptr<scene> mpNextScene = nullptr;
 
 public:
+
+  std::shared_ptr<scene> getNextScene(){return mpNextScene;};
+  void setNextScene(std::shared_ptr<scene> s){mpNextScene = s;};
 
   IGraphicsManager* getGraphicsManager(){return mpGraphicsManager;};
 

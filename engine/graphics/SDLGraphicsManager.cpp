@@ -18,7 +18,7 @@ void
 SDLGraphicsManager::renderSplashScreen(){
   const std::lock_guard<std::mutex> lock(mMutex);
   SDL_Rect dst = {(mWindowSize[0] / 2) - 128, (mWindowSize[1] / 2) - 128, 256, 256};
-  auto sprite = getSprite("crate.png");
+  auto sprite = (SDLTexture*) getSprite("crate.png");
   if(sprite){
     SDL_RenderCopy(mpRenderer, sprite->getRawTexture(), nullptr, &dst);
   }
@@ -32,8 +32,11 @@ SDLGraphicsManager::renderSplashScreen(){
 
 AbstractTexture*
 SDLGraphicsManager::renderSolidText(std::string font_name, int font_size, std::string text, uint32_t colour, AbstractTexture* target){
-  // Render to surface
 
+  if(text=="")
+    return nullptr;
+
+  // Render to surface
   TTF_Font* font = getFont(font_name, font_size);
 
   SDL_Color sdl_colour = {(Uint8) (colour >> 24), (Uint8) (colour >> 16), (Uint8) (colour >> 8),
@@ -254,7 +257,7 @@ SDLGraphicsManager::drawScreen()
 
 /* Lookup the name in our list of sprites and return a pointer to its texture if
  * it exists */
-SDLTexture*
+AbstractTexture*
 SDLGraphicsManager::getSprite(std::string asset_name)
 {
   auto iter = mSpriteList.find(asset_name);
@@ -264,7 +267,7 @@ SDLGraphicsManager::getSprite(std::string asset_name)
     return nullptr;
   }
 
-  return iter->second.get();
+  return (AbstractTexture*) iter->second.get();
 }
 
 
@@ -526,7 +529,7 @@ SDLGraphicsManager::renderFillRect(std::array<int, 4>& _dstRect,
 
 void SDLGraphicsManager::drawSprite(std::string asset_name, Rect _dstrect,
                                     bool isPostProcessed, int bloomAmount){
-  auto sprite = getSprite(asset_name);
+  auto sprite = (SDLTexture*) getSprite(asset_name);
 
   if(!sprite)
     return;
@@ -640,7 +643,7 @@ void SDLGraphicsManager::destroyBuffers(){
 }
 
 
-SDL_Texture* SDLGraphicsManager::createRawTexture(int width, int height){
+SDL_Texture* SDLGraphicsManager::createRawTexture(int width, int height, bool clear){
   // Create temporary texture for blurring passes
   SDL_Texture* texture =  SDL_CreateTexture(mpRenderer,
                                             SDL_PIXELFORMAT_RGBA8888,
@@ -648,15 +651,20 @@ SDL_Texture* SDLGraphicsManager::createRawTexture(int width, int height){
                                             width,
                                             height);
 
+  if(clear){
+    SDL_SetRenderTarget(mpRenderer, texture);
+    SDL_SetRenderDrawColor(mpRenderer, 0, 0, 0, 0);
+    SDL_RenderClear(mpRenderer);
+    SDL_SetRenderTarget(mpRenderer, nullptr);
+  }
+
   return texture;
 }
 
 AbstractTexture* SDLGraphicsManager::createTexture(int width, int height){
-  auto tex = createRawTexture(width, height);
+  auto tex = createRawTexture(width, height, true);
   std::unique_ptr<SDLTexture> tex_ptr = std::make_unique<SDLTexture>(this, tex);
-
   auto raw_ptr = tex_ptr.get();
-
   mTextures[raw_ptr] = std::move(tex_ptr);
 
   return raw_ptr;

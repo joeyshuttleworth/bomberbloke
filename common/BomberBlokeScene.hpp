@@ -26,7 +26,7 @@ protected:
   unsigned int mNSpawnPoints = 0;
 
   // Texture containing bakground tiles.
-  SDL_Texture *mBackgroundTexture;
+  AbstractTexture *mpBackgroundTexture;
 
   // Camera that captures entire scene.
   std::shared_ptr<ShowAllCamera> mSceneCamera;

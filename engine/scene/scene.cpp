@@ -33,6 +33,7 @@ scene ::refreshSprites()
 std::shared_ptr<actor>
 scene ::GetActor(int id)
 {
+  std::lock_guard<std::mutex> lock(mMutex);
   /*search over actors*/
   auto iterator = std::find_if(
     mActors.begin(), mActors.end(), [&](std::shared_ptr<actor> a) -> bool {
@@ -48,6 +49,7 @@ scene ::GetActor(int id)
 void
 scene::cleanUp()
 {
+  std::lock_guard<std::mutex> lock(mMutex);
   /* Remove particles with mRemove set! */
   mParticles.remove_if(
     [](std::shared_ptr<AbstractSpriteHandler> s) { return s->ToRemove(); });
@@ -60,6 +62,7 @@ scene::cleanUp()
 void
 scene::movementUpdate()
 {
+  std::lock_guard<std::mutex> lock(mMutex);
   /*Iterate over all moving actors*/
   for (auto i = mActors.begin(); i != mActors.end(); i++) {
     /*Update actors*/
@@ -71,7 +74,13 @@ scene::movementUpdate()
 }
 
 void
-scene ::addActorWithId(std::shared_ptr<actor> a)
+scene::removeAllActors(){
+  std::lock_guard<std::mutex> lock(mMutex);
+  mActors = std::list<std::shared_ptr<actor>>{};
+}
+
+void
+scene::addActorWithId(std::shared_ptr<actor> a)
 {
   /* Check the id hasn't been taken*/
   for (auto i = mActors.begin(); i != mActors.end(); i++) {
@@ -121,6 +130,7 @@ scene ::addActor(std::shared_ptr<actor> a)
 void
 scene::physicsUpdate()
 {
+  std::lock_guard<std::mutex> lock(mMutex);
   /* Detect collisions */
 
   // TODO: Will be moving to region based collision checking eventually
@@ -189,6 +199,7 @@ scene::updateHudPositions()
 void
 scene::draw()
 {
+  std::lock_guard<std::mutex> lock(mMutex);
   drawActors();
   drawParticles();
   drawHud();
@@ -247,8 +258,9 @@ interpolateActors(std::list<std::shared_ptr<actor>>& actors)
 
 /* TODO: move all update and movement code into this method  */
 void
-scene ::update()
+scene::update()
 {
+
   if (!_server)
     interpolateActors(mActors);
 
@@ -376,7 +388,15 @@ scene::linkActorToPlayer(std::shared_ptr<actor>& act, int player_id)
 }
 
 void scene::init(){
-  for(auto p_actor : mActors)
+  for(auto p_actor : mActors){
     p_actor->init();
+    if(p_actor->mpSpriteHandler)
+      p_actor->mpSpriteHandler->setGraphicsManager(mpGraphicsManager);
+  }
+
+  for(auto particle : mParticles){
+    particle->setGraphicsManager(mpGraphicsManager);
+  }
+
   return;
 }

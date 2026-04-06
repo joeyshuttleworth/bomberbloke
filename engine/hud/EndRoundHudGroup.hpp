@@ -31,6 +31,8 @@ protected:
   // Weak pointer containing nickname of round winner.
   std::weak_ptr<TextHudElement> mWinnerText;
 
+  std::string mFont = "Aileron-Black";
+
   // List of score HUD elements. First in pair is nickname, second is score value.
   std::list<std::pair<std::weak_ptr<TextHudElement>, std::weak_ptr<TextHudElement>>> mScoreTexts = {};
 

@@ -31,6 +31,9 @@ main(int argc, char** argv)
                                { "server", required_argument, nullptr, 's' },
                                { nullptr, no_argument, nullptr, 0 } };
 
+  _draw = false;
+  _server = false;
+
   while (iarg != -1) {
     iarg = getopt_long(argc, argv, short_opts, long_opts, nullptr);
     switch (iarg) {

@@ -9,6 +9,7 @@ ServerInfoEvent::ServerInfoEvent(
   mDescription = info.mDescription;
   mMaxPlayers = info.mMaxPlayers;
   mNumberOfPlayers = players.size();
+  mUserNameFree = true;
   if (nickname == "") {
     /* empty user name - tell the client they cannot use it */
     mUserNameFree = false;
@@ -18,7 +19,7 @@ ServerInfoEvent::ServerInfoEvent(
       players.begin(), players.end(), [&](std::shared_ptr<AbstractPlayer> p) {
         return nickname == p->mNickname;
       });
-    if (iter == players.end() || players.size() == 0)
+    if (iter == players.end())
       mUserNameFree = true;
     else
       mUserNameFree = false;

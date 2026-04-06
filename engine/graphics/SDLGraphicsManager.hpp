@@ -25,9 +25,9 @@ class scene;
 
 class SDLGraphicsManager : public IGraphicsManager{
 protected:
-  SDLTexture* getSprite(std::string);
+  AbstractTexture* getSprite(std::string) override;
 
-  SDL_Texture* createRawTexture(int width, int height);
+  SDL_Texture* createRawTexture(int width, int height, bool clear);
 
   const Uint32 mRendererFlags = SDL_RENDERER_TARGETTEXTURE;
   const std::array<int, 2> mDefaultWindowSize = {600, 800};

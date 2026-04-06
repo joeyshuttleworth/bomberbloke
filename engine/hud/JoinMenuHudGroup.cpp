@@ -238,13 +238,13 @@ JoinMenuHudGroup::update()
     colour |= 0xFF;
     std::stringstream colour_stream;
     colour_stream << "colour " << std::hex << colour;
-    // handle_system_command({ "colour", colour_stream.str() });
 
     std::vector<std::string> commands = {colour_stream.str()};
 
     if(_net_client->joinBlokeServer(address, _nickname, commands)){
     // If successful move to bomberbloke scene
-      auto mpNextScene = std::make_shared<BomberBlokeScene>(mrScene.getGraphicsManager(), 10, 10);
+      mrScene.setNextScene(std::make_shared<BomberBlokeScene>(mrScene.getGraphicsManager(), 10, 10));
+      mJoinServer = false;
     } else{
       // If failed go back to main menu
       showJoinMenu();

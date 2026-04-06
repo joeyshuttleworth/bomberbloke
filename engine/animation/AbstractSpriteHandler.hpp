@@ -17,6 +17,8 @@ class Camera;
 
 extern unsigned int _tick;
 
+class IGraphicsManager;
+
 class AbstractSpriteHandler{
 public:
   // TODO: move all flashing stuff to a subclass
@@ -85,6 +87,10 @@ public:
   void serialize(Archive &archive){
     archive(cereal::make_nvp("position", mPosition), cereal::make_nvp("dimmension", mDimmension), cereal::make_nvp("animation speed", mAnimationSpeed), cereal::make_nvp("timeout", mTimeout), cereal::make_nvp("delay", mDelay));
     return;
+  }
+
+  virtual void setGraphicsManager(IGraphicsManager* gfx){
+    mpGraphicsManager = gfx;
   }
 
 protected:

@@ -68,7 +68,7 @@ PauseMenuHudGroup::PauseMenuHudGroup(scene &r_scene)
   std::shared_ptr<Text> optionsText =
     mpGraphicsManager->createText("OPTIONS", mFont);
 
-  if (!leaveText || !optionsText){
+  if (mpGraphicsManager && (!leaveText || !optionsText)){
     log_message(ERR, "Failed to create pause menu text");
   }
 

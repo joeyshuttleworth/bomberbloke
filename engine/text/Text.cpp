@@ -47,8 +47,7 @@ Text::draw(Camera*, bool)
       // Render text to texture
       std::string textBefore = mTextString.substr(0, mCursorIndex);
       AbstractTexture* textBeforeTexture =
-        mpGraphicsManager->renderSolidText(mFont, mFontSize, textBefore, mColour,
-                                           mTextTexture);
+        mpGraphicsManager->renderSolidText(mFont, mFontSize, textBefore, mColour);
       if (textBeforeTexture) {
         auto dims = textBeforeTexture->getDimensions();
         int w = dims[0];
@@ -59,7 +58,7 @@ Text::draw(Camera*, bool)
 
       std::string textAfter = mTextString.substr(mCursorIndex);
       AbstractTexture* textAfterTexture =
-        mpGraphicsManager->renderSolidText(mFont, mFontSize, textAfter, mColour, mTextTexture);
+        mpGraphicsManager->renderSolidText(mFont, mFontSize, textAfter, mColour);
       if (textAfterTexture) {
         auto dims = textAfterTexture->getDimensions();
         int w = dims[0];
@@ -71,7 +70,7 @@ Text::draw(Camera*, bool)
       AbstractTexture* textCursorTexture =
         mpGraphicsManager->renderSolidText(mFont, mFontSize, CURSOR_CHAR, mColour);
       if (textCursorTexture) {
-        auto dims = textAfterTexture->getDimensions();
+        auto dims = textCursorTexture->getDimensions();
         int w = dims[0];
         int h = dims[1];
 
@@ -133,7 +132,7 @@ Text::draw(Camera*, bool)
     }
 
     else {
-      if(mTextTexture)
+      if(mTextTexture && (mTextString!=""))
         mpGraphicsManager->destroyTexture(mTextTexture);
       mTextTexture =
         mpGraphicsManager->renderSolidText(mFont, mFontSize, mTextString.c_str(), mColour);

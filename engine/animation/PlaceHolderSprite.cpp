@@ -9,9 +9,12 @@ PlaceHolderSprite::PlaceHolderSprite(IGraphicsManager* gfx_manager, double x_pos
 void
 PlaceHolderSprite::draw(Camera* cam)
 {
+  if(!mpGraphicsManager)
+    return;
+
   auto dstrect = cam->getScreenRect(
                                     mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]);
-  mpGraphicsManager->renderFillRect(dstrect, mColour);
+  mpGraphicsManager->renderFillRect(dstrect, mColour, false, 0);
   return;
 }
 
