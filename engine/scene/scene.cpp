@@ -33,7 +33,6 @@ scene ::refreshSprites()
 std::shared_ptr<actor>
 scene ::GetActor(int id)
 {
-  std::lock_guard<std::mutex> lock(mMutex);
   /*search over actors*/
   auto iterator = std::find_if(
     mActors.begin(), mActors.end(), [&](std::shared_ptr<actor> a) -> bool {
@@ -49,7 +48,6 @@ scene ::GetActor(int id)
 void
 scene::cleanUp()
 {
-  std::lock_guard<std::mutex> lock(mMutex);
   /* Remove particles with mRemove set! */
   mParticles.remove_if(
     [](std::shared_ptr<AbstractSpriteHandler> s) { return s->ToRemove(); });
@@ -100,6 +98,7 @@ scene::addActorWithId(std::shared_ptr<actor> a)
 void
 scene ::addActor(std::shared_ptr<actor> a)
 {
+  std::lock_guard<std::mutex> lock(mMutex);
   for (int j = mLastActorId + 1; j - mLastActorId < 10000; j++) {
     bool set = true;
     for (auto i = mActors.begin(); i != mActors.end(); i++) {
