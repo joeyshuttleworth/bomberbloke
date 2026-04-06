@@ -73,7 +73,7 @@ scene::movementUpdate()
 
 void
 scene::removeAllActors(){
-  std::lock_guard<std::mutex> lock(mMutex);
+
   mActors = std::list<std::shared_ptr<actor>>{};
 }
 
@@ -98,7 +98,7 @@ scene::addActorWithId(std::shared_ptr<actor> a)
 void
 scene ::addActor(std::shared_ptr<actor> a)
 {
-  std::lock_guard<std::mutex> lock(mMutex);
+
   for (int j = mLastActorId + 1; j - mLastActorId < 10000; j++) {
     bool set = true;
     for (auto i = mActors.begin(); i != mActors.end(); i++) {
@@ -129,7 +129,7 @@ scene ::addActor(std::shared_ptr<actor> a)
 void
 scene::physicsUpdate()
 {
-  std::lock_guard<std::mutex> lock(mMutex);
+
   /* Detect collisions */
 
   // TODO: Will be moving to region based collision checking eventually
@@ -198,7 +198,6 @@ scene::updateHudPositions()
 void
 scene::draw()
 {
-  std::lock_guard<std::mutex> lock(mMutex);
   drawActors();
   drawParticles();
   drawHud();
@@ -389,13 +388,21 @@ scene::linkActorToPlayer(std::shared_ptr<actor>& act, int player_id)
 void scene::init(){
   for(auto p_actor : mActors){
     p_actor->init();
-    if(p_actor->mpSpriteHandler)
-      p_actor->mpSpriteHandler->setGraphicsManager(mpGraphicsManager);
   }
 
+  initGraphics();
+
+  return;
+}
+
+
+void
+scene::initGraphics(){
   for(auto particle : mParticles){
     particle->setGraphicsManager(mpGraphicsManager);
   }
-
-  return;
+  for(auto p_actor : mActors){
+    if(p_actor->mpSpriteHandler)
+      p_actor->mpSpriteHandler->setGraphicsManager(mpGraphicsManager);
+  }
 }
