@@ -534,7 +534,8 @@ void SDLGraphicsManager::drawSprite(std::string asset_name, Rect _dstrect,
   if(!sprite)
     return;
 
-  renderCopy(sprite->getRawTexture(), nullptr, &_dstrect, isPostProcessed=isPostProcessed,
+  renderCopy(sprite->getRawTexture(), nullptr, &_dstrect,
+             isPostProcessed=isPostProcessed,
              bloomAmount=bloomAmount);
 
   if(mDebug){

@@ -171,7 +171,6 @@ NetClient::pollServer()
     switch (event->getType()) {
       case EVENT_SYNC: {
         std::lock_guard<std::mutex> lock(mPlayerListMutex);
-        std::lock_guard<std::mutex> lock2(_pScene->mMutex);
 
         std::shared_ptr<SyncEvent> s_event =
           std::dynamic_pointer_cast<SyncEvent>(event);

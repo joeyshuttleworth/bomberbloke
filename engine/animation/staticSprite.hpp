@@ -20,7 +20,7 @@ public:
     void draw(Camera* cam){
       if(mpGraphicsManager){
         auto dstrect = cam->getScreenRect(mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]);
-        mpGraphicsManager->drawSprite(mAssetName, dstrect);
+        mpGraphicsManager->drawSprite(mAssetName, dstrect, false, 0);
       }
       return;
     }
