@@ -6,8 +6,6 @@
 #include "Camera.hpp"
 #include "AbstractTexture.hpp"
 
-const std::string CURSOR_CHAR = "|";
-
 using rect = std::array<int, 4>;
 
 void
@@ -32,6 +30,14 @@ Text::draw(Camera*, bool)
     mpGraphicsManager->renderCopy(
                                   mTextTexture, &mSrcRect, &mDstRect, false, mGlowAmount);
   }
+
+  if (mCursorVisible) {
+    std::string textBefore = mTextString.substr(0, mCursorIndex);
+    int width = mpGraphicsManager->sizeText(mFont, mFontSize, textBefore)[0];
+    int xCursor = mDstRect[0] + width * mTextScale[0];
+    rect cursorRect{xCursor, mDstRect[1], 1, mDstRect[3]};
+    mpGraphicsManager->renderFillRect(cursorRect, mColour, false, mGlowAmount);
+  }
 }
 
   void
@@ -43,109 +49,20 @@ Text::draw(Camera*, bool)
     if(!mpGraphicsManager)
       return;
 
-    if (mCursorVisible) {
-      // Render text to texture
-      std::string textBefore = mTextString.substr(0, mCursorIndex);
-      AbstractTexture* textBeforeTexture =
-        mpGraphicsManager->renderSolidText(mFont, mFontSize, textBefore, mColour);
-      if (textBeforeTexture) {
-        auto dims = textBeforeTexture->getDimensions();
-        int w = dims[0];
-        int h = dims[1];
-        width = w;
-        height = h;
-      }
+    if(mTextTexture && (mTextString!=""))
+      mpGraphicsManager->destroyTexture(mTextTexture);
+    mTextTexture =
+      mpGraphicsManager->renderSolidText(mFont, mFontSize, mTextString.c_str(), mColour);
 
-      std::string textAfter = mTextString.substr(mCursorIndex);
-      AbstractTexture* textAfterTexture =
-        mpGraphicsManager->renderSolidText(mFont, mFontSize, textAfter, mColour);
-      if (textAfterTexture) {
-        auto dims = textAfterTexture->getDimensions();
-        int w = dims[0];
-        int h = dims[1];
-        height = std::max(h, height);
-        width += w;
-      }
-
-      AbstractTexture* textCursorTexture =
-        mpGraphicsManager->renderSolidText(mFont, mFontSize, CURSOR_CHAR, mColour);
-      if (textCursorTexture) {
-        auto dims = textCursorTexture->getDimensions();
-        int w = dims[0];
-        int h = dims[1];
-
-        height = std::max(h, height);
-        width += w;
-      }
-
-      // Create a render target texture
-      auto fullTexture = mpGraphicsManager->createTexture(
-                                                          width,
-                                                          height
-                                                          );
-
-      if (textBeforeTexture) {
-        auto dims = textBeforeTexture->getDimensions();
-        auto w = dims[0];
-        auto h = dims[1];
-        std::array<int, 4> dst = {0, 0, w, h};
-        mpGraphicsManager->renderCopy(textBeforeTexture, nullptr, &dst, false, 0,
-                                      fullTexture);
-      }
-
-      if (textAfterTexture) {
-        auto dims = textAfterTexture->getDimensions();
-        auto w = dims[0];
-        auto h = dims[1];
-        std::array<int, 4> dst = {0, 0, w, h};
-
-        if (textBeforeTexture) {
-          auto dims = textBeforeTexture->getDimensions();
-          auto beforeW = dims[0];
-          dst[0] = beforeW;
-        }
-
-        mpGraphicsManager->renderCopy(textAfterTexture, nullptr, &dst, false, 0,
-                                      fullTexture);
-      }
-
-      if (textCursorTexture) {
-
-        auto dims = textCursorTexture->getDimensions();
-        auto w = dims[0];
-        auto h = dims[1];
-        std::array<int, 4> dst = {0, 0, w, h};
-
-        if (textBeforeTexture) {
-          auto dims = textBeforeTexture->getDimensions();
-          auto beforeW = dims[0];
-          dst[0] = beforeW - dst[2] / 2;
-        }
-
-        mpGraphicsManager->renderCopy(textCursorTexture, nullptr, &dst, false, 0,
-                                      fullTexture);
-        if(mTextTexture)
-          mpGraphicsManager->destroyTexture(mTextTexture);
-        // Store final texture
-        mTextTexture = fullTexture;
-      }
+    if (mTextTexture) {
+      auto dims = mTextTexture->getDimensions();
+      width = dims[0];
+      height = dims[1];
+    } else {
+      width = 0;
+      height = 0;
     }
 
-    else {
-      if(mTextTexture && (mTextString!=""))
-        mpGraphicsManager->destroyTexture(mTextTexture);
-      mTextTexture =
-        mpGraphicsManager->renderSolidText(mFont, mFontSize, mTextString.c_str(), mColour);
-
-      if (mTextTexture) {
-        auto dims = mTextTexture->getDimensions();
-        width = dims[0];
-        height = dims[1];
-      } else {
-        width = 0;
-        height = 0;
-      }
-    }
 
     // top-left corner of the text box
     int xDisplacement = 0;
