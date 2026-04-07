@@ -19,6 +19,12 @@ Camera::Camera(IGraphicsManager* p_graphics_manager, scene *lvl){
 
   mpScene->updateHudPositions();
 
+  auto dims = mpGraphicsManager->getScreenDimensions();
+  int w = dims[0], h = dims[1];
+
+  mpFrameBuffer = mpGraphicsManager->createTexture(w, h);
+  mpNoProcessingBuffer = mpGraphicsManager->createTexture(w, h);
+
   init();
   return;
 }
@@ -87,9 +93,18 @@ Camera::draw()
 
   LOCK_GUARD(mMutex);
 
-  /* Do postprocessing */
-  // mpGraphicsManager->applyBloom(mBloomAlpha, mBloomSize, mBlurPasses);
-  // mpGraphicsManager->applyBrightness(mBrightness);
+  /* Apply postprocessing to everything in mpFrameBuffer*/
+  mpGraphicsManager->applyBloom(mBloomAlpha, mBloomSize, mBloomPasses, mpFrameBuffer);
+  mpGraphicsManager->applyBlur(mBlurSize, mBlurPasses, mpFrameBuffer);
+  mpGraphicsManager->setBrightness(mBrightness);
+}
+
+void Camera::applyBloom(int alpha, int size, int passes){
+  mpGraphicsManager->applyBloom(alpha, size, passes);
+}
+
+void Camera::applyBlur(double blur_size, int passes){
+  mpGraphicsManager->applyBlur(blur_size, passes);
 }
 
 void

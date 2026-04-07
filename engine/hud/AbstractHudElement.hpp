@@ -164,7 +164,7 @@ protected:
     bool mIsVisible = true;
 
     // Flag to indicate whether the object should be drawn to screen or not
-    bool mIsPostProcessed = true;
+    bool mIsPostProcessed = false;
 
     // Pixel-position of the top left corner of the bounding box.
     int mPosition[2];

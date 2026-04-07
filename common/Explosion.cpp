@@ -59,7 +59,7 @@ Explosion::draw_legacy(Camera* cam)
     auto dstrect = cam->getScreenRect(mPosition[0], mPosition[1],
                                                     mDimmension[0], mDimmension[1]);
 
-    mpGraphicsManager->renderFillRect(dstrect, colour, true, glowAmount);
+    mpGraphicsManager->renderFillRect(dstrect, colour, true, glowAmount, cam->getFrameBuffer(mIsPostProcessed));
   }
   return;
 }

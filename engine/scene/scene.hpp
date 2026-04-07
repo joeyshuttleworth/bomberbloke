@@ -44,6 +44,8 @@ protected:
 
 public:
 
+  void initGraphics();
+
   std::shared_ptr<scene> getNextScene(){return mpNextScene;};
   void setNextScene(std::shared_ptr<scene> s){mpNextScene = s;};
 

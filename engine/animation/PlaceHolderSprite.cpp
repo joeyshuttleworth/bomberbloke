@@ -14,7 +14,7 @@ PlaceHolderSprite::draw(Camera* cam)
 
   auto dstrect = cam->getScreenRect(
                                     mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]);
-  mpGraphicsManager->renderFillRect(dstrect, mColour, false, 0);
+  mpGraphicsManager->renderFillRect(dstrect, mColour, false, 0, cam->getFrameBuffer(mIsPostProcessed));
   return;
 }
 

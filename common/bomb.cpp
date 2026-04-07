@@ -101,6 +101,12 @@ bomb::explode()
 {
   remove();
 
+  if(mpScene){
+    if(mpScene->getCamera()){
+      mpScene->getCamera()->rumble();
+    }
+  }
+
   if (getType() == ACTOR_BIG_BOMB)
     mPower = 100;
 

@@ -211,7 +211,7 @@ NetClient::pollServer()
           }
         }
 
-        _pScene->init();
+        _pScene->initGraphics();
         auto p_list = s_event->getPlayers();
         for (auto i = p_list.begin(); i != p_list.end(); i++) {
           std::shared_ptr<AbstractPlayer> p =
@@ -269,6 +269,7 @@ NetClient::pollServer()
         else {
           log_message(ERR, "Received malformed create event");
         }
+        _pScene->initGraphics();
         break;
       }
       case EVENT_REMOVE: {

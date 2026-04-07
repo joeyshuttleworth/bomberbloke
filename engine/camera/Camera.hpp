@@ -20,13 +20,24 @@ class Camera : public AbstractCamera{
 
   virtual void init(){};
 
-  virtual ~Camera(){}
+  virtual ~Camera(){
+    if(mpFrameBuffer)
+      mpGraphicsManager->destroyTexture(mpFrameBuffer);
+
+    if(mpNoProcessingBuffer)
+      mpGraphicsManager->destroyTexture(mpNoProcessingBuffer);
+  }
 
   double getZoom(){
     return mZoom;
   }
 
-  std::unique_ptr<AbstractTexture> mpFrameBuffer;
+  AbstractTexture* mpFrameBuffer;
+  AbstractTexture* mpNoProcessingBuffer;
+
+  AbstractTexture* getFrameBuffer(bool postprocessed=true){
+    return postprocessed ? mpFrameBuffer : mpNoProcessingBuffer;
+  }
 
   void setZoom(double);
 
@@ -82,6 +93,9 @@ class Camera : public AbstractCamera{
 
 
 protected:
+
+  void applyBloom(int alpha, int size, int passes);
+  void applyBlur(double blur_size, int passes);
 
   std::mutex mMutex;
 

@@ -153,9 +153,9 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(scene& r_scene, std::function<void()> g
   auto reduceMusicFn = std::bind(&OptionsMenuHudGroup::reduceMusicVolume, this);
   std::shared_ptr<TextButton> reduceMusicElement = std::make_shared<TextButton>(mrScene,
     reduceMusicText, 15, 50, 20, 20, reduceMusicFn, ALIGN_CENTER, ALIGN_CENTER);
-  if (reduceMusicElement) {
-    reduceMusicElement->setMouseOverColour(0xC8C8C8FF);
-  }
+  reduceMusicElement->setMouseOverColour(0xC8C8C8FF);
+  reduceMusicElement->setOnClickOffset(-1, 2);
+  addElement(reduceMusicElement);
 
   // Master volume option label
   int currentMusicLabel = soundManager.getVolume(SOUND_MUSIC) * 8 / 128;

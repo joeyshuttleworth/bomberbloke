@@ -23,12 +23,12 @@ public:
   virtual void setDraw(bool){};
   virtual void drawScreen(){};
   virtual void loadSpriteFromPath(std::string){};
-  virtual void applyBloom(double, double, int=1){};
+  virtual void applyBloom(double, double, int=1, AbstractTexture* =nullptr, AbstractTexture* = nullptr){};
   virtual void applyBlur(double, int){};
   virtual void applyBrightness(double){};
   virtual void drawNoProcessingBuffer(){};
   virtual void resetFrameBuffers(){};
-  virtual void drawSprite(std::string, Rect, bool=true, int=0){};
+  virtual void drawSprite(std::string, Rect, bool=true, int=0, AbstractTexture* = nullptr){};
   virtual void createWindow(int=-1, int=-1){};
 
   virtual AbstractTexture* getSprite(std::string){return nullptr;};
@@ -36,7 +36,7 @@ public:
   virtual std::array<int, 2> getScreenDimensions(){return std::array<int, 2>{0, 0};};
 
   virtual void renderFillRect(Rect&, uint32_t,
-                              bool=true, int=0){};
+                              bool=true, int=0, AbstractTexture* = nullptr){};
 
   virtual AbstractTexture* renderSolidText(std::string, int, std::string, uint32_t, AbstractTexture* =nullptr){return nullptr;};
 
@@ -48,7 +48,7 @@ public:
 
   virtual void destroyWindow(){};
 
-  virtual void renderCopy(AbstractTexture*, Rect*, Rect*, bool=false, int=0,
+  virtual void renderCopy(AbstractTexture*, Rect*, Rect*, bool=true, int=0,
                           AbstractTexture* =nullptr){};
 
   virtual void destroyTexture(AbstractTexture*){};
@@ -57,7 +57,7 @@ public:
 
   virtual std::array<int, 2> sizeText(std::string, int, std::string){return std::array<int ,2>{0, 0};};
 
-  virtual std::shared_ptr<Text> createText(std::string="", std::string="", int=12){return nullptr;};
+  virtual std::shared_ptr<Text> createText(std::string="", std::string="Aileron-Black", int=12){return nullptr;};
 
   virtual ~IGraphicsManager();
 };

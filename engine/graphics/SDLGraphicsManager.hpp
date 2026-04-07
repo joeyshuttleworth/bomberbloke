@@ -49,8 +49,6 @@ protected:
 
   std::map<std::string, SDLFontResoruce> mFonts;
 
-  bool mDebug = true;
-
   Rect mScreenRectangle = {0, 0, 0, 0};
 
   /**
@@ -106,8 +104,6 @@ public:
                   Rect* dstRect=nullptr, bool isPostProcessed=true, int bloomAmount=0,
                   AbstractTexture* target=nullptr) override;
 
-  // mDebug = debug;
-
   // Allows for SDL like function calls
   void resizeWindow(int, int) override;
 
@@ -150,16 +146,17 @@ public:
    * @param bloomAmount     Determines the amount of bloom applied to texture.
    */
   void renderFillRect(std::array<int, 4>&, Uint32,
-                      bool isPostProcessed=true, int bloomAmount=0) override;
+                      bool isPostProcessed=true, int bloomAmount=0,
+                      AbstractTexture* = nullptr) override;
 
   std::array<int, 2> getScreenDimensions() override{
     return {{ mWindowSize[0], mWindowSize[1] }};
   }
 
-  void drawSprite(std::string, std::array<int, 4>, bool=true, int=0) override;
+  void drawSprite(std::string, std::array<int, 4>, bool=true, int=0, AbstractTexture* =nullptr) override;
 
-  void applyBloom(double, double, int) override;
-  void applyBlur(double, int) override;
+  void applyBloom(double, double, int, AbstractTexture*, AbstractTexture*) override;
+  void applyBlur(double, int, AbstractTexture*) override;
 
   void createWindow(int=-1, int=-1) override;
 
@@ -182,8 +179,8 @@ public:
   std::array<int, 2> sizeText(std::string, int, std::string) override;
 
   std::shared_ptr<Text> createText(std::string, std::string, int) override;
-
-  SDLGraphicsManager(bool debug=false);
+  
+  SDLGraphicsManager();
   virtual ~SDLGraphicsManager();
 
 };

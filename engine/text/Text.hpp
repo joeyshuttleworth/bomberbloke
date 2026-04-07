@@ -255,7 +255,7 @@ public:
      * @param isPostProcessed   Determines whether the text is drawn after
      *                          camera post-processing.
      */
-    void draw(Camera *camera, bool isPostProcessed=true);
+     void draw(Camera *camera, bool is_postprocessed);
 
     ~Text();
 

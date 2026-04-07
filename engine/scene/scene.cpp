@@ -198,9 +198,14 @@ scene::updateHudPositions()
 void
 scene::draw()
 {
+  if(!mpCamera)
+    return;
+
   drawActors();
   drawParticles();
   drawHud();
+
+  mpCamera->draw();
 }
 
 void

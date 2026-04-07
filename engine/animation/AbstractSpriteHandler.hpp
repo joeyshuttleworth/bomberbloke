@@ -102,6 +102,7 @@ protected:
   unsigned int mTimeout;
   unsigned int mDelay;
   bool mRemove;
+  bool mIsPostProcessed = true;
   IGraphicsManager* mpGraphicsManager;
 };
 
