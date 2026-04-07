@@ -169,10 +169,10 @@ handle_input()
       }
       case SDL_WINDOWEVENT: {
         if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
-          _pScene->onResize();
           if(_graphics_interface){
             _graphics_interface->resizeWindow();
           }
+          _pScene->onResize();
         }
       }
     }
