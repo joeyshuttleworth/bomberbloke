@@ -35,14 +35,19 @@ const int PAUSE_BRIGHTNESS = -30;
 const int ROUND_END_WAIT_SECS = 5;
 
 void
-BomberBlokeScene::setBigBomb()
+BomberBlokeScene::setBigBombHUD(bool big_bomb)
 {
   std::shared_ptr<AbstractHudElement> observe = mBombIcons[0].lock();
   mHudElements.remove(observe);
+
+  std::string asset_name = big_bomb ? "bigredbomb.png" : "bomb_pickup.png";
   std::shared_ptr<SpriteHudElement> hudElement =
     std::make_shared<SpriteHudElement>(*this,
-      "bigredbomb.png", 9 + 0 * 34, 91, 32, 32);
-  hudElement->setGlowAmount(100);
+      asset_name, 9 + 0 * 34, 91, 32, 32);
+
+  int glow_amount = big_bomb ? 100: 100;
+  hudElement->setGlowAmount(glow_amount);
+
   mBombIcons[0] = hudElement;
   mHudElements.push_back(hudElement);
 }
@@ -60,12 +65,13 @@ BomberBlokeScene::~BomberBlokeScene()
 void
 BomberBlokeScene::draw()
 {
-  // Draw background
-  auto sceneScreenRect =
-    mpCamera->getScreenRect(0, 0, mDimension[0], mDimension[1]);
 
   if(!mpGraphicsManager)
     return;
+
+  // Draw background
+  auto sceneScreenRect =
+    mpCamera->getScreenRect(0, 0, mDimension[0], mDimension[1]);
 
   mpGraphicsManager->renderCopy(mpBackgroundTexture, nullptr, &sceneScreenRect);
 
@@ -74,7 +80,6 @@ BomberBlokeScene::draw()
   drawParticles();
 
   /* Set the HUD icons to be visible based on our player properties */
-
   // Power
   for (int i = 0; i < 10; i++) {
     if (auto observe = mPowerIcons[i].lock()) {
@@ -384,6 +389,8 @@ BomberBlokeScene::BomberBlokeScene(IGraphicsManager* gfx_manager,
     mHudElements.push_back(hudElement);
   }
 
+  setBigBombHUD(false);
+
   // Create bloke camera
   mBlokeCamera = std::make_shared<FollowCamera>(mpGraphicsManager, this);
   mSceneCamera = std::make_shared<ShowAllCamera>(mpGraphicsManager, this);
@@ -535,13 +542,9 @@ BomberBlokeScene::handleCommand(std::string str)
 
   else if (str == "start") {
     /*  reset big bomb sprite */
-    std::shared_ptr<AbstractHudElement> observe = mBombIcons[0].lock();
-    mHudElements.remove(observe);
-    std::shared_ptr<SpriteHudElement> hudElement =
-      std::make_shared<SpriteHudElement>(
-                                         *this, "bomb_pickup.png", 9 + 0 * 34, 91, 32, 32);
-    hudElement->setGlowAmount(100);
-    mBombIcons[0] = hudElement;
+
+    setBigBombHUD(false);
+
     if (mSoundtrack)
       mSoundtrack->stop();
 
@@ -580,7 +583,7 @@ BomberBlokeScene::handleCommand(std::string str)
     endRoundHud->setIsVisible(true);
   }
   if (str == "bigbomb")
-    setBigBomb();
+    setBigBombHUD(true);
 }
 
 void

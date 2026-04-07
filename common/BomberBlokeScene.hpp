@@ -64,7 +64,7 @@ protected:
   void showEntireScene();
 
 public:
-  void setBigBomb();
+  void setBigBombHUD(bool);
 
   BomberBlokeScene(IGraphicsManager* =nullptr, unsigned int size_x = 10, unsigned int size_y = 10,
                    unsigned int spawn_points=default_n_spawn_points);
