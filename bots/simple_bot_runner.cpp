@@ -46,14 +46,15 @@ main(int argc, char** argv)
     }
   }
 
-  _graphics_interface = std::unique_ptr<IGraphicsManager>();
   _local_player_list.push_back(LocalPlayer(user_name));
   _nickname = user_name;
 
   SDL_Init(SDL_INIT_EVERYTHING);
   init_engine(false);
 
-  _pScene = std::make_shared<BomberBlokeScene>(nullptr, 10, 10);
+  _graphics_interface = std::make_unique<DummyGraphicsManager>();
+  _pScene = std::make_shared<BomberBlokeScene>(_graphics_interface.get(),
+                                               10, 10);
 
   // Attempt join
   std::vector<std::string> commands = { "colour FFFFFFFF" };
