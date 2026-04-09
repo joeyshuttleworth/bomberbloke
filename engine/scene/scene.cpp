@@ -201,6 +201,8 @@ scene::draw()
   if(!mpCamera)
     return;
 
+  mpCamera->resetFrameBuffers();
+
   drawActors();
   drawParticles();
   drawHud();
@@ -230,7 +232,6 @@ scene::drawParticles()
     return;
   }
 
-  // SDL_SetRenderTarget(_renderer, mpCamera->getFrameBuffer());
   /*  Draw all particles.*/
   for (auto i = mParticles.begin(); i != mParticles.end(); i++) {
     (*i)->draw(mpCamera.get());

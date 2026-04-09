@@ -32,6 +32,8 @@ class Camera : public AbstractCamera{
     return mZoom;
   }
 
+  void resetFrameBuffers() override;
+
   AbstractTexture* mpFrameBuffer;
   AbstractTexture* mpNoProcessingBuffer;
 
@@ -64,7 +66,7 @@ class Camera : public AbstractCamera{
    * @param passes  Quality of the blur, larger is higher quality.
    */
 
-  std::array<int, 2> getScreenDimensions(double, double){
+  std::array<int, 2> getScreenDimensions(){
     std::array<int, 2> ret_val = {0, 0};
 
     if(mpGraphicsManager)

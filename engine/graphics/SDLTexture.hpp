@@ -13,6 +13,10 @@ public:
     return mpTexture;
   };
 
+  void setRawTexture(SDL_Texture* tex){
+    mpTexture = tex;
+  }
+
   std::array<int, 2> getDimensions() override{
     int w, h;
     SDL_QueryTexture(mpTexture, NULL, NULL, &w, &h);

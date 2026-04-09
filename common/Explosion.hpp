@@ -22,7 +22,14 @@ protected:
   bool mRumble = true;
   bool mRenderLegacy = false;
   std::array<std::shared_ptr<Sound>, N_EXPLOSION_SOUNDS> mExplosionSounds;
-  std::array<std::string, N_SPRITESHEET_SIZE> mSpriteNames;
+  const std::array<std::string, N_SPRITESHEET_SIZE> mSpriteNames = {
+    "explosion_frame_1.png",
+    "explosion_frame_2.png",
+    "explosion_frame_3.png",
+    "explosion_frame_4.png",
+    "explosion_frame_5.png",
+    "explosion_frame_6.png",
+  };
   const std::string mExplosionSoundNames[N_EXPLOSION_SOUNDS] = {"bomb_1", "bomb_2"};
   void draw_legacy(Camera* cam);
 
@@ -42,8 +49,14 @@ public:
     mMaxGlowAmount = max_glow;
     mRenderLegacy = legacy;
 
-    Explosion();
+    init();
   }
+
+  void init(){
+    initSounds();
+  }
+
+  void initSounds();
 
   /*  In draw() we cycle through the explosion sprites */
   void draw(Camera*);

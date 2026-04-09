@@ -82,6 +82,13 @@ Camera::setBrightness(int brightness)
 void
 Camera::onResize()
 {
+  auto dims = getScreenDimensions();
+
+  mpGraphicsManager->destroyTexture(mpFrameBuffer);
+  mpFrameBuffer = mpGraphicsManager->createTexture(dims[0], dims[1]);
+
+  mpGraphicsManager->destroyTexture(mpNoProcessingBuffer);
+  mpNoProcessingBuffer = mpGraphicsManager->createTexture(dims[0], dims[1]);
 }
 
 void
@@ -93,10 +100,28 @@ Camera::draw()
 
   LOCK_GUARD(mMutex);
 
-  /* Apply postprocessing to everything in mpFrameBuffer*/
-  mpGraphicsManager->applyBloom(mBloomAlpha, mBloomSize, mBloomPasses, mpFrameBuffer);
+  // /* Apply postprocessing to everything in mpFrameBuffer*/
+  mpGraphicsManager->applyBloom(mBloomAlpha, mBloomSize, mBloomPasses, nullptr,
+                                nullptr);
   mpGraphicsManager->applyBlur(mBlurSize, mBlurPasses, mpFrameBuffer);
   mpGraphicsManager->setBrightness(mBrightness);
+
+  auto dims = getScreenDimensions();
+  std::array<int, 4> screen_rect = {0, 0, dims[0], dims[1]};
+
+  screen_rect[0] += mRumbleOffset[0];
+  screen_rect[1] += mRumbleOffset[1];
+
+  mpGraphicsManager->renderCopy(mpFrameBuffer, nullptr, &screen_rect,
+                                0);
+
+  mpGraphicsManager->renderCopy(mpNoProcessingBuffer, nullptr, nullptr,
+                                0);
+}
+
+void Camera::resetFrameBuffers(){
+  mpGraphicsManager->renderClear(mpFrameBuffer);
+  mpGraphicsManager->renderClear(mpNoProcessingBuffer);
 }
 
 void Camera::applyBloom(int alpha, int size, int passes){
@@ -145,4 +170,3 @@ Camera::setZoom(double zoom)
     zoom = 1;
   mZoom = zoom;
 }
-

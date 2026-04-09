@@ -80,13 +80,13 @@ SoundManager soundManager;
 void
 exit_engine(int signum)
 {
+  _halt = true;
   if(_graphics_interface){
     _graphics_interface->setDraw(false);
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    _graphics_interface = nullptr;
   }
 
-  SDL_Delay(500);
-  SDL_Quit();
-  _halt = true;
   std::cout << "\nNow exiting the BLOKE engine. Hope you had fun. Wherever you "
                "are, we at the BLOKE project hope we have made your day just a "
                "little bit brighter. See you next time around! :)\n";

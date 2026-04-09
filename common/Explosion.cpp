@@ -6,11 +6,13 @@ class IGraphicsManager;
 
 Explosion::Explosion(IGraphicsManager* gfx_manager)
 {
-  if(_server)
-    return;
 
-  mpGraphicsManager = gfx_manager;
+  if(gfx_manager)
+    mpGraphicsManager = gfx_manager;
+  return;
+}
 
+void Explosion::initSounds(){
   /* Create sound objects for explosion sound effects */
   if(mSound) {
     for (int i = 0; i < N_EXPLOSION_SOUNDS; i++) {
@@ -20,15 +22,6 @@ Explosion::Explosion(IGraphicsManager* gfx_manager)
       mExplosionSounds[i] = sound;
     }
   }
-
-  /* We need to tell the BLOKE engine to get textures ready if we need them */
-  /* TODO fix or remove */
-  if(!mRenderLegacy) {
-    for (int i = 1; i <= N_SPRITESHEET_SIZE; i++)
-      mSpriteNames[i-1] = "explosion_frame_" + std::to_string(i) + ".png";
-  }
-
-  return;
 }
 
 void
@@ -39,9 +32,6 @@ Explosion::draw_legacy(Camera* cam)
   Uint8 alpha = 0xFF * (1 - (double)(_tick - mStartTick) / (2 * mTimeout));
   Uint8 backAlpha = 0xFF - alpha;
   int glowAmount = mMaxGlowAmount * (1 - (_tick - mStartTick) / mTimeout);
-
-  /*  Do we need to set blend mode i.e.: */
-  // SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
 
   Uint32 colour = 0xffff00 ^ alpha;
 
@@ -57,9 +47,9 @@ Explosion::draw_legacy(Camera* cam)
   /*  Copy our texture across to the window */
   if(mpGraphicsManager){
     auto dstrect = cam->getScreenRect(mPosition[0], mPosition[1],
-                                                    mDimmension[0], mDimmension[1]);
+                                      mDimmension[0], mDimmension[1]);
 
-    mpGraphicsManager->renderFillRect(dstrect, colour, true, glowAmount, cam->getFrameBuffer(mIsPostProcessed));
+    mpGraphicsManager->renderFillRect(dstrect, colour, glowAmount, cam->getFrameBuffer(mIsPostProcessed));
   }
   return;
 }
@@ -102,7 +92,9 @@ Explosion::draw(Camera* cam)
   if(mpGraphicsManager)
     mpGraphicsManager->drawSprite(
                                   asset_name,
-                                  dstrect
+                                  dstrect,
+                                  0,
+                                  cam->getFrameBuffer(mIsPostProcessed)
                                   );
 
   return;

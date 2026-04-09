@@ -40,5 +40,5 @@ SpriteHudElement::draw(Camera* camera)
   if(!gfx_manager)
     return;
   // Copy sprite to destination rectangle
-  gfx_manager->drawSprite(mAssetName, dstRect, mIsPostProcessed, mGlowAmount);
+  gfx_manager->drawSprite(mAssetName, dstRect, mGlowAmount, camera->getFrameBuffer(mIsPostProcessed));
 }

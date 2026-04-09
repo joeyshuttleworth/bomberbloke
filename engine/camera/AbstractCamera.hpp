@@ -17,7 +17,7 @@ public:
   };
   virtual ~AbstractCamera(){};
 
-  virtual void resetFrameBuffer(){};
+  virtual void resetFrameBuffers(){};
   virtual void renderCopy(){};
   virtual void renderFillRect(){};
   virtual void update(){};

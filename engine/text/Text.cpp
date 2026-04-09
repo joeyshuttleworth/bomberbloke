@@ -23,12 +23,12 @@ Text::draw(Camera* cam, bool is_postprocessed)
   if ((mBackColour & 0xFF) > 0) {
     rect backgroundRect{mPosition[0], mPosition[1], mDimensions[0], mDimensions[1]};
     mpGraphicsManager->renderFillRect(
-                                      backgroundRect, mBackColour, is_postprocessed, mGlowAmount, cam->getFrameBuffer(is_postprocessed));
+                                      backgroundRect, mBackColour, mGlowAmount, cam->getFrameBuffer(is_postprocessed));
   }
 
   if (mTextTexture) {
     mpGraphicsManager->renderCopy(
-                                  mTextTexture, &mSrcRect, &mDstRect, is_postprocessed, mGlowAmount, cam->getFrameBuffer(is_postprocessed));
+                                  mTextTexture, &mSrcRect, &mDstRect, mGlowAmount, cam->getFrameBuffer(is_postprocessed));
   }
 
   if (mCursorVisible) {
@@ -36,7 +36,7 @@ Text::draw(Camera* cam, bool is_postprocessed)
     int width = mpGraphicsManager->sizeText(mFont, mFontSize, textBefore)[0];
     int xCursor = mDstRect[0] + width * mTextScale[0];
     rect cursorRect{xCursor, mDstRect[1], 1, mDstRect[3]};
-    mpGraphicsManager->renderFillRect(cursorRect, mColour, is_postprocessed,
+    mpGraphicsManager->renderFillRect(cursorRect, mColour,
                                       mGlowAmount, cam->getFrameBuffer(is_postprocessed));
   }
 }

@@ -55,7 +55,8 @@ BomberBlokeScene::setBigBombHUD(bool big_bomb)
 BomberBlokeScene::~BomberBlokeScene()
 {
 
-  mpGraphicsManager->destroyTexture(mpBackgroundTexture);
+  if(mpGraphicsManager)
+    mpGraphicsManager->destroyTexture(mpBackgroundTexture);
 
   mNewGame = false;
   if (mSoundtrack)
@@ -66,14 +67,20 @@ void
 BomberBlokeScene::draw()
 {
 
-  if(!mpGraphicsManager)
+  mpCamera->resetFrameBuffers();
+
+  if(!mpGraphicsManager || !mpCamera)
     return;
 
   // Draw background
   auto sceneScreenRect =
     mpCamera->getScreenRect(0, 0, mDimension[0], mDimension[1]);
 
-  mpGraphicsManager->renderCopy(mpBackgroundTexture, nullptr, &sceneScreenRect);
+  mpGraphicsManager->renderFillRect(sceneScreenRect, 0x001010FFFF, 0,
+                                    mpCamera->getFrameBuffer(true));
+
+  mpGraphicsManager->renderCopy(mpBackgroundTexture, nullptr, &sceneScreenRect, 0,
+                                mpCamera->getFrameBuffer(true));
 
   // Draw actors, particles and HUD
   drawActors();
@@ -111,6 +118,8 @@ BomberBlokeScene::draw()
   }
 
   drawHud();
+  mpCamera->draw();
+
 }
 
 void
@@ -191,7 +200,7 @@ BomberBlokeScene::BomberBlokeScene(IGraphicsManager* gfx_manager,
   std::mt19937 gen(rd());
 
   mNSpawnPoints = n_spawn_points;
-
+  
   if (_server) {
     /*  Initialisation for random number generation */
     std::uniform_int_distribution<> distrib(0, 9);
@@ -299,48 +308,48 @@ BomberBlokeScene::BomberBlokeScene(IGraphicsManager* gfx_manager,
 
   log_message(INFO, "no. actors " + std::to_string(mActors.size()));
 
-  /* TODO implement this functionality in SDLGraphicsManager */
+  if(mpGraphicsManager){
+    /* TODO implement this functionality in SDLGraphicsManager */
+    mpBackgroundTexture = mpGraphicsManager->createTexture(size_x * 64, size_y * 64);
 
-  mpBackgroundTexture = mpGraphicsManager->createTexture(size_x * 64, size_y * 64);
+    /* Create tiled background texture */
+    std::uniform_int_distribution<> tileDistribution(0, N_BACKGROUND_TILES - 1);
+    std::uniform_int_distribution<> flipDistribution(0, 1);
 
-  /* Create tiled background texture */
-  std::uniform_int_distribution<> tileDistribution(0, N_BACKGROUND_TILES - 1);
-  std::uniform_int_distribution<> flipDistribution(0, 1);
+    std::array<int, 4> tile_rect = {0, 0 , 64, 64};
 
-  std::array<int, 4> tile_rect = {0, 0 , 64, 64};
+    for (unsigned int i = 0; i < size_x; i++) {
+      for (unsigned int j = 0; j < size_y; j++) {
+        tile_rect[0] = i * 64;
+        tile_rect[1] = j * 64;
+        // Randomly choose tile
 
-  for (unsigned int i = 0; i < size_x; i++) {
-    for (unsigned int j = 0; j < size_y; j++) {
-      tile_rect[0] = i * 64;
-      tile_rect[1] = j * 64;
-      // Randomly choose tile
+        int tileIndex = tileDistribution(gen);
+        auto tileTexture =
+          mpGraphicsManager->getSprite(BACKGROUND_TILE_PREFIX + std::to_string(tileIndex) + ".png");
+        // Randomly choose whether to flip the texture
+        if (flipDistribution(gen) == 1){
+          // TODO implement rotation /flipping in graphics interface
+          // SDL_RenderCopyEx(_renderer,
+          //                  tileTexture,
+          //                  nullptr,
+          //                  &tile_rect,
+          //                  90,
+          //                  nullptr,
+          //                  SDL_FLIP_HORIZONTAL);
+          mpGraphicsManager->renderCopy(tileTexture, nullptr, &tile_rect, 0, mpBackgroundTexture);
+        }
+        else{
+          // Don't flip the texture
+          // SDL_RenderCopy(_renderer, tileTexture, nullptr, &tile_rect);
+          mpGraphicsManager->renderCopy(tileTexture, nullptr, &tile_rect, 0, mpBackgroundTexture);
+        }
 
-      int tileIndex = tileDistribution(gen);
-      auto tileTexture =
-        mpGraphicsManager->getSprite(BACKGROUND_TILE_PREFIX + std::to_string(tileIndex) + ".png");
-      // Randomly choose whether to flip the texture
-      if (flipDistribution(gen) == 1){
-        // TODO implement rotation /flipping in graphics interface
-        // SDL_RenderCopyEx(_renderer,
-        //                  tileTexture,
-        //                  nullptr,
-        //                  &tile_rect,
-        //                  90,
-        //                  nullptr,
-        //                  SDL_FLIP_HORIZONTAL);
-        mpGraphicsManager->renderCopy(tileTexture, nullptr, &tile_rect, true, 0, mpBackgroundTexture);
+        // This is inefficient, can create all the textures first, then delete after
+        mpGraphicsManager->destroyTexture(tileTexture);
       }
-      else{
-        // Don't flip the texture
-        // SDL_RenderCopy(_renderer, tileTexture, nullptr, &tile_rect);
-        mpGraphicsManager->renderCopy(tileTexture, nullptr, &tile_rect, true, 0, mpBackgroundTexture);
-      }
-
-      // This is inefficient, can create all the textures first, then delete after
-      mpGraphicsManager->destroyTexture(tileTexture);
     }
   }
-
   std::shared_ptr<PauseMenuHudGroup> pPauseMenu =
     std::make_shared<PauseMenuHudGroup>(*this);
   pPauseMenu->setIsVisible(false);

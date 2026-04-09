@@ -37,7 +37,6 @@ protected:
   bool mDraw = true;
   SDL_Renderer* mpRenderer;
   SDL_Window* mpWindow;
-  SDLTexture* mpNoProcessingBuffer;
   SDLTexture* mpFrameBuffer;
   SDLTexture* mpBloomBuffer;
   SpriteList mSpriteList;
@@ -57,14 +56,8 @@ protected:
    * @param isPostProcessed Setting this to true returns a buffer that post
    *                        processing effects are applied to.
    */
-  AbstractTexture* getFrameBuffer(bool isPostProcessed=true){
-    SDLTexture* ret_val = nullptr;
-    if (isPostProcessed)
-      ret_val = mpFrameBuffer;
-    else
-      ret_val = mpNoProcessingBuffer;
-
-    return (AbstractTexture*) ret_val;
+  AbstractTexture* getFrameBuffer(){
+    return (AbstractTexture*) mpFrameBuffer;
   }
 
   void resetFrameBuffer();
@@ -80,12 +73,14 @@ protected:
 
 
   void renderCopy(SDL_Texture* texture, Rect* srcRect=nullptr,
-                  Rect* dstRect=nullptr, bool isPostProcessed=true, int bloomAmount=0,
-                  SDL_Texture* target=nullptr);
+                  Rect* dstRect=nullptr,
+                  double bloomAmount=0,
+                  SDL_Texture* target=nullptr,
+                  bool occlude_bloom=true);
 
 public:
 
-  void renderClear() override;
+  void renderClear(AbstractTexture*) override;
 
   /**
    * Copies texture onto the appropriate frame buffer.
@@ -101,7 +96,7 @@ public:
    * @param bloomAmount     Determines the amount of bloom applied to texture.
    */
   void renderCopy(AbstractTexture* texture, Rect* srcRect=nullptr,
-                  Rect* dstRect=nullptr, bool isPostProcessed=true, int bloomAmount=0,
+                  Rect* dstRect=nullptr, double bloomAmount=0,
                   AbstractTexture* target=nullptr) override;
 
   // Allows for SDL like function calls
@@ -132,7 +127,7 @@ public:
    * @param size    Size of the blur, larger is more blury.
    * @param passes  Quality of the blur, larger is higher quality.
    */
-  void blurTexture(SDL_Texture* texture, double size, int passes);
+ void blurTexture(SDL_Texture* texture, double size, int passes, SDL_Texture* target=nullptr);
 
   /**
    * Draws a rectangle onto the appropriate frame buffer.
@@ -145,17 +140,17 @@ public:
    * @param isPostProcessed Set to false to avoid post-processing effects.
    * @param bloomAmount     Determines the amount of bloom applied to texture.
    */
-  void renderFillRect(std::array<int, 4>&, Uint32,
-                      bool isPostProcessed=true, int bloomAmount=0,
-                      AbstractTexture* = nullptr) override;
+  void renderFillRect(std::array<int, 4>&, Uint32, double,
+                      AbstractTexture* = nullptr, bool=true) override;
 
   std::array<int, 2> getScreenDimensions() override{
     return {{ mWindowSize[0], mWindowSize[1] }};
   }
 
-  void drawSprite(std::string, std::array<int, 4>, bool=true, int=0, AbstractTexture* =nullptr) override;
+  void drawSprite(std::string, std::array<int, 4>, double=0, AbstractTexture* =nullptr) override;
 
-  void applyBloom(double, double, int, AbstractTexture*, AbstractTexture*) override;
+  void applyBloom(double, double, int, AbstractTexture* =nullptr, Rect* = nullptr,
+                  AbstractTexture* =nullptr) override;
   void applyBlur(double, int, AbstractTexture*) override;
 
   void createWindow(int=-1, int=-1) override;
@@ -179,11 +174,18 @@ public:
   std::array<int, 2> sizeText(std::string, int, std::string) override;
 
   std::shared_ptr<Text> createText(std::string, std::string, int) override;
-  
+
+  const SDL_BlendMode subtractBlendMode =
+    SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ZERO,
+                               SDL_BLENDFACTOR_ONE,
+                               SDL_BLENDOPERATION_ADD,
+                               SDL_BLENDFACTOR_ZERO,
+                               SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
+                               SDL_BLENDOPERATION_ADD);
+
   SDLGraphicsManager();
   virtual ~SDLGraphicsManager();
 
 };
-
 
 #endif

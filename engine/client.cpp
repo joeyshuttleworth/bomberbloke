@@ -25,7 +25,7 @@ void client_init(){
   init_engine(false);
 
   _graphics_interface->renderSplashScreen();
-  std::this_thread::sleep_for(std::chrono::seconds(3));
+  std::this_thread::sleep_for(std::chrono::seconds(1));
 }
 
 

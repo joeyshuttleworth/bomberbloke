@@ -6,6 +6,10 @@
 
 MainMenuScene::MainMenuScene(IGraphicsManager* gfx_manager, int size_x, int size_y) : scene(gfx_manager, size_x, size_y)
 {
+
+  if(!gfx_manager)
+    return;
+
   std::shared_ptr<MainMenuHudGroup> menuHud =
     std::make_shared<MainMenuHudGroup>(*this);
   mHudElements.push_back(menuHud);
@@ -33,9 +37,6 @@ MainMenuScene::MainMenuScene(IGraphicsManager* gfx_manager, int size_x, int size
   mpCamera->mPosition[0] = ((double)size_x) / 2;
   mpCamera->mPosition[1] = ((double)size_y) / 2;
   mpCamera->mZoom = 1.2 / std::max(size_x, size_y);
-
-  if(!gfx_manager)
-    return;
 
   // gfx_manager->setBlur(20);
   gfx_manager->setBrightness(-80);

@@ -15,28 +15,29 @@ using Rect = std::array<int, 4>;
 class IGraphicsManager{
 public:
 
-  // Allows for SDL like function calls
-  virtual void renderClear(){};
+  virtual void renderClear(AbstractTexture* =nullptr){};
 
   virtual void resizeWindow(int=0, int=0){};
   virtual void renderSplashScreen(){};
   virtual void setDraw(bool){};
   virtual void drawScreen(){};
   virtual void loadSpriteFromPath(std::string){};
-  virtual void applyBloom(double, double, int=1, AbstractTexture* =nullptr, AbstractTexture* = nullptr){};
-  virtual void applyBlur(double, int){};
+  virtual void applyBloom(double, double, int=1, AbstractTexture* =nullptr,
+                          Rect* =nullptr, AbstractTexture* = nullptr){};
+  virtual void applyBlur(double, int, AbstractTexture* = nullptr){};
   virtual void applyBrightness(double){};
   virtual void drawNoProcessingBuffer(){};
   virtual void resetFrameBuffers(){};
-  virtual void drawSprite(std::string, Rect, bool=true, int=0, AbstractTexture* = nullptr){};
+  virtual void drawSprite(std::string, Rect, double=0, AbstractTexture* = nullptr){};
   virtual void createWindow(int=-1, int=-1){};
 
   virtual AbstractTexture* getSprite(std::string){return nullptr;};
 
   virtual std::array<int, 2> getScreenDimensions(){return std::array<int, 2>{0, 0};};
 
-  virtual void renderFillRect(Rect&, uint32_t,
-                              bool=true, int=0, AbstractTexture* = nullptr){};
+  virtual void renderFillRect(Rect&, uint32_t, double,
+                              AbstractTexture* = nullptr,
+                              bool=true){};
 
   virtual AbstractTexture* renderSolidText(std::string, int, std::string, uint32_t, AbstractTexture* =nullptr){return nullptr;};
 
@@ -48,7 +49,7 @@ public:
 
   virtual void destroyWindow(){};
 
-  virtual void renderCopy(AbstractTexture*, Rect*, Rect*, bool=true, int=0,
+  virtual void renderCopy(AbstractTexture*, Rect*, Rect*, double=0,
                           AbstractTexture* =nullptr){};
 
   virtual void destroyTexture(AbstractTexture*){};
