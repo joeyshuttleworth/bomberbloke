@@ -414,6 +414,9 @@ void SDLGraphicsManager::applyBloom(double bloom_alpha, double bloom_size,
     texture = mpFrameBuffer;
 
   Uint8 orig_alpha = 0;
+  SDL_SetRenderDrawBlendMode(mpRenderer, SDL_BLENDMODE_BLEND);
+
+  SDL_SetTextureBlendMode(texture->getRawTexture(), SDL_BLENDMODE_BLEND);
   SDL_GetTextureAlphaMod(texture->getRawTexture(), &orig_alpha);
   SDL_SetTextureAlphaMod(texture->getRawTexture(), bloom_alpha / 256);
 
@@ -485,24 +488,24 @@ SDLGraphicsManager::renderCopy(SDL_Texture* texture,
 
   if(bloomAmount > 0)
   {
-  // Necessary because applyBloom takes AbstractTexture*
-  // Consider implementing a private raw SDL_Texture version
-  auto _texture = SDLTexture{this, texture};
-  auto _target = SDLTexture{this, target};
+    // Necessary because applyBloom takes AbstractTexture*
+    // Consider implementing a private raw SDL_Texture version
+    auto _texture = SDLTexture{this, texture};
+    auto _target = SDLTexture{this, target};
 
-  applyBloom(bloomAmount, bloomAmount, 1, &_texture, _dstRect, mpBloomBuffer);
+    applyBloom(bloomAmount, bloomAmount, 1, &_texture, _dstRect, mpBloomBuffer);
 
-  // A bit hacky - ensure that SDL_DestoryTexture isn't called on these raw
-  // textures that we don't own
-  _texture.setRawTexture(nullptr);
-  _target.setRawTexture(nullptr);
+    // A bit hacky - ensure that SDL_DestoryTexture isn't called on these raw
+    // textures that we don't own
+    _texture.setRawTexture(nullptr);
+    _target.setRawTexture(nullptr);
   }
 
   if(occlude_bloom){
-    SDL_SetRenderTarget(mpRenderer, mpBloomBuffer->getRawTexture());
-    SDL_SetTextureBlendMode(texture, subtractBlendMode);
-    SDL_RenderCopy(mpRenderer, texture, nullptr, dstRect);
-    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+    // SDL_SetRenderTarget(mpRenderer, mpBloomBuffer->getRawTexture());
+    // SDL_SetTextureBlendMode(texture, subtractBlendMode);
+    // SDL_RenderCopy(mpRenderer, texture, nullptr, dstRect);
+    // SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
   }
 
   SDL_SetRenderTarget(mpRenderer, target);
@@ -545,10 +548,10 @@ SDLGraphicsManager::renderFillRect(std::array<int, 4>& _dstRect,
 
   if(occlude_bloom){
     // Subtract from bloom buffer
-    SDL_SetTextureBlendMode(mpBloomBuffer->getRawTexture(), subtractBlendMode);
-    SDL_SetRenderTarget(mpRenderer, mpBloomBuffer->getRawTexture());
-    SDL_RenderFillRect(mpRenderer, &dstRect);
-    SDL_SetTextureBlendMode(mpBloomBuffer->getRawTexture(), SDL_BLENDMODE_BLEND);
+    // SDL_SetTextureBlendMode(mpBloomBuffer->getRawTexture(), subtractBlendMode);
+    // SDL_SetRenderTarget(mpRenderer, mpBloomBuffer->getRawTexture());
+    // SDL_RenderFillRect(mpRenderer, &dstRect);
+    // SDL_SetTextureBlendMode(mpBloomBuffer->getRawTexture(), SDL_BLENDMODE_BLEND);
   }
 
   SDL_SetRenderTarget(mpRenderer, nullptr);
