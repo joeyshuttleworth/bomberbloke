@@ -10,7 +10,6 @@ public:
   /* Need a default constructor for cereal */
 
   SpeedPickup(scene* scn=nullptr, double xpos = 0, double ypos = 0) : AbstractPickup(scn, xpos, ypos){
-    IGraphicsManager& gfx = mrIOSystem.getGraphicsManager();
     init("lightning.png");
     return;
   }
