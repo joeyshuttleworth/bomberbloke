@@ -11,7 +11,7 @@ bool _debug_player = false;
 unsigned int _ping_time = 0;
 
 
-void server_loop(IOSystem io_system_contex, short port, std::string masterServerAddress, bool debug){
+void server_loop(IOSystem io_system_context, short port, std::string masterServerAddress, bool debug){
 
   /* TODO put init code in init func */
 
@@ -60,12 +60,12 @@ void server_loop(IOSystem io_system_contex, short port, std::string masterServer
       _pScene->update();
 
       if(_draw)
-        _graphics_interface->drawScreen();
+        io_system_context.getGraphicsManager().drawScreen();
 
       _tick++;
       if (_tick % 1000 == 0)
         _net_server->syncPlayers();
-      handle_input();
+      handle_input(io_system_context);
     }
     if(_debug_player && _player_list.empty()) { // If empty add a dummy player in debug mode
       server_add_debug_player();
@@ -88,7 +88,7 @@ void server_loop(IOSystem io_system_contex, short port, std::string masterServer
     }
 
     if (_pScene->getNewGame() && _player_list.size() > 1) {
-      new_game("");
+      new_game(io_system_context, "");
     }
   }
   return;
