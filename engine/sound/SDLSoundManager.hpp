@@ -1,5 +1,5 @@
-#ifndef SOUNDMANAGER_HPP
-#define SOUNDMANAGER_HPP
+#ifndef SDLSOUNDMANAGER_HPP
+#define SDLSOUNDMANAGER_HPP
 
 #include <SDL_mixer.h>
 #include <string>
@@ -30,7 +30,7 @@ public:
 };
 
 
-class SDLSoundManager {
+class SDLSoundManager : SoundManager {
 private:
      /**
      * Map object containing Mix_Chunk object (sound files). Indexed by sound
@@ -48,12 +48,6 @@ private:
    * ONLY call in finishedCallback function (see init)
    */
   void channelFinishedCallback(int channel) override;
-
-  /**
-   * Map from channel number to currently playing Sound
-   */
-  std::map<int, std::shared_ptr<Sound>> channelToSound;
-
 public:
     /**
      * Initialisation: must be called before loading sounds

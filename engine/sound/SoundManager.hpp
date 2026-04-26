@@ -43,7 +43,7 @@ public:
      * Loads sound file into soundFileBank. Returns sound name to use when
      * creating Sound objects (see createSound).
      */
-  void loadFromPath(const std::string& path, const std::string& id);
+    virtual void loadFromPath(const std::string& path, const std::string& id);
 
     /**
      * Create Sound object from sound name.
@@ -64,7 +64,7 @@ public:
      * Callback function when channel is finished
      * ONLY call in finishedCallback function (see init)
      */
-    void channelFinishedCallback(int channel);
+    virtual void channelFinishedCallback(int channel);
 
     /**
      * Sets the volume - the volume applied to all channels.
