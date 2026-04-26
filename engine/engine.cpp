@@ -335,7 +335,7 @@ handle_system_command(IOSystem& ctx, std::list<std::string> tokens)
 
   else if (command == "new" && _server) {
     log_message(INFO, "starting new game");
-    new_game("");
+    new_game(ctx, "");
     _net_server->syncPlayers();
   }
 

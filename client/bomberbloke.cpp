@@ -5,8 +5,8 @@
 #include "MainMenuScene.hpp"
 #include "bloke.hpp"
 #include "bomb.hpp"
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
+#include "SDLGraphicsManager.hpp"
+#include "SDLSoundManager.hpp"
 #include <getopt.h>
 #include <network/NetClient.hpp>
 
@@ -25,8 +25,6 @@ main(int argc, char** argv)
   std::string userName = "bloke";
   std::string serverAddress = "";
   bool autoConnect = false;
-
-  IOSystem io_system_context;
 
   int iarg = 0;
   const char* const short_opts = "u:s:";
@@ -65,9 +63,12 @@ main(int argc, char** argv)
   _local_player_list.push_back(LocalPlayer(userName));
   _nickname = userName;
 
-  client_init();
+  IOSystem io_system_context{
+    std::make_unique<SDLGraphicsManager>(),
+    std::make_unique<SDLSoundManager>()
+  }
 
-  IOSystem io_system_context{SDLGraphicsManager{}, SDLSoundManager{}};
+  client_init(io_system_context);
 
   _pScene = std::make_shared<MainMenuScene>(io_system_context, 15, 15);
 
@@ -82,7 +83,7 @@ main(int argc, char** argv)
     std::shared_ptr<Sound> pIntroSound =
       soundManager.createSound("explosion_intro");
     soundManager.playSound(pIntroSound);
-    pIntroSound->mGroup = SOUND_FX;
+    pIntroSound->setGroup(SOUND_FX);
   }
 
   if (autoConnect) {
@@ -94,9 +95,9 @@ main(int argc, char** argv)
   }
 
 #ifndef __EMSCRIPTEN__
-  client_loop();
+  client_loop(io_system_context);
 #else
-  emscripten_set_main_loop(client_entry, 0, true);
+  emscripten_set_main_loop([&]()->void {client_loop(io_system_context)}, 0, true);
 #endif
 
   return 0;
@@ -109,7 +110,7 @@ gameUpdate()
 }
 
 void
-new_game(std::string)
+new_game(IOSystem&, std::string)
 {
   return;
 }

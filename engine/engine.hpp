@@ -59,14 +59,14 @@ class IOSystem;
 
 void client_init(IOSystem&);
 void exit_engine(int);
-void new_game(std::string);
+void new_game(IOSystem&, std::string);
 void engine_new_game(std::string);
 void engine_start_game();
 void client_loop(IOSystem&); // Perform client loop
 void client_entry(IOSystem&); // Perform one tick of client loop
 void bot_loop(); // Perform client loop
 void bot_entry(); // Perform one tick of bot loop
-void server_loop(short port=8888,
+void server_loop(IOSystem&, short port=8888,
                  std::string masterServerAddress="",
                  bool debug=false
                 );

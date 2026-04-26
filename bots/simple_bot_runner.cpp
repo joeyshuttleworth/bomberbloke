@@ -7,9 +7,11 @@
 #include "MainMenuScene.hpp"
 #include "bloke.hpp"
 #include "bomb.hpp"
+#include "IOSystem.hpp"
 #include "SimpleBot.hpp"
 #include "scene.hpp"
 #include "DummyGraphicsManager.hpp"
+#include "DummySoundManager.hpp"
 #include <SDL2/SDL.h>
 #include <getopt.h>
 #include <network/NetClient.hpp>
@@ -52,8 +54,8 @@ main(int argc, char** argv)
   SDL_Init(SDL_INIT_EVERYTHING);
   init_engine(false);
 
-  _graphics_interface = std::make_unique<DummyGraphicsManager>();
-  _pScene = std::make_shared<BomberBlokeScene>(_graphics_interface.get(),
+  IOSystem io_system_context;
+  _pScene = std::make_shared<BomberBlokeScene>(io_system_context,
                                                10, 10);
 
   // Attempt join
@@ -79,7 +81,7 @@ gameUpdate()
 
 // Required by the engine
 void
-new_game(std::string)
+new_game(IOSystem&, std::string)
 {
   _simple_bot->handleReset();
   return;
