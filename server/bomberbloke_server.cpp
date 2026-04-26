@@ -63,13 +63,15 @@ main(int argc, char** argv)
     }
   }
 
+  IOSystem io_system_context;
+
   log_message(INFO, "Bomberbloke server starting...");
 
   init_engine(true);
 
-  _pScene = std::make_shared<BomberBlokeScene>(_graphics_interface.get(), 10, 10);
+  _pScene = std::make_shared<BomberBlokeScene>(IOSystem::getInstace(), 10, 10);
 
-  server_loop(_port, _masterServerAddress, _debug);
+  server_loop(io_system_context, _port, _masterServerAddress, _debug);
   SDL_Quit();
   SDL_Delay(1000);
   return 0;

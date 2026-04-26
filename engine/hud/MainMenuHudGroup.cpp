@@ -23,7 +23,7 @@ MainMenuHudGroup::MainMenuHudGroup(scene& r_scene)
 {
   // Create title
   std::shared_ptr<Text> titleText =
-    mpGraphicsManager->createText("BOMBERBLOKE", mFont);
+    mrGraphicsManager.createText("BOMBERBLOKE", mFont);
   if (titleText) {
     titleText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
     titleText->setTextColour(0xffffffff);
@@ -39,7 +39,7 @@ MainMenuHudGroup::MainMenuHudGroup(scene& r_scene)
 
   // Create start game button text
   std::shared_ptr<Text> startText =
-    mpGraphicsManager->createText("JOIN GAME", mFont);
+    mrGraphicsManager.createText("JOIN GAME", mFont);
   if (startText) {
     startText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
     startText->setTextColour(0xffffffff);
@@ -55,7 +55,7 @@ MainMenuHudGroup::MainMenuHudGroup(scene& r_scene)
 
   // Create options menu button
   std::shared_ptr<Text> optionsText =
-    mpGraphicsManager->createText("OPTIONS", mFont);
+    mrGraphicsManager.createText("OPTIONS", mFont);
   if (optionsText) {
     optionsText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
     optionsText->setTextColour(0xFFFFFFFF);
@@ -71,7 +71,7 @@ MainMenuHudGroup::MainMenuHudGroup(scene& r_scene)
 
   // Create exit game button
   std::shared_ptr<Text> quitText =
-    mpGraphicsManager->createText("QUIT", mFont);
+    mrGraphicsManager.createText("QUIT", mFont);
   if (quitText) {
     quitText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
     quitText->setTextColour(0xFFFFFFFF);

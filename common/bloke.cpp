@@ -124,7 +124,7 @@ bloke ::update()
 }
 
 void bloke ::init(){
-  auto sprite = std::make_shared<PlaceHolderSprite>(mpGraphicsManager,
+  auto sprite = std::make_shared<PlaceHolderSprite>(mrIOSystem.getGraphicsManager(),
                                                     mPosition[0], mPosition[1], mDimension[0], mDimension[1]);
 
   auto p_player = getPlayer();
@@ -143,7 +143,8 @@ void bloke ::init(){
 
   mProperties = std::make_shared<GamePlayerProperties>();
   mPlaceBombSound = soundManager.createSound(PLACE_BOMB_SOUND_NAME);
-  mPlaceBombSound->mGroup = SOUND_FX;
+  if(mPlaceBombSound)
+    mPlaceBombSound->setGroup(SOUND_FX);
 }
 
 void

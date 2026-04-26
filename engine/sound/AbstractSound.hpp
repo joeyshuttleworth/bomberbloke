@@ -1,5 +1,5 @@
-#ifndef SOUND_HPP
-#define SOUND_HPP
+#ifndef ABSTRACTSOUND_HPP
+#define ABSTRACTSOUND_HPP
 
 #include <string>
 #include <functional>
@@ -14,17 +14,8 @@ enum SoundGroup {
 extern const int SOUND_FREQUENCY;
 extern const int SOUND_N_CHANNELS;
 
-struct SoundChunk{
-  SoundChunk() = default;
-};
-
-class SoundManager;
-class Soundtrack;
-
-class Sound {
-  friend SoundManager;
-  friend Soundtrack;
-protected:
+class AbstractSound {
+public:
     /**
      * Mixer channel number.
      */
@@ -67,64 +58,46 @@ protected:
      */
     std::function<void()> onFinishedPlaying = nullptr;
 
-    std::unique_ptr<SoundChunk> mpSoundChunk = nullptr;
+    /**
+     * Initialisation.
+     */
+    AbstractSound() {}
 
-public:
-
-  /**
-   * Initialisation.
-   */
-  Sound();
-
-
-  void setGroup(SoundGroup grp){
-    mGroup = grp;
-  }
-
-  const std::string mName;
-
-  Sound(const std::string& name = "", SoundChunk* s_chunk = nullptr) :                                                                      mpSoundChunk(std::move(s_chunk)),
-                                                                                                                                           mName(name)
-
-  {
-  }
-
-
-    std::string getName(){return mName;};
+    AbstractSound(std::string name = "", AbstractSoundChunk* soundFile = nullptr) {
+        mMixChunk = soundFile;
+    }
 
     /**
      * Pauses sound.
      */
-    virtual void pause() {
+    void pause() {
     }
 
     /**
      * Resumes sound.
      */
-    virtual void resume() {
+    void resume() {
     }
 
     /**
      * Stops sound.
      */
-    virtual void stop(int=0) {
+    void stop(int waitMs=0) {
     }
 
     /**
      * Begins fade out effect at time of call. ms is the number of milliseconds
      * that the fade-out effect should take to go to silence.
      */
-    virtual void fadeOut(int) {
+    void fadeOut(int ms) {
     }
 
     /**
      * Returns the length of the sound file.
      */
-    virtual int getLengthMs() {
+    int getLengthMs() {
       return 0;
     }
 };
-
-Sound::Sound(){}
 
 #endif

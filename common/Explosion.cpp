@@ -4,21 +4,13 @@
 
 class IGraphicsManager;
 
-Explosion::Explosion(IGraphicsManager* gfx_manager)
-{
-
-  if(gfx_manager)
-    mpGraphicsManager = gfx_manager;
-  return;
-}
-
 void Explosion::initSounds(){
   /* Create sound objects for explosion sound effects */
   if(mSound) {
     for (int i = 0; i < N_EXPLOSION_SOUNDS; i++) {
       std::shared_ptr<Sound> sound =
         soundManager.createSound(mExplosionSoundNames[i]);
-      sound->mGroup = SOUND_FX;
+      sound->setGroup(SOUND_FX);
       mExplosionSounds[i] = sound;
     }
   }
@@ -45,12 +37,10 @@ Explosion::draw_legacy(Camera* cam)
     colour = 0xff000000 ^ (backAlpha << 16) ^ (backAlpha << 8) ^ alpha;
   }
   /*  Copy our texture across to the window */
-  if(mpGraphicsManager){
-    auto dstrect = cam->getScreenRect(mPosition[0], mPosition[1],
-                                      mDimmension[0], mDimmension[1]);
+  auto dstrect = cam->getScreenRect(mPosition[0], mPosition[1],
+                                    mDimension[0], mDimension[1]);
 
-    mpGraphicsManager->renderFillRect(dstrect, colour, glowAmount, cam->getFrameBuffer(mIsPostProcessed));
-  }
+  mrGraphicsManager.renderFillRect(dstrect, colour, glowAmount, cam->getFrameBuffer(mIsPostProcessed));
   return;
 }
 
@@ -88,14 +78,13 @@ Explosion::draw(Camera* cam)
 
   std::string asset_name = mSpriteNames[frame_no];
   auto dstrect = cam->getScreenRect(mPosition[0], mPosition[1],
-                                    mDimmension[0], mDimmension[1]);
-  if(mpGraphicsManager)
-    mpGraphicsManager->drawSprite(
-                                  asset_name,
-                                  dstrect,
-                                  0,
-                                  cam->getFrameBuffer(mIsPostProcessed)
-                                  );
+                                    mDimension[0], mDimension[1]);
+  mrGraphicsManager.drawSprite(
+                               asset_name,
+                               dstrect,
+                               0,
+                               cam->getFrameBuffer(mIsPostProcessed)
+                               );
 
   return;
 }

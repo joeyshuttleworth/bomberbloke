@@ -15,7 +15,7 @@ JoinMenuHudGroup::JoinMenuHudGroup(scene& r_scene, std::function<void()> goBackF
 {
   // Create nickname text
   std::shared_ptr<Text> nicknameFieldText =
-    mpGraphicsManager->createText("NICKNAME", mFont);
+    mrGraphicsManager.createText("NICKNAME", mFont);
   if (nicknameFieldText) {
     nicknameFieldText->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
     nicknameFieldText->setTextColour(0xFFFFFF80);
@@ -33,7 +33,7 @@ JoinMenuHudGroup::JoinMenuHudGroup(scene& r_scene, std::function<void()> goBackF
 
   // Create red text
   std::shared_ptr<Text> redFieldText =
-    mpGraphicsManager->createText("R", mFont);
+    mrGraphicsManager.createText("R", mFont);
   if (redFieldText) {
     redFieldText->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
     redFieldText->setTextColour(0xFFFFFF80);
@@ -50,7 +50,7 @@ JoinMenuHudGroup::JoinMenuHudGroup(scene& r_scene, std::function<void()> goBackF
 
   // Create green text
   std::shared_ptr<Text> greenFieldText =
-    mpGraphicsManager->createText("G", mFont);
+    mrGraphicsManager.createText("G", mFont);
   if (greenFieldText) {
     greenFieldText->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
     greenFieldText->setTextColour(0xFFFFFF80);
@@ -67,7 +67,7 @@ JoinMenuHudGroup::JoinMenuHudGroup(scene& r_scene, std::function<void()> goBackF
 
   // Create blue text
   std::shared_ptr<Text> blueFieldText =
-    mpGraphicsManager->createText("B", mFont);
+    mrGraphicsManager.createText("B", mFont);
   if (blueFieldText) {
     blueFieldText->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
     blueFieldText->setTextColour(0xFFFFFF80);
@@ -83,7 +83,7 @@ JoinMenuHudGroup::JoinMenuHudGroup(scene& r_scene, std::function<void()> goBackF
   mBlueField = blueField;
 
   // Create colour button text
-  std::shared_ptr<Text> colourText = mpGraphicsManager->createText("");
+  std::shared_ptr<Text> colourText = mrGraphicsManager.createText("");
   if (colourText) {
     colourText->setBackgroundColour(0xFFFFFFFF);
   }
@@ -106,7 +106,7 @@ JoinMenuHudGroup::JoinMenuHudGroup(scene& r_scene, std::function<void()> goBackF
 
   // Create address text
   std::shared_ptr<Text> addressFieldText =
-    mpGraphicsManager->createText("ADDRESS", mFont);
+    mrGraphicsManager.createText("ADDRESS", mFont);
   if (addressFieldText) {
     addressFieldText->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER);
     addressFieldText->setTextColour(0xFFFFFF80);
@@ -124,7 +124,7 @@ JoinMenuHudGroup::JoinMenuHudGroup(scene& r_scene, std::function<void()> goBackF
 
   // Create join text
   std::shared_ptr<Text> joinText =
-    mpGraphicsManager->createText("JOIN", mFont);
+    mrGraphicsManager.createText("JOIN", mFont);
   if (joinText) {
     joinText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
     joinText->setTextColour(0xFFFFFFFF);
@@ -143,7 +143,7 @@ JoinMenuHudGroup::JoinMenuHudGroup(scene& r_scene, std::function<void()> goBackF
 
   // Create go back button text
   std::shared_ptr<Text> backText =
-    mpGraphicsManager->createText("BACK", mFont);
+    mrGraphicsManager.createText("BACK", mFont);
   if (backText) {
     backText->setTextAlignment(TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM);
     backText->setTextColour(0xFFFFFFFF);
@@ -158,7 +158,7 @@ JoinMenuHudGroup::JoinMenuHudGroup(scene& r_scene, std::function<void()> goBackF
 
   // Create loading text
   std::shared_ptr<Text> loadingText =
-    mpGraphicsManager->createText("LOADING...", mFont);
+    mrGraphicsManager.createText("LOADING...", mFont);
   if (loadingText) {
     loadingText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
     loadingText->setTextColour(0xFFFFFFFF);
@@ -243,7 +243,7 @@ JoinMenuHudGroup::update()
 
     if(_net_client->joinBlokeServer(address, _nickname, commands)){
     // If successful move to bomberbloke scene
-      mrScene.setNextScene(std::make_shared<BomberBlokeScene>(mrScene.getGraphicsManager(), 10, 10));
+      mrScene.setNextScene(std::make_shared<BomberBlokeScene>(mrScene.getIOSystem()));;
       mJoinServer = false;
     } else{
       // If failed go back to main menu

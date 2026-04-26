@@ -11,22 +11,30 @@ public:
   int getType() const{
     return SPRITE_STATIC;
   }
-  staticSprite(IGraphicsManager* gfx_manager, double xpos, double ypos, double xdim, double ydim, std::string asset_name)
+  staticSprite(IGraphicsManager& gfx_manager, double xpos, double ypos, double xdim, double ydim, std::string asset_name)
     : AbstractSpriteHandler(gfx_manager, xpos, ypos, xdim, ydim){
     mAssetName = asset_name;
     return;
   }
 
-    void draw(Camera* cam){
-      if(mpGraphicsManager){
-        auto dstrect = cam->getScreenRect(mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]);
-        mpGraphicsManager->drawSprite(mAssetName, dstrect, 0,
-                                      cam->getFrameBuffer(mIsPostProcessed));
-      }
+  staticSprite(staticSprite& other, IGraphicsManager& gfx) : AbstractSpriteHandler(other, gfx){
+  }
+
+  void draw(Camera* cam){
+    if(!cam)
       return;
-    }
 
-    virtual ~staticSprite(){}
+    auto dstrect = cam->getScreenRect(mPosition[0], mPosition[1], mDimension[0], mDimension[1]);
+    mrGraphicsManager.drawSprite(mAssetName, dstrect, 0,
+                                 cam->getFrameBuffer(mIsPostProcessed));
+    return;
+  }
 
-  };
+  std::shared_ptr<AbstractSpriteHandler> clone(IGraphicsManager& gfx) override{
+    return std::make_shared<staticSprite>(*this, gfx);
+  }
+
+  virtual ~staticSprite(){}
+
+};
 #endif

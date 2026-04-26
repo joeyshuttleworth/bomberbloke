@@ -2,8 +2,7 @@
 #define EXPLOSION_HPP
 
 #include "AbstractSpriteHandler.hpp"
-#include <cereal/cereal.hpp>
-#include <cereal/types/polymorphic.hpp>
+
 #include "engine.hpp"
 #include "IGraphicsManager.hpp"
 
@@ -38,11 +37,11 @@ public:
     return SPRITE_EXPLOSION;
   }
 
-  Explosion(IGraphicsManager* = nullptr);
+  using AbstractSpriteHandler::AbstractSpriteHandler;
 
-  /*  Use the default constructor for everything except creating the texture */
-  Explosion(IGraphicsManager* gfx_manager, double x_pos, double y_pos, double x_dim, double y_dim, bool legacy, int speed = 30, int timeout = 64, int start_delay = 0, bool sound_on = true, bool rumble_on = true, int max_glow=255)
-    :AbstractSpriteHandler(gfx_manager, x_pos, y_pos, x_dim, y_dim, speed, timeout, start_delay){
+  Explosion(IGraphicsManager& gfx_manager, double x_pos=0, double y_pos=0, double x_dim=10, double y_dim=10, bool legacy=false, int speed = 30, int timeout = 64, int start_delay = 0, bool sound_on = true, bool rumble_on = true, int max_glow=255)
+    : AbstractSpriteHandler(gfx_manager, x_pos, y_pos, x_dim, y_dim, speed, timeout, start_delay)
+  {
     mSound = sound_on;
     mRumble = rumble_on;
     mDelay = start_delay;
@@ -61,12 +60,15 @@ public:
   /*  In draw() we cycle through the explosion sprites */
   void draw(Camera*);
 
-  virtual ~Explosion(){}
+  std::shared_ptr<AbstractSpriteHandler> clone(IGraphicsManager& gfx) override{
+    return std::make_shared<Explosion>(*this, gfx);
+  }
+
+  ~Explosion(){}
 
   template<class Archive>
   void serialize(Archive &archive){
     archive(cereal::base_class<AbstractSpriteHandler>(this), mSound, mRumble, mRenderLegacy);
-    return;
   }
 };
 

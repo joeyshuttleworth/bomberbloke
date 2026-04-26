@@ -7,13 +7,13 @@ class IGraphicsManager;
 class AbstractCamera{
 protected:
   scene* mpScene = nullptr;
-  IGraphicsManager* mpGraphicsManager;
+  IGraphicsManager& mrGraphicsManager;
 
 public:
-  AbstractCamera(IGraphicsManager* gfx=nullptr,
-                 scene* scn=nullptr){
+  AbstractCamera(IGraphicsManager& gfx,
+                 scene* scn=nullptr) : mrGraphicsManager(gfx)
+  {
     mpScene = scn;
-    mpGraphicsManager = gfx;
   };
   virtual ~AbstractCamera(){};
 
@@ -34,7 +34,7 @@ public:
     return mpScene;
   }
 
-  IGraphicsManager* getGraphicsManager(){return mpGraphicsManager;};
+  IGraphicsManager& getGraphicsManager(){return mrGraphicsManager;};
 };
 
 #endif

@@ -13,7 +13,7 @@ class IGraphicsManager;
 
 class Camera : public AbstractCamera{
   public:
-  Camera(IGraphicsManager* =nullptr, scene* =nullptr);
+  Camera(IGraphicsManager&, scene* =nullptr);
   double mZoom = 0.1;
   std::array<double, 2> mPosition = {{ 0, 0 }};
 
@@ -22,10 +22,10 @@ class Camera : public AbstractCamera{
 
   virtual ~Camera(){
     if(mpFrameBuffer)
-      mpGraphicsManager->destroyTexture(mpFrameBuffer);
+      mrGraphicsManager.destroyTexture(mpFrameBuffer);
 
     if(mpNoProcessingBuffer)
-      mpGraphicsManager->destroyTexture(mpNoProcessingBuffer);
+      mrGraphicsManager.destroyTexture(mpNoProcessingBuffer);
   }
 
   double getZoom(){
@@ -69,8 +69,7 @@ class Camera : public AbstractCamera{
   std::array<int, 2> getScreenDimensions(){
     std::array<int, 2> ret_val = {0, 0};
 
-    if(mpGraphicsManager)
-      ret_val = mpGraphicsManager->getScreenDimensions();
+    ret_val = mrGraphicsManager.getScreenDimensions();
 
     return ret_val;
   };

@@ -10,10 +10,11 @@
 
 class DummyGraphicsManager : public IGraphicsManager{
 protected:
-  std::vector<std::string> mLoadedSpriteNames{};
+  /* TODO Add some debugging functionality */
+  // std::vector<std::string> mLoadedSpriteNames{};
 public:
-  void loadSpriteFromPath(std::string p){
-    mLoadedSpriteNames.push_back(p);
+  void loadSpriteFromPath(std::string){
+    // mLoadedSpriteNames.push_back(p);
   }
 };
 

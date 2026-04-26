@@ -1,10 +1,10 @@
 #ifndef ABSTRACTSPRITEHANDLER_HPP
 #define ABSTRACTSPRITEHANDLER_HPP
-#include <SDL.h>
 #include <array>
 #include <cereal/cereal.hpp>
 #include <cereal/types/polymorphic.hpp>
 
+#include "DummyGraphicsManager.hpp"
 #include "IGraphicsManager.hpp"
 #include "Camera.hpp"
 
@@ -17,32 +17,80 @@ class Camera;
 
 extern unsigned int _tick;
 
+using d_vector = std::array<double, 2>;
+
 class IGraphicsManager;
 
 class AbstractSpriteHandler{
+
+protected:
+  IGraphicsManager& mrGraphicsManager;
+  bool mInitialised = false;
+  dvector mPosition = {0, 0};
+  dvector mDimension = {10, 10};
+  unsigned int mStartTick = 0;
+  unsigned int mAnimationSpeed = 0;
+  unsigned int mTimeout = 0;
+  unsigned int mDelay = 0;
+  bool mRemove = false;
+  bool mIsPostProcessed = true;
+
+  /* Used only in the case that the object is created with the default constructor and isn't given a graphics manager */
+
+
 public:
-  // TODO: move all flashing stuff to a subclass
-  AbstractSpriteHandler(IGraphicsManager* gfx_manager=nullptr, double x_pos=0, double y_pos=0, double x_dim=0, double y_dim=0, int speed = 300, int timeout = 0, int delay = 0){
-
-    mpGraphicsManager = gfx_manager;
-
-    mPosition[0] = x_pos;
-    mPosition[1] = y_pos;
-    mDimmension[0] = x_dim;
-    mDimmension[1] = y_dim;
-    mStartTick = _tick + delay;
-    mAnimationSpeed = speed;
-    mTimeout = timeout;
-    mRemove = false;
-    mDelay = delay;
-    return;
+  AbstractSpriteHandler(IGraphicsManager& gfx, double x_pos=0, double y_pos=0, double x_dim=0, double y_dim=0, int speed = 300, int timeout = 0, int delay = 0) :
+    mrGraphicsManager(gfx),
+    mPosition{x_pos, y_pos},
+    mDimension{x_dim, y_dim},
+    mStartTick(_tick + delay),
+    mAnimationSpeed(speed),
+    mTimeout(timeout),
+    mDelay(delay)
+  {
   }
+
+  AbstractSpriteHandler(const AbstractSpriteHandler& other) : AbstractSpriteHandler(){
+    mrGraphicsManager = other.mrGraphicsManager;
+    mPosition[0] = other.mPosition[0];
+    mPosition[1] = other.mPosition[1];
+
+    mDimension[0] = other.mDimension[0];
+    mDimension[1] = other.mDimension[1];
+    mStartTick = other.mStartTick;
+    mAnimationSpeed = other.mAnimationSpeed;
+    mTimeout = other.mTimeout;
+    mDelay = other.mDelay;
+    mRemove = other.mRemove;
+    mIsPostProcessed = other.mIsPostProcessed;
+  }
+
+  AbstractSpriteHandler() :
+    mrGraphicsManager(_fallback_IO_system.getGraphicsManager()){
+  }
+
+  AbstractSpriteHandler(IGraphicsManager& gfx) : mrGraphicsManager(gfx){
+  }
+
+  AbstractSpriteHandler(const AbstractSpriteHandler& other, IGraphicsManager& gfx) :
+    AbstractSpriteHandler(other)
+  {
+    mrGraphicsManager = gfx;
+  };
+
+  std::shared_ptr<AbstractSpriteHandler> clone(){
+    return clone(mrGraphicsManager);
+  };
+
+  virtual std::shared_ptr<AbstractSpriteHandler> clone(IGraphicsManager&){
+    return nullptr;
+  };
 
   /**
    *  Draw the sprite to the framebuffer of the Camera
    *  @param the camera we are drawing to.
    */
-  virtual void draw(Camera*)= 0;
+  virtual void draw(Camera*){}
 
   virtual void refreshSprite(){};
 
@@ -82,28 +130,11 @@ public:
     return;
   }
 
-
   template<class Archive>
-  void serialize(Archive &archive){
-    archive(cereal::make_nvp("position", mPosition), cereal::make_nvp("dimmension", mDimmension), cereal::make_nvp("animation speed", mAnimationSpeed), cereal::make_nvp("timeout", mTimeout), cereal::make_nvp("delay", mDelay));
-    return;
+  void serialize(Archive&){
+    // archive(mPosition, mDimension, mAnimationSpeed, mTimeout, mDelay);
+    // return;
   }
-
-  virtual void setGraphicsManager(IGraphicsManager* gfx){
-    mpGraphicsManager = gfx;
-  }
-
-protected:
-  bool mInitialised = false;
-  double mPosition[2];
-  double mDimmension[2];
-  unsigned int mStartTick;
-  unsigned int mAnimationSpeed;
-  unsigned int mTimeout;
-  unsigned int mDelay;
-  bool mRemove;
-  bool mIsPostProcessed = true;
-  IGraphicsManager* mpGraphicsManager;
 };
 
 CEREAL_REGISTER_TYPE(AbstractSpriteHandler)

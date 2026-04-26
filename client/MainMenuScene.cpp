@@ -4,25 +4,23 @@
 #include "MainMenuHudGroup.hpp"
 #include "ShowAllCamera.hpp"
 
-MainMenuScene::MainMenuScene(IGraphicsManager* gfx_manager, int size_x, int size_y) : scene(gfx_manager, size_x, size_y)
+MainMenuScene::MainMenuScene(IOSystem& ctx, int size_x, int size_y) : scene(ctx, size_x, size_y)
 {
-
-  if(!gfx_manager)
-    return;
 
   std::shared_ptr<MainMenuHudGroup> menuHud =
     std::make_shared<MainMenuHudGroup>(*this);
   mHudElements.push_back(menuHud);
 
+  auto gfx_manager = ctx.getGraphicsManager();
   mpCamera = std::make_shared<ShowAllCamera>(gfx_manager, this);
   SetCamera(mpCamera);
 
   for (int i = 0; i < size_x; i++) {
     for (int j = 0; j < size_y; j++) {
       int speed = (30 + i + 2 * j);
-      std::shared_ptr<Explosion> explosion =
+      auto explosion =
         std::make_shared<Explosion>(
-                                    gfx_manager, i, j, 1, 1, true, speed,
+                                    gfx_manager, (double) i, (double) j, 1.0f, 1.0f, true, speed,
                                     std::numeric_limits<int>::max(), 0, false, false, 0
                                     );
 
@@ -38,6 +36,6 @@ MainMenuScene::MainMenuScene(IGraphicsManager* gfx_manager, int size_x, int size
   mpCamera->mPosition[1] = ((double)size_y) / 2;
   mpCamera->mZoom = 1.2 / std::max(size_x, size_y);
 
-  // gfx_manager->setBlur(20);
-  gfx_manager->setBrightness(-80);
+  mpCamera->setBlur(20);
+  mpCamera->setBrightness(-80);
 }

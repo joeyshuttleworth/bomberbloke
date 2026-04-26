@@ -27,6 +27,7 @@ public:
   int mState;
   std::vector<serverPlayer> mPlayers;
   std::list<std::shared_ptr<actor>> mActors;
+  std::list<std::shared_ptr<AbstractSpriteHandler>> mParticles;
   std::vector<double> mDimension = {0, 0};
 
   EventType getType() const{
@@ -53,6 +54,10 @@ public:
       mActors.push_back(a);
     }
 
+    for(auto a : _pScene->mParticles){
+      mParticles.push_back(a);
+    }
+
     auto dims = _pScene->getDimension();
     mDimension[0] = dims[0];
     mDimension[1] = dims[1];
@@ -65,6 +70,7 @@ public:
     archive(cereal::base_class<AbstractEvent>(this),
             cereal::make_nvp("mState", mState),
             cereal::make_nvp("mActors", mActors),
+            cereal::make_nvp("mParticles", mActors),
             cereal::make_nvp("mDimension", mDimension),
             cereal::make_nvp("mPlayers", mPlayers)
             );

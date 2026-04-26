@@ -1,7 +1,6 @@
 #ifndef SPEEDPICKUP_HPP
 #define SPEEDPICKUP_HPP
 #include "AbstractPickup.hpp"
-#include "staticSprite.hpp"
 #include "PickupAnimation.hpp"
 
 class SpeedPickup : public AbstractPickup{
@@ -11,10 +10,11 @@ public:
   /* Need a default constructor for cereal */
 
   SpeedPickup(scene* scn=nullptr, double xpos = 0, double ypos = 0) : AbstractPickup(scn, xpos, ypos){
-    mpSpriteHandler = std::make_shared<PickupAnimation>(mpGraphicsManager, mPosition[0],
-                                                        mPosition[1], mDimension[0], mDimension[1], "lightning.png");
+    IGraphicsManager& gfx = mrIOSystem.getGraphicsManager();
+    init("lightning.png");
     return;
   }
+
 
   void pickup(std::shared_ptr<bloke> b);
 

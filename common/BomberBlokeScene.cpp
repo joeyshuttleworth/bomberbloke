@@ -55,8 +55,8 @@ BomberBlokeScene::setBigBombHUD(bool big_bomb)
 BomberBlokeScene::~BomberBlokeScene()
 {
 
-  if(mpGraphicsManager)
-    mpGraphicsManager->destroyTexture(mpBackgroundTexture);
+  auto gfx = mrIOSystem.getGraphicsManager();
+  gfx.destroyTexture(mpBackgroundTexture);
 
   mNewGame = false;
   if (mSoundtrack)
@@ -67,19 +67,21 @@ void
 BomberBlokeScene::draw()
 {
 
-  mpCamera->resetFrameBuffers();
-
-  if(!mpGraphicsManager || !mpCamera)
+  if(!mpCamera)
     return;
+
+  auto gfx = mrIOSystem.getGraphicsManager();
+
+  mpCamera->resetFrameBuffers();
 
   // Draw background
   auto sceneScreenRect =
     mpCamera->getScreenRect(0, 0, mDimension[0], mDimension[1]);
 
-  mpGraphicsManager->renderFillRect(sceneScreenRect, 0x001010FFFF, 0,
+  mrIOSystem.getGraphicsManager().renderFillRect(sceneScreenRect, 0x001010FFFF, 0,
                                     mpCamera->getFrameBuffer(true));
 
-  mpGraphicsManager->renderCopy(mpBackgroundTexture, nullptr, &sceneScreenRect, 0,
+  mrIOSystem.getGraphicsManager().renderCopy(mpBackgroundTexture, nullptr, &sceneScreenRect, 0,
                                 mpCamera->getFrameBuffer(true));
 
   // Draw actors, particles and HUD
@@ -189,10 +191,10 @@ BomberBlokeScene::logicUpdate()
   }
 }
 
-BomberBlokeScene::BomberBlokeScene(IGraphicsManager* gfx_manager,
+BomberBlokeScene::BomberBlokeScene(IOSystem& ctx,
                                    unsigned int size_x, unsigned int size_y,
                                    unsigned int n_spawn_points)
-  : scene(gfx_manager, size_x, size_y)
+  : scene(ctx, size_x, size_y)
 {
   mState = STOPPED;
   /*  Initialisation for random number generation */
@@ -200,7 +202,7 @@ BomberBlokeScene::BomberBlokeScene(IGraphicsManager* gfx_manager,
   std::mt19937 gen(rd());
 
   mNSpawnPoints = n_spawn_points;
-  
+
   if (_server) {
     /*  Initialisation for random number generation */
     std::uniform_int_distribution<> distrib(0, 9);
@@ -308,46 +310,44 @@ BomberBlokeScene::BomberBlokeScene(IGraphicsManager* gfx_manager,
 
   log_message(INFO, "no. actors " + std::to_string(mActors.size()));
 
-  if(mpGraphicsManager){
-    /* TODO implement this functionality in SDLGraphicsManager */
-    mpBackgroundTexture = mpGraphicsManager->createTexture(size_x * 64, size_y * 64);
+  /* TODO implement this functionality in SDLGraphicsManager */
+  mpBackgroundTexture = mrIOSystem.getGraphicsManager().createTexture(size_x * 64, size_y * 64);
 
-    /* Create tiled background texture */
-    std::uniform_int_distribution<> tileDistribution(0, N_BACKGROUND_TILES - 1);
-    std::uniform_int_distribution<> flipDistribution(0, 1);
+  /* Create tiled background texture */
+  std::uniform_int_distribution<> tileDistribution(0, N_BACKGROUND_TILES - 1);
+  std::uniform_int_distribution<> flipDistribution(0, 1);
 
-    std::array<int, 4> tile_rect = {0, 0 , 64, 64};
+  std::array<int, 4> tile_rect = {0, 0 , 64, 64};
 
-    for (unsigned int i = 0; i < size_x; i++) {
-      for (unsigned int j = 0; j < size_y; j++) {
-        tile_rect[0] = i * 64;
-        tile_rect[1] = j * 64;
-        // Randomly choose tile
+  for (unsigned int i = 0; i < size_x; i++) {
+    for (unsigned int j = 0; j < size_y; j++) {
+      tile_rect[0] = i * 64;
+      tile_rect[1] = j * 64;
+      // Randomly choose tile
 
-        int tileIndex = tileDistribution(gen);
-        auto tileTexture =
-          mpGraphicsManager->getSprite(BACKGROUND_TILE_PREFIX + std::to_string(tileIndex) + ".png");
-        // Randomly choose whether to flip the texture
-        if (flipDistribution(gen) == 1){
-          // TODO implement rotation /flipping in graphics interface
-          // SDL_RenderCopyEx(_renderer,
-          //                  tileTexture,
-          //                  nullptr,
-          //                  &tile_rect,
-          //                  90,
-          //                  nullptr,
-          //                  SDL_FLIP_HORIZONTAL);
-          mpGraphicsManager->renderCopy(tileTexture, nullptr, &tile_rect, 0, mpBackgroundTexture);
-        }
-        else{
-          // Don't flip the texture
-          // SDL_RenderCopy(_renderer, tileTexture, nullptr, &tile_rect);
-          mpGraphicsManager->renderCopy(tileTexture, nullptr, &tile_rect, 0, mpBackgroundTexture);
-        }
-
-        // This is inefficient, can create all the textures first, then delete after
-        mpGraphicsManager->destroyTexture(tileTexture);
+      int tileIndex = tileDistribution(gen);
+      auto tileTexture =
+        mrIOSystem.getGraphicsManager().getSprite(BACKGROUND_TILE_PREFIX + std::to_string(tileIndex) + ".png");
+      // Randomly choose whether to flip the texture
+      if (flipDistribution(gen) == 1){
+        // TODO implement rotation /flipping in graphics interface
+        // SDL_RenderCopyEx(_renderer,
+        //                  tileTexture,
+        //                  nullptr,
+        //                  &tile_rect,
+        //                  90,
+        //                  nullptr,
+        //                  SDL_FLIP_HORIZONTAL);
+        mrIOSystem.getGraphicsManager().renderCopy(tileTexture, nullptr, &tile_rect, 0, mpBackgroundTexture);
       }
+      else{
+        // Don't flip the texture
+        // SDL_RenderCopy(_renderer, tileTexture, nullptr, &tile_rect);
+        mrIOSystem.getGraphicsManager().renderCopy(tileTexture, nullptr, &tile_rect, 0, mpBackgroundTexture);
+      }
+
+      // This is inefficient, can create all the textures first, then delete after
+      mrIOSystem.getGraphicsManager().destroyTexture(tileTexture);
     }
   }
   std::shared_ptr<PauseMenuHudGroup> pPauseMenu =
@@ -401,8 +401,9 @@ BomberBlokeScene::BomberBlokeScene(IGraphicsManager* gfx_manager,
   setBigBombHUD(false);
 
   // Create bloke camera
-  mBlokeCamera = std::make_shared<FollowCamera>(mpGraphicsManager, this);
-  mSceneCamera = std::make_shared<ShowAllCamera>(mpGraphicsManager, this);
+  auto gfx = mrIOSystem.getGraphicsManager();
+  mBlokeCamera = std::make_shared<FollowCamera>(gfx, this);
+  mSceneCamera = std::make_shared<ShowAllCamera>(gfx, this);
 
   showEntireScene();
 

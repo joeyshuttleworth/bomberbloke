@@ -87,31 +87,22 @@ actor ::isMoving()
   return mMoved;
 }
 
-actor ::actor(scene* scene, double x, double y, double xdim, double ydim, bool collides)
+actor ::actor(scene* scene, double x, double y, double xdim, double ydim, bool collides) :
+  mrIOSystem(scene->getIOSystem()),
+  mpScene(scene),
+  mCollides(collides)
 {
 
-  mpScene = scene;
+  mPosition = {x, y};
+  mDimension = {xdim, ydim};
+  return;
+}
 
-  if(scene)
-    mpGraphicsManager = scene->getGraphicsManager();
-
-  /* TODO set mDimension based of axis projections for non-square actors */
-  mDimension[0] = xdim;
-  mDimension[1] = ydim;
-
-  mPosition[0] = x;
-  mPosition[1] = y;
-  mVelocity[0] = 0;
-  mVelocity[1] = 0;
-
+void actor :: init(){
   mFrameVertices = { { { 0., 0. } },
                      { { mDimension[0], 0. } },
                      { { mDimension[0], mDimension[1] } },
                      { { 0., mDimension[1] } } };
-
-  mCollides = collides;
-
-  return;
 }
 
 void

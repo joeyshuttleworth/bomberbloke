@@ -7,30 +7,32 @@
 #include <string.h>
 #include <unistd.h>
 #include "assets.hpp"
+#include "IOSystem.hpp"
 
 unsigned int _last_receive;
 
-std::unique_ptr<IGraphicsManager> _graphics_interface = std::make_unique<SDLGraphicsManager>();
 bool _server = false;
 bool _draw = true;
 
-void client_init(){
+void client_init(IOSystem io_system_context){
   SDL_Init(SDL_INIT_EVERYTHING);
   TTF_Init();
-  _graphics_interface->destroyWindow();
-  _graphics_interface->createWindow(600, 800);
-  _graphics_interface->setDraw(true);
 
-  loadAssets(soundManager, *_graphics_interface);
+  auto graphics_interface = io_system_context.getGraphicsManager();
+  graphics_interface.createWindow(600, 800);
+  graphics_interface.setDraw(true);
+
+  loadAssets(soundManager, graphics_interface);
   init_engine(false);
 
-  _graphics_interface->renderSplashScreen();
+  graphics_interface.renderSplashScreen();
+
   std::this_thread::sleep_for(std::chrono::seconds(1));
 }
 
 
 void
-client_loop()
+client_loop(IOSystem& io_system_context)
 {
 
   timespec t1, t2;
@@ -51,23 +53,24 @@ client_loop()
           1e9 * (t2.tv_sec - t1.tv_sec) < 1e9 / TICK_RATE);
 
     // Perform client tick
-    client_entry();
+    client_entry(io_system_context);
   }
 }
 
-void client_entry() {
+void client_entry(IOSystem& io_system_context) {
   /* Lock _scene_mutex to protect _pScene from other threads */
   LOCK_GUARD(_scene_mutex);
 
   _net_client->pollServer();
   if (_pScene) {
     _pScene->update();
-    handle_input();
+    handle_input(io_system_context);
   }
-  if (_draw && _graphics_interface){
-    _graphics_interface->resetFrameBuffers();
+  if (_draw){
+    auto gfx = io_system_context.getGraphicsManager();
+    gfx.resetFrameBuffers();
     _pScene->draw();
-    _graphics_interface->drawScreen();
+    gfx.drawScreen();
   }
   _tick++;
 

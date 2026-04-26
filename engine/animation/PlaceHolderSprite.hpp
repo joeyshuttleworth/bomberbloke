@@ -14,7 +14,8 @@ public:
 
   void setColour(uint32_t colour);
 
-  PlaceHolderSprite(IGraphicsManager* gfx_manager, double=0, double=0, double=0, double=0, uint32_t = 0x00a0ffff);
+  PlaceHolderSprite(IGraphicsManager& gfx_manager, double=0, double=0, double=0,
+                    double=0, uint32_t = 0x00a0ffff);
 
   void draw(Camera *cam);
 

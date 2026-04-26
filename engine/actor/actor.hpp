@@ -10,6 +10,7 @@
 #include "IGraphicsManager.hpp"
 #include "AbstractSpriteHandler.hpp"
 #include "scene.hpp"
+#include "IOSystem.hpp"
 #include <cereal/types/polymorphic.hpp>
 
 class IGraphicsManager;
@@ -22,32 +23,36 @@ class actor: public KinematicCollider {
   friend class scene;
 protected:
 
+  IOSystem& mrIOSystem;
+
+  /*The id of this actor. Used by  scene::mActors*/
+  int mId = -1;
+
+  /* Unique id of the player in who controls this actor (if any). 0 corresponds
+     to the server.
+  */
+  int mPlayerId = 0;
+
   /*Flag to indicate removal when next updated*/
   bool mRemove = false;
 
   bool mMoved=false;
   std::shared_ptr<AbstractSpriteHandler> mpSpriteHandler;
 
-  /*Who does is this actor controlled by? This corresponds
-    to a unique id of a player in _player_list. 0 corresponds
-    to the server.
-  */
-  int mPlayerId = 0;
-
-  virtual void init(){};
+  virtual void init();
 
   void setPlayerId(int id){mPlayerId = id;}
 
-  /*The id of this actor. Used by  scene::mActors*/
-  int mId = -1;
 
   Interpolator mInterpolator;
 
   scene* mpScene = nullptr;
 
+  /*Do we collide with other actors*/
+  bool mCollides = false;
+
   void setScene(scene* scene){mpScene = scene;}
 
-  IGraphicsManager* mpGraphicsManager = nullptr;
 
 public:
 
@@ -71,19 +76,38 @@ public:
 
   virtual ~actor(){}
 
-  actor(scene* scene=nullptr, double x = 0, double y = 0, double xdim = DEFAULT_ACTOR_SIZE, double ydim = DEFAULT_ACTOR_SIZE, bool collides = true);
+  actor(scene* scene=nullptr, double x = 0, double y = 0, double xdim = DEFAULT_ACTOR_SIZE,
+        double ydim = DEFAULT_ACTOR_SIZE, bool collides = true);
+
+  actor(const actor& a, IOSystem& ctx) :
+    mrIOSystem(ctx),
+    mId(a.mId),
+    mPlayerId(a.mPlayerId),
+    mRemove(a.mRemove),
+    mMoved(a.mMoved)
+  {
+    actor(a.mpScene, a.mPosition[0], a.mPosition[1], mDimension[0], mDimension[1], mCollides);
+    init();
+  };
+
+  std::shared_ptr<actor> clone(){
+    return clone(mrIOSystem);
+  };
+
+  virtual std::shared_ptr<actor> clone(IOSystem& io_system_ctx){
+    return std::make_shared<actor>(*this, io_system_ctx);
+  };
 
   /*Returns a pointer to the player object.
     This is found by searching _player_list
     if we haven't already*/
   std::shared_ptr<AbstractPlayer> getPlayer();
 
+
+
   int getPlayerId(){
     return mPlayerId;
   }
-
-  /*Do we collide with other actors*/
-  bool mCollides;
 
   void refreshSprite(){
     if(mpSpriteHandler)
@@ -120,11 +144,8 @@ public:
             );
   }
 
-  IGraphicsManager* getGraphicsManager(){
-    if(mpScene){
-      return mpScene->getGraphicsManager();
-    }
-    return nullptr;
+  IOSystem& getSceneIOSystem(){
+    return mpScene->getIOSystem();
   };
 
 };

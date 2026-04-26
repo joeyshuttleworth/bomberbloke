@@ -4,14 +4,17 @@
 
 #include "Camera.hpp"
 
-AbstractHudElement::AbstractHudElement(scene& r_scene,
+AbstractHudElement::AbstractHudElement(
+                                       scene& r_scene,
                                        int xPos,
                                        int yPos,
                                        int xDim,
                                        int yDim,
                                        AlignFlag xAlignFlag,
-                                       AlignFlag yAlignFlag)
-  : mrScene(r_scene)
+                                       AlignFlag yAlignFlag
+                                       )
+  : mrGraphicsManager(r_scene.getGraphicsManager()),
+    mrScene(r_scene)
 {
 
   // Actual position is set in updatePosition
@@ -25,8 +28,6 @@ AbstractHudElement::AbstractHudElement(scene& r_scene,
   mAlignFlags[1] = yAlignFlag;
 
   mPropertiesUpdated = true;
-
-  mpGraphicsManager = r_scene.getGraphicsManager();
 }
 
 void
@@ -50,10 +51,8 @@ AbstractHudElement::updatePosition(Camera* camera)
     return;
 
   auto gfx_manager = camera->getGraphicsManager();
-  if(!gfx_manager)
-    return;
 
-  std::array<int, 2> screen_dimensions = gfx_manager->getScreenDimensions();
+  std::array<int, 2> screen_dimensions = gfx_manager.getScreenDimensions();
 
   switch (mAlignFlags[0]) {
     case ALIGN_CENTER:

@@ -51,19 +51,19 @@ enum state{
 
 DECLARE_EXTERN_MUTEX(_scene_mutex)
 
-class actor;
 class scene;
 class LocalPlayer;
 class NetworkPlayer;
 class AbstractPlayer;
+class IOSystem;
 
-void client_init();
+void client_init(IOSystem&);
 void exit_engine(int);
 void new_game(std::string);
 void engine_new_game(std::string);
 void engine_start_game();
-void client_loop(); // Perform client loop
-void client_entry(); // Perform one tick of client loop
+void client_loop(IOSystem&); // Perform client loop
+void client_entry(IOSystem&); // Perform one tick of client loop
 void bot_loop(); // Perform client loop
 void bot_entry(); // Perform one tick of bot loop
 void server_loop(short port=8888,
@@ -71,8 +71,8 @@ void server_loop(short port=8888,
                  bool debug=false
                 );
 void log_message(int, std::string);
-bool handle_system_command(std::list<std::string>);
-void handle_input();
+bool handle_system_command(IOSystem& ctx, std::list<std::string>);
+void handle_input(IOSystem& ctx);
 void handle_movement();
 void init_engine(bool); // TODO Give this a named bitmask instead of bool
 void console_loop();
@@ -147,7 +147,6 @@ extern std::vector<CommandBinding> _default_bindings;
 extern std::vector<LocalPlayer> _local_player_list;
 
 class IGraphicsManager;
-extern std::unique_ptr<IGraphicsManager> _graphics_interface;
 
 const std::array<std::string, 10> _system_commands  =
   {{"bind",

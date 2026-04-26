@@ -47,7 +47,7 @@ Soundtrack::Soundtrack(std::list<std::string> clipNames,
   auto callback = std::bind(&Soundtrack::onClipFinished, this);
   for (auto i = clipNames.begin(); i != clipNames.end(); i++) {
     std::shared_ptr<Sound> clipSound = soundManager.createSound(*i);
-    clipSound->mGroup = SOUND_MUSIC;
+    clipSound->setGroup(SOUND_MUSIC);
     clipSound->onFinishedPlaying = callback;
     mClipSounds.push_back(clipSound);
   }

@@ -10,10 +10,11 @@ public:
   }
 
   BigBomb(scene *scn=nullptr, double x=0, double y=0) : bomb(){
-    IGraphicsManager* gfx_manager = nullptr;
-    if(scn)
-      gfx_manager = scn->getGraphicsManager();
-    mpSpriteHandler = std::make_shared<staticSprite>(gfx_manager, x, y, BOMB_SIZE, BOMB_SIZE, "bigredbomb.png");
+    if(scn){
+      auto gfx_manager = scn->getIOSystem().getGraphicsManager();
+      mpSpriteHandler = std::make_shared<staticSprite>(gfx_manager, x, y, BOMB_SIZE, BOMB_SIZE, "bigredbomb.png");
+    }
+
     mPower = 100;
   }
 

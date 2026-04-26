@@ -32,6 +32,8 @@ public:
 
   void update();
 
+  void init(const std::string&);
+
   void handleCommand(std::string command){
     if(command == "kill" || command == "+kill"){
       remove();

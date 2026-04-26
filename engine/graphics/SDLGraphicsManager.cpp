@@ -3,6 +3,7 @@
 
 #include "SDLGraphicsManager.hpp"
 #include "SDLTexture.hpp"
+#include "IOSystem.hpp"
 #include "Text.hpp"
 
 #ifndef __EMSCRIPTEN__
@@ -601,8 +602,8 @@ void SDLGraphicsManager::setWindowFullScreen(bool fullscreen){
     SDL_SetWindowFullscreen(mpWindow, 0);
   }
 
-  auto screen_dims = getScreenDimensions();
-  handle_system_command({ "resize", std::to_string(screen_dims[0]), std::to_string(screen_dims[1]) });
+  // Update member variables for new screen size
+  resizeWindow(-1, -1);
 }
 
 

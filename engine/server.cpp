@@ -2,6 +2,7 @@
 #include "scene.hpp"
 #include "network/NetServer.hpp"
 #include "DummyGraphicsManager.hpp"
+#include "IOSystem.hpp"
 #include <memory>
 
 bool _server = true;
@@ -9,9 +10,8 @@ bool _draw = false;
 bool _debug_player = false;
 unsigned int _ping_time = 0;
 
-std::unique_ptr<IGraphicsManager> _graphics_interface = std::make_unique<DummyGraphicsManager>();
 
-void server_loop(short port, std::string masterServerAddress, bool debug){
+void server_loop(IOSystem io_system_contex, short port, std::string masterServerAddress, bool debug){
 
   /* TODO put init code in init func */
 
@@ -56,7 +56,7 @@ void server_loop(short port, std::string masterServerAddress, bool debug){
       LOCK_GUARD(_scene_mutex);
 
       if (!_pScene)
-        _pScene = std::make_shared<scene>(_graphics_interface.get(), 10, 10);
+        _pScene = std::make_shared<scene>(io_system_context, 10, 10);
       _pScene->update();
 
       if(_draw)

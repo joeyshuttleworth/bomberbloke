@@ -8,7 +8,7 @@
 #include <cereal/types/list.hpp>
 #include <memory>
 #include "AbstractCollider.hpp"
-#include "IGraphicsManager.hpp"
+#include "IOSystem.hpp"
 #include "threads.hpp"
 
 extern double _zoom;
@@ -36,11 +36,11 @@ protected:
    */
   std::shared_ptr<Camera> mpCamera;
 
-  IGraphicsManager* mpGraphicsManager = nullptr;
-
   std::mutex mMutex;
 
   std::shared_ptr<scene> mpNextScene = nullptr;
+
+  IOSystem& mrIOSystem;
 
 public:
 
@@ -49,7 +49,7 @@ public:
   std::shared_ptr<scene> getNextScene(){return mpNextScene;};
   void setNextScene(std::shared_ptr<scene> s){mpNextScene = s;};
 
-  IGraphicsManager* getGraphicsManager(){return mpGraphicsManager;};
+  IGraphicsManager& getGraphicsManager(){return mrIOSystem.getGraphicsManager();};
 
   std::array<double, 2> getDimension(){return mDimension;}
 
@@ -120,7 +120,9 @@ public:
 
   virtual void init();
 
-  scene(IGraphicsManager* gfx_manager, double x=10, double y=10);
+  scene() : scene(_fallback_IO_system){}
+
+  scene(IOSystem& io_system_contex, double x=10, double y=10);
 
   virtual ~scene(){
       LOCK_GUARD(mMutex);
@@ -197,6 +199,10 @@ public:
   template <class Archive>
   void serialize(Archive &archive){
     archive(mDimension[0], mDimension[1], mActors);
+  }
+
+  IOSystem& getIOSystem(){
+    return mrIOSystem;
   }
 
 };

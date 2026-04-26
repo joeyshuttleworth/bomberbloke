@@ -22,10 +22,7 @@ public:
     const double width = scene->mDimension[0];
     const double height = scene->mDimension[1];
 
-    if(!mpGraphicsManager)
-      return;
-
-    auto dimensions = mpGraphicsManager->getScreenDimensions();
+    auto dimensions = mrGraphicsManager.getScreenDimensions();
 
     auto screen_width = dimensions[0];
     auto screen_height = dimensions[1];

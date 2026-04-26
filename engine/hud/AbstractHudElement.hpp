@@ -46,8 +46,9 @@ public:
       * @param xAlignFlag    Determines the alignment of the bounding box.
       * @param yAlignFlag    DetermineS the alignment of the bounding box.
       */
-    AbstractHudElement(scene& scn, int xPos, int yPos, int xDim, int yDim,
-                       AlignFlag xAlignFlag=ALIGN_LEFT, AlignFlag yAlignFlag=ALIGN_TOP);
+    AbstractHudElement(
+                     scene& scn, int xPos, int yPos, int xDim, int yDim,
+                     AlignFlag xAlignFlag=ALIGN_LEFT, AlignFlag yAlignFlag=ALIGN_TOP);
 
     /**
      * Sets the (relative) screen position of the bounding box.
@@ -184,7 +185,7 @@ protected:
     // may effect the render. Set back to false when draw is called.
     bool mPropertiesUpdated;
 
-    IGraphicsManager* mpGraphicsManager;
+    IGraphicsManager& mrGraphicsManager;
 
     scene &mrScene;
 

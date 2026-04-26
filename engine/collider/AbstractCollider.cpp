@@ -21,9 +21,9 @@ vectorNorm(dvector vec)
 
 AbstractCollider::AbstractCollider() {}
 
-AbstractCollider::AbstractCollider(std::vector<dvector> vertices)
+AbstractCollider::AbstractCollider(std::vector<dvector> vertices) :
+  mFrameVertices(vertices)
 {
-  mFrameVertices = vertices;
 }
 
 std::array<double, 2>

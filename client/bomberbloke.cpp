@@ -26,6 +26,8 @@ main(int argc, char** argv)
   std::string serverAddress = "";
   bool autoConnect = false;
 
+  IOSystem io_system_context;
+
   int iarg = 0;
   const char* const short_opts = "u:s:";
   const option long_opts[] = { { "username", required_argument, nullptr, 'u' },
@@ -64,7 +66,10 @@ main(int argc, char** argv)
   _nickname = userName;
 
   client_init();
-  _pScene = std::make_shared<MainMenuScene>(_graphics_interface.get(), 15, 15);
+
+  IOSystem io_system_context{SDLGraphicsManager{}, SDLSoundManager{}};
+
+  _pScene = std::make_shared<MainMenuScene>(io_system_context, 15, 15);
 
   if (EXPLOSION_INTRO) {
     for (unsigned int i = 0; i < 10; i++) {
@@ -84,7 +89,7 @@ main(int argc, char** argv)
     std::vector<std::string> commands = { "colour FFFFFFFF" };
 
     if (_net_client->joinBlokeServer(serverAddress, userName, commands)) {
-      _pNewScene = std::make_shared<BomberBlokeScene>(_graphics_interface.get(), 10, 10);
+      _pNewScene = std::make_shared<BomberBlokeScene>(io_system_context, 10, 10);
     }
   }
 

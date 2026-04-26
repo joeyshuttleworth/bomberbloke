@@ -3,10 +3,9 @@
 #include <algorithm>
 
 
-Camera::Camera(IGraphicsManager* p_graphics_manager, scene *lvl){
-
-  mpGraphicsManager = p_graphics_manager;
-  mpScene = lvl;
+Camera::Camera(IGraphicsManager& r_graphics_manager, scene *lvl) :
+  AbstractCamera(r_graphics_manager, lvl)
+{
 
   /* Call this to get screen dimensions */
   onResize();
@@ -19,11 +18,11 @@ Camera::Camera(IGraphicsManager* p_graphics_manager, scene *lvl){
 
   mpScene->updateHudPositions();
 
-  auto dims = mpGraphicsManager->getScreenDimensions();
+  auto dims = mrGraphicsManager.getScreenDimensions();
   int w = dims[0], h = dims[1];
 
-  mpFrameBuffer = mpGraphicsManager->createTexture(w, h);
-  mpNoProcessingBuffer = mpGraphicsManager->createTexture(w, h);
+  mpFrameBuffer = mrGraphicsManager.createTexture(w, h);
+  mpNoProcessingBuffer = mrGraphicsManager.createTexture(w, h);
 
   init();
   return;
@@ -33,8 +32,7 @@ std::array<int, 4>
 Camera::getScreenRect(double x, double y, double w, double h)
 {
   std::array<int, 2> screen_dims = {0, 0};
-  if(mpGraphicsManager)
-    screen_dims = mpGraphicsManager->getScreenDimensions();
+  screen_dims = mrGraphicsManager.getScreenDimensions();
 
   int pxPerUnit = mZoom * screen_dims[0];
 
@@ -84,27 +82,23 @@ Camera::onResize()
 {
   auto dims = getScreenDimensions();
 
-  mpGraphicsManager->destroyTexture(mpFrameBuffer);
-  mpFrameBuffer = mpGraphicsManager->createTexture(dims[0], dims[1]);
+  mrGraphicsManager.destroyTexture(mpFrameBuffer);
+  mpFrameBuffer = mrGraphicsManager.createTexture(dims[0], dims[1]);
 
-  mpGraphicsManager->destroyTexture(mpNoProcessingBuffer);
-  mpNoProcessingBuffer = mpGraphicsManager->createTexture(dims[0], dims[1]);
+  mrGraphicsManager.destroyTexture(mpNoProcessingBuffer);
+  mpNoProcessingBuffer = mrGraphicsManager.createTexture(dims[0], dims[1]);
 }
 
 void
 Camera::draw()
 {
-  if(!mpGraphicsManager){
-    return;
-  }
-
   LOCK_GUARD(mMutex);
 
   // /* Apply postprocessing to everything in mpFrameBuffer*/
-  mpGraphicsManager->applyBloom(mBloomAlpha, mBloomSize, mBloomPasses, nullptr,
+  mrGraphicsManager.applyBloom(mBloomAlpha, mBloomSize, mBloomPasses, nullptr,
                                 nullptr);
-  mpGraphicsManager->applyBlur(mBlurSize, mBlurPasses, mpFrameBuffer);
-  mpGraphicsManager->setBrightness(mBrightness);
+  mrGraphicsManager.applyBlur(mBlurSize, mBlurPasses, mpFrameBuffer);
+  mrGraphicsManager.setBrightness(mBrightness);
 
   auto dims = getScreenDimensions();
   std::array<int, 4> screen_rect = {0, 0, dims[0], dims[1]};
@@ -112,24 +106,24 @@ Camera::draw()
   screen_rect[0] += mRumbleOffset[0];
   screen_rect[1] += mRumbleOffset[1];
 
-  mpGraphicsManager->renderCopy(mpFrameBuffer, nullptr, &screen_rect,
+  mrGraphicsManager.renderCopy(mpFrameBuffer, nullptr, &screen_rect,
                                 0);
 
-  mpGraphicsManager->renderCopy(mpNoProcessingBuffer, nullptr, nullptr,
+  mrGraphicsManager.renderCopy(mpNoProcessingBuffer, nullptr, nullptr,
                                 0);
 }
 
 void Camera::resetFrameBuffers(){
-  mpGraphicsManager->renderClear(mpFrameBuffer);
-  mpGraphicsManager->renderClear(mpNoProcessingBuffer);
+  mrGraphicsManager.renderClear(mpFrameBuffer);
+  mrGraphicsManager.renderClear(mpNoProcessingBuffer);
 }
 
 void Camera::applyBloom(int alpha, int size, int passes){
-  mpGraphicsManager->applyBloom(alpha, size, passes);
+  mrGraphicsManager.applyBloom(alpha, size, passes);
 }
 
 void Camera::applyBlur(double blur_size, int passes){
-  mpGraphicsManager->applyBlur(blur_size, passes);
+  mrGraphicsManager.applyBlur(blur_size, passes);
 }
 
 void
@@ -139,9 +133,7 @@ Camera::update()
 
   std::array<int, 2> screen_dims = {0, 0};
 
-  if(mpGraphicsManager){
-    screen_dims = mpGraphicsManager->getScreenDimensions();
-  }
+  screen_dims = mrGraphicsManager.getScreenDimensions();
 
   const int width = screen_dims[0];
   const int height = screen_dims[1];

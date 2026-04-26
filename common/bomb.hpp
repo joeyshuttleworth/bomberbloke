@@ -48,7 +48,7 @@ class bomb : public actor {
   };
 
   bomb(scene *scn=nullptr, double x=0, double y=0) : actor(scn, x, y, BOMB_SIZE, BOMB_SIZE){
-    mpSpriteHandler = std::make_shared<staticSprite>(mpGraphicsManager, mPosition[0], mPosition[1], BOMB_SIZE, BOMB_SIZE, "bomb.png");
+    mpSpriteHandler = std::make_shared<staticSprite>(mrIOSystem.getGraphicsManager(), mPosition[0], mPosition[1], BOMB_SIZE, BOMB_SIZE, "bomb.png");
   }
 
   int getType() const{

@@ -7,11 +7,9 @@
 #include "LocalPlayer.hpp"
 
 
-scene::scene(IGraphicsManager* gfx_manager, double x, double y)
+scene::scene(IOSystem& io_sys_context, double x, double y) : mrIOSystem(io_sys_context),
+                                                             mDimension{x, y}
 {
-  mpGraphicsManager = gfx_manager;
-  mDimension[0] = x;
-  mDimension[1] = y;
   mState = STOPPED;
   return;
 }
@@ -330,10 +328,15 @@ scene::onResize()
 {
   LOCK_GUARD(mMutex);
 
+  auto gfx = mrIOSystem.getGraphicsManager();
+  gfx.resizeWindow();
+
   if (mpCamera)
     mpCamera->onResize();
   updateHudPositions();
   refreshSprites();
+
+
   return;
 }
 
@@ -404,11 +407,4 @@ void scene::init(){
 
 void
 scene::initGraphics(){
-  for(auto particle : mParticles){
-    particle->setGraphicsManager(mpGraphicsManager);
-  }
-  for(auto p_actor : mActors){
-    if(p_actor->mpSpriteHandler)
-      p_actor->mpSpriteHandler->setGraphicsManager(mpGraphicsManager);
-  }
 }

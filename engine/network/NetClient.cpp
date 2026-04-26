@@ -179,8 +179,16 @@ NetClient::pollServer()
 
         /* Completely remake all actors in scene */
         _pScene->removeAllActors();
+
         for(auto act : s_event->mActors){
-          _pScene->addActorWithId(act);
+          // Necessary to assign IOSystem context
+          auto new_act = act->clone(_pScene->mrIOSystem);
+
+          _pScene->addActorWithId(new_act);
+        }
+
+        for(auto p : s_event->mParticles){
+          auto new_part = p->clone(_pScene->mrIOSystem.getGraphicsManager());
         }
 
         /* TODO move mPlayers to _player_list */

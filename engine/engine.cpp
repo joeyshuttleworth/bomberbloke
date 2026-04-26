@@ -77,15 +77,12 @@ std::unique_ptr<NetServer> _net_server = std::make_unique<NetServer>();
 /* TODO move this behind a sound inferface */
 SoundManager soundManager;
 
+IOSystem _fallback_IO_system;
+
 void
 exit_engine(int signum)
 {
   _halt = true;
-  if(_graphics_interface){
-    _graphics_interface->setDraw(false);
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-    _graphics_interface = nullptr;
-  }
 
   std::cout << "\nNow exiting the BLOKE engine. Hope you had fun. Wherever you "
                "are, we at the BLOKE project hope we have made your day just a "
@@ -94,6 +91,7 @@ exit_engine(int signum)
 #ifndef _WIN32
   std::cout << "Received signal " << strsignal(signum) << ".\nExiting...\n";
 #endif
+  std::this_thread::sleep_for(std::chrono::seconds());
   SDL_Quit();
   return;
 }
@@ -140,7 +138,7 @@ init_engine
 
 /* This function is here to allow other use cases where input is allowed on the server */
 void
-handle_input()
+handle_input(IOSystem& ctx)
 {
   SDL_Event event;
   //  bool key_up = true;
@@ -169,9 +167,6 @@ handle_input()
       }
       case SDL_WINDOWEVENT: {
         if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
-          if(_graphics_interface){
-            _graphics_interface->resizeWindow();
-          }
           _pScene->onResize();
         }
       }
@@ -199,13 +194,12 @@ handle_input()
           if (std::find(_system_commands.begin(),
                         _system_commands.end(),
                         split_to_tokens(j->command).front()) != _system_commands.end()) {
-            handle_system_command(
+            handle_system_command(ctx,
               split_to_tokens(command_to_send)); // process system command
           } else {
             std::shared_ptr<actor> character = i->getCharacter();
             if (character) {
-              character->handleCommand(
-                command_to_send); // handle normal command
+              character->handleCommand(command_to_send); // handle normal command
 
               if (!_server) {
                 std::unique_ptr<AbstractEvent> c_event(
@@ -310,7 +304,7 @@ load_config(std::string fname)
 }
 
 bool
-handle_system_command(std::list<std::string> tokens)
+handle_system_command(IOSystem& ctx, std::list<std::string> tokens)
 {
   if (tokens.size() == 0)
     return true;
@@ -408,16 +402,17 @@ handle_system_command(std::list<std::string> tokens)
 
     } else {
       _net_client->disconnectClient();
-      _pScene = std::make_unique<MainMenuScene>(_graphics_interface.get(), 15, 15);
+      _pScene = std::make_unique<MainMenuScene>(_pScene->getIOSystem(), 15, 15);
     }
   }
 
   else if (command == "draw") {
+    auto gfx = ctx.getGraphicsManager();
     if (tokens.size() == 2) {
-      if (tokens.back() == "on" && _graphics_interface) {
-        _graphics_interface->setDraw(true);
-      } else if (tokens.back() == "off" && _graphics_interface) {
-        _graphics_interface->setDraw(false);
+      if (tokens.back() == "on") {
+        gfx.setDraw(true);
+      } else if (tokens.back() == "off") {
+        gfx.setDraw(false);
       } else {
         log_message(ERR,
                     "Couldn't parse command - " + command + tokens.back() +
@@ -505,7 +500,8 @@ handle_system_command(std::list<std::string> tokens)
       i++;
       int y = std::stoi(*i);
 
-      _graphics_interface->resizeWindow(x, y);
+      auto gfx = ctx.getGraphicsManager();
+      gfx.resizeWindow(x, y);
     } else {
       log_message(ERR, "Incorrect number of arguments for resize");
     }
@@ -626,7 +622,7 @@ split_to_tokens(std::string str)
 }
 
 void
-console_loop()
+console_loop(IOSystem& ctx)
 {
   if (_log_message_level <= INFO)
     std::cout << "Bomberbloke console...\n";
@@ -636,7 +632,7 @@ console_loop()
     std::cout << ">";
     if (std::getline(std::cin, line)) {
       tokens = split_to_tokens(line);
-      handle_system_command(tokens);
+      handle_system_command(ctx, tokens);
     }
   }
   return;

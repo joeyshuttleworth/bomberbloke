@@ -49,7 +49,8 @@ TextButton::TextButton(scene& r_scene,
 
   // Get click sound
   mClickSound = soundManager.createSound(CLICK_SOUND_NAME);
-  mClickSound->mGroup = SOUND_FX;
+  if(mClickSound)
+    mClickSound->setGroup(SOUND_FX);
 }
 
 void

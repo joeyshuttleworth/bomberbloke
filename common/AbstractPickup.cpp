@@ -21,3 +21,11 @@ AbstractPickup::update()
     }
   }
 }
+
+
+void AbstractPickup::init(const std::string& asset_name)
+{
+  mpSpriteHandler = std::make_shared<PickupAnimation>(mrIOSystem.getGraphicsManager(), mPosition[0],
+                                                      mPosition[1], mDimension[0], mDimension[1],
+                                                      asset_name);
+}
