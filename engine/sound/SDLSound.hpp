@@ -1,24 +1,37 @@
-#ifndef SOUND_HPP
-#define SOUND_HPP
+#ifndef SDLSOUND_HPP
+#define SDLSOUND_HPP
 
 #include <SDL_mixer.h>
 #include <string>
 #include <functional>
 #include <map>
 
-#include "AbstractSound.hpp"
+#include "Sound.hpp"
 
 
-class AbstractSoundChunk;
+class SoundChunk;
+class SDLSoundManager;
 
-class SDLSound {
+struct SDLSoundChunk : SoundChunk{
+  SDLSoundChunk(Mix_Chunk *chnk = nullptr) : mpMixChunk(chnk){
+  };
+
+  ~SDLSoundChunk(){
+    if(mpMixChunk)
+      Mix_FreeChunk(mpMixChunk);
+  }
+
+  Mix_Chunk* mpMixChunk;
+};
+
+
+class SDLSound : public Sound{
+
+  friend SDLSoundManager;
+
 public:
-    /**
-     * Initialisation.
-     */
-    SDLSound() {}
-  SDLSound(Mix_Chunk* sound_chunk) : mMixChunk(sound_chunk){
-    }
+
+  SDLSound(SDLSoundChunk* sound_chunk=nullptr) : mpMixChunk(sound_chunk){}
 
     /**
      * Pauses sound.
@@ -62,11 +75,11 @@ public:
      * Returns the length of the sound file.
      */
     int getLengthMs() override {
-        return mMixChunk->alen * 1000 / (SOUND_FREQUENCY * SOUND_N_CHANNELS * 2);
+        return mpMixChunk->mpMixChunk->alen * 1000 / (SOUND_FREQUENCY * SOUND_N_CHANNELS * 2);
     }
 
 protected:
-  Mix_Chunk mMixChunk;
+  SDLSoundChunk* mpMixChunk;
 };
 
 #endif

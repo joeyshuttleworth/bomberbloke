@@ -10,64 +10,54 @@
 
 #include "Sound.hpp"
 
-extern const int SOUND_FREQUENCY;
-extern const Uint16 SOUND_FORMAT;
-extern const int SOUND_N_CHANNELS;
-extern const int SOUND_CHUNKSIZE;
 
+class SDLSoundChunk;
+class SDLSound;
 
-struct SDLMixChunk : SoundChunk{
-public:
-  SDLMixChunk(Mix_Chunk *chnk = nullptr) : mMixChunk(chnk){
-  };
-
-  ~SDLMixChunk(){
-    if(mMixChunk)
-      Mix_FreeChunk(mMixChunk);
-  }
-
-  Mix_Chunk* mMixChunk;
-};
-
-
-class SDLSoundManager : SoundManager {
+class SDLSoundManager : public ISoundManager {
 private:
      /**
      * Map object containing Mix_Chunk object (sound files). Indexed by sound
      * name (usually the stem of the filename).
      */
-    std::map<std::string, SDLMixChunk> soundFileBank;
+  // TODO rename. This is data stored in memory, not file handlers
+  std::map<std::string, std::unique_ptr<SDLSoundChunk>> mSoundFileBank;
 
     /**
      * Map from channel number to currently playing Sound
      */
-    std::map<int, std::shared_ptr<Sound>> channelToSound;
+    std::map<int, SDLSound*> mChannelToSound;
 
   /**
    * Callback function when channel is finished
    * ONLY call in finishedCallback function (see init)
    */
   void channelFinishedCallback(int channel) override;
+
+  static const int SOUND_FREQUENCY = 44100;
+  static const Uint16 SOUND_FORMAT = AUDIO_S16SYS;
+  static const int SOUND_N_CHANNELS = 2;
+  static const int SOUND_CHUNKSIZE = 1024;
+
 public:
     /**
      * Initialisation: must be called before loading sounds
      */
     static void init(void (*finishedCallback)(int));
 
+  /**
+   * Play sound object.
+   */
+    void playSound(Sound* sound) override;
     /**
      * Loads sound file into soundFileBank.
      */
-    void loadFromPath(std::string path, const std::string& id) override;
+    void loadFromPath(const std::string& path, const std::string& id) override;
 
     /**
      * Create Sound object from sound name.
      */
-    std::shared_ptr<Sound> createSound(const std::string& soundName) override;
-
-     /**
-     * Play sound object.
-     */
-
+  std::unique_ptr<Sound> createSound(const std::string& soundName) override;
 
     /**
      * Sets the volume - the volume applied to all channels.
@@ -76,6 +66,8 @@ public:
      * @param group   Sound group to change the volume of.
      */
     void setVolume(int volume, SoundGroup group=SOUND_MASTER) override;
+
+    void destroySound(Sound* sound);
 
     SDLSoundManager();
     ~SDLSoundManager();

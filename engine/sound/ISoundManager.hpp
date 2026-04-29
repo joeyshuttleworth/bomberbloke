@@ -7,12 +7,6 @@
 
 #include "Sound.hpp"
 
-extern const int SOUND_FREQUENCY;
-extern const Uint16 SOUND_FORMAT;
-extern const int SOUND_N_CHANNELS;
-extern const int SOUND_CHUNKSIZE;
-
-
 class ISoundManager {
 protected:
     // Volume applied to all channels.
@@ -43,10 +37,11 @@ public:
     /**
      * Play sound object.
      */
-    virtual void playSound(const Sound& sound);
+    virtual void playSound(Sound*){};
 
+  virtual void destroySound(Sound*){};
 
-    virtual std::shared_ptr<Sound> createSound(const std::string&) = 0;
+  virtual std::unique_ptr<Sound> createSound(const std::string&){return nullptr;}
 
   /**
      * Sets the volume - the volume applied to all channels.
@@ -68,14 +63,10 @@ public:
           return mMasterVolume;
     }
 
-   void channelFinishedForwarder(int);
+  void channelFinishedForwarder(int);
 
    ISoundManager(bool debug=false) : mDebug(debug){};
-  ~ISoundManager();
+  ~ISoundManager(){};
 };
-
-void ISoundManager::channelFinishedForwarder(int channel){
-  this->channelFinishedCallback(channel);
-}
 
 #endif

@@ -18,18 +18,16 @@ struct SoundChunk{
   SoundChunk() = default;
 };
 
-class SoundManager;
+class ISoundManager;
+class DummySoundManager;
+class SDLSoundManager;
+
 class Soundtrack;
 
 class Sound {
-  friend SoundManager;
+  friend ISoundManager;
   friend Soundtrack;
 protected:
-    /**
-     * Mixer channel number.
-     */
-    int channel = -1;
-
     /**
      * Group the sound belongs to.
      */
@@ -65,20 +63,25 @@ protected:
     /**
      * Callback function for when sound is finished playing.
      */
-    std::function<void()> onFinishedPlaying = nullptr;
 
     std::unique_ptr<SoundChunk> mpSoundChunk = nullptr;
 
 public:
 
+  std::function<void()> onFinishedPlaying = nullptr;
+
   /**
-   * Initialisation.
+   * Mixer channel number.
    */
-  Sound();
+  int channel = -1;
 
 
   void setGroup(SoundGroup grp){
     mGroup = grp;
+  }
+
+  SoundGroup getGroup(){
+    return mGroup;
   }
 
   const std::string mName;
@@ -89,6 +92,8 @@ public:
   {
   }
 
+
+    int getVolume(){return mVolume;}
 
     std::string getName(){return mName;};
 
@@ -125,6 +130,5 @@ public:
     }
 };
 
-Sound::Sound(){}
 
 #endif

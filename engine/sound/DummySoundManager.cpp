@@ -1,4 +1,4 @@
-#include "SoundManager.hpp"
+#include "DummySoundManager.hpp"
 
 #include <iostream>
 
@@ -7,8 +7,8 @@ const Uint16 SOUND_FORMAT = AUDIO_S16SYS;
 const int SOUND_N_CHANNELS = 2;
 const int SOUND_CHUNKSIZE = 1024;
 
-SoundManager::SoundManager() = default;
-SoundManager::~SoundManager()
+DummySoundManager::DummySoundManager() = default;
+DummySoundManager::~DummySoundManager()
 {
   // Free mix chunks
   // for (auto & iter : soundFileBank) {
@@ -22,7 +22,7 @@ SoundManager::~SoundManager()
 }
 
 void
-SoundManager::init(void (*finishedCallback)(int))
+DummySoundManager::init(void (*finishedCallback)(int))
 {
   if (Mix_OpenAudio(
         SOUND_FREQUENCY, SOUND_FORMAT, SOUND_N_CHANNELS, SOUND_CHUNKSIZE) == -1)
@@ -33,7 +33,7 @@ SoundManager::init(void (*finishedCallback)(int))
 }
 
 void
-SoundManager::loadFromPath(const std::string&, const std::string&)
+DummySoundManager::loadFromPath(const std::string&, const std::string&)
 {
   // Mix_Chunk* sound = Mix_LoadWAV_RW(src, 1);
   // if (sound == nullptr)
@@ -43,16 +43,14 @@ SoundManager::loadFromPath(const std::string&, const std::string&)
   // soundFileBank.insert(std::make_pair(id, std::move(sound)));
 }
 
-std::shared_ptr<Sound>
-SoundManager::createSound(const std::string& soundName)
+std::unique_ptr<Sound>
+DummySoundManager::createSound(const std::string&)
 {
-  std::shared_ptr<Sound> newSound =
-    std::make_shared<Sound>(soundName, soundFileBank[soundName].get());
-  return newSound;
+  return nullptr;
 }
 
 void
-SoundManager::playSound(std::shared_ptr<Sound> sound)
+DummySoundManager::playSound(Sound* sound)
 {
   int tmpChannel = -1;
 
@@ -85,10 +83,10 @@ SoundManager::playSound(std::shared_ptr<Sound> sound)
   }
 
   // Set sound volume
-  int soundVolume = sound->mVolume * mMasterVolume / 128;
-  if (sound->mGroup == SOUND_FX) {
+  int soundVolume = sound->getVolume() * mMasterVolume / 128;
+  if (sound->getGroup() == SOUND_FX) {
     soundVolume = soundVolume * mFxVolume / 128;
-  } else if (sound->mGroup == SOUND_MUSIC) {
+  } else if (sound->getGroup() == SOUND_MUSIC) {
     soundVolume = soundVolume * mMusicVolume / 128;
   }
   // Mix_Volume(tmpChannel, soundVolume);
@@ -101,12 +99,12 @@ SoundManager::playSound(std::shared_ptr<Sound> sound)
 }
 
 void
-SoundManager::channelFinishedCallback(int)
+DummySoundManager::channelFinishedCallback(int)
 {
 }
 
 void
-SoundManager::setVolume(int volume, SoundGroup group)
+DummySoundManager::setVolume(int volume, SoundGroup group)
 {
   // Set volume
   if (group == SOUND_MASTER) {

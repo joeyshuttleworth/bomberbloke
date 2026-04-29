@@ -1,6 +1,9 @@
 #include "SDLSoundManager.hpp"
+#include "SDLSound.hpp"
+#include "engine.hpp"
 
 #include <iostream>
+#include <sstream>
 
 const int SOUND_FREQUENCY = 44100;
 const Uint16 SOUND_FORMAT = AUDIO_S16SYS;
@@ -21,63 +24,63 @@ void
 SDLSoundManager::init(void (*finishedCallback)(int))
 {
   if (Mix_OpenAudio(
-        SOUND_FREQUENCY, SOUND_FORMAT, SOUND_N_CHANNELS, SOUND_CHUNKSIZE) == -1)
-    std::sstream strm;
+                    SOUND_FREQUENCY, SOUND_FORMAT, SOUND_N_CHANNELS, SOUND_CHUNKSIZE) == -1){
+    std::stringstream strm;
 
-  strm << "Mix_OpenAudio:" << Mix_GetError();
-  log_message(ERROR, strm.str());
+    strm << "Mix_OpenAudio:" << Mix_GetError();
+    log_message(ERR, strm.str());
+  }
 
   // Callback for tracking which sounds are on which channels
   Mix_ChannelFinished(finishedCallback);
 }
 
 void
-SDLSoundManager::loadFromPath(SDL_RWops *src, const std::string& id)
+SDLSoundManager::loadFromPath(const std::string& path, const std::string& id)
 {
-  SDLMixChunk chunk{Mix_LoadWAV_RW(src, 1)};
-  if (sound == nullptr)
-    std::cout << Mix_GetError() << std::endl;
+  printf("%s, %s\n", path.c_str(), id.c_str());
+  // SDLMixChunk chunk{Mix_LoadWAV_RW(src, 1)};
+  // if (sound == nullptr)
+  //   std::cout << Mix_GetError() << std::endl;
 
-  // Add file to sound file bank
-  soundFileBank.insert(std::make_pair(id, chunk));
+  // // Add file to sound file bank
+  // mSoundFileBank.insert(std::make_pair(id, chunk));
 }
 
-std::shared_ptr<Sound>
+std::unique_ptr<Sound>
 SDLSoundManager::createSound(const std::string& soundName)
 {
-  std::shared_ptr<Sound> newSound =
-    std::make_shared<Sound>(soundFileBank[soundName]);
-  return newSound;
+  return (std::unique_ptr<Sound>) std::make_unique<SDLSound>(mSoundFileBank[soundName].get());
 }
 
 void
-SDLSoundManager::playSound(const Sound& sound)
+SDLSoundManager::playSound(Sound* _sound)
 {
-  // Don't play anything if it is a server
-  if (!sound || _server)
+  if (!_sound)
     return;
 
+  SDLSound* sound = (SDLSound*) _sound;
   int tmpChannel = -1;
   if (sound->mFadeInMs > 0) {
     if (sound->mMaxLengthMs > 0)
       // Play sound with fade in and timeout
       tmpChannel = Mix_FadeInChannelTimed(-1,
-                                          sound->mMixChunk,
+                                          sound->mpMixChunk->mpMixChunk,
                                           sound->mNLoops,
                                           sound->mMaxLengthMs,
                                           sound->mFadeInMs);
     else
       // Play sound with fade in
       tmpChannel = Mix_FadeInChannel(
-        -1, sound->mMixChunk, sound->mNLoops, sound->mFadeInMs);
+        -1, sound->mpMixChunk->mpMixChunk, sound->mNLoops, sound->mFadeInMs);
   } else {
     if (sound->mMaxLengthMs > 0)
       // Play sound with timeout
       tmpChannel = Mix_PlayChannelTimed(
-        -1, sound->mMixChunk, sound->mNLoops, sound->mMaxLengthMs);
+        -1, sound->mpMixChunk->mpMixChunk, sound->mNLoops, sound->mMaxLengthMs);
     else
       // Play sound
-      tmpChannel = Mix_PlayChannel(-1, sound->mMixChunk, sound->mNLoops);
+      tmpChannel = Mix_PlayChannel(-1, sound->mpMixChunk->mpMixChunk, sound->mNLoops);
   }
 
   // Check the sound is playing
@@ -100,25 +103,26 @@ SDLSoundManager::playSound(const Sound& sound)
 
   // Store channel of the sound
   sound->channel = tmpChannel;
-  channelToSound[tmpChannel] = sound;
+  mChannelToSound[tmpChannel] = sound;
 }
 
 void
 SDLSoundManager::channelFinishedCallback(int channel)
 {
-  // Obtain sound from channelToSound map
-  std::shared_ptr<Sound> sound = channelToSound[channel];
-
-  if (!sound) {
-    // Remove the channelToSound entry
-    channelToSound.erase(channel);
-    return;
-  }
+  // Obtain sound from mChannelToSound map
+  SDLSound* sound = mChannelToSound[channel];
 
   if (sound->onFinishedPlaying != nullptr) {
     // Call callback if the sound has one
     sound->onFinishedPlaying();
   }
+
+  if (!sound) {
+    // Remove the mChannelToSound entry
+    mChannelToSound.erase(channel);
+    return;
+  }
+
 }
 
 void
@@ -135,13 +139,17 @@ SDLSoundManager::setVolume(int volume, SoundGroup group)
 
   // Adjust the volume of all channels
   for (auto iter =
-    channelToSound.begin();
-       iter != channelToSound.end();
+    mChannelToSound.begin();
+       iter != mChannelToSound.end();
        ++iter) {
     int soundChannel = iter->first;
     int newVolume = mMasterVolume;
 
-    std::shared_ptr<Sound> sound = iter->second;
+    SDLSound* sound = iter->second;
+
+    if(!sound)
+      continue;
+
     if (sound && (sound->mGroup == group || group == SOUND_MASTER)) {
       newVolume = sound->mVolume * mMasterVolume / 128;
       if (group == SOUND_FX) {
