@@ -69,7 +69,7 @@ main(int argc, char** argv)
 
   init_engine(true);
 
-  _pScene = std::make_shared<BomberBlokeScene>(io_system_context, 10, 10);
+  _pScene = std::make_shared<BomberBlokeScene>(io_system_context);
 
   server_loop(io_system_context, _port, _masterServerAddress, _debug);
   return 0;
@@ -81,7 +81,7 @@ new_game(IOSystem& ctx, std::string)
   /* Lock _scene_mutex to protect _pScene from other threads */
   const std::lock_guard<std::mutex> lock(_scene_mutex);
 
-  _pScene = std::make_shared<BomberBlokeScene>(ctx, 10, 10);
+  _pScene = std::make_shared<BomberBlokeScene>(ctx);
 
   /* Reset everyone's powerups */
   for (auto i = _player_list.begin(); i != _player_list.end(); i++) {

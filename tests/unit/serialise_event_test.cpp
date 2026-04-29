@@ -61,7 +61,7 @@ TEST_CASE("Can make/deserialise SyncEvent", "[engine]")
   int player_id = 0;
 
   const std::vector<std::string> usernames = {"big_beef", "big_baz", "little_john", "maid_marian", "allan_a_dale_77", "nottz_sherrif_xX", "Frair_Tuck", "Will Scarlet", "merry_man_67"};
-  _pScene = std::make_shared<BomberBlokeScene>(nullptr, 25, 25);
+  _pScene = std::make_shared<BomberBlokeScene>(_fallback_IO_system);
 
   for(auto i : usernames){
 	std::string username = i;

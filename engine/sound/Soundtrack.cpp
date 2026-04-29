@@ -37,19 +37,20 @@ const std::list<std::list<double>> OST2_INTENSE_TRANSITIONS = {
   { 0, 0, 0, 0.45, 0.45, 0, 0.1 }
 };
 
-Soundtrack::Soundtrack(std::list<std::string> clipNames,
+Soundtrack::Soundtrack(ISoundManager& sound_manager, std::list<std::string> clipNames,
                        std::list<std::list<double>> transitions,
-                       std::list<std::list<double>> intenseTransitions)
+                       std::list<std::list<double>> intenseTransitions) :
+  mrSoundManager(sound_manager)
 {
   mTransitions = transitions;
   mIntenseTransitions = intenseTransitions;
 
   auto callback = std::bind(&Soundtrack::onClipFinished, this);
   for (auto i = clipNames.begin(); i != clipNames.end(); i++) {
-    std::shared_ptr<Sound> clipSound = soundManager.createSound(*i);
+    auto clipSound = mrSoundManager.createSound(*i);
     clipSound->setGroup(SOUND_MUSIC);
     clipSound->onFinishedPlaying = callback;
-    mClipSounds.push_back(clipSound);
+    mClipSounds.push_back(std::move(clipSound));
   }
 }
 
@@ -65,7 +66,7 @@ Soundtrack::playIdle()
   } else if (!mIsPlaying) {
     mIsIdle = true;
     mIsPlaying = true;
-    soundManager.playSound(mClipSounds.front());
+    mrSoundManager.playSound(mClipSounds.front().get());
   }
 }
 
@@ -102,7 +103,7 @@ Soundtrack::onClipFinished()
   if (mIsIdle && mIsPlaying) {
     // If idle, continue playing idle clip
     mIsPlaying = true;
-    soundManager.playSound(mClipSounds.front());
+    mrSoundManager.playSound(mClipSounds.front().get());
   } else if (mIsPlaying) {
     // Generate uniform random sample in range [0, 1]
     std::random_device rd;
@@ -135,14 +136,14 @@ Soundtrack::onClipFinished()
     auto iter = mClipSounds.begin();
     std::advance(iter, mCurrentIndex);
     mIsPlaying = true;
-    soundManager.playSound(*iter);
+    mrSoundManager.playSound(iter->get());
   }
 }
 
-Soundtrack1::Soundtrack1()
-  : Soundtrack(OST1_CLIP_NAMES, OST1_TRANSITIONS, OST1_INTENSE_TRANSITIONS)
+Soundtrack1::Soundtrack1(ISoundManager& sound_manager)
+  : Soundtrack(sound_manager, OST1_CLIP_NAMES, OST1_TRANSITIONS, OST1_INTENSE_TRANSITIONS)
 {}
 
-Soundtrack2::Soundtrack2()
-  : Soundtrack(OST2_CLIP_NAMES, OST2_TRANSITIONS, OST2_INTENSE_TRANSITIONS)
+Soundtrack2::Soundtrack2(ISoundManager& sound_manager)
+  : Soundtrack(sound_manager, OST2_CLIP_NAMES, OST2_TRANSITIONS, OST2_INTENSE_TRANSITIONS)
 {}

@@ -4,12 +4,16 @@
 #include <list>
 #include <string>
 #include <mutex>
-#include <SDL.h>
 #include <cereal/types/list.hpp>
 #include <memory>
+
+// TODO remove
+#include <SDL2/SDL.h>
+
 #include "AbstractCollider.hpp"
 #include "IOSystem.hpp"
 #include "threads.hpp"
+#include "cereal_archives.hpp"
 
 extern double _zoom;
 
@@ -50,6 +54,7 @@ public:
   void setNextScene(std::shared_ptr<scene> s){mpNextScene = s;};
 
   IGraphicsManager& getGraphicsManager(){return mrIOSystem.getGraphicsManager();};
+  ISoundManager& getSoundManager(){return mrIOSystem.getSoundManager();};
 
   std::array<double, 2> getDimension(){return mDimension;}
 
@@ -198,7 +203,7 @@ public:
   /*We only need to send mDimension and the mActorList*/
   template <class Archive>
   void serialize(Archive &archive){
-    archive(mDimension[0], mDimension[1], mActors);
+    archive(mDimension[0], mDimension[1]);
   }
 
   IOSystem& getIOSystem(){

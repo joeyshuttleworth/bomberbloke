@@ -7,9 +7,7 @@
 #include <SDL.h>
 #include <SDL_joystick.h>
 #include <SDL_main.h>
-#include <cereal/types/polymorphic.hpp>
-#include <cereal/archives/json.hpp>
-#include <cereal/archives/portable_binary.hpp>
+#include "cereal_archives.hpp"
 #include <iostream>
 #include <algorithm>
 #include <list>
@@ -75,7 +73,7 @@ bool handle_system_command(IOSystem& ctx, std::list<std::string>);
 void handle_input(IOSystem& ctx);
 void handle_movement();
 void init_engine(bool); // TODO Give this a named bitmask instead of bool
-void console_loop();
+void console_loop(IOSystem&);
 void draw_screen();
 void set_draw(bool);
 SDL_Joystick* handle_input_controller();
@@ -97,10 +95,6 @@ extern std::list<std::shared_ptr<AbstractPlayer>> _player_list;
 extern std::string _nickname;
 extern SDL_Joystick* _controller;
 extern bool _controller_connected;
-
-/* Global sound manager for storing and tracking playing sounds */
-#include "SoundManager.hpp"
-extern SoundManager soundManager;
 
 struct CommandBinding {
   SDL_Scancode scancode;

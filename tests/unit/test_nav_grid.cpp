@@ -40,7 +40,7 @@ TEST_CASE("Can create NavGrid", "[engine]")
   int player_id = 0;
 
   const std::vector<std::string> usernames = {"big_beef", "big_baz", "little_john", "maid_marian", "allan_a_dale_77", "nottz_sherrif_xX", "Frair_Tuck", "Will Scarlet", "merry_man_67"};
-  _pScene = std::make_shared<BomberBlokeScene>(nullptr, 25, 25);
+  _pScene = std::make_shared<BomberBlokeScene>(_fallback_IO_system, 25, 25);
 
   for(auto i : usernames){
     std::string username = i;
@@ -61,7 +61,7 @@ TEST_CASE("Can create NavGrid", "[engine]")
 
 TEST_CASE("Full NavGrid for empty level", "[engine]")
 {
-  _pScene = std::make_shared<BomberBlokeScene>(nullptr, 10, 10);
+  _pScene = std::make_shared<BomberBlokeScene>(_fallback_IO_system, 10, 10);
   _pScene->mActors.clear();
   NavGrid nav_grid(blocking_types, _pScene);
   nav_grid.computeGrid();
@@ -75,7 +75,7 @@ TEST_CASE("Full NavGrid for empty level", "[engine]")
 
 TEST_CASE("Empty NavGrid for full level", "[engine]")
 {
-  _pScene = std::make_shared<BomberBlokeScene>(nullptr, 10, 10);
+  _pScene = std::make_shared<BomberBlokeScene>(_fallback_IO_system, 10, 10);
   _pScene->mActors.clear();
 
   /* Create WoodenCrates at each square */
@@ -98,7 +98,7 @@ TEST_CASE("Empty NavGrid for full level", "[engine]")
 
 TEST_CASE("Components of disconnected level", "[engine]")
 {
-  _pScene = std::make_shared<BomberBlokeScene>(nullptr, 10, 10);
+  _pScene = std::make_shared<BomberBlokeScene>(_fallback_IO_system, 10, 10);
   _pScene->mActors.clear();
 
   /* Create WoodenCrates at each square */
@@ -122,7 +122,7 @@ TEST_CASE("Components of disconnected level", "[engine]")
 
 TEST_CASE("Get A* route", "[engine]")
 {
-  _pScene = std::make_shared<BomberBlokeScene>(nullptr, 10, 10);
+  _pScene = std::make_shared<BomberBlokeScene>(_fallback_IO_system, 10, 10);
   _pScene->mActors.clear();
 
   /* Create WoodenCrates at each square */

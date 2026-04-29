@@ -12,6 +12,7 @@
 OptionsMenuHudGroup::OptionsMenuHudGroup(scene& r_scene, std::function<void()> goBackFn)
   : AbstractHudGroup(r_scene, 0, 0)
 {
+
   // Create title
   std::shared_ptr<Text> titleText =
     mrGraphicsManager.createText("OPTIONS", mFont, 12);
@@ -86,7 +87,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(scene& r_scene, std::function<void()> g
   addElement(reduceVolumeElement);
 
   // Master volume option label
-  int currentVolumeLabel = soundManager.getVolume(SOUND_MASTER) * 8 / 128;
+  int currentVolumeLabel = mrSoundManager.getVolume(SOUND_MASTER) * 8 / 128;
   std::shared_ptr<Text> volumeLabelText =
     mrGraphicsManager.createText(std::to_string(currentVolumeLabel), mFont);
   if (volumeLabelText) {
@@ -158,7 +159,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(scene& r_scene, std::function<void()> g
   addElement(reduceMusicElement);
 
   // Master volume option label
-  int currentMusicLabel = soundManager.getVolume(SOUND_MUSIC) * 8 / 128;
+  int currentMusicLabel = mrSoundManager.getVolume(SOUND_MUSIC) * 8 / 128;
   std::shared_ptr<Text> musicLabelText =
     mrGraphicsManager.createText(std::to_string(currentMusicLabel), mFont);
   if (musicLabelText) {
@@ -292,12 +293,12 @@ void
 OptionsMenuHudGroup::reduceMasterVolume()
 {
   // Decrease volume by 128 / 8
-  int currentVolume = soundManager.getVolume(SOUND_MASTER);
+  int currentVolume = mrSoundManager.getVolume(SOUND_MASTER);
   int newVolumeLabel = currentVolume * 8 / 128 - 1;
   if (newVolumeLabel < 0) {
     newVolumeLabel = 0;
   }
-  soundManager.setVolume(newVolumeLabel * 128 / 8, SOUND_MASTER);
+  mrSoundManager.setVolume(newVolumeLabel * 128 / 8, SOUND_MASTER);
 
   // Set new volume label
   std::shared_ptr<TextHudElement> label = mMasterVolumeLabel.lock();
@@ -308,12 +309,12 @@ void
 OptionsMenuHudGroup::increaseMasterVolume()
 {
   // Increase volume by 128 / 8
-  int currentVolume = soundManager.getVolume(SOUND_MASTER);
+  int currentVolume = mrSoundManager.getVolume(SOUND_MASTER);
   int newVolumeLabel = currentVolume * 8 / 128 + 1;
   if (newVolumeLabel > 8) {
     newVolumeLabel = 8;
   }
-  soundManager.setVolume(newVolumeLabel * 128 / 8, SOUND_MASTER);
+  mrSoundManager.setVolume(newVolumeLabel * 128 / 8, SOUND_MASTER);
 
   // Set new volume label
   std::shared_ptr<TextHudElement> label = mMasterVolumeLabel.lock();
@@ -324,12 +325,11 @@ void
 OptionsMenuHudGroup::reduceMusicVolume()
 {
   // Decrease volume by 128 / 8
-  int currentVolume = soundManager.getVolume(SOUND_MUSIC);
+  int currentVolume = mrSoundManager.getVolume(SOUND_MUSIC);
   int newVolumeLabel = currentVolume * 8 / 128 - 1;
   if (newVolumeLabel < 0) {
     newVolumeLabel = 0;
   }
-  soundManager.setVolume(newVolumeLabel * 128 / 8, SOUND_MUSIC);
 
   // Set new volume label
   std::shared_ptr<TextHudElement> label = mMusicVolumeLabel.lock();
@@ -340,12 +340,12 @@ void
 OptionsMenuHudGroup::increaseMusicVolume()
 {
   // Increase volume by 128 / 8
-  int currentVolume = soundManager.getVolume(SOUND_MUSIC);
+  int currentVolume = mrSoundManager.getVolume(SOUND_MUSIC);
   int newVolumeLabel = currentVolume * 8 / 128 + 1;
   if (newVolumeLabel > 8) {
     newVolumeLabel = 8;
   }
-  soundManager.setVolume(newVolumeLabel * 128 / 8, SOUND_MUSIC);
+  mrSoundManager.setVolume(newVolumeLabel * 128 / 8, SOUND_MUSIC);
 
   // Set new volume label
   std::shared_ptr<TextHudElement> label = mMusicVolumeLabel.lock();

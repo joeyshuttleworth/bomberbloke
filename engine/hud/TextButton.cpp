@@ -47,8 +47,9 @@ TextButton::TextButton(scene& r_scene,
   mOnClickOffset[0] = mOffsetArray[0];
   mOnClickOffset[1] = mOffsetArray[1];
 
+  auto sound_manager = mrScene.getIOSystem().getSoundManager();
   // Get click sound
-  mClickSound = soundManager.createSound(CLICK_SOUND_NAME);
+  mClickSound = sound_manager.createSound(CLICK_SOUND_NAME);
   if(mClickSound)
     mClickSound->setGroup(SOUND_FX);
 }
@@ -80,8 +81,9 @@ TextButton::draw(Camera* camera)
 void
 TextButton::onClick(int x, int y)
 {
+
   // Play click sound
-  soundManager.playSound(mClickSound);
+  mrSoundManager.playSound(mClickSound.get());
 
   // Call mOnClick function.
   ClickableHudElement::onClick(x, y);

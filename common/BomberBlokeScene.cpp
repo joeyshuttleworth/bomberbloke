@@ -563,9 +563,9 @@ BomberBlokeScene::handleCommand(std::string str)
     std::mt19937 gen(rd());
     std::bernoulli_distribution dist;
     if (dist(gen)) {
-      mSoundtrack = std::make_shared<Soundtrack1>();
+      mSoundtrack = std::make_shared<Soundtrack1>(mrIOSystem.getSoundManager());
     } else {
-      mSoundtrack = std::make_shared<Soundtrack2>();
+      mSoundtrack = std::make_shared<Soundtrack2>(mrIOSystem.getSoundManager());
     }
     mSoundtrack->playIdle();
 

@@ -1,6 +1,7 @@
 #include "assets.hpp"
-#include <SDL_image.h>
-#include <fstream>
+
+#include "IGraphicsManager.hpp"
+#include "ISoundManager.hpp"
 
 /*
 * assets.cpp
@@ -34,7 +35,6 @@ loadAssets(
         std::string file_name = entry.substr(0, dot_pos);
         std::string file_extension = entry.substr(dot_pos);
         // std::string full_path = "assets/" + entry;
-        // SDL_RWops *io = SDL_RWFromFile(full_path.c_str(), "rb");
 
         if (file_extension == ".ttf")
         {
@@ -54,9 +54,8 @@ loadAssets(
 #include <cmrc/cmrc.hpp>
 CMRC_DECLARE(files);
 
-void
-loadAssets(
-           SoundManager&,
+void loadAssets(
+           ISoundManager&,
            IGraphicsManager& graphicsManager)
 {
   auto fs = cmrc::files::get_filesystem();

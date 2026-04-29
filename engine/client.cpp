@@ -22,7 +22,9 @@ void client_init(IOSystem io_system_context){
   graphics_interface.createWindow(600, 800);
   graphics_interface.setDraw(true);
 
-  loadAssets(soundManager, graphics_interface);
+  auto sound_manager = io_system_context.getSoundManager();
+
+  loadAssets(sound_manager, graphics_interface);
   init_engine(false);
 
   graphics_interface.renderSplashScreen();

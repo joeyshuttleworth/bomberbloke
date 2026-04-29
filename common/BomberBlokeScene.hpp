@@ -66,7 +66,9 @@ protected:
 public:
   void setBigBombHUD(bool);
 
-  using scene::scene;
+  BomberBlokeScene() : BomberBlokeScene(_fallback_IO_system)
+  {
+  }
 
   BomberBlokeScene(IOSystem& ctx, unsigned int size_x = 10, unsigned int size_y = 10,
                    unsigned int spawn_points=default_n_spawn_points);

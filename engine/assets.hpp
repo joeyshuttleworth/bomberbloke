@@ -1,11 +1,11 @@
 #ifndef ASSETS_HPP
 #define ASSETS_HPP
 
-#include<vector>
-#include "SoundManager.hpp"
-#include "IGraphicsManager.hpp"
+#include <vector>
 
+class ISoundManager;
+class IGraphicsManager;
 
-void loadAssets(SoundManager&, IGraphicsManager&);
+void loadAssets(ISoundManager&, IGraphicsManager&);
 
 #endif

@@ -6,7 +6,6 @@
 
 class Sound;
 class SoundManager;
-extern SoundManager soundManager;
 
 class TextButton: public ClickableHudElement, public TextHudElement {
 public:
@@ -96,7 +95,7 @@ protected:
     int mOnClickOffset[2] = { 0, 0 };
 
     // Sound effect that's played on click (button-up).
-    std::shared_ptr<Sound> mClickSound;
+  std::unique_ptr<Sound> mClickSound;
 
     /**
      * Called when a button-click is detected (button-up).

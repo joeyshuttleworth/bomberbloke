@@ -110,7 +110,8 @@ bloke ::handleCommand(std::string command)
     }
   } else {
     if (command == "+bomb") {
-      soundManager.playSound(mPlaceBombSound);
+      auto sfx = mrIOSystem.getSoundManager();
+      sfx.playSound(mPlaceBombSound.get());
     }
   }
   return;
@@ -125,7 +126,8 @@ bloke ::update()
 
 void bloke ::init(){
   auto sprite = std::make_shared<PlaceHolderSprite>(mrIOSystem.getGraphicsManager(),
-                                                    mPosition[0], mPosition[1], mDimension[0], mDimension[1]);
+                                                    mPosition[0], mPosition[1], mDimension[0],
+                                                    mDimension[1], mColour);
 
   auto p_player = getPlayer();
 
@@ -142,7 +144,9 @@ void bloke ::init(){
   log_message(DEBUG, sstream.str());
 
   mProperties = std::make_shared<GamePlayerProperties>();
-  mPlaceBombSound = soundManager.createSound(PLACE_BOMB_SOUND_NAME);
+
+  auto sfx = mrIOSystem.getSoundManager();
+  mPlaceBombSound = sfx.createSound(PLACE_BOMB_SOUND_NAME);
   if(mPlaceBombSound)
     mPlaceBombSound->setGroup(SOUND_FX);
 }

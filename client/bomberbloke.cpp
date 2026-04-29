@@ -66,7 +66,7 @@ main(int argc, char** argv)
   IOSystem io_system_context{
     std::make_unique<SDLGraphicsManager>(),
     std::make_unique<SDLSoundManager>()
-  }
+  };
 
   client_init(io_system_context);
 
@@ -76,13 +76,16 @@ main(int argc, char** argv)
     for (unsigned int i = 0; i < 10; i++) {
       for (unsigned int j = 0; j < 10; j++)
         _pScene->mParticles.push_back(std::shared_ptr<Explosion>(
-                                                                    new Explosion(_graphics_interface.get(), i, j, 1, 1, 60 + i + 2 * j, 600 - 2 * i - j, 0)));
+                                                                 new Explosion(_fallback_IO_system.getGraphicsManager(),
+                                                                               _fallback_IO_system.getSoundManager(),
+                                                                               i, j, 1, 1, 60 + i + 2 * j, 600 - 2 * i - j, 0)));
     }
 
+    auto sound_manager = _fallback_IO_system.getSoundManager();
     // Play intro music
     std::shared_ptr<Sound> pIntroSound =
-      soundManager.createSound("explosion_intro");
-    soundManager.playSound(pIntroSound);
+      sound_manager.createSound("explosion_intro");
+    sound_manager.playSound(pIntroSound.get());
     pIntroSound->setGroup(SOUND_FX);
   }
 
@@ -90,7 +93,7 @@ main(int argc, char** argv)
     std::vector<std::string> commands = { "colour FFFFFFFF" };
 
     if (_net_client->joinBlokeServer(serverAddress, userName, commands)) {
-      _pNewScene = std::make_shared<BomberBlokeScene>(io_system_context, 10, 10);
+      _pNewScene = std::make_shared<BomberBlokeScene>(io_system_context);
     }
   }
 

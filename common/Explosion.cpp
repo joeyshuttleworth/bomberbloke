@@ -6,12 +6,13 @@ class IGraphicsManager;
 
 void Explosion::initSounds(){
   /* Create sound objects for explosion sound effects */
+
   if(mSound) {
     for (int i = 0; i < N_EXPLOSION_SOUNDS; i++) {
-      std::shared_ptr<Sound> sound =
-        soundManager.createSound(mExplosionSoundNames[i]);
+      std::unique_ptr<Sound> sound =
+        mrSoundManager.createSound(mExplosionSoundNames[i]);
       sound->setGroup(SOUND_FX);
-      mExplosionSounds[i] = sound;
+      mExplosionSounds[i] = std::move(sound);
     }
   }
 }
@@ -57,8 +58,10 @@ Explosion::draw(Camera* cam)
     if (mSound && !_server) {
       /* Play explosion sound effect */
       int randIndex = std::rand() % N_EXPLOSION_SOUNDS;
-      std::shared_ptr<Sound> bomb_sound = mExplosionSounds[randIndex];
-      soundManager.playSound(bomb_sound);
+      auto bomb_sound = mExplosionSounds[randIndex].get();
+
+      if(bomb_sound)
+        mrSoundManager.playSound(bomb_sound);
     }
     if (mRumble)
       cam->rumble();

@@ -19,17 +19,14 @@ TEST_CASE("Can make a game scene", "[engine]")
   const std::string username = "big_beef";
   _local_player_list.push_back(LocalPlayer(username));
 
-  _graphics_interface = std::make_unique<IGraphicsManager>();
-
-  _pScene = std::make_shared<BomberBlokeScene>(nullptr, 10, 10);
+  _pScene = std::make_shared<BomberBlokeScene>(_fallback_IO_system, 10, 10);
   REQUIRE(_pScene != nullptr);
   REQUIRE(_pScene->mDimension[0] == 10);
   REQUIRE(_pScene->mDimension[1] == 10);
 
   _halt = true;
-  client_loop();
+  client_loop(_fallback_IO_system);
 
-  _graphics_interface = nullptr;
   SDL_Quit();
 }
 

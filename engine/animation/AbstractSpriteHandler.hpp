@@ -1,12 +1,14 @@
 #ifndef ABSTRACTSPRITEHANDLER_HPP
 #define ABSTRACTSPRITEHANDLER_HPP
 #include <array>
-#include <cereal/cereal.hpp>
-#include <cereal/types/polymorphic.hpp>
+
 
 #include "DummyGraphicsManager.hpp"
 #include "IGraphicsManager.hpp"
+#include "ISoundManager.hpp"
 #include "Camera.hpp"
+
+#include "cereal_archives.hpp"
 
 enum SpriteType{
                 SPRITE_PLACEHOLDER=1,
@@ -17,17 +19,15 @@ class Camera;
 
 extern unsigned int _tick;
 
-using d_vector = std::array<double, 2>;
-
 class IGraphicsManager;
 
 class AbstractSpriteHandler{
 
 protected:
-  IGraphicsManager& mrGraphicsManager;
+  IGraphicsManager& mrGraphicsManager = _fallback_IO_system.getGraphicsManager();
   bool mInitialised = false;
-  dvector mPosition = {0, 0};
-  dvector mDimension = {10, 10};
+  std::array<double, 2> mPosition = {0, 0};
+  std::array<double, 2> mDimension = {1, 1};
   unsigned int mStartTick = 0;
   unsigned int mAnimationSpeed = 0;
   unsigned int mTimeout = 0;
@@ -50,11 +50,10 @@ public:
   {
   }
 
-  AbstractSpriteHandler(const AbstractSpriteHandler& other) : AbstractSpriteHandler(){
-    mrGraphicsManager = other.mrGraphicsManager;
+  AbstractSpriteHandler(const AbstractSpriteHandler& other) : mrGraphicsManager(other.mrGraphicsManager)
+  {
     mPosition[0] = other.mPosition[0];
     mPosition[1] = other.mPosition[1];
-
     mDimension[0] = other.mDimension[0];
     mDimension[1] = other.mDimension[1];
     mStartTick = other.mStartTick;
@@ -65,26 +64,20 @@ public:
     mIsPostProcessed = other.mIsPostProcessed;
   }
 
-  AbstractSpriteHandler() :
-    mrGraphicsManager(_fallback_IO_system.getGraphicsManager()){
-  }
-
-  AbstractSpriteHandler(IGraphicsManager& gfx) : mrGraphicsManager(gfx){
+  AbstractSpriteHandler() : AbstractSpriteHandler(_fallback_IO_system.getGraphicsManager()){
   }
 
   AbstractSpriteHandler(const AbstractSpriteHandler& other, IGraphicsManager& gfx) :
     AbstractSpriteHandler(other)
   {
     mrGraphicsManager = gfx;
-  };
+  }
 
   std::shared_ptr<AbstractSpriteHandler> clone(){
     return clone(mrGraphicsManager);
-  };
+  }
 
-  virtual std::shared_ptr<AbstractSpriteHandler> clone(IGraphicsManager&){
-    return nullptr;
-  };
+  virtual std::shared_ptr<AbstractSpriteHandler> clone(IGraphicsManager&){return nullptr;}
 
   /**
    *  Draw the sprite to the framebuffer of the Camera
@@ -92,7 +85,7 @@ public:
    */
   virtual void draw(Camera*){}
 
-  virtual void refreshSprite(){};
+  virtual void refreshSprite(){}
 
   /**
    * Should we remove this object from _particle_list?
@@ -131,9 +124,14 @@ public:
   }
 
   template<class Archive>
-  void serialize(Archive&){
-    // archive(mPosition, mDimension, mAnimationSpeed, mTimeout, mDelay);
-    // return;
+  void serialize(Archive &archive){
+    archive(
+            mPosition[0], mPosition[1],
+            mDimension[0], mDimension[1],
+            mAnimationSpeed,
+            mTimeout,
+            mDelay
+            );
   }
 };
 

@@ -17,8 +17,6 @@ class Sound;
 class SoundManager;
 class BigBombPickup;
 
-extern SoundManager soundManager;
-
 class bloke : public actor{
   friend bomb;
   friend SpeedPickup;
@@ -49,7 +47,7 @@ protected:
   bool   mAccelerated;
   bool   mDirectionsHeld[4] = {false, false, false, false};
   double mAcceleration[2] = {0,0};
-  std::shared_ptr<Sound> mPlaceBombSound;
+  std::unique_ptr<Sound> mPlaceBombSound = nullptr;
   uint32_t mColour;
 
   void init();

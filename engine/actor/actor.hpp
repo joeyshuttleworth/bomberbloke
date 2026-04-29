@@ -1,7 +1,6 @@
 #ifndef ACTOR_HPP
 #define ACTOR_HPP
 
-#include <SDL.h>
 #include <memory>
 #include <array>
 #include "Interpolator.hpp"
@@ -11,7 +10,7 @@
 #include "AbstractSpriteHandler.hpp"
 #include "scene.hpp"
 #include "IOSystem.hpp"
-#include <cereal/types/polymorphic.hpp>
+#include "cereal_archives.hpp"
 
 class IGraphicsManager;
 class AbstractPlayer; class AbstractSpriteHandler;

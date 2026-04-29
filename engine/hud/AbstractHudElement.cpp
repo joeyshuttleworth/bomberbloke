@@ -3,6 +3,7 @@
 #include <SDL.h>
 
 #include "Camera.hpp"
+#include "scene.hpp"
 
 AbstractHudElement::AbstractHudElement(
                                        scene& r_scene,
@@ -14,6 +15,7 @@ AbstractHudElement::AbstractHudElement(
                                        AlignFlag yAlignFlag
                                        )
   : mrGraphicsManager(r_scene.getGraphicsManager()),
+    mrSoundManager(r_scene.getSoundManager()),
     mrScene(r_scene)
 {
 

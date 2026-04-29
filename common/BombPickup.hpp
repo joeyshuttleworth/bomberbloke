@@ -13,8 +13,7 @@ public:
   /* Need a default constructor for cereal */
 
   BombPickup(scene *scn=nullptr, double xpos = 0, double ypos = 0) : AbstractPickup(scn, xpos, ypos){
-    auto gfx = mrIOSystem.getGraphicsManager();
-    mpSpriteHandler = std::make_shared<PickupAnimation>(gfx, mPosition[0], mPosition[1], mDimension[0], mDimension[1], "bomb_pickup.png");
+    init("bomb_pickup.png");
     return;
   }
 

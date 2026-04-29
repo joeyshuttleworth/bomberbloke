@@ -186,6 +186,7 @@ protected:
     bool mPropertiesUpdated;
 
     IGraphicsManager& mrGraphicsManager;
+    ISoundManager& mrSoundManager;
 
     scene &mrScene;
 

@@ -36,10 +36,10 @@ CountdownHudGroup::CountdownHudGroup(scene &r_scene, std::function<void()> onFin
   setIsVisible(false);
 
   // Create countdown sound effects
-  m3Sound = soundManager.createSound(SOUND_3_NAME);
-  m2Sound = soundManager.createSound(SOUND_2_NAME);
-  m1Sound = soundManager.createSound(SOUND_1_NAME);
-  mCommenceSound = soundManager.createSound(SOUND_COMMENCE_NAME);
+  m3Sound = mrSoundManager.createSound(SOUND_3_NAME);
+  m2Sound = mrSoundManager.createSound(SOUND_2_NAME);
+  m1Sound = mrSoundManager.createSound(SOUND_1_NAME);
+  mCommenceSound = mrSoundManager.createSound(SOUND_COMMENCE_NAME);
 }
 
 void
@@ -79,14 +79,14 @@ CountdownHudGroup::update()
 
         // Play sound effect
         if (secsLeft == 3)
-          soundManager.playSound(m3Sound);
+          mrSoundManager.playSound(m3Sound.get());
         else if (secsLeft == 2)
-          soundManager.playSound(m2Sound);
+          mrSoundManager.playSound(m2Sound.get());
         else if (secsLeft == 1)
-          soundManager.playSound(m1Sound);
+          mrSoundManager.playSound(m1Sound.get());
       } else {
         // Countdown is over
-        soundManager.playSound(mCommenceSound);
+        mrSoundManager.playSound(mCommenceSound.get());
         setIsVisible(false);
         mTicksLeft = 0;
         mOnFinished();

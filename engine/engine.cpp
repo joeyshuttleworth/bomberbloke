@@ -74,9 +74,6 @@ DECLARE_MUTEX(_scene_mutex);
 std::unique_ptr<NetClient> _net_client = std::make_unique<NetClient>();
 std::unique_ptr<NetServer> _net_server = std::make_unique<NetServer>();
 
-/* TODO move this behind a sound inferface */
-SoundManager soundManager;
-
 IOSystem _fallback_IO_system;
 
 void
@@ -98,14 +95,8 @@ exit_engine(int signum)
 
 
 void
-channelFinishedForwarder(int channel)
-{
-  soundManager.channelFinishedCallback(channel);
-}
-
-void
 init_engine
-(bool server)
+(IOSystem& ctx, bool server)
 {
   if(server)
     _net_server = std::unique_ptr<NetServer>(new NetServer());
@@ -122,8 +113,6 @@ init_engine
   /*  Open a log file  */
   _console_log_file.open("/tmp/bloke.log");
 
-  soundManager.init(channelFinishedForwarder);
-
   /* Initialise the controller if it exists */
   _controller = handle_input_controller();
   _controller_connected = _controller != nullptr ? true : false;
@@ -131,7 +120,7 @@ init_engine
   _kb_state = (Uint8*)malloc(sizeof(Uint8) * SDL_SCANCODE_APP2); // max scancode
   memset((void*)_kb_state, 0, sizeof(Uint8) * SDL_SCANCODE_APP2);
 
-  LAUNCH_THREAD_DETACH(console_loop);
+  LAUNCH_THREAD_DETACH([&]() -> void {console_loop(ctx);});
 
   return;
 }

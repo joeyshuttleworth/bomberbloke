@@ -55,8 +55,7 @@ main(int argc, char** argv)
   init_engine(false);
 
   IOSystem io_system_context;
-  _pScene = std::make_shared<BomberBlokeScene>(io_system_context,
-                                               10, 10);
+  _pScene = std::make_shared<BomberBlokeScene>(io_system_context);
 
   // Attempt join
   std::vector<std::string> commands = { "colour FFFFFFFF" };
@@ -108,9 +107,6 @@ void bot_entry() {
     log_message(WARNING, "No to pointer scene");
   }
 
-  if (_draw && _graphics_interface)
-    _graphics_interface->drawScreen();
   _tick++;
-
 }
 

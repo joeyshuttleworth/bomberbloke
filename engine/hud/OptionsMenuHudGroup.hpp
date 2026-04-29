@@ -12,7 +12,7 @@ class TextButton;
 class InputField;
 
 extern bool handle_system_command(std::list<std::string>);
-extern SoundManager soundManager;
+
 
 class OptionsMenuHudGroup: public AbstractHudGroup {
 public:
