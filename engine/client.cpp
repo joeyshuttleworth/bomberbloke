@@ -14,22 +14,27 @@ unsigned int _last_receive;
 bool _server = false;
 bool _draw = true;
 
-void client_init(IOSystem io_system_context){
+void client_init(IOSystem& io_system_context){
   SDL_Init(SDL_INIT_EVERYTHING);
   TTF_Init();
 
-  auto graphics_interface = io_system_context.getGraphicsManager();
-  graphics_interface.createWindow(600, 800);
+  IGraphicsManager& graphics_interface = io_system_context.getGraphicsManager();
+
+  const int default_w_width = 800;
+  const int default_w_height = 600;
+
+  graphics_interface.createWindow(default_w_width, default_w_height);
+  graphics_interface.resizeWindow(default_w_width, default_w_height);
   graphics_interface.setDraw(true);
 
-  auto sound_manager = io_system_context.getSoundManager();
+  ISoundManager& sound_manager = io_system_context.getSoundManager();
 
   loadAssets(sound_manager, graphics_interface);
-  init_engine(false);
+  init_engine(io_system_context, false);
 
   graphics_interface.renderSplashScreen();
 
-  std::this_thread::sleep_for(std::chrono::seconds(1));
+  std::this_thread::sleep_for(std::chrono::seconds(3));
 }
 
 
@@ -60,24 +65,27 @@ client_loop(IOSystem& io_system_context)
 }
 
 void client_entry(IOSystem& io_system_context) {
-  /* Lock _scene_mutex to protect _pScene from other threads */
-  LOCK_GUARD(_scene_mutex);
-
   _net_client->pollServer();
+
+  handle_system_command_queue(io_system_context);
+
   if (_pScene) {
     _pScene->update();
     handle_input(io_system_context);
   }
   if (_draw){
-    auto gfx = io_system_context.getGraphicsManager();
+    IGraphicsManager& gfx = io_system_context.getGraphicsManager();
     gfx.resetFrameBuffers();
-    _pScene->draw();
+
+    if(_pScene)
+      _pScene->draw();
+
     gfx.drawScreen();
   }
   _tick++;
 
   _pNewScene = _pScene->getNextScene();
-  if (_pNewScene != nullptr) {
+  if (_pNewScene) {
     _pScene = _pNewScene;
     _pNewScene = nullptr;
   }

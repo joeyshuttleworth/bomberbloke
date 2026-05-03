@@ -67,8 +67,6 @@ public:
      */
     void setVolume(int volume, SoundGroup group=SOUND_MASTER) override;
 
-    void destroySound(Sound* sound);
-
     SDLSoundManager();
     ~SDLSoundManager();
 };

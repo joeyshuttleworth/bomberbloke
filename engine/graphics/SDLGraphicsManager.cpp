@@ -182,11 +182,13 @@ SDLGraphicsManager::resetFrameBuffers()
   }
 
   if(mpBloomBuffer){
+    SDL_SetRenderDrawBlendMode(mpRenderer, SDL_BLENDMODE_NONE);
     SDL_SetRenderTarget(mpRenderer, mpBloomBuffer->getRawTexture());
     SDL_SetRenderDrawColor(mpRenderer, 0, 0, 0, 0);
     SDL_RenderClear(mpRenderer);
     SDL_SetRenderDrawBlendMode(mpRenderer, SDL_BLENDMODE_BLEND);
   }
+
   SDL_SetRenderTarget(mpRenderer, nullptr);
 }
 
@@ -226,6 +228,7 @@ SDLGraphicsManager::drawScreen()
     return;
 
   // Clear screen
+  SDL_SetRenderDrawBlendMode(mpRenderer, SDL_BLENDMODE_NONE);
   SDL_SetRenderTarget(mpRenderer, nullptr);
   SDL_SetRenderDrawColor(mpRenderer, 0, 0, 0, 0);
   SDL_RenderClear(mpRenderer);
@@ -235,26 +238,26 @@ SDLGraphicsManager::drawScreen()
   SDL_RenderCopy(mpRenderer, mpFrameBuffer->getRawTexture(), nullptr, nullptr);
 
   // Draw bloom buffer
-  SDL_SetRenderDrawBlendMode(mpRenderer, SDL_BLENDMODE_BLEND);
-  SDL_SetRenderTarget(mpRenderer, nullptr);
-  SDL_RenderCopy(mpRenderer, mpBloomBuffer->getRawTexture(), nullptr, nullptr);
+  // SDL_SetRenderDrawBlendMode(mpRenderer, SDL_BLENDMODE_BLEND);
+  // SDL_SetRenderTarget(mpRenderer, nullptr);
+  // SDL_RenderCopy(mpRenderer, mpBloomBuffer->getRawTexture(), nullptr, nullptr);
 
-  // Apply brightness effect to window
-  if (mBrightness != 0) {
-    // Set target and blend mode
-    SDL_SetRenderTarget(mpRenderer, nullptr);
-    if (mBrightness > 0) {
-      // If brightness is positive use additive blending
-      SDL_SetRenderDrawBlendMode(mpRenderer, SDL_BLENDMODE_ADD);
-      SDL_SetRenderDrawColor(mpRenderer, 255, 255, 255, mBrightness);
-      SDL_RenderFillRect(mpRenderer, nullptr);
-    } else {
-      // If brightness is negative draw semi-transparent blac box
-      SDL_SetRenderDrawBlendMode(mpRenderer, SDL_BLENDMODE_BLEND);
-      SDL_SetRenderDrawColor(mpRenderer, 0, 0, 0, std::abs(mBrightness));
-      SDL_RenderFillRect(mpRenderer, nullptr);
-    }
-  }
+  // // Apply brightness effect to window
+  // if (mBrightness != 0) {
+  //   // Set target and blend mode
+  //   SDL_SetRenderTarget(mpRenderer, nullptr);
+  //   if (mBrightness > 0) {
+  //     // If brightness is positive use additive blending
+  //     SDL_SetRenderDrawBlendMode(mpRenderer, SDL_BLENDMODE_ADD);
+  //     SDL_SetRenderDrawColor(mpRenderer, 255, 255, 255, mBrightness);
+  //     SDL_RenderFillRect(mpRenderer, nullptr);
+  //   } else {
+  //     // If brightness is negative draw semi-transparent black box
+  //     SDL_SetRenderDrawBlendMode(mpRenderer, SDL_BLENDMODE_BLEND);
+  //     SDL_SetRenderDrawColor(mpRenderer, 0, 0, 0, std::abs(mBrightness));
+  //     SDL_RenderFillRect(mpRenderer, nullptr);
+  //   }
+  // }
 
   SDL_RenderPresent(mpRenderer);
   }
@@ -481,7 +484,7 @@ SDLGraphicsManager::renderCopy(SDL_Texture* texture,
   if(dstRect->w == 0 && dstRect->h == 0)
     dstRect = nullptr;
 
-  if(!target)
+  if(!target && mpFrameBuffer)
     target = mpFrameBuffer->getRawTexture();
 
   // Copy the texture onto the appropriate frame buffer

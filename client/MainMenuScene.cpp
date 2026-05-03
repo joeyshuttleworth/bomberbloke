@@ -11,8 +11,8 @@ MainMenuScene::MainMenuScene(IOSystem& ctx, int size_x, int size_y) : scene(ctx,
     std::make_shared<MainMenuHudGroup>(*this);
   mHudElements.push_back(menuHud);
 
-  auto gfx_manager = ctx.getGraphicsManager();
-  auto sfx_manager = ctx.getSoundManager();
+  IGraphicsManager& gfx_manager = ctx.getGraphicsManager();
+  ISoundManager& sfx_manager = ctx.getSoundManager();
 
   mpCamera = std::make_shared<ShowAllCamera>(gfx_manager, this);
   SetCamera(mpCamera);

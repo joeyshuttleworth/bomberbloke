@@ -60,6 +60,16 @@ SDLSoundManager::playSound(Sound* _sound)
     return;
 
   SDLSound* sound = (SDLSound*) _sound;
+
+  if(!sound)
+    return;
+
+  if(!sound->mpMixChunk)
+    return;
+
+  if(!sound->mpMixChunk->mpMixChunk)
+    return;
+
   int tmpChannel = -1;
   if (sound->mFadeInMs > 0) {
     if (sound->mMaxLengthMs > 0)

@@ -18,10 +18,13 @@ std::vector<std::type_index> blocking_types = {
 };
 
 
-void new_game(std::string)
+
+void
+new_game(IOSystem&, std::string)
 {
   return;
 }
+
 
 void
 gameUpdate()
@@ -34,9 +37,10 @@ TEST_CASE("Can create NavGrid", "[engine]")
   _draw = false;
   _server = true;
 
-  // For now, this we need to init SDL
+  // Engine relies on SDL so init it here
   SDL_Init(SDL_INIT_EVERYTHING);
-  init_engine(true);
+
+  init_engine(_fallback_IO_system, true);
   int player_id = 0;
 
   const std::vector<std::string> usernames = {"big_beef", "big_baz", "little_john", "maid_marian", "allan_a_dale_77", "nottz_sherrif_xX", "Frair_Tuck", "Will Scarlet", "merry_man_67"};
@@ -50,7 +54,7 @@ TEST_CASE("Can create NavGrid", "[engine]")
   }
 
   /* Initiate scene */
-  new_game("");
+  new_game(_fallback_IO_system, "");
 
   NavGrid nav_grid(blocking_types, _pScene);
   nav_grid.computeGrid();

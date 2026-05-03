@@ -49,7 +49,7 @@ public:
      * @param volume  0-128 where 128 is the maximum volume.
      * @param group   Sound group to change the volume of.
      */
-    virtual void setVolume(int volume, SoundGroup group=SOUND_MASTER);
+    virtual void setVolume(int, SoundGroup =SOUND_MASTER){}
 
     /**
      * Gets the master volume - the volume applied to all channels.

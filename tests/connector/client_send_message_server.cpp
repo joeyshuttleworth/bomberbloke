@@ -4,6 +4,8 @@
 #include <Connector.hpp>
 #include <MessageEvent.hpp>
 
+#include "IOSystem.hpp"
+
 
 void run_server() {
   ConnectorDescriptor desc;
@@ -55,3 +57,11 @@ main(int, char**)
 
   return 0;
 }
+
+
+void
+new_game(IOSystem&, std::string)
+{
+  return;
+}
+

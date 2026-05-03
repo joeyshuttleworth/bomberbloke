@@ -133,7 +133,7 @@ bomb::explode()
         std::list<std::shared_ptr<actor>> actor_list =
           _pScene->ActorsCollidingWith(square.get());
 
-        auto gfx_manager = mrIOSystem.getGraphicsManager();
+        IGraphicsManager& gfx_manager = mrIOSystem.getGraphicsManager();
         for (std::shared_ptr<actor> pActor : actor_list) {
           if (pActor.get() == this)
             continue;

@@ -18,10 +18,20 @@ public:
   {
   }
 
-  IOSystem(){
-    mpGraphicsManager = std::make_unique<DummyGraphicsManager>();
-    mpSoundManager = std::make_unique<DummySoundManager>();
+  IOSystem() :
+    mpGraphicsManager(std::make_unique<DummyGraphicsManager>()),
+    mpSoundManager(std::make_unique<DummySoundManager>())
+  {
   }
+
+  ~IOSystem() = default;
+
+  IOSystem(IOSystem&) = delete;
+
+  IOSystem& operator=(IOSystem&) = delete;
+  IOSystem operator=(IOSystem) = delete;
+
+  IOSystem& operator=(IOSystem&&) = delete;
 
   IGraphicsManager& getGraphicsManager(){
     return *mpGraphicsManager;
@@ -32,8 +42,8 @@ public:
   }
 
 private:
-  std::unique_ptr<IGraphicsManager> mpGraphicsManager;
-  std::unique_ptr<ISoundManager> mpSoundManager;
+  const std::unique_ptr<IGraphicsManager> mpGraphicsManager = nullptr;
+  const std::unique_ptr<ISoundManager> mpSoundManager = nullptr;
   // IInputManager& mpInputManager;
 };
 

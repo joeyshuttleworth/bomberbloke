@@ -10,10 +10,6 @@
 #include "bomberbloke.h"
 #include <catch2/catch_test_macros.hpp>
 
-void new_game(std::string)
-{
-  return;
-}
 
 void
 gameUpdate()
@@ -55,7 +51,7 @@ TEST_CASE("Can make/deserialise SyncEvent", "[engine]")
   _server = true;
 
   SDL_Init(SDL_INIT_EVERYTHING);
-  init_engine(true);
+  init_engine(_fallback_IO_system, true);
 
   NetServer net_server{};
   int player_id = 0;
@@ -71,7 +67,7 @@ TEST_CASE("Can make/deserialise SyncEvent", "[engine]")
   }
 
   sleep(1);
-  new_game("");
+  new_game(_fallback_IO_system, "");
 
   std::shared_ptr<AbstractEvent> s_event(new SyncEvent(player_id));
   std::stringstream ss( std::ios::in | std::ios::out | std::ios::binary );
@@ -98,3 +94,9 @@ TEST_CASE("Can make/deserialise SyncEvent", "[engine]")
   SDL_Quit();
 }
 
+
+void
+new_game(IOSystem&, std::string)
+{
+  return;
+}

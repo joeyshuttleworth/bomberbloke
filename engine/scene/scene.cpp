@@ -71,8 +71,17 @@ scene::movementUpdate()
 
 void
 scene::removeAllActors(){
-
   mActors = std::list<std::shared_ptr<actor>>{};
+}
+
+void
+scene::removeAllParticles(){
+  mParticles = std::list<std::shared_ptr<AbstractSpriteHandler>>{};
+}
+
+void
+scene::addParticle(std::shared_ptr<AbstractSpriteHandler> p){
+  mParticles.push_back(p);
 }
 
 void
@@ -84,13 +93,12 @@ scene::addActorWithId(std::shared_ptr<actor> a)
       log_message(ERR,
                   "Tried to add actor with id " + std::to_string(a->getId()) +
                     " but an actor with this id already exists!");
-      return;
     }
   }
 
   /* Now add the actor to the back of the list */
-  a->init();
   mActors.push_back(a);
+  a->init();
 }
 
 void
@@ -188,8 +196,16 @@ scene::physicsUpdate()
 void
 scene::updateHudPositions()
 {
-  for (auto i = mHudElements.begin(); i != mHudElements.end(); i++) {
-    (*i)->updatePosition(mpCamera.get());
+
+  if(mHudElements.size() == 0)
+    return;
+
+  if(!mpCamera)
+    return;
+
+  for (auto i : mHudElements) {
+    if(i)
+      i->updatePosition(mpCamera.get());
   }
 }
 
@@ -274,6 +290,8 @@ scene::update()
   if (mState == PLAYING)
     movementUpdate();
 
+  updateHudPositions();
+
   cleanUp();
   physicsUpdate();
   updateSprites();
@@ -328,7 +346,7 @@ scene::onResize()
 {
   LOCK_GUARD(mMutex);
 
-  auto gfx = mrIOSystem.getGraphicsManager();
+  IGraphicsManager& gfx = mrIOSystem.getGraphicsManager();
   gfx.resizeWindow();
 
   if (mpCamera)

@@ -28,11 +28,6 @@ protected:
 
 public:
     /**
-     * Initialisation: must be called before loading sounds
-     */
-    static void init(void (*finishedCallback)(int));
-
-    /**
      * Loads sound file into soundFileBank. Returns sound name to use when
      * creating Sound objects (see createSound).
      */
@@ -74,7 +69,7 @@ public:
           return mMasterVolume;
     }
 
-    DummySoundManager();
+    DummySoundManager(){};
     ~DummySoundManager();
 };
 

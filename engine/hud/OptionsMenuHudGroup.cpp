@@ -9,6 +9,8 @@
 #include "TextHudElement.hpp"
 #include "engine.hpp"
 
+#include "IOSystem.hpp"
+
 OptionsMenuHudGroup::OptionsMenuHudGroup(scene& r_scene, std::function<void()> goBackFn)
   : AbstractHudGroup(r_scene, 0, 0)
 {
@@ -217,7 +219,7 @@ OptionsMenuHudGroup::OptionsMenuHudGroup(scene& r_scene, std::function<void()> g
   // Create window mode button
   std::string buttonString = "";
 
-  auto gfx = mrScene.getGraphicsManager();
+  IGraphicsManager& gfx = mrScene.getGraphicsManager();
   if (gfx.isWindowFullScreen()) {
     buttonString = "FULLSCREEN";
   } else {
@@ -357,7 +359,7 @@ OptionsMenuHudGroup::toggleWindowMode()
 {
   std::shared_ptr<TextButton> windowModeButton = mWindowModeButton.lock();
 
-  auto gfx = mrScene.getGraphicsManager();
+  IGraphicsManager& gfx = mrScene.getGraphicsManager();
 
   bool set_fullscreen = true;
   if (gfx.isWindowFullScreen()) {
@@ -377,5 +379,5 @@ OptionsMenuHudGroup::handleConsoleInput()
 {
   std::shared_ptr<InputField> consoleField = mConsoleField.lock();
   std::string command = consoleField->mText->getText();
-  handle_system_command(split_to_tokens(command));
+  handle_system_command(_fallback_IO_system, split_to_tokens(command));
 }

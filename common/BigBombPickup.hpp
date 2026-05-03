@@ -11,9 +11,19 @@ public:
 
   /* Need a default constructor for cereal */
 
-  BigBombPickup(scene *scn=nullptr, double xpos = 0, double ypos = 0) : AbstractPickup(scn, xpos, ypos){
-    init("bigredbomb.png");
+  BigBombPickup(scene *scn=nullptr, double xpos = 0, double ypos = 0) :
+    AbstractPickup(scn, xpos, ypos, "bigredbomb.png")
+  {
+    init();
   }
+
+  using AbstractPickup::AbstractPickup;
+
+  virtual std::shared_ptr<actor> clone(IOSystem& io_system_ctx){
+    auto pickup = std::make_shared<BigBombPickup>(*this, io_system_ctx);
+    pickup->init();
+    return pickup;
+  };
 
   void pickup(std::shared_ptr<bloke> b);
 

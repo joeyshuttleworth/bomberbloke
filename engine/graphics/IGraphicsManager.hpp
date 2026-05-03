@@ -15,6 +15,11 @@ using Rect = std::array<int, 4>;
 class IGraphicsManager{
 public:
 
+  IGraphicsManager() = default;
+  IGraphicsManager(IGraphicsManager&) = delete;
+  IGraphicsManager operator=(IGraphicsManager&) = delete;
+  IGraphicsManager& operator=(IGraphicsManager&&) = delete;
+
   virtual void renderClear(AbstractTexture* =nullptr){};
 
   virtual void resizeWindow(int=0, int=0){};

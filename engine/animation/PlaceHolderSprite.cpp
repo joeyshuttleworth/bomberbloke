@@ -10,7 +10,7 @@ void
 PlaceHolderSprite::draw(Camera* cam)
 {
 
-  auto gfx = mrGraphicsManager;
+  IGraphicsManager& gfx = mrGraphicsManager;
   auto dstrect = cam->getScreenRect(
                                     mPosition[0], mPosition[1], mDimension[0], mDimension[1]);
   gfx.renderFillRect(dstrect, mColour, 0, cam->getFrameBuffer(mIsPostProcessed));

@@ -52,7 +52,7 @@ AbstractHudElement::updatePosition(Camera* camera)
   if(!camera)
     return;
 
-  auto gfx_manager = camera->getGraphicsManager();
+  IGraphicsManager& gfx_manager = camera->getGraphicsManager();
 
   std::array<int, 2> screen_dimensions = gfx_manager.getScreenDimensions();
 

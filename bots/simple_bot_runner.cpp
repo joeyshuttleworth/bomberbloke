@@ -52,7 +52,7 @@ main(int argc, char** argv)
   _nickname = user_name;
 
   SDL_Init(SDL_INIT_EVERYTHING);
-  init_engine(false);
+  init_engine(_fallback_IO_system, false);
 
   IOSystem io_system_context;
   _pScene = std::make_shared<BomberBlokeScene>(io_system_context);

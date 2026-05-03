@@ -11,8 +11,9 @@ void Explosion::initSounds(){
     for (int i = 0; i < N_EXPLOSION_SOUNDS; i++) {
       std::unique_ptr<Sound> sound =
         mrSoundManager.createSound(mExplosionSoundNames[i]);
-      sound->setGroup(SOUND_FX);
       mExplosionSounds[i] = std::move(sound);
+      if(sound)
+        sound->setGroup(SOUND_FX);
     }
   }
 }

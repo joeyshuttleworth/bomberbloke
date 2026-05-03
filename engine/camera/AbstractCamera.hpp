@@ -15,6 +15,7 @@ public:
   {
     mpScene = scn;
   };
+
   virtual ~AbstractCamera(){};
 
   virtual void resetFrameBuffers(){};

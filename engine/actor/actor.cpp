@@ -88,22 +88,18 @@ actor ::isMoving()
 }
 
 actor ::actor(scene* scene, double x, double y, double xdim, double ydim, bool collides) :
-  mrIOSystem(scene->getIOSystem()),
+  mrIOSystem(scene ? scene->getIOSystem() : _fallback_IO_system),
   mpScene(scene),
   mCollides(collides)
 {
-
   mPosition = {x, y};
   mDimension = {xdim, ydim};
-  return;
-}
-
-void actor :: init(){
   mFrameVertices = { { { 0., 0. } },
                      { { mDimension[0], 0. } },
                      { { mDimension[0], mDimension[1] } },
                      { { 0., mDimension[1] } } };
 }
+
 
 void
 actor ::interpolate()

@@ -38,7 +38,7 @@ SpriteHudElement::draw(Camera* camera)
     return;
 
   if(camera){
-    auto gfx_manager = camera->getGraphicsManager();
+    IGraphicsManager& gfx_manager = camera->getGraphicsManager();
     // Copy sprite to destination rectangle
     gfx_manager.drawSprite(mAssetName, dstRect, mGlowAmount, camera->getFrameBuffer(mIsPostProcessed));
   }

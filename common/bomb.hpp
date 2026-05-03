@@ -15,14 +15,17 @@ struct BombPath {
 
 class bomb : public actor {
  protected:
-  unsigned int mTimer = DEFAULT_BOMB_TIMER;
-  Uint8 mPower = 2;
-  int  mPlacedById = 0;
-  const double _bomb_delta = 0.01;
-  bool mPenetration;
-  bool mBigBomb;
-  bool mSatellite;
+  static constexpr double _bomb_delta = 0.01;
   bool mInitialised = false;
+
+  int  mPlacedById = 0;
+
+  unsigned int mTimer = DEFAULT_BOMB_TIMER;
+  bool mBigBomb = false;
+  bool mPenetration = false;
+  Uint8 mPower = 2;
+  bool mSatellite = false;
+
   std::vector<BombPath> identifyTargetSquares();
 
  public:
@@ -35,7 +38,10 @@ class bomb : public actor {
 
   void init(bloke*);
 
-  void init(){}
+  void init(){
+    mpSpriteHandler = std::make_shared<staticSprite>(mrIOSystem.getGraphicsManager(), mPosition[0],
+                                                     mPosition[1], BOMB_SIZE, BOMB_SIZE, "bomb.png");
+  }
 
   void explode();
   void update();
@@ -47,8 +53,33 @@ class bomb : public actor {
     return;
   };
 
-  bomb(scene *scn=nullptr, double x=0, double y=0) : actor(scn, x, y, BOMB_SIZE, BOMB_SIZE){
-    mpSpriteHandler = std::make_shared<staticSprite>(mrIOSystem.getGraphicsManager(), mPosition[0], mPosition[1], BOMB_SIZE, BOMB_SIZE, "bomb.png");
+  bomb(scene *scn=nullptr, double x=0, double y=0) : actor(scn, x, y, BOMB_SIZE, BOMB_SIZE, true){
+  }
+
+  bomb(bomb& other) :
+    actor(other),
+    mPlacedById(other.mPlacedById),
+    mTimer(other.mTimer),
+    mBigBomb(other.mBigBomb),
+    mPenetration(other.mPenetration),
+    mPower(other.mPower),
+    mSatellite(other.mSatellite)
+  {
+  }
+
+  bomb(bomb& other, IOSystem& io_system_ctx) :
+    actor(other, io_system_ctx),
+    mPlacedById(other.mPlacedById),
+    mTimer(other.mTimer),
+    mBigBomb(other.mBigBomb),
+    mPenetration(other.mPenetration),
+    mPower(other.mPower),
+    mSatellite(other.mSatellite)
+  {
+  }
+
+  std::shared_ptr<actor> clone(IOSystem& io_system_ctx){
+    return std::make_shared<bomb>(*this, io_system_ctx);
   }
 
   int getType() const{

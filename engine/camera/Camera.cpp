@@ -16,8 +16,6 @@ Camera::Camera(IGraphicsManager& r_graphics_manager, scene *lvl) :
    * mpBloomBuffer - buffer with blur and "addition" to create a bloom effect.
    * */
 
-  mpScene->updateHudPositions();
-
   auto dims = mrGraphicsManager.getScreenDimensions();
   int w = dims[0], h = dims[1];
 

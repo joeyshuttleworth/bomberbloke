@@ -14,7 +14,7 @@ TEST_CASE("Can make a game scene", "[engine]")
   _log_message_level = CRITICAL;
 
   REQUIRE(SDL_Init(SDL_INIT_EVERYTHING) == 0);
-  init_engine(false);
+  init_engine(_fallback_IO_system, false);
 
   const std::string username = "big_beef";
   _local_player_list.push_back(LocalPlayer(username));
@@ -37,7 +37,7 @@ gameUpdate()
 }
 
 void
-new_game(std::string)
+new_game(IOSystem&, std::string)
 {
   return;
 }

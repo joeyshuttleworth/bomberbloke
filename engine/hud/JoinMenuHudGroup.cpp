@@ -221,7 +221,7 @@ JoinMenuHudGroup::update()
       address = "localhost";
 
     // Set nickname
-    handle_system_command({ "nickname", nickname });
+    handle_system_command(_fallback_IO_system, { "nickname", nickname });
 
     // Convert colour to correct, proper format : 0xrrggbbaa
     Uint8 redValue, greenValue, blueValue;

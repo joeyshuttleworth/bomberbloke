@@ -55,6 +55,8 @@ class NetworkPlayer;
 class AbstractPlayer;
 class IOSystem;
 
+#include "CommandQueue.hpp"
+
 void client_init(IOSystem&);
 void exit_engine(int);
 void new_game(IOSystem&, std::string);
@@ -69,11 +71,12 @@ void server_loop(IOSystem&, short port=8888,
                  bool debug=false
                 );
 void log_message(int, std::string);
-bool handle_system_command(IOSystem& ctx, std::list<std::string>);
+bool handle_system_command(IOSystem& ctx, Tokens);
+void handle_system_command_queue(IOSystem& ctx);
 void handle_input(IOSystem& ctx);
 void handle_movement();
-void init_engine(bool); // TODO Give this a named bitmask instead of bool
-void console_loop(IOSystem&);
+void init_engine(IOSystem&, bool); // TODO Give this a named bitmask instead of bool
+void console_loop();
 void draw_screen();
 void set_draw(bool);
 SDL_Joystick* handle_input_controller();
@@ -85,7 +88,7 @@ void add_player(std::shared_ptr<AbstractPlayer>);
 /* Removes white space and turns a string into a list of words.
    This is used for parsing commands.
 */
-std::list<std::string> split_to_tokens(std::string);
+Tokens split_to_tokens(std::string);
 
 extern double _screen_offset[2];
 extern bool _draw;

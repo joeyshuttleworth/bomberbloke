@@ -45,7 +45,7 @@ BomberBlokeScene::setBigBombHUD(bool big_bomb)
     std::make_shared<SpriteHudElement>(*this,
       asset_name, 9 + 0 * 34, 91, 32, 32);
 
-  int glow_amount = big_bomb ? 100: 100;
+  int glow_amount = big_bomb ? 100 : 0;
   hudElement->setGlowAmount(glow_amount);
 
   mBombIcons[0] = hudElement;
@@ -55,7 +55,7 @@ BomberBlokeScene::setBigBombHUD(bool big_bomb)
 BomberBlokeScene::~BomberBlokeScene()
 {
 
-  auto gfx = mrIOSystem.getGraphicsManager();
+  IGraphicsManager& gfx = mrIOSystem.getGraphicsManager();
   gfx.destroyTexture(mpBackgroundTexture);
 
   mNewGame = false;
@@ -70,9 +70,8 @@ BomberBlokeScene::draw()
   if(!mpCamera)
     return;
 
-  auto gfx = mrIOSystem.getGraphicsManager();
-
   mpCamera->resetFrameBuffers();
+  mpCamera->update();
 
   // Draw background
   auto sceneScreenRect =
@@ -401,7 +400,7 @@ BomberBlokeScene::BomberBlokeScene(IOSystem& ctx,
   setBigBombHUD(false);
 
   // Create bloke camera
-  auto gfx = mrIOSystem.getGraphicsManager();
+  IGraphicsManager& gfx = mrIOSystem.getGraphicsManager();
   mBlokeCamera = std::make_shared<FollowCamera>(gfx, this);
   mSceneCamera = std::make_shared<ShowAllCamera>(gfx, this);
 

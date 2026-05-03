@@ -26,6 +26,7 @@ class scene{
 protected:
 
   void removeAllActors();
+  void removeAllParticles();
 
   bool mNewGame = false;
   /*name and description are information about this scene*/
@@ -86,6 +87,8 @@ public:
 
   void addActor(std::shared_ptr<actor> a);
 
+  void addParticle(std::shared_ptr<AbstractSpriteHandler> p);
+
   /* dim_x and dim_y are the size of our scene in the x and y axis respectively */
   std::array<double, 2> mDimension = {0, 0};
 
@@ -130,7 +133,8 @@ public:
   scene(IOSystem& io_system_contex, double x=10, double y=10);
 
   virtual ~scene(){
-      LOCK_GUARD(mMutex);
+    mActors = {};
+    mParticles = {};
   }
 
   std::shared_ptr<actor> GetActor(int id);

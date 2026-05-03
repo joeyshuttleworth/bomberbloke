@@ -2,12 +2,7 @@
 
 #include <iostream>
 
-const int SOUND_FREQUENCY = 44100;
-const Uint16 SOUND_FORMAT = AUDIO_S16SYS;
-const int SOUND_N_CHANNELS = 2;
-const int SOUND_CHUNKSIZE = 1024;
 
-DummySoundManager::DummySoundManager() = default;
 DummySoundManager::~DummySoundManager()
 {
   // Free mix chunks
@@ -19,17 +14,6 @@ DummySoundManager::~DummySoundManager()
   // while (Mix_Init(0)) {
   //   Mix_Quit();
   // }
-}
-
-void
-DummySoundManager::init(void (*finishedCallback)(int))
-{
-  if (Mix_OpenAudio(
-        SOUND_FREQUENCY, SOUND_FORMAT, SOUND_N_CHANNELS, SOUND_CHUNKSIZE) == -1)
-    printf("Mix_OpenAudio: %s\n", Mix_GetError());
-
-  // Callback for tracking which sounds are on which channels
-  Mix_ChannelFinished(finishedCallback);
 }
 
 void
@@ -50,52 +34,8 @@ DummySoundManager::createSound(const std::string&)
 }
 
 void
-DummySoundManager::playSound(Sound* sound)
+DummySoundManager::playSound(Sound*)
 {
-  int tmpChannel = -1;
-
-  // if (sound->mFadeInMs > 0) {
-  //   if (sound->mMaxLengthMs > 0)
-  //     // Play sound with fade in and timeout
-  //     // tmpChannel = Mix_FadeInChannelTimed(-1,
-  //     //                                     sound->mMixChunk,
-  //     //                                     sound->mNLoops,
-  //     //                                     sound->mMaxLengthMs,
-  //     //                                     sound->mFadeInMs);
-  //   else
-  //     // Play sound with fade in
-  //     // tmpChannel = Mix_FadeInChannel(
-  //     //   -1, sound->mMixChunk, sound->mNLoops, sound->mFadeInMs);
-  // } else {
-  //   if (sound->mMaxLengthMs > 0)
-  //     // Play sound with timeout
-  //     // tmpChannel = Mix_PlayChannelTimed(
-  //     //   -1, sound->mMixChunk, sound->mNLoops, sound->mMaxLengthMs);
-  //   else
-  //     // Play sound
-  //     // tmpChannel = Mix_PlayChannel(-1, sound->mMixChunk, sound->mNLoops);
-  // }
-
-  // Check the sound is playing
-  if (tmpChannel == -1) {
-    std::cout << "Mix_PlayChannel: " << Mix_GetError() << std::endl;
-    return;
-  }
-
-  // Set sound volume
-  int soundVolume = sound->getVolume() * mMasterVolume / 128;
-  if (sound->getGroup() == SOUND_FX) {
-    soundVolume = soundVolume * mFxVolume / 128;
-  } else if (sound->getGroup() == SOUND_MUSIC) {
-    soundVolume = soundVolume * mMusicVolume / 128;
-  }
-  // Mix_Volume(tmpChannel, soundVolume);
-
-  // Add positional audio effect
-  // Mix_SetPosition(tmpChannel, sound->mAngle, sound->mDistance);
-
-  // Store channel of the sound
-  sound->channel = tmpChannel;
 }
 
 void

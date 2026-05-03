@@ -17,6 +17,12 @@ bloke::bloke(scene *scn, double x, double y, bool collides, uint64_t colour)
   mColour = colour;
   mPosition[0] = x;
   mPosition[1] = y;
+
+  mpSpriteHandler = std::make_shared<PlaceHolderSprite>(mrIOSystem.getGraphicsManager(),
+                                                        mPosition[0], mPosition[1], mDimension[0],
+                                                        mDimension[1], mColour);
+
+  init();
 }
 
 void
@@ -59,7 +65,7 @@ bloke ::accelerate()
 void
 bloke ::handleCommand(std::string command)
 {
-  std::list<std::string> tokens = split_to_tokens(command);
+  Tokens tokens = split_to_tokens(command);
 
   if (_server) {
     /*True if the key is pressed down- false if it is up*/
@@ -125,19 +131,10 @@ bloke ::update()
 }
 
 void bloke ::init(){
-  auto sprite = std::make_shared<PlaceHolderSprite>(mrIOSystem.getGraphicsManager(),
-                                                    mPosition[0], mPosition[1], mDimension[0],
-                                                    mDimension[1], mColour);
-
   auto p_player = getPlayer();
 
   if(p_player != nullptr)
     mColour = p_player->getColour();
-
-  // Set colour
-  sprite->setColour(mColour);
-
-  mpSpriteHandler = sprite;
 
   std::stringstream sstream;
   sstream << "colour of bloke is " << std::hex << mColour;
@@ -150,6 +147,7 @@ void bloke ::init(){
   if(mPlaceBombSound)
     mPlaceBombSound->setGroup(SOUND_FX);
 }
+
 
 void
 bloke ::place_bomb()

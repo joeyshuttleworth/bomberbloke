@@ -22,14 +22,14 @@ public:
   void init() override{
     mpSpriteHandler = std::shared_ptr<staticSprite>(
                                                     new staticSprite(mrIOSystem.getGraphicsManager(),
-                                                                     double(mPosition[0]), double(mPosition[1]),
+                                                                     mPosition[0], mPosition[1],
                                                                      mDimension[0], mDimension[1],
                                                                      "crate.png"));
     actor::init();
   }
 
   void handleCommand(std::string command){
-    std::list<std::string> tokens = split_to_tokens(command);
+    Tokens tokens = split_to_tokens(command);
     if(tokens.size() == 0)
       return;
     else if(_server && (tokens.front() == "kill" || tokens.front() == "+kill")){

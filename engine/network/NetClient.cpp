@@ -182,13 +182,13 @@ NetClient::pollServer()
 
         for(auto act : s_event->mActors){
           // Necessary to assign IOSystem context
-          auto new_act = act->clone(_pScene->mrIOSystem);
-
+          std::shared_ptr<actor> new_act = act->clone(_pScene->mrIOSystem);
           _pScene->addActorWithId(new_act);
         }
 
         for(auto p : s_event->mParticles){
           auto new_part = p->clone(_pScene->mrIOSystem.getGraphicsManager());
+          _pScene->addParticle(new_part);
         }
 
         /* TODO move mPlayers to _player_list */
@@ -261,19 +261,23 @@ NetClient::pollServer()
         std::shared_ptr<CreationEvent> c_event =
           std::dynamic_pointer_cast<CreationEvent>(event);
         if (c_event->getActor()){
-          auto actor = c_event->getActor();
-          int this_id = actor->getId();
+          auto act = c_event->getActor();
+          int this_id = act->getId();
           // If actor with this ID already exists, ignore
           auto iter = std::find_if(
                                    _pScene->mActors.begin(),
                                    _pScene->mActors.end(),
                                    [&](auto a) -> bool {return a->getId() == this_id;}
                                    );
-          if(iter == _pScene->mActors.end())
-            _pScene->addActorWithId(c_event->getActor());
+          if(iter == _pScene->mActors.end()){
+            std::shared_ptr<actor> clone_act = act->clone(_pScene->mrIOSystem);
+            _pScene->addActorWithId(clone_act);
+          }
         }
-        else if (c_event->getParticle())
-          _pScene->mParticles.push_back(c_event->getParticle());
+        else if (c_event->getParticle()){
+          std::shared_ptr<AbstractSpriteHandler> part = c_event->getParticle()->clone(_pScene->getGraphicsManager());
+          _pScene->addParticle(part);
+        }
         else {
           log_message(ERR, "Received malformed create event");
         }

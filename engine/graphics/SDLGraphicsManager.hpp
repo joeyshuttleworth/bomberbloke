@@ -46,7 +46,7 @@ protected:
   std::mutex mMutex;
   int mBrightness = 0;
 
-  std::map<std::string, SDLFontResoruce> mFonts;
+  std::map<std::string, SDLFontResoruce> mFonts = {};
 
   Rect mScreenRectangle = {0, 0, 0, 0};
 

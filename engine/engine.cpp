@@ -25,6 +25,8 @@
 #include "IGraphicsManager.hpp"
 
 
+CommandQueue _command_queue;
+
 /*  TODO: reduce number of globals */
 int _log_message_level = 0;
 
@@ -96,7 +98,7 @@ exit_engine(int signum)
 
 void
 init_engine
-(IOSystem& ctx, bool server)
+(IOSystem&, bool server)
 {
   if(server)
     _net_server = std::unique_ptr<NetServer>(new NetServer());
@@ -120,7 +122,7 @@ init_engine
   _kb_state = (Uint8*)malloc(sizeof(Uint8) * SDL_SCANCODE_APP2); // max scancode
   memset((void*)_kb_state, 0, sizeof(Uint8) * SDL_SCANCODE_APP2);
 
-  LAUNCH_THREAD_DETACH([&]() -> void {console_loop(ctx);});
+  LAUNCH_THREAD_DETACH(console_loop);
 
   return;
 }
@@ -193,7 +195,8 @@ handle_input(IOSystem& ctx)
               if (!_server) {
                 std::unique_ptr<AbstractEvent> c_event(
                   new CommandEvent(command_to_send));
-                _net_client->mConnector->broadcastEvent(std::move(c_event));
+                if(_net_client->mConnector)
+                  _net_client->mConnector->broadcastEvent(std::move(c_event));
               }
             } else {
               log_message(
@@ -293,7 +296,7 @@ load_config(std::string fname)
 }
 
 bool
-handle_system_command(IOSystem& ctx, std::list<std::string> tokens)
+handle_system_command(IOSystem& ctx, Tokens tokens)
 {
   if (tokens.size() == 0)
     return true;
@@ -396,7 +399,7 @@ handle_system_command(IOSystem& ctx, std::list<std::string> tokens)
   }
 
   else if (command == "draw") {
-    auto gfx = ctx.getGraphicsManager();
+    IGraphicsManager& gfx = ctx.getGraphicsManager();
     if (tokens.size() == 2) {
       if (tokens.back() == "on") {
         gfx.setDraw(true);
@@ -489,7 +492,7 @@ handle_system_command(IOSystem& ctx, std::list<std::string> tokens)
       i++;
       int y = std::stoi(*i);
 
-      auto gfx = ctx.getGraphicsManager();
+      IGraphicsManager& gfx = ctx.getGraphicsManager();
       gfx.resizeWindow(x, y);
     } else {
       log_message(ERR, "Incorrect number of arguments for resize");
@@ -538,7 +541,7 @@ handle_system_command(IOSystem& ctx, std::list<std::string> tokens)
   return true;
 }
 
-std::list<std::string>
+Tokens
 split_to_tokens(std::string str)
 {
   /*  First remove all unnecessary whitespace */
@@ -567,7 +570,7 @@ split_to_tokens(std::string str)
     clean_str.pop_back();
 
   /* Next split the string into tokens */
-  std::list<std::string> tokens;
+  Tokens tokens;
 
   int last_space = -1;
   for (int i = 0; i < (int)clean_str.length(); i++) {
@@ -611,17 +614,17 @@ split_to_tokens(std::string str)
 }
 
 void
-console_loop(IOSystem& ctx)
+console_loop()
 {
   if (_log_message_level <= INFO)
     std::cout << "Bomberbloke console...\n";
   while (!_halt) {
     std::string line;
-    std::list<std::string> tokens;
+    Tokens tokens;
     std::cout << ">";
     if (std::getline(std::cin, line)) {
       tokens = split_to_tokens(line);
-      handle_system_command(ctx, tokens);
+      _command_queue.push(tokens);
     }
   }
   return;
@@ -669,4 +672,13 @@ add_player(std::shared_ptr<AbstractPlayer> a_player)
     }
   }
   log_message(ERR, "Couldn't add player! No free id");
+}
+
+
+void
+handle_system_command_queue(IOSystem& ctx){
+  while(_command_queue.size() > 0){
+    auto tokens = _command_queue.pop();
+    handle_system_command(ctx, tokens);
+  }
 }

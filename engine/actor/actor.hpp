@@ -38,7 +38,7 @@ protected:
   bool mMoved=false;
   std::shared_ptr<AbstractSpriteHandler> mpSpriteHandler;
 
-  virtual void init();
+  virtual void init(){};
 
   void setPlayerId(int id){mPlayerId = id;}
 
@@ -50,10 +50,39 @@ protected:
   /*Do we collide with other actors*/
   bool mCollides = false;
 
+public:
   void setScene(scene* scene){mpScene = scene;}
 
+  actor(scene* scene=nullptr, double x = 0, double y = 0, double xdim = DEFAULT_ACTOR_SIZE,
+        double ydim = DEFAULT_ACTOR_SIZE, bool collides = true);
 
-public:
+  actor(actor& a, IOSystem& ctx) :
+    mrIOSystem(ctx),
+    mId(a.mId),
+    mPlayerId(a.mPlayerId),
+    mRemove(a.mRemove),
+    mMoved(a.mMoved),
+    mCollides(a.mCollides),
+    mDimension(a.mDimension)
+  {
+    mPosition = a.mPosition;
+  };
+
+  actor(actor& other) :
+    mrIOSystem(other.mrIOSystem),
+    mId(other.mId),
+    mPlayerId(other.mPlayerId),
+    mRemove(other.mRemove),
+    mMoved(other.mMoved),
+    mCollides(other.mCollides),
+    mDimension(other.mDimension)
+  {
+    mPosition = other.mPosition;
+  };
+
+  actor operator=(actor&) = delete;
+  actor& operator=(actor&&) = delete;
+
 
   void setId(int id){mId = id;}
 
@@ -74,20 +103,6 @@ public:
   void addState(dvector position, dvector velocity, int tick){mInterpolator.addState(position, velocity, tick);}
 
   virtual ~actor(){}
-
-  actor(scene* scene=nullptr, double x = 0, double y = 0, double xdim = DEFAULT_ACTOR_SIZE,
-        double ydim = DEFAULT_ACTOR_SIZE, bool collides = true);
-
-  actor(const actor& a, IOSystem& ctx) :
-    mrIOSystem(ctx),
-    mId(a.mId),
-    mPlayerId(a.mPlayerId),
-    mRemove(a.mRemove),
-    mMoved(a.mMoved)
-  {
-    actor(a.mpScene, a.mPosition[0], a.mPosition[1], mDimension[0], mDimension[1], mCollides);
-    init();
-  };
 
   std::shared_ptr<actor> clone(){
     return clone(mrIOSystem);
@@ -118,7 +133,6 @@ public:
 
   void remove();
 
-  void draw();
   int move(double x, double y);
   bool isMoving();
   dvector getMidpoint();

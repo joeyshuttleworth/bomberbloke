@@ -10,6 +10,8 @@
 #include <random>
 #include <stdio.h>
 
+#include "NetServer.hpp"
+
 double _bloke_size[2] = { DEFAULT_BLOKE_SIZE, DEFAULT_BLOKE_SIZE };
 std::vector<int> _spawn_points = { 5, 5 };
 int colours[50][3];
@@ -63,15 +65,12 @@ main(int argc, char** argv)
     }
   }
 
-  IOSystem io_system_context;
-
   log_message(INFO, "Bomberbloke server starting...");
+  init_engine(_fallback_IO_system, true);
 
-  init_engine(true);
+  _pScene = std::make_shared<BomberBlokeScene>(_fallback_IO_system);
 
-  _pScene = std::make_shared<BomberBlokeScene>(io_system_context);
-
-  server_loop(io_system_context, _port, _masterServerAddress, _debug);
+  server_loop(_fallback_IO_system, _port, _masterServerAddress, _debug);
   return 0;
 }
 
@@ -89,4 +88,6 @@ new_game(IOSystem& ctx, std::string)
       (*i)->resetPlayerProperties(std::make_shared<GamePlayerProperties>());
     (*i)->resetPlayerProperties();
   }
+
+  _net_server->syncPlayers();
 }

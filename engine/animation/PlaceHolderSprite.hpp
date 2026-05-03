@@ -15,12 +15,30 @@ public:
   void setColour(uint32_t colour);
 
   using AbstractSpriteHandler::AbstractSpriteHandler;
+
   PlaceHolderSprite(IGraphicsManager& gfx_manager, double=0, double=0, double=0,
                     double=0, uint32_t = 0x00a0ffff);
 
-  void draw(Camera *cam);
+  PlaceHolderSprite(PlaceHolderSprite& other) :
+    AbstractSpriteHandler(other),
+    mColour(other.mColour)
+  {
+  }
+
+  PlaceHolderSprite(PlaceHolderSprite& other, IGraphicsManager& gfx) :
+    AbstractSpriteHandler(other, gfx),
+    mColour(other.mColour)
+  {
+  }
+
+  void draw(Camera *cam) override;
 
   virtual ~PlaceHolderSprite(){}
+
+  std::shared_ptr<AbstractSpriteHandler> clone(IGraphicsManager& gfx){
+    return std::make_shared<PlaceHolderSprite>(*this, gfx);
+  };
+
 
 protected:
   Uint32 mColour = 0x0000FFFF;

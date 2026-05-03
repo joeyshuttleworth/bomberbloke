@@ -1,13 +1,16 @@
+
+#include "MainMenuScene.hpp"
 #include "MainMenuHudGroup.hpp"
 
 #include <cmath>
 #include <string>
 
 #include "JoinMenuHudGroup.hpp"
-#include "MainMenuScene.hpp"
 #include "OptionsMenuHudGroup.hpp"
 #include "TextButton.hpp"
 #include "TextHudElement.hpp"
+
+#include "engine.hpp"
 
 /**
  * Function that closes the game
@@ -15,7 +18,7 @@
 void
 quitFn()
 {
-  handle_system_command({ "quit" });
+  handle_system_command(_fallback_IO_system, { "quit" });
 }
 
 MainMenuHudGroup::MainMenuHudGroup(scene& r_scene)

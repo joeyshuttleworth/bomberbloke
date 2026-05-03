@@ -100,8 +100,6 @@ protected:
 
   std::mutex mMutex;
 
-  scene *mpScene;
-
   const double mMinZoom = 0.01;
   const double mMaxZoom = 50;
 
@@ -110,10 +108,10 @@ protected:
   std::array<double, 2> mOffsets = {{ 0, 0 }};
 
   /* Variables for rumble animation */
-  double mRumbleOffset[2];
+  double mRumbleOffset[2] = {0, 0};
   unsigned int mRumbleTimeout = 0;
   /* Maximum displacement in each axis as a proportion of the window size */
-  double mRumbleAmplitude;
+  double mRumbleAmplitude = 0;
   // Determines the size of the blur, larger is blurier.
   double mBlurSize = 0;
   // Determines the quality of the blur, larger is better.

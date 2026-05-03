@@ -91,7 +91,7 @@ main(int, char**)
     return 0;
 }
 
-void new_game(std::string)
+void new_game(IOSystem&, std::string)
 {
   return;
 }

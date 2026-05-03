@@ -51,11 +51,11 @@ public:
       mState = _pScene->getState();
 
     for(auto a : _pScene->mActors){
-      mActors.push_back(a);
+      mActors.push_back(a->clone());
     }
 
     for(auto a : _pScene->mParticles){
-      mParticles.push_back(a);
+      mParticles.push_back(a->clone());
     }
 
     auto dims = _pScene->getDimension();

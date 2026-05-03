@@ -11,7 +11,7 @@ bool _debug_player = false;
 unsigned int _ping_time = 0;
 
 
-void server_loop(IOSystem io_system_context, short port, std::string masterServerAddress, bool debug){
+void server_loop(IOSystem&  io_system_context, short port, std::string masterServerAddress, bool debug){
 
   /* TODO put init code in init func */
 

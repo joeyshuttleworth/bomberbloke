@@ -39,7 +39,8 @@ protected:
 
 
 public:
-  AbstractSpriteHandler(IGraphicsManager& gfx, double x_pos=0, double y_pos=0, double x_dim=0, double y_dim=0, int speed = 300, int timeout = 0, int delay = 0) :
+  AbstractSpriteHandler(IGraphicsManager& gfx, double x_pos=0, double y_pos=0, double x_dim=0,
+                        double y_dim=0, int speed = 300, int timeout = 0, int delay = 0) :
     mrGraphicsManager(gfx),
     mPosition{x_pos, y_pos},
     mDimension{x_dim, y_dim},
@@ -68,9 +69,18 @@ public:
   }
 
   AbstractSpriteHandler(const AbstractSpriteHandler& other, IGraphicsManager& gfx) :
-    AbstractSpriteHandler(other)
+    mrGraphicsManager(gfx)
   {
-    mrGraphicsManager = gfx;
+    mPosition[0] = other.mPosition[0];
+    mPosition[1] = other.mPosition[1];
+    mDimension[0] = other.mDimension[0];
+    mDimension[1] = other.mDimension[1];
+    mStartTick = other.mStartTick;
+    mAnimationSpeed = other.mAnimationSpeed;
+    mTimeout = other.mTimeout;
+    mDelay = other.mDelay;
+    mRemove = other.mRemove;
+    mIsPostProcessed = other.mIsPostProcessed;
   }
 
   std::shared_ptr<AbstractSpriteHandler> clone(){

@@ -7,7 +7,7 @@
 
 
 bool
-ExecFile(IOSystem io_system, std::string fname)
+ExecFile(IOSystem& io_system, std::string fname)
 {
   std::ifstream config_file(fname);
   std::string tmp_line;
@@ -27,11 +27,11 @@ ExecFile(IOSystem io_system, std::string fname)
 }
 
 bool
-LoadConfig(std::string fname = "default.config")
+LoadConfig(IOSystem& ctx, std::string fname = "default.config")
 {
   log_message(DEBUG, "Reading config file " + fname + ".");
   /*TODO: Here we should default all settings and remove all command bindings*/
-  ExecFile(fname);
+  ExecFile(ctx, fname);
   return true;
 }
 

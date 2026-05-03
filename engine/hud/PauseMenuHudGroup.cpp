@@ -22,7 +22,7 @@ void
 disconnectFn()
 {
   // Disconnect
-  handle_system_command({ "disconnect" });
+  handle_system_command(_fallback_IO_system, { "disconnect" });
 }
 
 PauseMenuHudGroup::PauseMenuHudGroup(scene &r_scene)
