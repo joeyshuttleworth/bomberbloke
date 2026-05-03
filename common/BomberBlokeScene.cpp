@@ -309,7 +309,6 @@ BomberBlokeScene::BomberBlokeScene(IOSystem& ctx,
 
   log_message(INFO, "no. actors " + std::to_string(mActors.size()));
 
-  /* TODO implement this functionality in SDLGraphicsManager */
   mpBackgroundTexture = mrIOSystem.getGraphicsManager().createTexture(size_x * 64, size_y * 64);
 
   /* Create tiled background texture */

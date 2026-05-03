@@ -18,10 +18,6 @@ bloke::bloke(scene *scn, double x, double y, bool collides, uint64_t colour)
   mPosition[0] = x;
   mPosition[1] = y;
 
-  mpSpriteHandler = std::make_shared<PlaceHolderSprite>(mrIOSystem.getGraphicsManager(),
-                                                        mPosition[0], mPosition[1], mDimension[0],
-                                                        mDimension[1], mColour);
-
   init();
 }
 
@@ -146,6 +142,10 @@ void bloke ::init(){
   mPlaceBombSound = sfx.createSound(PLACE_BOMB_SOUND_NAME);
   if(mPlaceBombSound)
     mPlaceBombSound->setGroup(SOUND_FX);
+
+  mpSpriteHandler = std::make_shared<PlaceHolderSprite>(mrIOSystem.getGraphicsManager(),
+                                                        mPosition[0], mPosition[1], mDimension[0],
+                                                        mDimension[1], mColour);
 }
 
 

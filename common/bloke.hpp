@@ -63,6 +63,8 @@ public:
   {
   }
 
+  using actor::actor;
+
   int getType() const{
     return ACTOR_BLOKE;
   };
