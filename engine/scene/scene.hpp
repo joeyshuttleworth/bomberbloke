@@ -7,9 +7,6 @@
 #include <cereal/types/list.hpp>
 #include <memory>
 
-// TODO remove
-#include <SDL2/SDL.h>
-
 #include "AbstractCollider.hpp"
 #include "IOSystem.hpp"
 #include "threads.hpp"
@@ -198,7 +195,7 @@ public:
    * Called by the engine whenever any input is detected.
    * Used primarily to update interactive HUD elements.
    */
-  virtual void onInput(SDL_Event *event);
+  virtual void onInput(const AbstractInputEvent& event);
 
   /*   */
 

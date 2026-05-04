@@ -56,7 +56,7 @@ public:
      *
      * @param camera    Current Camera object.
      */
-    void onInput(SDL_Event *event) override;
+    void onInput(const AbstractInputEvent& event) override;
 
     /**
      * Draws the text object in the position of the HUD element.

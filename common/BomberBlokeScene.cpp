@@ -411,7 +411,7 @@ BomberBlokeScene::BomberBlokeScene(IOSystem& ctx,
 }
 
 void
-BomberBlokeScene::onInput(SDL_Event* event)
+BomberBlokeScene::onInput(const AbstractInputEvent& event)
 {
   // TODO: Consider disabling player control when paused
   if (!mIsPaused) {
@@ -421,10 +421,6 @@ BomberBlokeScene::onInput(SDL_Event* event)
     std::shared_ptr<PauseMenuHudGroup> pPauseMenu = mPauseMenuHud.lock();
     pPauseMenu->onInput(event);
   }
-
-  // Toggle pause
-  if (event->type == SDL_KEYUP && event->key.keysym.sym == SDLK_ESCAPE)
-    togglePause();
 }
 
 void

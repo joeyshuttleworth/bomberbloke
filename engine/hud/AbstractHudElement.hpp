@@ -5,7 +5,7 @@
 #include "scene.hpp"
 
 class Camera;
-union SDL_Event;
+class AbstractInputEvent;
 
 enum AlignFlag {
     ALIGN_LEFT,
@@ -158,7 +158,7 @@ public:
      *
      * @param event Input event that is handled by HUD element.
      */
-    virtual void onInput(SDL_Event*) {};
+    virtual void onInput(const AbstractInputEvent&) {};
 
 protected:
     // Flag to indicate whether the object should be drawn to screen or not.

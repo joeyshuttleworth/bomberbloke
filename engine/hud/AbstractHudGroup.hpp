@@ -109,7 +109,7 @@ public:
    *
    * @param event Input event that is handled by HUD element.
    */
-  void onInput(SDL_Event *event) override {
+  void onInput(const AbstractInputEvent& event) override {
     if (!mIsInteractive)
       return;
 

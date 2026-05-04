@@ -331,7 +331,7 @@ scene::ActorsCollidingWith(AbstractCollider* p_collider)
 }
 
 void
-scene::onInput(SDL_Event* event)
+scene::onInput(const AbstractInputEvent& event)
 {
   // Let interactive HUD elements handle the detected input
   for (auto i = mHudElements.begin(); i != mHudElements.end(); i++) {

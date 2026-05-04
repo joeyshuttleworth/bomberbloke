@@ -178,15 +178,16 @@ JoinMenuHudGroup::JoinMenuHudGroup(scene& r_scene, std::function<void()> goBackF
 }
 
 void
-JoinMenuHudGroup::onInput(SDL_Event* event){
+JoinMenuHudGroup::onInput(const AbstractInputEvent& event){
   AbstractHudGroup::onInput(event);
 
-  if (event->type == SDL_KEYDOWN){
+  if (event.getInputType() == IEVENT_KEYDOWN){
     if(event->key.keysym.sym == SDLK_ESCAPE){
       mGoBackFn();
       return;
-    } else if (event->key.keysym.sym == SDLK_TAB){
-      // tab to next hud element
+    }
+    else if (event->key.keysym.sym == SDLK_TAB){
+      // TODO tab to next hud element
     }
   }
 }

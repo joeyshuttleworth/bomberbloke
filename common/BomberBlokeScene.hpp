@@ -98,7 +98,7 @@ public:
    *
    * Primarily for interactive HUD elements.
    */
-  void onInput(SDL_Event *event) override;
+  void onInput(const AbstractInputEvent& event) override;
 
   /**
    * Alternates pause state.

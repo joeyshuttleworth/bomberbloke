@@ -22,7 +22,7 @@ public:
    */
   JoinMenuHudGroup(scene&, std::function<void()> goBackFn);
 
-  void onInput(SDL_Event* event) override;
+  void onInput(const AbstractInputEvent& event) override;
 
   /**
    * Callback function for colour button

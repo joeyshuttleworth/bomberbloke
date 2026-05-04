@@ -22,7 +22,7 @@
 #include <chrono>
 #include <SDL2/SDL_image.h>
 
-#include "IGraphicsManager.hpp"
+#include "IOSystem.hpp"
 
 
 CommandQueue _command_queue;
