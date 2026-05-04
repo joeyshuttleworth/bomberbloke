@@ -163,6 +163,8 @@ public:
 
   void destroyWindow() override;
 
+  void init() override;
+
   AbstractTexture* createTexture(int=0, int=0) override;
 
   void destroyTexture(AbstractTexture*) override;

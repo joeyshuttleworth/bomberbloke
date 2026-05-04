@@ -5,6 +5,8 @@
 
 #include <functional>
 
+class AbstractInputEvent;
+
 class ClickableHudElement: public virtual AbstractHudElement {
 public:
     /**
@@ -29,7 +31,7 @@ public:
      *
      * @param camera    Current Camera object.
      */
-    void onInput(SDL_Event *event);
+    void onInput(AbstractInputEvent& event);
 
     // TODO: support keyboard and joystick selection
 

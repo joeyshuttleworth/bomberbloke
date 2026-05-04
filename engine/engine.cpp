@@ -52,8 +52,6 @@ bool _controller_connected = false;
 int DEADZONE = 9000;
 std::string dX = "0.1";
 
-Uint8* _kb_state = NULL;
-
 /* TODO Move to client code - this is only relevant to client */
 std::string _nickname = "bloke";
 
@@ -82,7 +80,6 @@ void
 exit_engine(int signum)
 {
 
-  _pScene = nullptr;
 
   _halt = true;
 
@@ -93,7 +90,9 @@ exit_engine(int signum)
 #ifndef _WIN32
   std::cout << "Received signal " << strsignal(signum) << ".\nExiting...\n";
 #endif
-  std::this_thread::sleep_for(std::chrono::seconds());
+
+  _pScene = nullptr;
+  std::this_thread::sleep_for(std::chrono::seconds(1));
   SDL_Quit();
   return;
 }
@@ -122,120 +121,21 @@ init_engine
   _controller = handle_input_controller();
   _controller_connected = _controller != nullptr ? true : false;
 
-  _kb_state = (Uint8*)malloc(sizeof(Uint8) * SDL_SCANCODE_APP2); // max scancode
-  memset((void*)_kb_state, 0, sizeof(Uint8) * SDL_SCANCODE_APP2);
 
   LAUNCH_THREAD_DETACH(console_loop);
 
   return;
 }
 
-/* This function is here to allow other use cases where input is allowed on the server */
+
+/* Handle input i.e. controls and window events here */
 void
 handle_input(IOSystem& ctx)
 {
-  SDL_Event event;
-  //  bool key_up = true;
-  Uint8* kb_state = NULL;
-  while (SDL_PollEvent(&event)) {
-    _pScene->onInput(&event);
-
-    switch (event.type) {
-      case SDL_QUIT: {
-        _halt = true;
-        break;
-      }
-      case SDL_KEYDOWN: {
-        if (!_bind_next_key)
-          break;
-        /*We only look at keyboard events here in order to bind keys*/
-        CommandBinding new_binding;
-        new_binding.scancode = event.key.keysym.scancode;
-        new_binding.command = _next_bind_command;
-        _local_player_list.back().mControlScheme.push_back(new_binding);
-        _bind_next_key = false;
-        log_message(INFO,
-                    "Successfully bound " + new_binding.command + " to " +
-                      std::to_string(new_binding.scancode));
-        break;
-      }
-      case SDL_WINDOWEVENT: {
-        if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
-          _pScene->onResize();
-        }
-      }
-    }
-  }
-
-  kb_state = (Uint8*)SDL_GetKeyboardState(NULL);
-
-  /*Iterate over local players */
-  for (auto i = _local_player_list.begin(); i != _local_player_list.end();
-       i++) {
-    /*Iterate over key bindings */
-    if (event.type != SDL_JOYAXISMOTION) {
-      for (auto j = i->mControlScheme.begin(); j != i->mControlScheme.end();
-           j++) {
-        if (kb_state[j->scancode] !=
-            _kb_state[j->scancode]) { // ensure that current keymap is different
-                                      // to old
-          // We will prepend "+" or "-" to the command depending on keystate
-          std::string command_to_send =
-            kb_state[j->scancode] ? "+" + j->command : "-" + j->command;
-
-          log_message(DEBUG, j->command);
-
-          if (std::find(_system_commands.begin(),
-                        _system_commands.end(),
-                        split_to_tokens(j->command).front()) != _system_commands.end()) {
-            handle_system_command(ctx,
-              split_to_tokens(command_to_send)); // process system command
-          } else {
-            std::shared_ptr<actor> character = i->getCharacter();
-            if (character) {
-              character->handleCommand(command_to_send); // handle normal command
-
-              if (!_server) {
-                std::unique_ptr<AbstractEvent> c_event(
-                  new CommandEvent(command_to_send));
-                if(_net_client->mConnector)
-                  _net_client->mConnector->broadcastEvent(std::move(c_event));
-              }
-            } else {
-              log_message(
-                DEBUG, "Input received but no character connected to player!");
-            }
-          }
-        }
-      }
-    } else {
-      if (i->getCharacter() && event.jaxis.which == 0) {
-        if (event.jaxis.axis == 0) { // x axis
-          if (event.jaxis.value < -DEADZONE) {
-            i->getCharacter()->handleCommand("left" + dX);
-          } else if (event.jaxis.value > DEADZONE) {
-            i->getCharacter()->handleCommand("+right" + dX);
-          } else {
-            i->getCharacter()->handleCommand("-XAxis" + dX);
-          }
-        } else if (event.jaxis.axis == 1) {
-          if (event.jaxis.value < -DEADZONE) {
-            i->getCharacter()->handleCommand("+up" + dX);
-          } else if (event.jaxis.value > DEADZONE) {
-            i->getCharacter()->handleCommand("+down" + dX);
-          } else {
-            i->getCharacter()->handleCommand("-YAxis" + dX);
-          }
-        }
-      }
-
-    }
-  }
-
-  // old key state, new key state
-  memcpy(_kb_state, kb_state, sizeof(Uint8) * SDL_SCANCODE_APP2);
-  return;
+  IInputManager& input_manager = ctx.getInputManager();
+  input_manager.handleInput(*_pScene);
 }
+
 
 SDL_Joystick*
 handle_input_controller()
@@ -509,8 +409,19 @@ handle_system_command(IOSystem& ctx, Tokens tokens)
       CommandBinding new_command;
       new_command.command = *i;
       i++;
-      /*TODO: try catch*/
-      new_command.scancode = SDL_Scancode(std::stoi(*i));
+
+      unsigned int key_number = 0;
+      try
+        {
+          key_number = std::stoi(*i);
+        }
+      catch (std::invalid_argument &e) {
+        std::cout << e.what();
+        return false;
+      }
+
+      IInputManager& input_manager = ctx.getInputManager();
+      new_command.scancode = input_manager.getKeyScanCode(key_number);
 
       _local_player_list.front().mControlScheme.push_back(new_command);
       log_message(INFO,

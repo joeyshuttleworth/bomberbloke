@@ -3,27 +3,32 @@
 
 #include "DummyGraphicsManager.hpp"
 #include "DummySoundManager.hpp"
-// #include "DummyInputManager.hpp"
+#include "DummyInputManager.hpp"
 
 class IGraphicsManager;
 class ISoundManager;
-// class IInputManager;
+class IInputManager;
 
 class IOSystem{
 public:
 
-  IOSystem(std::unique_ptr<IGraphicsManager> gfx, std::unique_ptr<ISoundManager> smng):
+  IOSystem(std::unique_ptr<IGraphicsManager> gfx, std::unique_ptr<ISoundManager> smng,
+           std::unique_ptr<IInputManager> input)
+    :
     mpGraphicsManager(std::move(gfx)),
-    mpSoundManager(std::move(smng))
+    mpSoundManager(std::move(smng)),
+    mpInputManager(std::move(input))
   {
   }
 
   IOSystem() :
     mpGraphicsManager(std::make_unique<DummyGraphicsManager>()),
-    mpSoundManager(std::make_unique<DummySoundManager>())
+    mpSoundManager(std::make_unique<DummySoundManager>()),
+    mpInputManager(std::make_unique<DummyInputManager>())
   {
     mpSoundManager->init();
-    // mpGraphicsManager->init();
+    mpGraphicsManager->init();
+    mpInputManager->init();
   }
 
   ~IOSystem() = default;
@@ -43,10 +48,15 @@ public:
     return *mpSoundManager;
   }
 
+  IInputManager& getInputManager(){
+    return *mpInputManager;
+  }
+
+
 private:
   const std::unique_ptr<IGraphicsManager> mpGraphicsManager = nullptr;
   const std::unique_ptr<ISoundManager> mpSoundManager = nullptr;
-  // IInputManager& mpInputManager;
+  const std::unique_ptr<IInputManager> mpInputManager = nullptr;
 };
 
 extern IOSystem _fallback_IO_system;

@@ -25,6 +25,7 @@ include_directories(${PROJECT_SOURCE_DIR}/engine/sound)
 include_directories(${PROJECT_SOURCE_DIR}/engine/text)
 include_directories(${PROJECT_SOURCE_DIR}/engine/hud)
 include_directories(${PROJECT_SOURCE_DIR}/engine/bots)
+include_directories(${PROJECT_SOURCE_DIR}/engine/input)
 include_directories(${PROJECT_SOURCE_DIR}/engine/navigation)
 include_directories(${PROJECT_SOURCE_DIR}/engine/graphics)
 

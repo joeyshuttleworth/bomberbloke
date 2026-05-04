@@ -47,3 +47,5 @@ engine/bots/AbstractBot.cpp
 engine/graphics/IGraphicsManager.cpp
 engine/sound/ISoundManager.cpp
 engine/graphics/SDLTexture.cpp
+engine/input/SDLInputManager.cpp
+engine/input/SDLInputEvent.cpp

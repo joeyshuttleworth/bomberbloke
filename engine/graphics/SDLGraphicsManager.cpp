@@ -578,6 +578,9 @@ void SDLGraphicsManager::drawSprite(std::string asset_name, Rect _dstrect,
 
 
 SDLGraphicsManager::SDLGraphicsManager(){
+}
+
+void SDLGraphicsManager::init(){
   SDL_Init(SDL_INIT_VIDEO);
 }
 

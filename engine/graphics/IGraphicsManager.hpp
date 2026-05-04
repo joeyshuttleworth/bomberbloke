@@ -65,6 +65,8 @@ public:
 
   virtual std::shared_ptr<Text> createText(std::string="", std::string="Aileron-Black", int=12){return nullptr;};
 
+  virtual void init(){};
+
   virtual ~IGraphicsManager();
 };
 

@@ -100,7 +100,7 @@ extern SDL_Joystick* _controller;
 extern bool _controller_connected;
 
 struct CommandBinding {
-  SDL_Scancode scancode;
+  unsigned int scancode;
   std::string command;
  };
 
