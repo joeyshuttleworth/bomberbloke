@@ -81,6 +81,9 @@ IOSystem _fallback_IO_system;
 void
 exit_engine(int signum)
 {
+
+  _pScene = nullptr;
+
   _halt = true;
 
   std::cout << "\nNow exiting the BLOKE engine. Hope you had fun. Wherever you "

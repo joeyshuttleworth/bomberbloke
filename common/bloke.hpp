@@ -48,6 +48,7 @@ protected:
   bool   mDirectionsHeld[4] = {false, false, false, false};
   double mAcceleration[2] = {0,0};
   std::unique_ptr<Sound> mPlaceBombSound = nullptr;
+
   uint32_t mColour = 0x0000FFFF;
 
   void init() override;
@@ -90,8 +91,8 @@ public:
 
   template<class Archive>
   void serialize(Archive &archive){
-    archive(make_nvp("actor", cereal::base_class<actor>(this)), cereal::make_nvp("colour", mColour));
-    return;
+    archive(make_nvp("actor", cereal::base_class<actor>(this)));
+    archive(mColour);
   }
 };
 

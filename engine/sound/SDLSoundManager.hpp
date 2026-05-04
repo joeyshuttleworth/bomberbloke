@@ -32,18 +32,19 @@ private:
    * Callback function when channel is finished
    * ONLY call in finishedCallback function (see init)
    */
-  void channelFinishedCallback(int channel) override;
+  static void channelFinishedCallback(int channel);
 
   static const int SOUND_FREQUENCY = 44100;
   static const Uint16 SOUND_FORMAT = AUDIO_S16SYS;
   static const int SOUND_N_CHANNELS = 2;
   static const int SOUND_CHUNKSIZE = 1024;
 
+  // This will break if multiple SDLSoundMangers are created at once
+  static SDLSoundManager* instance;
+
 public:
-    /**
-     * Initialisation: must be called before loading sounds
-     */
-    static void init(void (*finishedCallback)(int));
+
+  void init() override;
 
   /**
    * Play sound object.
@@ -57,7 +58,7 @@ public:
     /**
      * Create Sound object from sound name.
      */
-  std::unique_ptr<Sound> createSound(const std::string& soundName) override;
+    std::unique_ptr<Sound> createSound(const std::string& soundName) override;
 
     /**
      * Sets the volume - the volume applied to all channels.

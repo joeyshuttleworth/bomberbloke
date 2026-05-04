@@ -78,7 +78,7 @@ class bomb : public actor {
   {
   }
 
-  std::shared_ptr<actor> clone(IOSystem& io_system_ctx){
+  virtual std::shared_ptr<actor> clone(IOSystem& io_system_ctx) override{
     return std::make_shared<bomb>(*this, io_system_ctx);
   }
 

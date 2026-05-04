@@ -3,7 +3,6 @@
 
 #include <SDL_mixer.h>
 #include <string>
-#include <functional>
 #include <map>
 
 #include "Sound.hpp"

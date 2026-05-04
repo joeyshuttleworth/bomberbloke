@@ -20,13 +20,17 @@ protected:
 
     bool mDebug = false;
 
-  /**
-   * Callback function when channel is finished
-   * ONLY call in finishedCallback function (see init)
-   */
-  virtual void channelFinishedCallback(int){return;};
-
 public:
+
+
+  ISoundManager(ISoundManager& other) = delete;
+  ISoundManager(ISoundManager&& other) = delete;
+
+  ISoundManager& operator=(ISoundManager&) = delete;
+
+    virtual void initCallback(void (*)(int)){}
+
+    virtual void init(){};
 
     /**
      * Loads sound file into soundFileBank. Returns sound name to use when
@@ -62,8 +66,6 @@ public:
         else
           return mMasterVolume;
     }
-
-  void channelFinishedForwarder(int);
 
    ISoundManager(bool debug=false) : mDebug(debug){};
   ~ISoundManager(){};

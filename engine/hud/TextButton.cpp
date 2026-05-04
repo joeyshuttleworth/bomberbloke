@@ -47,7 +47,8 @@ TextButton::TextButton(scene& r_scene,
   mOnClickOffset[0] = mOffsetArray[0];
   mOnClickOffset[1] = mOffsetArray[1];
 
-  auto sound_manager = mrScene.getIOSystem().getSoundManager();
+  ISoundManager& sound_manager = r_scene.getIOSystem().getSoundManager();
+
   // Get click sound
   mClickSound = sound_manager.createSound(CLICK_SOUND_NAME);
   if(mClickSound)

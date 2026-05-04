@@ -10,15 +10,10 @@
 
 const std::string PLACE_BOMB_SOUND_NAME = "place_bomb";
 
-bloke::bloke(scene *scn, double x, double y, bool collides, uint64_t colour)
-  : actor(scn, x, y, DEFAULT_BLOKE_SIZE, DEFAULT_BLOKE_SIZE, true)
+bloke::bloke(scene *scn, double x, double y, bool collides, uint64_t colour) :
+  actor(scn, x, y, DEFAULT_BLOKE_SIZE, DEFAULT_BLOKE_SIZE, collides),
+  mColour(colour)
 {
-  mCollides = collides;
-  mColour = colour;
-  mPosition[0] = x;
-  mPosition[1] = y;
-
-  init();
 }
 
 void
@@ -112,7 +107,7 @@ bloke ::handleCommand(std::string command)
     }
   } else {
     if (command == "+bomb") {
-      auto sfx = mrIOSystem.getSoundManager();
+      ISoundManager& sfx = mrIOSystem.getSoundManager();
       sfx.playSound(mPlaceBombSound.get());
     }
   }
@@ -127,18 +122,13 @@ bloke ::update()
 }
 
 void bloke ::init(){
-  auto p_player = getPlayer();
-
-  if(p_player != nullptr)
-    mColour = p_player->getColour();
-
   std::stringstream sstream;
   sstream << "colour of bloke is " << std::hex << mColour;
   log_message(DEBUG, sstream.str());
 
   mProperties = std::make_shared<GamePlayerProperties>();
 
-  auto sfx = mrIOSystem.getSoundManager();
+  ISoundManager& sfx = mrIOSystem.getSoundManager();
   mPlaceBombSound = sfx.createSound(PLACE_BOMB_SOUND_NAME);
   if(mPlaceBombSound)
     mPlaceBombSound->setGroup(SOUND_FX);

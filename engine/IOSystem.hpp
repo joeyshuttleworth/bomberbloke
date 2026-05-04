@@ -22,6 +22,8 @@ public:
     mpGraphicsManager(std::make_unique<DummyGraphicsManager>()),
     mpSoundManager(std::make_unique<DummySoundManager>())
   {
+    mpSoundManager->init();
+    // mpGraphicsManager->init();
   }
 
   ~IOSystem() = default;

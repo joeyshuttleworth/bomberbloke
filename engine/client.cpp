@@ -29,6 +29,8 @@ void client_init(IOSystem& io_system_context){
 
   ISoundManager& sound_manager = io_system_context.getSoundManager();
 
+  sound_manager.init();
+
   loadAssets(sound_manager, graphics_interface);
   init_engine(io_system_context, false);
 

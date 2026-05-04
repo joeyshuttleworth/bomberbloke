@@ -5,11 +5,19 @@
 #include <iostream>
 #include <sstream>
 
+#ifdef __EMSCRIPTEN__
+#else
+#include <cmrc/cmrc.hpp>
+CMRC_DECLARE(files);
+#endif
+
 const int SOUND_FREQUENCY = 44100;
 const Uint16 SOUND_FORMAT = AUDIO_S16SYS;
 const int SOUND_N_CHANNELS = 2;
 const int SOUND_CHUNKSIZE = 1024;
 
+
+SDLSoundManager* SDLSoundManager::instance = nullptr;
 
 SDLSoundManager::SDLSoundManager() = default;
 SDLSoundManager::~SDLSoundManager()
@@ -21,8 +29,7 @@ SDLSoundManager::~SDLSoundManager()
 }
 
 void
-SDLSoundManager::init(void (*finishedCallback)(int))
-{
+SDLSoundManager::init(){
   if (Mix_OpenAudio(
                     SOUND_FREQUENCY, SOUND_FORMAT, SOUND_N_CHANNELS, SOUND_CHUNKSIZE) == -1){
     std::stringstream strm;
@@ -31,26 +38,41 @@ SDLSoundManager::init(void (*finishedCallback)(int))
     log_message(ERR, strm.str());
   }
 
-  // Callback for tracking which sounds are on which channels
-  Mix_ChannelFinished(finishedCallback);
+  instance = this;
+
+  Mix_ChannelFinished(channelFinishedCallback);
 }
 
 void
 SDLSoundManager::loadFromPath(const std::string& path, const std::string& id)
 {
   printf("%s, %s\n", path.c_str(), id.c_str());
-  // SDLMixChunk chunk{Mix_LoadWAV_RW(src, 1)};
-  // if (sound == nullptr)
-  //   std::cout << Mix_GetError() << std::endl;
 
-  // // Add file to sound file bank
-  // mSoundFileBank.insert(std::make_pair(id, chunk));
+  Mix_Chunk* sound = nullptr;
+
+  #ifdef __EMSCRIPTEN__
+  #else
+  auto fs = cmrc::files::get_filesystem();
+  auto file = fs.open(path);
+  SDL_RWops *io = SDL_RWFromConstMem(file.begin(), file.end() - file.begin());
+  sound = Mix_LoadWAV_RW(io, 1);
+
+  if (sound == nullptr){
+    std::cout << Mix_GetError() << std::endl;
+    return;
+  }
+  // Add file to sound file bank
+  mSoundFileBank[id] = std::make_unique<SDLSoundChunk>(sound);
+  #endif
 }
 
 std::unique_ptr<Sound>
 SDLSoundManager::createSound(const std::string& soundName)
 {
-  return (std::unique_ptr<Sound>) std::make_unique<SDLSound>(mSoundFileBank[soundName].get());
+   std::unique_ptr<Sound> sound = std::make_unique<SDLSound>(mSoundFileBank[soundName].get());
+   sound->onFinishedPlaying = nullptr;
+
+   return sound;
 }
 
 void
@@ -119,8 +141,15 @@ SDLSoundManager::playSound(Sound* _sound)
 void
 SDLSoundManager::channelFinishedCallback(int channel)
 {
+
+  if(!instance)
+    return;
+
   // Obtain sound from mChannelToSound map
-  SDLSound* sound = mChannelToSound[channel];
+  SDLSound* sound = instance->mChannelToSound[channel];
+
+  if(!sound)
+    return;
 
   if (sound->onFinishedPlaying != nullptr) {
     // Call callback if the sound has one
@@ -129,7 +158,7 @@ SDLSoundManager::channelFinishedCallback(int channel)
 
   if (!sound) {
     // Remove the mChannelToSound entry
-    mChannelToSound.erase(channel);
+    instance->mChannelToSound.erase(channel);
     return;
   }
 
@@ -172,3 +201,4 @@ SDLSoundManager::setVolume(int volume, SoundGroup group)
     Mix_Volume(soundChannel, newVolume);
   }
 }
+

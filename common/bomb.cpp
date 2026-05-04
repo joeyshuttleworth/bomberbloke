@@ -157,7 +157,7 @@ bomb::explode()
         if(blocked)
           break;
 
-        auto sfx_manager = mrIOSystem.getSoundManager();
+        ISoundManager& sfx_manager = mrIOSystem.getSoundManager();
         explosionEffects.push_back(
                                    std::make_shared<Explosion>(gfx_manager, sfx_manager,
                                                                coord.first, coord.second, 1, 1, false, 30, 64, 0, withSound)

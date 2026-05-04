@@ -63,10 +63,10 @@ main(int argc, char** argv)
   _local_player_list.push_back(LocalPlayer(userName));
   _nickname = userName;
 
-  auto io_system_context = IOSystem(
-                                    std::make_unique<SDLGraphicsManager>(),
-                                    std::make_unique<SDLSoundManager>()
-                                    );
+  IOSystem io_system_context{
+    std::make_unique<SDLGraphicsManager>(),
+    std::make_unique<SDLSoundManager>()
+  };
 
   client_init(io_system_context);
 
@@ -81,7 +81,7 @@ main(int argc, char** argv)
                                                                                i, j, 1, 1, 60 + i + 2 * j, 600 - 2 * i - j, 0)));
     }
 
-    auto sound_manager = io_system_context.getSoundManager();
+    ISoundManager& sound_manager = io_system_context.getSoundManager();
     // Play intro music
     std::shared_ptr<Sound> pIntroSound =
       sound_manager.createSound("explosion_intro");

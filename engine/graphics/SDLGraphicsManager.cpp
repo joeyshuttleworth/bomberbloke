@@ -576,10 +576,10 @@ void SDLGraphicsManager::drawSprite(std::string asset_name, Rect _dstrect,
              bloomAmount, target);
 }
 
+
 SDLGraphicsManager::SDLGraphicsManager(){
   SDL_Init(SDL_INIT_VIDEO);
 }
-
 
 int SDLGraphicsManager::getWindowFlags(){
   int flags = SDL_GetWindowFlags(mpWindow);

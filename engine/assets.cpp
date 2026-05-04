@@ -13,7 +13,7 @@
 
 void
 loadAssets(
-           SoundManager&, // soundManager,
+           SoundManager& soundManager,
            IGraphicsManager& graphicsManager)
 {
     // Collect assets
@@ -36,13 +36,9 @@ loadAssets(
         std::string file_extension = entry.substr(dot_pos);
         // std::string full_path = "assets/" + entry;
 
-        if (file_extension == ".ttf")
+        if (file_extension == ".ogg")
         {
-        // textManager.loadFontFromPath(io, file_name);
-        }
-        else if (file_extension == ".ogg")
-        {
-        // soundManager.loadFromPath(io, file_name);
+        soundManager.loadFromPath(io, file_name);
         }
         else if (file_extension == ".png"){
           graphicsManager.loadSpriteFromPath(entry);
@@ -55,11 +51,14 @@ loadAssets(
 CMRC_DECLARE(files);
 
 void loadAssets(
-           ISoundManager&,
+           ISoundManager& soundManager,
            IGraphicsManager& graphicsManager)
 {
   auto fs = cmrc::files::get_filesystem();
-  for (auto &&entry : fs.iterate_directory("files/assets/"))
+
+  const std::string dir = "files/assets";
+
+  for (auto &&entry : fs.iterate_directory(dir))
   {
     auto dot_pos = entry.filename().find('.');
     if (dot_pos == std::string::npos)
@@ -71,13 +70,10 @@ void loadAssets(
     std::string file_extension = entry.filename().substr(dot_pos);
 
     auto fname = entry.filename();
-    if (file_extension == ".ttf")
+
+    if (file_extension == ".ogg")
     {
-      // textManager.loadFontFromPath(io, file_name);
-    }
-    else if (file_extension == ".ogg")
-    {
-      // soundManager.loadFromPath(io, file_name);
+      soundManager.loadFromPath(dir + "/" + entry.filename(), file_name);
     }
     else if (file_extension == ".png"){
       graphicsManager.loadSpriteFromPath(fname);
