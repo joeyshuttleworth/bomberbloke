@@ -1,7 +1,10 @@
 #ifndef IINPUTMANAGER_HPP
 #define IINPUTMANAGER_HPP
 
+#include "AbstractInputEvent.hpp"
+
 #include <utility>
+#include <string>
 
 class scene;
 class AbstractInputEvent;
@@ -18,13 +21,21 @@ public:
 
   virtual void init(){}
 
-  virtual unsigned int getKeyScanCode(unsigned int){return 0;}
+  virtual InputKey getKeyScanCode(unsigned int i){return (InputKey) i;}
 
-  virtual InputKey getPressedKey(){return KEY_NONE;}
+  virtual const std::pair<std::string, int>
+  handleTextInput(std::string, unsigned int, const AbstractInputEvent&)
+    const
+  {return {"", 0};}
 
-  virtual std::pair<std::string, unsigned int>
-  handleTextInput(std::string, unsigned int, const AbstractInputEvent&){return {"", 0};}
+  void setNextBindCommand(std::string& com)
+  {
+    mNextBindCommand = com;
+  }
 
+protected:
+  std::string mNextBindCommand;
+  const int DEADZONE = 9000;
 };
 
 

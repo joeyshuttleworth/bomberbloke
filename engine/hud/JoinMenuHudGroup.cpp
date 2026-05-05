@@ -182,11 +182,11 @@ JoinMenuHudGroup::onInput(const AbstractInputEvent& event){
   AbstractHudGroup::onInput(event);
 
   if (event.getInputType() == IEVENT_KEYDOWN){
-    if(event->key.keysym.sym == SDLK_ESCAPE){
+    if(event.getPressedKey() == KEY_ESCAPE){
       mGoBackFn();
       return;
     }
-    else if (event->key.keysym.sym == SDLK_TAB){
+    else if (event.getPressedKey() == KEY_TAB){
       // TODO tab to next hud element
     }
   }

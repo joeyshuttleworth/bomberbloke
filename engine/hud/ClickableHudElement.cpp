@@ -30,7 +30,7 @@ ClickableHudElement::isCoordOnElement(int x, int y)
 }
 
 void
-ClickableHudElement::onInput(AbstractInputEvent& event)
+ClickableHudElement::onInput(const AbstractInputEvent& event)
 {
   if (!mIsInteractive)
     return;

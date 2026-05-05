@@ -92,6 +92,16 @@ public:
   {
   }
 
+  ~Sound() = default;
+
+  Sound(Sound&) = delete;
+
+  Sound(Sound&& other) : mpSoundChunk(std::move(other.mpSoundChunk))
+  {
+  }
+
+  Sound& operator=(Sound&) = delete;
+
 
     int getVolume(){return mVolume;}
 

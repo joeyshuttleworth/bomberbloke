@@ -44,12 +44,13 @@ InputField::onInput(const AbstractInputEvent& event)
   // Handle text input
   if (mHasFocus)
     {
-      IInputManager& input_manager = mrIOSystem.getInputManager();
+      IInputManager& input_manager = mrScene.getInputManager();
       auto ret_pair = input_manager.handleTextInput(mTextInput, mCursorIndex,
                                                     event);
 
       mTextInput = ret_pair.first;
-      mCursorIndex = ret_pair.second;
+      mText->setCursorIndex(ret_pair.second);
+      mPropertiesUpdated = true;
     }
 }
 

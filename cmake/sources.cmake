@@ -1,5 +1,4 @@
 engine/actor/actor.cpp
-engine/graphics/SDLGraphicsManager.cpp
 engine/scene/scene.cpp
 engine/player/AbstractPlayer.cpp
 engine/engine.cpp
@@ -16,7 +15,6 @@ engine/collider/AbstractCollider.cpp
 engine/collider/KinematicCollider.cpp
 engine/animation/PlaceHolderSprite.cpp
 engine/camera/Camera.cpp
-engine/sound/SDLSoundManager.cpp
 engine/sound/DummySoundManager.cpp
 engine/text/Text.cpp
 engine/hud/ClickableHudElement.cpp
@@ -45,7 +43,3 @@ engine/event/ServerInfoEvent.cpp
 engine/navigation/NavGrid.cpp
 engine/bots/AbstractBot.cpp
 engine/graphics/IGraphicsManager.cpp
-engine/sound/ISoundManager.cpp
-engine/graphics/SDLTexture.cpp
-engine/input/SDLInputManager.cpp
-engine/input/SDLInputEvent.cpp

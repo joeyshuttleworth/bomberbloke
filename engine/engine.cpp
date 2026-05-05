@@ -32,7 +32,6 @@ int _log_message_level = 0;
 
 /* Global variables tracking state */
 bool _bind_next_key = false;
-std::string _next_bind_command;
 
 bool _halt = false;
 unsigned int _tick = 0;
@@ -47,10 +46,8 @@ std::shared_ptr<scene> _pNewScene;
 // std::list<std::shared_ptr<AbstractSpriteHandler>> _particle_list;
 
 /* TODO move to input interface */
-SDL_Joystick* _controller = nullptr;
+// SDL_Joystick* _controller = nullptr;
 bool _controller_connected = false;
-int DEADZONE = 9000;
-std::string dX = "0.1";
 
 /* TODO Move to client code - this is only relevant to client */
 std::string _nickname = "bloke";
@@ -118,8 +115,8 @@ init_engine
   _console_log_file.open("/tmp/bloke.log");
 
   /* Initialise the controller if it exists */
-  _controller = handle_input_controller();
-  _controller_connected = _controller != nullptr ? true : false;
+  // _controller = handle_input_controller();
+  // _controller_connected = _controller != nullptr ? true : false;
 
 
   LAUNCH_THREAD_DETACH(console_loop);
@@ -137,16 +134,16 @@ handle_input(IOSystem& ctx)
 }
 
 
-SDL_Joystick*
-handle_input_controller()
-{
-  SDL_Init(SDL_INIT_JOYSTICK);
-  if (SDL_NumJoysticks() > 0) {
-    std::cout << "Controlled connected\n ";
-    return SDL_JoystickOpen(0); // return joystick identifier
-  } else
-    return NULL; // no joystick found
-}
+// SDL_Joystick*
+// handle_input_controller()
+// {
+//   SDL_Init(SDL_INIT_JOYSTICK);
+//   if (SDL_NumJoysticks() > 0) {
+//     std::cout << "Controlled connected\n ";
+//     return SDL_JoystickOpen(0); // return joystick identifier
+//   } else
+//     return NULL; // no joystick found
+// }
 
 void
 logic_loop()
@@ -222,6 +219,15 @@ handle_system_command(IOSystem& ctx, Tokens tokens)
     iter++;
     _net_server->disconnectPlayer(*iter, tokens.back());
     return true;
+  }
+
+  else if (command == "pause" && !key_down){
+    _pScene->handleCommand("pause");
+  }
+
+  else if (command == "toggle_pause"){
+    if(!key_down)
+      _pScene->handleCommand("toggle_pause");
   }
 
   else if (command == "players" && _server) {
@@ -403,6 +409,7 @@ handle_system_command(IOSystem& ctx, Tokens tokens)
   }
 
   else if (command == "bind") {
+    IInputManager& input_manager = ctx.getInputManager();
     if (tokens.size() == 3) {
       auto i = tokens.begin();
       i++;
@@ -420,7 +427,6 @@ handle_system_command(IOSystem& ctx, Tokens tokens)
         return false;
       }
 
-      IInputManager& input_manager = ctx.getInputManager();
       new_command.scancode = input_manager.getKeyScanCode(key_number);
 
       _local_player_list.front().mControlScheme.push_back(new_command);
@@ -431,9 +437,11 @@ handle_system_command(IOSystem& ctx, Tokens tokens)
       _bind_next_key = true;
       auto i = tokens.begin();
       i++;
-      _next_bind_command = *i;
+
+      input_manager.setNextBindCommand(*i);
+
       log_message(INFO,
-                  "binding next keypress to command: " + _next_bind_command);
+                  "binding next keypress to command: " + *i);
     }
   }   // Colour command: request to change the players colour
   else if (!_server && command == "colour"){

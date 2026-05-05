@@ -42,6 +42,13 @@ public:
   using AbstractSpriteHandler::AbstractSpriteHandler;
 
   Explosion() : AbstractSpriteHandler(), mrSoundManager(_fallback_IO_system.getSoundManager()){
+    init();
+  }
+
+  Explosion(Explosion& other, ISoundManager& sfx) : AbstractSpriteHandler(other),
+                                                    mrSoundManager(sfx)
+  {
+    init();
   }
 
   Explosion(IGraphicsManager& gfx_manager, ISoundManager& sfx,

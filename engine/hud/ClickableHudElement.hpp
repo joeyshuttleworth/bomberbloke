@@ -31,7 +31,7 @@ public:
      *
      * @param camera    Current Camera object.
      */
-    void onInput(AbstractInputEvent& event);
+    void onInput(const AbstractInputEvent& event);
 
     // TODO: support keyboard and joystick selection
 

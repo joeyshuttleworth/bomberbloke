@@ -58,7 +58,7 @@ class IOSystem;
 #include "CommandQueue.hpp"
 
 void client_init(IOSystem&);
-void exit_engine(int);
+void exit_engine(int=0);
 void new_game(IOSystem&, std::string);
 void engine_new_game(std::string);
 void engine_start_game();
@@ -99,8 +99,11 @@ extern std::string _nickname;
 extern SDL_Joystick* _controller;
 extern bool _controller_connected;
 
+
+#include "InputKey.hpp"
+
 struct CommandBinding {
-  unsigned int scancode;
+  InputKey scancode;
   std::string command;
  };
 
@@ -145,7 +148,7 @@ extern std::vector<LocalPlayer> _local_player_list;
 
 class IGraphicsManager;
 
-const std::array<std::string, 10> _system_commands  =
+const std::array<std::string, 12> _system_commands  =
   {{"bind",
     "zoom",
     "draw",
@@ -155,6 +158,8 @@ const std::array<std::string, 10> _system_commands  =
     "generate_config",
     "info",
     "quit",
+    "pause",
+    "toggle_pause",
     "resize"}};
 
 /*  A function defined by the game / test called each tick */

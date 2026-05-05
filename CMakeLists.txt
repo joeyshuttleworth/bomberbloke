@@ -127,8 +127,8 @@ endif()
 # Build targets declared here
 #
 
-add_library(CLIENT ${SHARED_SOURCES} "engine/client.cpp" "engine/network/NetClient.cpp" "engine/graphics/SDLGraphicsManager.cpp")
-add_library(SERVER ${SHARED_SOURCES} "engine/server.cpp" "engine/network/NetServer.cpp")
+add_library(CLIENT ${SHARED_SOURCES} "engine/client.cpp" "engine/graphics/SDLGraphicsManager.cpp" "engine/graphics/SDLTexture.cpp" "engine/sound/SDLSoundManager.cpp" "engine/input/SDLInputManager.cpp" "engine/input/SDLInputEvent.cpp")
+add_library(SERVER ${SHARED_SOURCES} "engine/server.cpp")
 
 target_link_libraries(CLIENT PUBLIC files::rc ${SDL2_LIBRARIES} ${SDL2_IMAGE_LIBRARIES} ${CURL_LIBRARIES} NET_LIB)
 target_link_libraries(SERVER PUBLIC files::rc NET_LIB)
@@ -139,7 +139,7 @@ add_executable(bomberbloke_client ${client_src} "engine/client.cpp")
 target_link_libraries(bomberbloke_client PUBLIC files::rc CLIENT)
 
 # Server
-set(server_src "server/bomberbloke_server.cpp" "engine/server.cpp" "engine/network/NetServer.cpp")
+set(server_src "server/bomberbloke_server.cpp" "engine/server.cpp")
 add_executable(bomberbloke_server ${server_src})
 set_target_properties(bomberbloke_server PROPERTIES PUBLIC_HEADER "engine/server.h")
 target_link_libraries(bomberbloke_server SERVER ${SDL2_LIBRARIES} ${CURL_LIBRARIES} NET_LIB)

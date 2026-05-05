@@ -53,6 +53,7 @@ public:
 
   IGraphicsManager& getGraphicsManager(){return mrIOSystem.getGraphicsManager();};
   ISoundManager& getSoundManager(){return mrIOSystem.getSoundManager();};
+  IInputManager& getInputManager(){return mrIOSystem.getInputManager();};
 
   std::array<double, 2> getDimension(){return mDimension;}
 

@@ -64,6 +64,8 @@ client_loop(IOSystem& io_system_context)
     // Perform client tick
     client_entry(io_system_context);
   }
+
+  exit_engine();
 }
 
 void client_entry(IOSystem& io_system_context) {

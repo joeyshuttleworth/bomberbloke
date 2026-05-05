@@ -513,6 +513,10 @@ BomberBlokeScene::handleCommand(std::string str)
   if (str == "all")
     SetCamera(mSceneCamera);
 
+  else if (tokens.front() == "toggle_pause"){
+    togglePause();
+  }
+
   else if (tokens.front() == "pause"){
       setPause(true);
   }

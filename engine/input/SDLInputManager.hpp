@@ -2,12 +2,13 @@
 #define SDLINPUTMANAGER_HPP
 
 #include <cstdint>
-#include <pair>
+#include <utility>
+
 #include "IInputManager.hpp"
 
 class scene;
 
-class SDLInputManager : IInputManager{
+class SDLInputManager : public IInputManager{
 public:
   using IInputManager::IInputManager;
   using IInputManager::operator=;
@@ -16,10 +17,12 @@ public:
 
   void init() override;
 
-  std::pair<std::string, unsigned int>
+  const std::pair<std::string, int>
   handleTextInput(std::string field_text, unsigned int cursor_pos,
-                  const AbstactInputEvent& _event)
+                  const AbstractInputEvent& _event) const
     override;
+
+  ~SDLInputManager() {delete _kb_state;}
 
 protected:
   uint8_t* _kb_state = nullptr;

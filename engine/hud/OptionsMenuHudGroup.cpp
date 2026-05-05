@@ -316,6 +316,7 @@ OptionsMenuHudGroup::increaseMasterVolume()
   if (newVolumeLabel > 8) {
     newVolumeLabel = 8;
   }
+
   mrSoundManager.setVolume(newVolumeLabel * 128 / 8, SOUND_MASTER);
 
   // Set new volume label
@@ -332,6 +333,8 @@ OptionsMenuHudGroup::reduceMusicVolume()
   if (newVolumeLabel < 0) {
     newVolumeLabel = 0;
   }
+
+  mrSoundManager.setVolume(newVolumeLabel * 128 / 8, SOUND_MUSIC);
 
   // Set new volume label
   std::shared_ptr<TextHudElement> label = mMusicVolumeLabel.lock();

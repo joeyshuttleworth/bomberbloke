@@ -7,6 +7,7 @@
 #include "bomb.hpp"
 #include "SDLGraphicsManager.hpp"
 #include "SDLSoundManager.hpp"
+#include "SDLInputManager.hpp"
 #include <getopt.h>
 #include <network/NetClient.hpp>
 
@@ -48,25 +49,27 @@ main(int argc, char** argv)
     autoConnect = true;
   }
 
-  _default_bindings = { { SDL_SCANCODE_W, "up" },
-                        { SDL_SCANCODE_S, "down" },
-                        { SDL_SCANCODE_A, "left" },
-                        { SDL_SCANCODE_D, "right" },
-                        { SDL_SCANCODE_J, "powerup" },
-                        { SDL_SCANCODE_K, "bomb" },
-                        { SDL_SCANCODE_P, "pause" },
-                        { SDL_SCANCODE_MINUS, "zoom *.8" },
-                        { SDL_SCANCODE_EQUALS, "zoom *1.25" },
-                        { SDL_SCANCODE_F, "zoom follow" },
-                        { SDL_SCANCODE_0, "zoom all" } };
+  _default_bindings = { { KEY_W, "up" },
+                        { KEY_S, "down" },
+                        { KEY_A, "left" },
+                        { KEY_D, "right" },
+                        { KEY_J, "powerup" },
+                        { KEY_K, "bomb" },
+                        { KEY_P, "pause" },
+                        { KEY_ESCAPE, "toggle_pause" },
+                        { KEY_MINUS, "zoom *.8" },
+                        { KEY_EQUALS, "zoom *1.25" },
+                        { KEY_F, "zoom follow" },
+                        { KEY_0, "zoom all" } };
 
   _local_player_list.push_back(LocalPlayer(userName));
   _nickname = userName;
 
-  IOSystem io_system_context{
-    std::make_unique<SDLGraphicsManager>(),
-    std::make_unique<SDLSoundManager>()
-  };
+  IOSystem io_system_context(
+                             std::make_unique<SDLGraphicsManager>(),
+                             std::make_unique<SDLSoundManager>(),
+                             std::make_unique<SDLInputManager>()
+                             );
 
   client_init(io_system_context);
 

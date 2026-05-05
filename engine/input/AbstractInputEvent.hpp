@@ -1,6 +1,8 @@
 #ifndef ABSTRACTINPUTEVENT_HPP
 #define ABSTRACTINPUTEVENT_HPP
 
+#include "InputKey.hpp"
+
 #include <array>
 
 enum InputEventType {
@@ -16,20 +18,6 @@ enum InputEventType {
 };
 
 
-enum InputKey{
-  KEY_NONE = 0,
-  KEY_ESC,
-  KEY_LEFTARROW,
-  KEY_RIGHTARROW,
-  KEY_UPARROW,
-  KEY_DOWNARROW,
-  KEY_UPARROW,
-  KEY_DOWNARROW,
-  KEY_TAB,
-  KEY_BACKSPACE,
-  KEY_RETURN
-}
-
 class AbstractInputEvent{
 
 public:
@@ -43,13 +31,13 @@ public:
 
   AbstractInputEvent& operator=(AbstractInputEvent& other) = delete;
 
-  virtual unsigned int getKey() const {return 0;}
-
-  virtual std::array<unsigned int, 2> getMouseLocation() const {return {0, 0};}
+  virtual const std::array<int, 2> getMouseLocation() const {return {0, 0};}
 
   InputEventType getInputType() const {
     return mInputType;
   }
+
+  virtual InputKey getPressedKey() const {return KEY_UNKNOWN;}
 
 protected:
   const InputEventType mInputType = IEVENT_NONE;

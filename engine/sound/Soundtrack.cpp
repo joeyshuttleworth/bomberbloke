@@ -48,6 +48,12 @@ Soundtrack::Soundtrack(ISoundManager& sound_manager, std::list<std::string> clip
   auto callback = std::bind(&Soundtrack::onClipFinished, this);
   for (auto i = clipNames.begin(); i != clipNames.end(); i++) {
     auto clipSound = mrSoundManager.createSound(*i);
+
+    if(!clipSound){
+      log_message(DEBUG, "Couldn't create soundtrack");
+      return;
+    }
+
     clipSound->setGroup(SOUND_MUSIC);
     clipSound->onFinishedPlaying = callback;
     mClipSounds.push_back(std::move(clipSound));
@@ -57,6 +63,10 @@ Soundtrack::Soundtrack(ISoundManager& sound_manager, std::list<std::string> clip
 void
 Soundtrack::playIdle()
 {
+
+  if(mClipSounds.size() == 0)
+    return;
+
   if (!mIsIdle && mIsPlaying) {
     auto iter = mClipSounds.begin();
     std::advance(iter, mCurrentIndex);
@@ -73,6 +83,9 @@ Soundtrack::playIdle()
 void
 Soundtrack::play()
 {
+  if(mClipSounds.size() == 0)
+    return;
+
   if (mIsIdle && mIsPlaying) {
     mIsIdle = false;
     mClipSounds.front()->stop();

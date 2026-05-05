@@ -1,60 +1,38 @@
 #include "SDLInputManager.hpp"
+#include "SDLInputEvent.hpp"
 #include "scene.hpp"
 #include "engine.hpp"
+#include "actor.hpp"
+#include "LocalPlayer.hpp"
+#include "NetClient.hpp"
+#include "CommandEvent.hpp"
 
 
-InputKey SDLInputManager::getPressedKey()
-{
-
-  switch(mEvent.getInputType()){
-  case IEVENT_KEYDOWN:
-  case IEVENT_KEYUP:
-    break;
-  default:
-    return KEY_NONE;
-  }
-
-  switch(mEvent.key.keysym.scancode){
-  case SDL_SCANCODE_ESCAPE:
-    return KEY_ESC;
-  case SDL_SCANCODE_RETURN:
-    return KEY_RETURN
-  case SDL_SCANCODE_BACKSPACE:
-    return KEY_BACKSPACE;
-  case SDL_SCANCODE_TAB:
-    return KEY_TAB;
-  case SDL_SCANCODE_RIGHT:
-    return KEY_RIGHTARROW;
-  case SDL_SCANCODE_LEFT:
-    return KEY_LEFTARROW;
-  case SDL_SCANCODE_UP:
-    return KEY_UPARROW;
-  case SDL_SCANCODE_DOWN:
-    return KEY_DOWNARROW;
-  }
-
-  return KEY_NONE;
-}
-
+static const std::string dX = "0.1";
 
 void SDLInputManager::handleInput(scene& scn){
    SDL_Event sdl_event;
   //  bool key_up = true;
   Uint8* kb_state = NULL;
-  while (SDL_PollEvent(&sdl_event)) {
 
+  IOSystem& ctx = scn.getIOSystem();
+
+  while (SDL_PollEvent(&sdl_event)) {
+    bool forward_to_scene = false;
     switch (sdl_event.type) {
       case SDL_QUIT: {
         _halt = true;
         break;
       }
       case SDL_KEYDOWN: {
-        if (!mBindNextKey)
+        if (!mBindNextKey){
+          forward_to_scene = true;
           break;
+        }
         /*We only look at keyboard events here in order to bind keys*/
         CommandBinding new_binding;
-        new_binding.scancode = sdl_event.key.keysym.scancode;
-        new_binding.command = _next_bind_command;
+        new_binding.scancode = SDLInputEvent(sdl_event).getPressedKey();
+        new_binding.command = mNextBindCommand;
         _local_player_list.back().mControlScheme.push_back(new_binding);
         mBindNextKey = false;
         log_message(INFO,
@@ -65,17 +43,23 @@ void SDLInputManager::handleInput(scene& scn){
       case SDL_WINDOWEVENT: {
         if (sdl_event.window.event == SDL_WINDOWEVENT_RESIZED) {
           scn.onResize();
-          break;
         }
+        break;
 
         default:{
-          // Create an AbstractInputEvent derived event
-          const SDLInputEvent event(sdl_event);
-          scn.onInput(event);
+          forward_to_scene = true;
+          break;
         }
       }
     }
+
+    if(forward_to_scene){
+      const SDLInputEvent event(sdl_event);
+      scn.onInput(event);
+    }
+
   }
+
 
   kb_state = (Uint8*)SDL_GetKeyboardState(NULL);
 
@@ -98,22 +82,24 @@ void SDLInputManager::handleInput(scene& scn){
           if (std::find(_system_commands.begin(),
                         _system_commands.end(),
                         split_to_tokens(j->command).front()) != _system_commands.end()) {
+            // process system command
             handle_system_command(ctx,
-              split_to_tokens(command_to_send)); // process system command
+                                  split_to_tokens(command_to_send));
           } else {
             std::shared_ptr<actor> character = i->getCharacter();
             if (character) {
               character->handleCommand(command_to_send); // handle normal command
 
               if (!_server) {
-                std::unique_ptr<AbstractEvent> c_event(
-                  new CommandEvent(command_to_send));
+                std::unique_ptr<AbstractEvent> c_event =
+                  std::make_unique<CommandEvent>(command_to_send);
                 if(_net_client->mConnector)
                   _net_client->mConnector->broadcastEvent(std::move(c_event));
               }
             } else {
-              log_message(
-                DEBUG, "Input received but no character connected to player!");
+              _pScene->handleCommand(j->command);
+              // log_message(
+              //   DEBUG, "Input received but no character connected to player!");
             }
           }
         }
@@ -147,58 +133,20 @@ void SDLInputManager::handleInput(scene& scn){
   return;
 }
 
-
-SDLInputEvent::SDLInputEvent(SDL_Event event) : mSDLEvent(event)
-{
-  InputEventType e_type;
-
-  switch(event.type){
-  case SDL_QUIT:
-    e_type = IEVENT_QUIT;
-    break;
-  case SDL_KEYDOWN:
-    e_type = IEVENT_KEYDOWN;
-    break;
-  case SDL_KEYUP:
-    e_type = IEVENT_KEYUP;
-    break;
-  case SDL_WINDOWEVENT:
-    if(event.window.event == SDL_WINDOWEVENT_RESIZED)
-      e_type = IEVENT_WINDOWRESIZEEVENT;
-    else
-      e_type = IEVENT_NONE;
-    break;
-  case SDL_JOYAXISMOTION:
-    e_type = IEVENT_JOYAXISMOTION;
-    break;
-  case SDL_MOUSEBUTTONUP:
-    e_type = IEVENT_MOUSEBUTTONUP;
-    break;
-  case SDL_MOUSEBUTTONDOWN:
-    e_type = IEVENT_MOUSEBUTTONDOWN;
-    break;
-  case SDL_MOUSEMOTION:
-    e_type = IEVENT_MOUSEMOTION;
-    break;
-  default:
-    e_type = IEVENT_NONE;
-  }
-  AbstractInputEvent(e_type);
-}
-
-SDLInputManager::init(){
+void SDLInputManager::init(){
   _kb_state = (Uint8*)malloc(sizeof(Uint8) * SDL_SCANCODE_APP2); // max scancode
   memset((void*)_kb_state, 0, sizeof(Uint8) * SDL_SCANCODE_APP2);
 }
 
 
-std::pair<std::string, unsigned int pos>
+const std::pair<std::string, int>
 SDLInputManager::handleTextInput(std::string text, unsigned int pos,
                                  const AbstractInputEvent& _event)
+  const
 {
 
-  SDLInputEvent& sdl_input_event = _event;
-  SDL_Event& event = sdl_input_event.mEvent;
+  const SDLInputEvent& sdl_input_event = (const SDLInputEvent&) _event;
+  const SDL_Event& event = sdl_input_event.mSDLEvent;
 
   if (event.type == SDL_KEYDOWN) {
     const SDL_Keysym& key = event.key.keysym;
@@ -247,5 +195,5 @@ SDLInputManager::handleTextInput(std::string text, unsigned int pos,
     pos += SDL_strlen(input);
   }
 
-  return {text, pos};
+  return std::pair<std::string, unsigned int>{text, pos};
 }

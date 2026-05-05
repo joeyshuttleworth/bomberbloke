@@ -19,16 +19,16 @@ public:
     mpSoundManager(std::move(smng)),
     mpInputManager(std::move(input))
   {
-  }
-
-  IOSystem() :
-    mpGraphicsManager(std::make_unique<DummyGraphicsManager>()),
-    mpSoundManager(std::make_unique<DummySoundManager>()),
-    mpInputManager(std::make_unique<DummyInputManager>())
-  {
     mpSoundManager->init();
     mpGraphicsManager->init();
     mpInputManager->init();
+  }
+
+  IOSystem() :
+    IOSystem(std::make_unique<DummyGraphicsManager>(),
+             std::make_unique<DummySoundManager>(),
+             std::make_unique<DummyInputManager>())
+  {
   }
 
   ~IOSystem() = default;

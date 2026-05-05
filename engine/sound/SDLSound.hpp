@@ -20,6 +20,15 @@ struct SDLSoundChunk : SoundChunk{
       Mix_FreeChunk(mpMixChunk);
   }
 
+  SDLSoundChunk(SDLSoundChunk&) = delete;
+
+  SDLSoundChunk(SDLSoundChunk&& other) : mpMixChunk(std::move(other.mpMixChunk))
+  {
+    other.mpMixChunk = nullptr;
+  }
+
+  SDLSoundChunk& operator=(SDLSoundChunk&) = delete;
+
   Mix_Chunk* mpMixChunk;
 };
 
@@ -30,8 +39,11 @@ class SDLSound : public Sound{
 
 public:
 
-  SDLSound(SDLSoundChunk* sound_chunk=nullptr) : mpMixChunk(sound_chunk){}
+  using Sound::Sound;
+  using Sound::operator=;
 
+  SDLSound(SDLSoundChunk* sound_chunk=nullptr) : mpMixChunk(sound_chunk){}
+  
     /**
      * Pauses sound.
      */
