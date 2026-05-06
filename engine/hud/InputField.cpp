@@ -50,6 +50,7 @@ InputField::onInput(const AbstractInputEvent& event)
 
       mTextInput = ret_pair.first;
       mText->setCursorIndex(ret_pair.second);
+      mCursorIndex = ret_pair.second;
       mPropertiesUpdated = true;
     }
 }
