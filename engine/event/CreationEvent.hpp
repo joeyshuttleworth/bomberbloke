@@ -9,6 +9,7 @@
 #include <cereal/types/vector.hpp>
 #include <cereal/types/polymorphic.hpp>
 #include "actor.hpp"
+#include "Sound.hpp"
 
 extern unsigned int _tick;
 
@@ -18,6 +19,7 @@ class CreationEvent : public AbstractEvent{
 private:
   std::shared_ptr<actor> mActor = nullptr;
   std::shared_ptr<AbstractSpriteHandler> mParticle = nullptr;
+  std::shared_ptr<Sound> mSound = nullptr;
   unsigned int mTick;
 public:
   EventType getType() const{
@@ -26,7 +28,9 @@ public:
 
   std::shared_ptr<actor> getActor(){return mActor;}
 
-  std::shared_ptr<AbstractSpriteHandler>getParticle(){return mParticle;}
+  std::shared_ptr<AbstractSpriteHandler> getParticle(){return mParticle;}
+
+  std::shared_ptr<Sound> getSound(){return mSound;}
 
   /* Default constructor needed for cereal */
   CreationEvent(){}
@@ -43,14 +47,25 @@ public:
     return;
   }
 
+  CreationEvent(std::shared_ptr<Sound> sound){
+    mSound = sound;
+    mTick = _tick;
+    return;
+  }
+
   template<class Archive>
   /* Used by cereal to serialize the event for it to be sent/received */
   void serialize(Archive &archive){
-    archive(cereal::base_class<AbstractEvent>(this), cereal::make_nvp("tick", mTick), cereal::make_nvp("actor", mActor), cereal::make_nvp("particle", mParticle));
+    archive(cereal::base_class<AbstractEvent>(this),
+            cereal::make_nvp("tick", mTick),
+            cereal::make_nvp("actor", mActor),
+            cereal::make_nvp("particle", mParticle),
+            cereal::make_nvp("sound", mSound)
+            );
   }
 };
 
-CEREAL_REGISTER_TYPE(CreationEvent)
+CEREAL_REGISTER_TYPE(CreationEvent);
 
 #endif
 

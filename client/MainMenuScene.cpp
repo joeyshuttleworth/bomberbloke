@@ -12,7 +12,6 @@ MainMenuScene::MainMenuScene(IOSystem& ctx, int size_x, int size_y) : scene(ctx,
   mHudElements.push_back(menuHud);
 
   IGraphicsManager& gfx_manager = ctx.getGraphicsManager();
-  ISoundManager& sfx_manager = ctx.getSoundManager();
 
   mpCamera = std::make_shared<ShowAllCamera>(gfx_manager, this);
   SetCamera(mpCamera);
@@ -22,9 +21,9 @@ MainMenuScene::MainMenuScene(IOSystem& ctx, int size_x, int size_y) : scene(ctx,
       int speed = (30 + i + 2 * j);
       auto explosion =
         std::make_shared<Explosion>(
-                                    gfx_manager, sfx_manager,
+                                    gfx_manager,
                                     (double) i, (double) j, 1.0f, 1.0f, true, speed,
-                                    std::numeric_limits<int>::max(), 0, false, false, 0
+                                    std::numeric_limits<int>::max(), 0, false, 0
                                     );
 
       mParticles.push_back(explosion);

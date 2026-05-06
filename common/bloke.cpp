@@ -108,7 +108,7 @@ bloke ::handleCommand(std::string command)
   } else {
     if (command == "+bomb") {
       ISoundManager& sfx = mrIOSystem.getSoundManager();
-      sfx.playSound(mPlaceBombSound.get());
+      sfx.playSound(mPlaceBombSound);
     }
   }
   return;

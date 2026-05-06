@@ -1,21 +1,7 @@
 #include "Explosion.hpp"
-#include "Sound.hpp"
 #include "engine.hpp"
 
 class IGraphicsManager;
-
-void Explosion::initSounds(){
-  /* Create sound objects for explosion sound effects */
-
-  if(mSound) {
-    for (int i = 0; i < N_EXPLOSION_SOUNDS; i++) {
-      mExplosionSounds[i] = mrSoundManager.createSound(mExplosionSoundNames[i]);
-      if(mExplosionSounds[i]){
-        mExplosionSounds[i]->setGroup(SOUND_FX);
-      }
-    }
-  }
-}
 
 void
 Explosion::draw_legacy(Camera* cam)
@@ -55,15 +41,6 @@ Explosion::draw(Camera* cam)
 
   if (!mStarted) {
     mStarted = true;
-    if (mSound && !_server) {
-      /* Play explosion sound effect */
-      int randIndex = std::rand() % N_EXPLOSION_SOUNDS;
-      Sound* bomb_sound = mExplosionSounds[randIndex].get();
-
-      if(bomb_sound)
-        mrSoundManager.playSound(bomb_sound);
-    }
-
     if (mRumble)
       cam->rumble();
   }

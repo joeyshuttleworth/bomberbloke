@@ -26,7 +26,7 @@ private:
     /**
      * Map from channel number to currently playing Sound
      */
-    std::map<int, SDLSound*> mChannelToSound;
+  std::map<int, std::shared_ptr<SDLSound>> mChannelToSound;
 
   /**
    * Callback function when channel is finished
@@ -49,7 +49,7 @@ public:
   /**
    * Play sound object.
    */
-    void playSound(Sound* sound) override;
+  void playSound(std::shared_ptr<Sound> sound) override;
     /**
      * Loads sound file into soundFileBank.
      */
@@ -58,18 +58,21 @@ public:
     /**
      * Create Sound object from sound name.
      */
-    std::unique_ptr<Sound> createSound(const std::string& soundName) override;
+    std::shared_ptr<Sound> createSound(const std::string& soundName) override;
 
-    /**
-     * Sets the volume - the volume applied to all channels.
-     *
-     * @param volume  0-128 where 128 is the maximum volume.
-     * @param group   Sound group to change the volume of.
-     */
-    void setVolume(int volume, SoundGroup group=SOUND_MASTER) override;
+  /**
+   * Sets the volume - the volume applied to all channels.
+   *
+   * @param volume  0-128 where 128 is the maximum volume.
+   * @param group   Sound group to change the volume of.
+   */
+  void setVolume(int volume, SoundGroup group=SOUND_MASTER) override;
 
-    SDLSoundManager();
-    ~SDLSoundManager();
+  std::shared_ptr<Sound> cloneSound(Sound& sound) override;
+
+  using ISoundManager::ISoundManager;
+  SDLSoundManager();
+  ~SDLSoundManager();
 };
 
 #endif

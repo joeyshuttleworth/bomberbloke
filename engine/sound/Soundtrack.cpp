@@ -76,7 +76,7 @@ Soundtrack::playIdle()
   } else if (!mIsPlaying) {
     mIsIdle = true;
     mIsPlaying = true;
-    mrSoundManager.playSound(mClipSounds.front().get());
+    mrSoundManager.playSound(mClipSounds.front());
   }
 }
 
@@ -116,7 +116,7 @@ Soundtrack::onClipFinished()
   if (mIsIdle && mIsPlaying) {
     // If idle, continue playing idle clip
     mIsPlaying = true;
-    mrSoundManager.playSound(mClipSounds.front().get());
+    mrSoundManager.playSound(mClipSounds.front());
   } else if (mIsPlaying) {
     // Generate uniform random sample in range [0, 1]
     std::random_device rd;
@@ -149,7 +149,7 @@ Soundtrack::onClipFinished()
     auto iter = mClipSounds.begin();
     std::advance(iter, mCurrentIndex);
     mIsPlaying = true;
-    mrSoundManager.playSound(iter->get());
+    mrSoundManager.playSound(*iter);
   }
 }
 

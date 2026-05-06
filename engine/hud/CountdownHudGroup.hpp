@@ -28,10 +28,10 @@ protected:
   std::function<void()> mOnFinished;
 
   // Countdown sound effects
-  std::unique_ptr<Sound> m3Sound;
-  std::unique_ptr<Sound> m2Sound;
-  std::unique_ptr<Sound> m1Sound;
-  std::unique_ptr<Sound> mCommenceSound;
+  std::shared_ptr<Sound> m3Sound;
+  std::shared_ptr<Sound> m2Sound;
+  std::shared_ptr<Sound> m1Sound;
+  std::shared_ptr<Sound> mCommenceSound;
 public:
   /**
    * Constructor for CountdownHudGroup.

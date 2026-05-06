@@ -66,22 +66,22 @@ SDLSoundManager::loadFromPath(const std::string& path, const std::string& id)
   #endif
 }
 
-std::unique_ptr<Sound>
+std::shared_ptr<Sound>
 SDLSoundManager::createSound(const std::string& soundName)
 {
-   std::unique_ptr<Sound> sound = std::make_unique<SDLSound>(mSoundFileBank[soundName].get());
+   std::shared_ptr<Sound> sound = std::make_unique<SDLSound>(mSoundFileBank[soundName].get());
    sound->onFinishedPlaying = nullptr;
 
    return sound;
 }
 
 void
-SDLSoundManager::playSound(Sound* _sound)
+SDLSoundManager::playSound(std::shared_ptr<Sound> _sound)
 {
   if (!_sound)
     return;
 
-  SDLSound* sound = (SDLSound*) _sound;
+  std::shared_ptr<SDLSound> sound = std::static_pointer_cast<SDLSound>(_sound);
 
   if(!sound)
     return;
@@ -146,7 +146,7 @@ SDLSoundManager::channelFinishedCallback(int channel)
     return;
 
   // Obtain sound from mChannelToSound map
-  SDLSound* sound = instance->mChannelToSound[channel];
+  SDLSound* sound = instance->mChannelToSound[channel].get();
 
   if(!sound)
     return;
@@ -184,7 +184,7 @@ SDLSoundManager::setVolume(int volume, SoundGroup group)
     int soundChannel = iter->first;
     int newVolume = mMasterVolume;
 
-    SDLSound* sound = iter->second;
+    SDLSound* sound = iter->second.get();
 
     if(!sound)
       continue;
@@ -202,3 +202,8 @@ SDLSoundManager::setVolume(int volume, SoundGroup group)
   }
 }
 
+
+std::shared_ptr<Sound> SDLSoundManager::cloneSound(Sound& sound)
+{
+  return std::make_unique<SDLSound>(mSoundFileBank[sound.mName].get(), sound);
+}

@@ -79,14 +79,14 @@ CountdownHudGroup::update()
 
         // Play sound effect
         if (secsLeft == 3)
-          mrSoundManager.playSound(m3Sound.get());
+          mrSoundManager.playSound(m3Sound);
         else if (secsLeft == 2)
-          mrSoundManager.playSound(m2Sound.get());
+          mrSoundManager.playSound(m2Sound);
         else if (secsLeft == 1)
-          mrSoundManager.playSound(m1Sound.get());
+          mrSoundManager.playSound(m1Sound);
       } else {
         // Countdown is over
-        mrSoundManager.playSound(mCommenceSound.get());
+        mrSoundManager.playSound(mCommenceSound);
         setIsVisible(false);
         mTicksLeft = 0;
         mOnFinished();

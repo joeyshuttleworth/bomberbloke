@@ -7,6 +7,10 @@
 
 #include "Sound.hpp"
 
+#include <cereal/types/vector.hpp>
+#include <cereal/types/polymorphic.hpp>
+#include <cereal/types/string.hpp>
+#include <cereal/archives/portable_binary.hpp>
 
 class SoundChunk;
 class SDLSoundManager;
@@ -43,7 +47,11 @@ public:
   using Sound::operator=;
 
   SDLSound(SDLSoundChunk* sound_chunk=nullptr) : mpMixChunk(sound_chunk){}
-  
+
+  SDLSound(SDLSoundChunk* sound_chunk, Sound& sound) : Sound(sound), mpMixChunk(sound_chunk)
+  {
+  }
+
     /**
      * Pauses sound.
      */
@@ -89,8 +97,14 @@ public:
         return mpMixChunk->mpMixChunk->alen * 1000 / (SOUND_FREQUENCY * SOUND_N_CHANNELS * 2);
     }
 
+  template<class Archive>
+  void serialize(Archive &archive){
+    archive(cereal::base_class<Sound>(this));
+  }
+
 protected:
-  SDLSoundChunk* mpMixChunk;
+  const SDLSoundChunk* mpMixChunk;
 };
 
+CEREAL_REGISTER_TYPE(SDLSound)
 #endif

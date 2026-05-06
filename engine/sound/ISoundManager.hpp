@@ -41,11 +41,11 @@ public:
     /**
      * Play sound object.
      */
-    virtual void playSound(Sound*){};
+  virtual void playSound(std::shared_ptr<Sound>){};
 
   virtual void destroySound(Sound*){};
 
-  virtual std::unique_ptr<Sound> createSound(const std::string&){return nullptr;}
+  virtual std::shared_ptr<Sound> createSound(const std::string&) = 0;
 
   /**
      * Sets the volume - the volume applied to all channels.
@@ -55,7 +55,7 @@ public:
      */
     virtual void setVolume(int, SoundGroup =SOUND_MASTER){}
 
-    /**
+     /**
      * Gets the master volume - the volume applied to all channels.
      */
     int getVolume(SoundGroup group=SOUND_MASTER) {
@@ -66,6 +66,8 @@ public:
         else
           return mMasterVolume;
     }
+
+  virtual std::shared_ptr<Sound> cloneSound(Sound&) = 0;
 
    ISoundManager(bool debug=false) : mDebug(debug){};
   ~ISoundManager(){};

@@ -8,6 +8,8 @@
 #include "AbstractCamera.hpp"
 #include "DummyCamera.hpp"
 
+class Sound;
+
 class DummyGraphicsManager : public IGraphicsManager{
 protected:
   /* TODO Add some debugging functionality */

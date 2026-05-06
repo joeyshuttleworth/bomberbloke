@@ -84,7 +84,7 @@ TextButton::onClick(int x, int y)
 {
 
   // Play click sound
-  mrSoundManager.playSound(mClickSound.get());
+  mrSoundManager.playSound(mClickSound);
 
   // Call mOnClick function.
   ClickableHudElement::onClick(x, y);

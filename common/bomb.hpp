@@ -15,6 +15,9 @@ struct BombPath {
 
 class bomb : public actor {
  protected:
+
+  static const int N_EXPLOSION_SOUNDS  = 2;
+
   static constexpr double _bomb_delta = 0.01;
   bool mInitialised = false;
 
@@ -27,6 +30,10 @@ class bomb : public actor {
   bool mSatellite = false;
 
   std::vector<BombPath> identifyTargetSquares();
+
+
+  const std::string mExplosionSoundNames[N_EXPLOSION_SOUNDS] = {"bomb_1", "bomb_2"};
+  std::shared_ptr<Sound> mpExplosionSound = nullptr;
 
  public:
   /*Cereal serialisation*/
@@ -41,6 +48,10 @@ class bomb : public actor {
   void init(){
     mpSpriteHandler = std::make_shared<staticSprite>(mrIOSystem.getGraphicsManager(), mPosition[0],
                                                      mPosition[1], BOMB_SIZE, BOMB_SIZE, "bomb.png");
+
+
+    const std::string explosion_sound_name = mExplosionSoundNames[rand() % N_EXPLOSION_SOUNDS];
+    mpExplosionSound = mrIOSystem.getSoundManager().createSound(explosion_sound_name);
   }
 
   void explode();

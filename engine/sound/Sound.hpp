@@ -5,6 +5,11 @@
 #include <functional>
 #include <map>
 
+#include <cereal/types/vector.hpp>
+#include <cereal/types/polymorphic.hpp>
+#include <cereal/types/string.hpp>
+#include <cereal/archives/portable_binary.hpp>
+
 enum SoundGroup {
     SOUND_MASTER,
     SOUND_MUSIC,
@@ -84,7 +89,7 @@ public:
     return mGroup;
   }
 
-  const std::string mName;
+  std::string mName = "";
 
   Sound(const std::string& name = "", SoundChunk* s_chunk = nullptr) :                                                                      mpSoundChunk(std::move(s_chunk)),
                                                                                                                                            mName(name)
@@ -94,7 +99,12 @@ public:
 
   ~Sound() = default;
 
-  Sound(Sound&) = delete;
+  Sound(Sound& other) : mGroup(other.mGroup),
+    mNLoops(other.mNLoops), mMaxLengthMs(other.mMaxLengthMs), mFadeInMs(other.mFadeInMs),
+    mVolume(other.mVolume), mDistance(other.mDistance), mAngle(other.mAngle),
+    mName(other.mName)
+  {
+  }
 
   Sound(Sound&& other) : mpSoundChunk(std::move(other.mpSoundChunk))
   {
@@ -138,7 +148,13 @@ public:
     virtual int getLengthMs() {
       return 0;
     }
+
+  template<class Archive>
+  void serialize(Archive &archive){
+    archive(mNLoops, mMaxLengthMs, mFadeInMs, mVolume, mDistance, mAngle, mGroup, mName);
+  }
 };
 
+CEREAL_REGISTER_TYPE(Sound)
 
 #endif

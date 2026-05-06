@@ -51,7 +51,7 @@ public:
 
 protected:
   // List of clip sounds.
-  std::list<std::unique_ptr<Sound>> mClipSounds;
+  std::list<std::shared_ptr<Sound>> mClipSounds;
   // Transition matrix.
   std::list<std::list<double>> mTransitions = {{}};
   // Transition matrix for intense mode.

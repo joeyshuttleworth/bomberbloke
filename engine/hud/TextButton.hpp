@@ -95,7 +95,7 @@ protected:
     int mOnClickOffset[2] = { 0, 0 };
 
     // Sound effect that's played on click (button-up).
-  std::unique_ptr<Sound> mClickSound;
+  std::shared_ptr<Sound> mClickSound;
 
     /**
      * Called when a button-click is detected (button-up).

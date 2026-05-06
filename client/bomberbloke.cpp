@@ -75,22 +75,12 @@ main(int argc, char** argv)
 
   _pScene = std::make_shared<MainMenuScene>(io_system_context, 15, 15);
 
-  if (EXPLOSION_INTRO) {
-    for (unsigned int i = 0; i < 10; i++) {
-      for (unsigned int j = 0; j < 10; j++)
-        _pScene->mParticles.push_back(std::shared_ptr<Explosion>(
-                                                                 new Explosion(_fallback_IO_system.getGraphicsManager(),
-                                                                               _fallback_IO_system.getSoundManager(),
-                                                                               i, j, 1, 1, 60 + i + 2 * j, 600 - 2 * i - j, 0)));
-    }
-
     ISoundManager& sound_manager = io_system_context.getSoundManager();
     // Play intro music
     std::shared_ptr<Sound> pIntroSound =
       sound_manager.createSound("explosion_intro");
-    sound_manager.playSound(pIntroSound.get());
+    sound_manager.playSound(pIntroSound);
     pIntroSound->setGroup(SOUND_FX);
-  }
 
   if (autoConnect) {
     std::vector<std::string> commands = { "colour FFFFFFFF" };

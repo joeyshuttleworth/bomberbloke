@@ -47,7 +47,7 @@ protected:
   bool   mAccelerated;
   bool   mDirectionsHeld[4] = {false, false, false, false};
   double mAcceleration[2] = {0,0};
-  std::unique_ptr<Sound> mPlaceBombSound = nullptr;
+  std::shared_ptr<Sound> mPlaceBombSound = nullptr;
 
   uint32_t mColour = 0x0000FFFF;
 

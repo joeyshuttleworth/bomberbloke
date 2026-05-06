@@ -27,17 +27,6 @@ DummySoundManager::loadFromPath(const std::string&, const std::string&)
   // soundFileBank.insert(std::make_pair(id, std::move(sound)));
 }
 
-std::unique_ptr<Sound>
-DummySoundManager::createSound(const std::string&)
-{
-  return nullptr;
-}
-
-void
-DummySoundManager::playSound(Sound*)
-{
-}
-
 void
 DummySoundManager::channelFinishedCallback(int)
 {
@@ -54,4 +43,14 @@ DummySoundManager::setVolume(int volume, SoundGroup group)
   } else if (group == SOUND_MUSIC) {
     mMusicVolume = volume;
   }
+}
+
+std::shared_ptr<Sound> DummySoundManager::createSound(const std::string& str)
+{
+  return std::make_shared<Sound>(str);
+}
+
+std::shared_ptr<Sound> DummySoundManager::cloneSound(Sound& snd)
+{
+  return std::make_shared<Sound>(snd);
 }

@@ -260,7 +260,16 @@ NetClient::pollServer()
       case EVENT_CREATE: {
         std::shared_ptr<CreationEvent> c_event =
           std::dynamic_pointer_cast<CreationEvent>(event);
-        if (c_event->getActor()){
+
+        if(c_event->getSound()){
+          auto sound = c_event->getSound();
+          ISoundManager& sfx = _pScene->getSoundManager();
+
+          std::shared_ptr<Sound> c_sound = sfx.cloneSound(*sound);
+          sfx.playSound(c_sound);
+        }
+
+        else if (c_event->getActor()){
           auto act = c_event->getActor();
           int this_id = act->getId();
           // If actor with this ID already exists, ignore

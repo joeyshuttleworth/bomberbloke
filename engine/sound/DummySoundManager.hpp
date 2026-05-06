@@ -34,14 +34,9 @@ public:
     void loadFromPath(const std::string& path, const std::string& id);
 
     /**
-     * Create Sound object from sound name.
-     */
-  std::unique_ptr<Sound> createSound(const std::string& soundName);
-
-    /**
      * Play sound object.
      */
-    void playSound(Sound* sound);
+  void playSound(std::shared_ptr<Sound>){}
 
     /**
      * Callback function when channel is finished
@@ -68,6 +63,10 @@ public:
         else
           return mMasterVolume;
     }
+
+
+  std::shared_ptr<Sound> createSound(const std::string&) override;
+  std::shared_ptr<Sound> cloneSound(Sound& sound) override;
 
     DummySoundManager(){};
     ~DummySoundManager();
