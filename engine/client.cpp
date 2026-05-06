@@ -31,12 +31,10 @@ void client_init(IOSystem& io_system_context){
 
   sound_manager.init();
 
+  graphics_interface.renderSplashScreen();
   loadAssets(sound_manager, graphics_interface);
   init_engine(io_system_context, false);
 
-  graphics_interface.renderSplashScreen();
-
-  std::this_thread::sleep_for(std::chrono::seconds(3));
 }
 
 
