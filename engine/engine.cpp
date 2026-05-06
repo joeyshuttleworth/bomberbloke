@@ -90,7 +90,8 @@ exit_engine(int signum)
 
   _pScene = nullptr;
   std::this_thread::sleep_for(std::chrono::seconds(1));
-  SDL_Quit();
+
+  // SDL QUIT ?
   return;
 }
 
@@ -105,11 +106,14 @@ init_engine
     _net_client = std::unique_ptr<NetClient>(new NetClient());
 
   signal(SIGINT, exit_engine);
-  SDL_Init(SDL_INIT_EVERYTHING);
 
-  int flags = IMG_Init(IMG_INIT_PNG);
-  if(!(flags & IMG_INIT_PNG))
-    log_message(ERR, "PNG init failed: " + std::string(IMG_GetError()));
+  /* TODO move init elsewhere */
+
+  // SDL_Init(SDL_INIT_EVERYTHING);
+
+  // int flags = IMG_Init(IMG_INIT_PNG);
+  // if(!(flags & IMG_INIT_PNG))
+  //   log_message(ERR, "PNG init failed: " + std::string(IMG_GetError()));
 
   /*  Open a log file  */
   _console_log_file.open("/tmp/bloke.log");

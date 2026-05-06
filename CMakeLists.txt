@@ -142,7 +142,7 @@ target_link_libraries(bomberbloke_client PUBLIC files::rc CLIENT)
 set(server_src "server/bomberbloke_server.cpp" "engine/server.cpp")
 add_executable(bomberbloke_server ${server_src})
 set_target_properties(bomberbloke_server PROPERTIES PUBLIC_HEADER "engine/server.h")
-target_link_libraries(bomberbloke_server SERVER ${SDL2_LIBRARIES} ${CURL_LIBRARIES} NET_LIB)
+target_link_libraries(bomberbloke_server SERVER ${CURL_LIBRARIES} NET_LIB)
 
 # simple_bot_runner
 set(simple_bot_src "bots/simple_bot_runner.cpp" "bots/SimpleBot.cpp" "engine/bots/bots.cpp")

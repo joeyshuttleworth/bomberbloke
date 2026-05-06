@@ -4,6 +4,7 @@
 #include "DummyGraphicsManager.hpp"
 #include "IOSystem.hpp"
 #include <memory>
+#include <chrono>
 
 bool _server = true;
 bool _draw = false;
@@ -40,7 +41,11 @@ void server_loop(IOSystem&  io_system_context, short port, std::string masterSer
       }
 
       // SDL_Delay might take too long so only sleep for half the time
-      SDL_Delay(time_to_sleep*.75);
+
+      if(std::chrono::milliseconds(int(time_to_sleep)) > std::chrono::milliseconds(20))
+        std::this_thread::sleep_for(std::chrono::nanoseconds(int(time_to_sleep*.75)));
+      else
+        std::this_thread::yield();
       if (clock_gettime(CLOCK_REALTIME, &t2) == -1)
         log_message(ERR, "Failed to get time");
     } while (t2.tv_nsec - t1.tv_nsec +
