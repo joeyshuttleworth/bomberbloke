@@ -6,7 +6,6 @@
 
 #include "IGraphicsManager.hpp"
 #include "AbstractCamera.hpp"
-#include "DummyCamera.hpp"
 
 class Sound;
 
