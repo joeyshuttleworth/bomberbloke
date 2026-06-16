@@ -25,7 +25,7 @@ public:
       return;
 
     auto dstrect = cam->getScreenRect(mPosition[0], mPosition[1], mDimension[0], mDimension[1]);
-    mrGraphicsManager.drawSprite(mAssetName, dstrect, 0,
+    mrGraphicsManager.drawSprite(mAssetName, dstrect,
                                  cam->getFrameBuffer(mIsPostProcessed));
     return;
   }

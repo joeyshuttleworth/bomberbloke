@@ -8,6 +8,8 @@
 
 using rect = std::array<int, 4>;
 
+/* TODO implement mGlowAmount */
+
 void
 Text::draw(Camera* cam, bool is_postprocessed)
 {
@@ -23,12 +25,12 @@ Text::draw(Camera* cam, bool is_postprocessed)
   if ((mBackColour & 0xFF) > 0) {
     rect backgroundRect{mPosition[0], mPosition[1], mDimensions[0], mDimensions[1]};
     mpGraphicsManager->renderFillRect(
-                                      backgroundRect, mBackColour, mGlowAmount, cam->getFrameBuffer(is_postprocessed));
+                                      backgroundRect, mBackColour, cam->getFrameBuffer(is_postprocessed));
   }
 
   if (mTextTexture) {
     mpGraphicsManager->renderCopy(
-                                  mTextTexture, &mSrcRect, &mDstRect, mGlowAmount, cam->getFrameBuffer(is_postprocessed));
+                                  mTextTexture, &mSrcRect, &mDstRect, cam->getFrameBuffer(is_postprocessed));
   }
 
   if (mCursorVisible) {
@@ -37,7 +39,7 @@ Text::draw(Camera* cam, bool is_postprocessed)
     int xCursor = mDstRect[0] + width * mTextScale[0];
     rect cursorRect{xCursor, mDstRect[1], 1, mDstRect[3]};
     mpGraphicsManager->renderFillRect(cursorRect, mColour,
-                                      mGlowAmount, cam->getFrameBuffer(is_postprocessed));
+                                      cam->getFrameBuffer(is_postprocessed));
   }
 }
 

@@ -38,7 +38,9 @@ protected:
   SDL_Renderer* mpRenderer;
   SDL_Window* mpWindow;
   SDLTexture* mpFrameBuffer;
-  SDLTexture* mpBloomBuffer;
+
+  std::array<SDLTexture*, 2> mpBlurBuffers;
+
   SpriteList mSpriteList;
   std::array<int, 2> mWindowSize = {0, 0};
   std::string mWindowTitle = "Bomberbloke";
@@ -74,9 +76,7 @@ protected:
 
   void renderCopy(SDL_Texture* texture, Rect* srcRect=nullptr,
                   Rect* dstRect=nullptr,
-                  double bloomAmount=0,
-                  SDL_Texture* target=nullptr,
-                  bool occlude_bloom=true);
+                  SDL_Texture* target=nullptr);
 
 public:
 
@@ -96,7 +96,7 @@ public:
    * @param bloomAmount     Determines the amount of bloom applied to texture.
    */
   void renderCopy(AbstractTexture* texture, Rect* srcRect=nullptr,
-                  Rect* dstRect=nullptr, double bloomAmount=0,
+                  Rect* dstRect=nullptr,
                   AbstractTexture* target=nullptr) override;
 
   // Allows for SDL like function calls
@@ -127,7 +127,7 @@ public:
    * @param size    Size of the blur, larger is more blury.
    * @param passes  Quality of the blur, larger is higher quality.
    */
- void blurTexture(SDL_Texture* texture, double size, int passes, SDL_Texture* target=nullptr);
+ void blurTexture(SDL_Texture* texture, double size, int passes);
 
   /**
    * Draws a rectangle onto the appropriate frame buffer.
@@ -140,14 +140,14 @@ public:
    * @param isPostProcessed Set to false to avoid post-processing effects.
    * @param bloomAmount     Determines the amount of bloom applied to texture.
    */
-  void renderFillRect(std::array<int, 4>&, Uint32, double,
-                      AbstractTexture* = nullptr, bool=true) override;
+  void renderFillRect(std::array<int, 4>&, uint32_t,
+                      AbstractTexture* = nullptr) override;
 
   std::array<int, 2> getScreenDimensions() override{
     return {{ mWindowSize[0], mWindowSize[1] }};
   }
 
-  void drawSprite(std::string, std::array<int, 4>, double=0, AbstractTexture* =nullptr) override;
+  void drawSprite(std::string, std::array<int, 4>, AbstractTexture* =nullptr) override;
 
   void applyBloom(double, double, int, AbstractTexture* =nullptr, Rect* = nullptr,
                   AbstractTexture* =nullptr) override;

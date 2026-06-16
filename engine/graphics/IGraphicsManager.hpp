@@ -33,16 +33,15 @@ public:
   virtual void applyBrightness(double){};
   virtual void drawNoProcessingBuffer(){};
   virtual void resetFrameBuffers(){};
-  virtual void drawSprite(std::string, Rect, double=0, AbstractTexture* = nullptr){};
+  virtual void drawSprite(std::string, Rect, AbstractTexture* = nullptr){};
   virtual void createWindow(int=-1, int=-1){};
 
   virtual AbstractTexture* getSprite(std::string){return nullptr;};
 
   virtual std::array<int, 2> getScreenDimensions(){return std::array<int, 2>{0, 0};};
 
-  virtual void renderFillRect(Rect&, uint32_t, double,
-                              AbstractTexture* = nullptr,
-                              bool=true){};
+  virtual void renderFillRect(Rect&, uint32_t,
+                              AbstractTexture* = nullptr){};
 
   virtual AbstractTexture* renderSolidText(std::string, int, std::string, uint32_t, AbstractTexture* =nullptr){return nullptr;};
 
@@ -54,7 +53,7 @@ public:
 
   virtual void destroyWindow(){};
 
-  virtual void renderCopy(AbstractTexture*, Rect*, Rect*, double=0,
+  virtual void renderCopy(AbstractTexture*, Rect*, Rect*,
                           AbstractTexture* =nullptr){};
 
   virtual void destroyTexture(AbstractTexture*){};

@@ -77,11 +77,11 @@ BomberBlokeScene::draw()
   auto sceneScreenRect =
     mpCamera->getScreenRect(0, 0, mDimension[0], mDimension[1]);
 
-  mrIOSystem.getGraphicsManager().renderFillRect(sceneScreenRect, 0x001010FFFF, 0,
+  mrIOSystem.getGraphicsManager().renderFillRect(sceneScreenRect, 0x001010FFFF,
                                     mpCamera->getFrameBuffer(true));
 
-  mrIOSystem.getGraphicsManager().renderCopy(mpBackgroundTexture, nullptr, &sceneScreenRect, 0,
-                                mpCamera->getFrameBuffer(true));
+  mrIOSystem.getGraphicsManager().renderCopy(mpBackgroundTexture, nullptr, &sceneScreenRect,
+                                             mpCamera->getFrameBuffer(true));
 
   // Draw actors, particles and HUD
   drawActors();
@@ -336,12 +336,12 @@ BomberBlokeScene::BomberBlokeScene(IOSystem& ctx,
         //                  90,
         //                  nullptr,
         //                  SDL_FLIP_HORIZONTAL);
-        mrIOSystem.getGraphicsManager().renderCopy(tileTexture, nullptr, &tile_rect, 0, mpBackgroundTexture);
+        mrIOSystem.getGraphicsManager().renderCopy(tileTexture, nullptr, &tile_rect, mpBackgroundTexture);
       }
       else{
         // Don't flip the texture
         // SDL_RenderCopy(_renderer, tileTexture, nullptr, &tile_rect);
-        mrIOSystem.getGraphicsManager().renderCopy(tileTexture, nullptr, &tile_rect, 0, mpBackgroundTexture);
+        mrIOSystem.getGraphicsManager().renderCopy(tileTexture, nullptr, &tile_rect, mpBackgroundTexture);
       }
 
       // This is inefficient, can create all the textures first, then delete after

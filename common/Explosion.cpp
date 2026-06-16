@@ -10,7 +10,6 @@ Explosion::draw_legacy(Camera* cam)
   unsigned int frame_no = (_tick - mStartTick) % mAnimationSpeed;
   Uint8 alpha = 0xFF * (1 - (double)(_tick - mStartTick) / (2 * mTimeout));
   Uint8 backAlpha = 0xFF - alpha;
-  int glowAmount = mMaxGlowAmount * (1 - (_tick - mStartTick) / mTimeout);
 
   Uint32 colour = 0xffff00 ^ alpha;
 
@@ -27,7 +26,11 @@ Explosion::draw_legacy(Camera* cam)
   auto dstrect = cam->getScreenRect(mPosition[0], mPosition[1],
                                     mDimension[0], mDimension[1]);
 
-  mrGraphicsManager.renderFillRect(dstrect, colour, glowAmount, cam->getFrameBuffer(mIsPostProcessed));
+  int glowAmount = mMaxGlowAmount * (1 - (_tick - mStartTick) / mTimeout);
+  mrGraphicsManager.renderFillRect(dstrect, colour, cam->getFrameBuffer(mIsPostProcessed));
+
+  auto bloom_colour = (colour & 0xFFFFFF00) ^ glowAmount;
+  mrGraphicsManager.renderFillRect(dstrect, bloom_colour, cam->getBloomBuffer());
   return;
 }
 
@@ -63,7 +66,6 @@ Explosion::draw(Camera* cam)
   mrGraphicsManager.drawSprite(
                                asset_name,
                                dstrect,
-                               0,
                                cam->getFrameBuffer(mIsPostProcessed)
                                );
 

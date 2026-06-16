@@ -21,6 +21,7 @@ Camera::Camera(IGraphicsManager& r_graphics_manager, scene *lvl) :
 
   mpFrameBuffer = mrGraphicsManager.createTexture(w, h);
   mpNoProcessingBuffer = mrGraphicsManager.createTexture(w, h);
+  mpBloomBuffer = mrGraphicsManager.createTexture(w, h);
 
   init();
   return;
@@ -93,8 +94,9 @@ Camera::draw()
   LOCK_GUARD(mMutex);
 
   // /* Apply postprocessing to everything in mpFrameBuffer*/
-  mrGraphicsManager.applyBloom(mBloomAlpha, mBloomSize, mBloomPasses, nullptr,
-                                nullptr);
+  mrGraphicsManager.applyBloom(mBloomAlpha, mBloomSize, mBloomPasses, mpBloomBuffer,
+                               nullptr, mpBloomBuffer);
+  mrGraphicsManager.renderCopy(mpBloomBuffer, nullptr, nullptr, mpFrameBuffer);
   mrGraphicsManager.applyBlur(mBlurSize, mBlurPasses, mpFrameBuffer);
   mrGraphicsManager.setBrightness(mBrightness);
 
@@ -114,14 +116,14 @@ Camera::draw()
 void Camera::resetFrameBuffers(){
   mrGraphicsManager.renderClear(mpFrameBuffer);
   mrGraphicsManager.renderClear(mpNoProcessingBuffer);
-}
+  mrGraphicsManager.renderClear(mpBloomBuffer);
 
-void Camera::applyBloom(int alpha, int size, int passes){
-  mrGraphicsManager.applyBloom(alpha, size, passes);
-}
+  // If we manage our own blurbuffers, they should be cleared
+  // for(auto i : mpBlurBuffers)
+  //   mrGraphicsManager.renderClear(i);
 
-void Camera::applyBlur(double blur_size, int passes){
-  mrGraphicsManager.applyBlur(blur_size, passes);
+  mrGraphicsManager.resetFrameBuffers();
+
 }
 
 void

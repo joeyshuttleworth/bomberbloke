@@ -92,16 +92,20 @@ class Camera : public AbstractCamera{
    */
   void setBrightness(int brightness);
 
+  AbstractTexture* getBloomBuffer(){
+    return mpBloomBuffer;
+  }
 
 protected:
 
   void applyBloom(int alpha, int size, int passes);
-  void applyBlur(double blur_size, int passes);
 
   std::mutex mMutex;
 
   const double mMinZoom = 0.01;
   const double mMaxZoom = 50;
+
+  AbstractTexture* mpBloomBuffer;
 
   std::array<double, 2> mFocusCoordinates = {{ 0, 0 }};
   /*  Use mOffsets for animations on the camera object */
@@ -115,7 +119,7 @@ protected:
   // Determines the size of the blur, larger is blurier.
   double mBlurSize = 0;
   // Determines the quality of the blur, larger is better.
-  int mBlurPasses = 8;
+  int mBlurPasses = 10;
 
   // Determines the size of the bloom, larger is blurier.
   double mBloomSize = 4;

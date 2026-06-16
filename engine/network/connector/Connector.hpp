@@ -29,6 +29,7 @@ enum ConnectorMode {
   CLIENT,
   SERVER
 };
+
 struct ConnectorDescriptor {
   ConnectorMode mode;
 

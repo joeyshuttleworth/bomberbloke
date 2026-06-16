@@ -25,10 +25,11 @@ public:
   }
 
   void draw(Camera* cam){
-    int bloom = std::abs((int)(_tick - mStartTick) % (2*50) - 50);
+    // int bloom = std::abs((int)(_tick - mStartTick) % (2*50) - 50);
+    // TODO bloom
     auto dstrect = cam->getScreenRect(mPosition[0], mPosition[1], mDimension[0], mDimension[1]);
 
-    mrGraphicsManager.drawSprite(mAssetName, dstrect, bloom, cam->getFrameBuffer(mIsPostProcessed));
+    mrGraphicsManager.drawSprite(mAssetName, dstrect, cam->getFrameBuffer(mIsPostProcessed));
     return;
   }
 
