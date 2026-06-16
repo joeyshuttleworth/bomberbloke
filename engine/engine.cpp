@@ -9,84 +9,77 @@
 #include "QueryEvent.hpp"
 #include "ServerInfo.hpp"
 #include "ShowAllCamera.hpp"
+#include "LocalPlayer.hpp"
 #include "SyncEvent.hpp"
 #include "assets.hpp"
 #include "scene.hpp"
-#include <SDL_image.h>
+#include "config.hpp"
 #include <cereal/archives/json.hpp>
 #include <dirent.h>
 #include <exception>
 #include <fstream>
 #include <utility>
+#include <chrono>
+#include <SDL2/SDL_image.h>
 
+#include "IOSystem.hpp"
+
+
+CommandQueue _command_queue;
 
 /*  TODO: reduce number of globals */
 int _log_message_level = 0;
+
+/* Global variables tracking state */
 bool _bind_next_key = false;
-std::string _next_bind_command;
-int _window_size[] = { DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT };
-SDL_Window* _window;
+
 bool _halt = false;
-std::list<LocalPlayer> _local_player_list;
-SDL_Renderer* _renderer = NULL;
-SDL_Joystick* _controller = nullptr;
-bool _controller_connected = false;
-int DEADZONE = 9000;
-std::string dX = "0.1";
-Uint8* _kb_state = NULL;
+unsigned int _tick = 0;
+
+std::vector<LocalPlayer> _local_player_list;
+
+/* Pointers to current scene and next scene for switching */
 std::shared_ptr<scene> _pScene;
 std::shared_ptr<scene> _pNewScene;
-unsigned int _tick = 0;
+
+// Shouldn't this be inside _pScene?
+// std::list<std::shared_ptr<AbstractSpriteHandler>> _particle_list;
+
+/* TODO move to input interface */
+// SDL_Joystick* _controller = nullptr;
+bool _controller_connected = false;
+
+/* TODO Move to client code - this is only relevant to client */
 std::string _nickname = "bloke";
+
+/* Move to server.cpp */
 ServerInfo _server_info;
+
+/* TODO more logging options */
 std::ofstream _console_log_file;
-std::list<std::shared_ptr<AbstractSpriteHandler>> _particle_list;
+
+/* Move to input interface */
 std::vector<CommandBinding> _default_bindings;
+
+/* No need to be global. Similar variable already exists in NetServer and NetClient.*/
 std::list<std::shared_ptr<AbstractPlayer>> _player_list;
 
+/* Avoid different threads modifying the scene at the same time */
 DECLARE_MUTEX(_scene_mutex);
 
-std::unique_ptr<NetClient> _net_client;
-std::unique_ptr<NetServer> _net_server;
+/* Shouldn't be globals here. Move to client.cpp and server.cpp */
+std::unique_ptr<NetClient> _net_client = std::make_unique<NetClient>();
+std::unique_ptr<NetServer> _net_server = std::make_unique<NetServer>();
 
-SoundManager soundManager;
-TextManager textManager;
-SpriteList _sprite_list;
-
-void
-refresh_sprites();
-void
-create_window();
-
-void
-set_draw(bool on)
-{
-  if (on == _draw)
-    return;
-
-  else if (on == true) {
-    _draw = true;
-    create_window();
-    refresh_sprites();
-  }
-
-  else {
-    _draw = false;
-    SDL_DestroyWindow(_window);
-    SDL_DestroyRenderer(_renderer);
-    _renderer = nullptr;
-  }
-
-  return;
-}
+IOSystem _fallback_IO_system;
 
 void
 exit_engine(int signum)
 {
-  set_draw(false);
-  SDL_Delay(500);
-  SDL_Quit();
+
+
   _halt = true;
+
   std::cout << "\nNow exiting the BLOKE engine. Hope you had fun. Wherever you "
                "are, we at the BLOKE project hope we have made your day just a "
                "little bit brighter. See you next time around! :)\n";
@@ -94,69 +87,18 @@ exit_engine(int signum)
 #ifndef _WIN32
   std::cout << "Received signal " << strsignal(signum) << ".\nExiting...\n";
 #endif
-  SDL_Quit();
+
+  _pScene = nullptr;
+  std::this_thread::sleep_for(std::chrono::seconds(1));
+
+  // SDL QUIT ?
   return;
 }
 
-void
-create_window()
-{
-  std::string window_name = "Bomberbloke Client";
-  if (_server)
-    window_name = "Bomberbloke Server";
-  _window = SDL_CreateWindow(window_name.c_str(),
-                             SDL_WINDOWPOS_UNDEFINED,
-                             SDL_WINDOWPOS_UNDEFINED,
-                             _window_size[0],
-                             _window_size[1],
-                             SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
-  if (_renderer) {
-    SDL_DestroyRenderer(_renderer);
-  }
-  _renderer = SDL_CreateRenderer(_window, -1, 0);
-
-  return;
-}
-
-/**  Refresh all of our sprites
- *
- *  This may be called when the window is resized.
- */
 
 void
-refresh_sprites()
-{
-  _pScene->refreshSprites();
-  return;
-}
-
-void
-resize_window(int x, int y)
-{
-  if (!_draw)
-    return;
-
-  _window_size[0] = x;
-  _window_size[1] = y;
-
-  if (_window) {
-    SDL_SetWindowSize(_window, x, y);
-  }
-  if (_pScene) {
-    _pScene->onResize();
-    refresh_sprites();
-  }
-  return;
-}
-
-void
-channelFinishedForwarder(int channel)
-{
-  soundManager.channelFinishedCallback(channel);
-}
-
-void
-init_engine(bool server)
+init_engine
+(IOSystem&, bool server)
 {
   if(server)
     _net_server = std::unique_ptr<NetServer>(new NetServer());
@@ -164,164 +106,48 @@ init_engine(bool server)
     _net_client = std::unique_ptr<NetClient>(new NetClient());
 
   signal(SIGINT, exit_engine);
-  SDL_Init(SDL_INIT_EVERYTHING);
-  soundManager.init(channelFinishedForwarder);
 
-  if (_draw) {
-    create_window();
-    if (_pScene)
-      refresh_sprites();
-  }
+  /* TODO move init elsewhere */
 
-  /* Initialise the controller if it exists */
-  _controller = handle_input_controller();
-  _controller_connected = _controller != nullptr ? true : false;
+  // SDL_Init(SDL_INIT_EVERYTHING);
 
-  _kb_state = (Uint8*)malloc(sizeof(Uint8) * SDL_SCANCODE_APP2); // max scancode
-  memset((void*)_kb_state, 0, sizeof(Uint8) * SDL_SCANCODE_APP2);
-
-  LAUNCH_THREAD_DETACH(console_loop);
+  // int flags = IMG_Init(IMG_INIT_PNG);
+  // if(!(flags & IMG_INIT_PNG))
+  //   log_message(ERR, "PNG init failed: " + std::string(IMG_GetError()));
 
   /*  Open a log file  */
   _console_log_file.open("/tmp/bloke.log");
 
-  loadAssets(textManager, soundManager, _sprite_list);
-  
+  /* Initialise the controller if it exists */
+  // _controller = handle_input_controller();
+  // _controller_connected = _controller != nullptr ? true : false;
+
+
+  LAUNCH_THREAD_DETACH(console_loop);
+
   return;
 }
 
+
+/* Handle input i.e. controls and window events here */
 void
-handle_input()
+handle_input(IOSystem& ctx)
 {
-  SDL_Event event;
-  //  bool key_up = true;
-  Uint8* kb_state = NULL;
-  while (SDL_PollEvent(&event)) {
-    _pScene->onInput(&event);
-
-    switch (event.type) {
-      case SDL_QUIT: {
-        _halt = true;
-        break;
-      }
-      case SDL_KEYDOWN: {
-        if (!_bind_next_key)
-          break;
-        /*We only look at keyboard events here in order to bind keys*/
-        CommandBinding new_binding;
-        new_binding.scancode = event.key.keysym.scancode;
-        new_binding.command = _next_bind_command;
-        _local_player_list.back().mControlScheme.push_back(new_binding);
-        _bind_next_key = false;
-        log_message(INFO,
-                    "Successfully bound " + new_binding.command + " to " +
-                      std::to_string(new_binding.scancode));
-        break;
-      }
-      case SDL_WINDOWEVENT: {
-        if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
-          _window_size[0] = event.window.data1;
-          _window_size[1] = event.window.data2;
-          _pScene->onResize();
-        }
-      }
-    }
-  }
-
-  kb_state = (Uint8*)SDL_GetKeyboardState(NULL);
-
-  /*Iterate over local players */
-  for (auto i = _local_player_list.begin(); i != _local_player_list.end();
-       i++) {
-    /*Iterate over key bindings */
-    if (event.type != SDL_JOYAXISMOTION) {
-      for (auto j = i->mControlScheme.begin(); j != i->mControlScheme.end();
-           j++) {
-        if (kb_state[j->scancode] !=
-            _kb_state[j->scancode]) { // ensure that current keymap is different
-                                      // to old
-          // We will prepend "+" or "-" to the command depending on keystate
-          std::string command_to_send =
-            kb_state[j->scancode] ? "+" + j->command : "-" + j->command;
-
-          log_message(DEBUG, j->command);
-
-          if (std::find(_system_commands.begin(),
-                        _system_commands.end(),
-                        split_to_tokens(j->command).front()) != _system_commands.end()) {
-            handle_system_command(
-              split_to_tokens(command_to_send)); // process system command
-          } else {
-            std::shared_ptr<actor> character = i->getCharacter();
-            if (character) {
-              character->handleCommand(
-                command_to_send); // handle normal command
-
-              if (!_server) {
-                std::unique_ptr<AbstractEvent> c_event(
-                  new CommandEvent(command_to_send));
-                _net_client->mConnector->broadcastEvent(std::move(c_event));
-              }
-            } else {
-              log_message(
-                DEBUG, "Input received but no character connected to player!");
-            }
-          }
-        }
-      }
-    } else {
-      if (i->getCharacter() && event.jaxis.which == 0) {
-        if (event.jaxis.axis == 0) { // x axis
-          if (event.jaxis.value < -DEADZONE) {
-            i->getCharacter()->handleCommand("left" + dX);
-          } else if (event.jaxis.value > DEADZONE) {
-            i->getCharacter()->handleCommand("+right" + dX);
-          } else {
-            i->getCharacter()->handleCommand("-XAxis" + dX);
-          }
-        } else if (event.jaxis.axis == 1) {
-          if (event.jaxis.value < -DEADZONE) {
-            i->getCharacter()->handleCommand("+up" + dX);
-          } else if (event.jaxis.value > DEADZONE) {
-            i->getCharacter()->handleCommand("+down" + dX);
-          } else {
-            i->getCharacter()->handleCommand("-YAxis" + dX);
-          }
-        }
-      }
-
-    }
-  }
-
-  // old key state, new key state
-  memcpy(_kb_state, kb_state, sizeof(Uint8) * SDL_SCANCODE_APP2);
-  return;
+  IInputManager& input_manager = ctx.getInputManager();
+  input_manager.handleInput(*_pScene);
 }
 
-SDL_Joystick*
-handle_input_controller()
-{
-  SDL_Init(SDL_INIT_JOYSTICK);
-  if (SDL_NumJoysticks() > 0) {
-    std::cout << "Controlled connected\n ";
-    return SDL_JoystickOpen(0); // return joystick identifier
-  } else
-    return NULL; // no joystick found
-}
 
-void
-draw_screen()
-{
-  if (_halt || !_renderer || !_window || !_draw)
-    return;
-  SDL_SetRenderDrawColor(_renderer, 0x00, 0x00, 0x00, 0xFF);
-  SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_NONE);
-  SDL_RenderClear(_renderer);
-  if (_pScene)
-    _pScene->draw();
-  SDL_RenderPresent(_renderer);
-  return;
-}
+// SDL_Joystick*
+// handle_input_controller()
+// {
+//   SDL_Init(SDL_INIT_JOYSTICK);
+//   if (SDL_NumJoysticks() > 0) {
+//     std::cout << "Controlled connected\n ";
+//     return SDL_JoystickOpen(0); // return joystick identifier
+//   } else
+//     return NULL; // no joystick found
+// }
 
 void
 logic_loop()
@@ -329,6 +155,7 @@ logic_loop()
   return;
 }
 
+/* TODO move elsewhere */
 void
 log_message(int scene, std::string str)
 {
@@ -373,7 +200,7 @@ load_config(std::string fname)
 }
 
 bool
-handle_system_command(std::list<std::string> tokens)
+handle_system_command(IOSystem& ctx, Tokens tokens)
 {
   if (tokens.size() == 0)
     return true;
@@ -398,13 +225,22 @@ handle_system_command(std::list<std::string> tokens)
     return true;
   }
 
+  else if (command == "pause" && !key_down){
+    _pScene->handleCommand("pause");
+  }
+
+  else if (command == "toggle_pause"){
+    if(!key_down)
+      _pScene->handleCommand("toggle_pause");
+  }
+
   else if (command == "players" && _server) {
     _net_server->printPlayers();
   }
 
   else if (command == "new" && _server) {
     log_message(INFO, "starting new game");
-    new_game("");
+    new_game(ctx, "");
     _net_server->syncPlayers();
   }
 
@@ -416,7 +252,7 @@ handle_system_command(std::list<std::string> tokens)
       double zoom = DOUBLE_UNSET;
 
       if (camera)
-        zoom = camera->GetZoom();
+        zoom = camera->getZoom();
 
       double val = DOUBLE_UNSET;
 
@@ -447,7 +283,7 @@ handle_system_command(std::list<std::string> tokens)
         }
         if (camera) {
           log_message(DEBUG, "setting zoom to " + std::to_string(zoom));
-          camera->SetZoom(zoom);
+          camera->setZoom(zoom);
         } else {
           // TODO
         }
@@ -471,16 +307,17 @@ handle_system_command(std::list<std::string> tokens)
 
     } else {
       _net_client->disconnectClient();
-      _pScene = std::make_shared<MainMenuScene>(15, 15);
+      _pScene = std::make_unique<MainMenuScene>(_pScene->getIOSystem(), 15, 15);
     }
   }
 
   else if (command == "draw") {
+    IGraphicsManager& gfx = ctx.getGraphicsManager();
     if (tokens.size() == 2) {
       if (tokens.back() == "on") {
-        set_draw(true);
+        gfx.setDraw(true);
       } else if (tokens.back() == "off") {
-        set_draw(false);
+        gfx.setDraw(false);
       } else {
         log_message(ERR,
                     "Couldn't parse command - " + command + tokens.back() +
@@ -495,8 +332,15 @@ handle_system_command(std::list<std::string> tokens)
     }
   }
 
-    else if (!_server && command == "open") {
-      if (tokens.size() == 2) {
+  // else (command == "msg"){
+  //     std::string msg_string = std::accumulate(vec.begin(),
+  //                                              vec.end(),
+  //                                              std::string(" "));
+  //     std::shared_ptr<AbstractEvent> testEvent = std::make_shared<MessageEvent>("hello w0rld?");
+  //   }
+
+  else if (!_server && command == "open") {
+    if (tokens.size() == 2) {
         /**
            NetClient::connectClient returns true or false. Return
            this value
@@ -537,7 +381,7 @@ handle_system_command(std::list<std::string> tokens)
   }
 
   else if (command == "quit") {
-    exit_engine(0);
+    _halt = true;
   }
 
   else if (command == "generate_config") {
@@ -561,21 +405,33 @@ handle_system_command(std::list<std::string> tokens)
       i++;
       int y = std::stoi(*i);
 
-      resize_window(x, y);
+      IGraphicsManager& gfx = ctx.getGraphicsManager();
+      gfx.resizeWindow(x, y);
     } else {
       log_message(ERR, "Incorrect number of arguments for resize");
     }
   }
 
   else if (command == "bind") {
+    IInputManager& input_manager = ctx.getInputManager();
     if (tokens.size() == 3) {
       auto i = tokens.begin();
       i++;
       CommandBinding new_command;
       new_command.command = *i;
       i++;
-      /*TODO: try catch*/
-      new_command.scancode = SDL_Scancode(std::stoi(*i));
+
+      unsigned int key_number = 0;
+      try
+        {
+          key_number = std::stoi(*i);
+        }
+      catch (std::invalid_argument &e) {
+        std::cout << e.what();
+        return false;
+      }
+
+      new_command.scancode = input_manager.getKeyScanCode(key_number);
 
       _local_player_list.front().mControlScheme.push_back(new_command);
       log_message(INFO,
@@ -585,9 +441,11 @@ handle_system_command(std::list<std::string> tokens)
       _bind_next_key = true;
       auto i = tokens.begin();
       i++;
-      _next_bind_command = *i;
+
+      input_manager.setNextBindCommand(*i);
+
       log_message(INFO,
-                  "binding next keypress to command: " + _next_bind_command);
+                  "binding next keypress to command: " + *i);
     }
   }   // Colour command: request to change the players colour
   else if (!_server && command == "colour"){
@@ -609,7 +467,7 @@ handle_system_command(std::list<std::string> tokens)
   return true;
 }
 
-std::list<std::string>
+Tokens
 split_to_tokens(std::string str)
 {
   /*  First remove all unnecessary whitespace */
@@ -638,7 +496,7 @@ split_to_tokens(std::string str)
     clean_str.pop_back();
 
   /* Next split the string into tokens */
-  std::list<std::string> tokens;
+  Tokens tokens;
 
   int last_space = -1;
   for (int i = 0; i < (int)clean_str.length(); i++) {
@@ -688,11 +546,11 @@ console_loop()
     std::cout << "Bomberbloke console...\n";
   while (!_halt) {
     std::string line;
-    std::list<std::string> tokens;
+    Tokens tokens;
     std::cout << ">";
     if (std::getline(std::cin, line)) {
       tokens = split_to_tokens(line);
-      handle_system_command(tokens);
+      _command_queue.push(tokens);
     }
   }
   return;
@@ -712,23 +570,6 @@ findPlayer(int id) {
   return *it;
 }
 
-/* Lookup the name in our list of assets and return a pointer to its texture if
- * it exists */
-SDL_Texture*
-get_sprite(std::string asset_name)
-{
-  auto iter =
-    std::find_if(_sprite_list.begin(),
-                 _sprite_list.end(),
-                 [&](std::pair<std::string, SDL_Texture*> entry) -> bool {
-                   return entry.first == asset_name;
-                 });
-  if (iter == _sprite_list.end()) {
-    log_message(ERR, "Requested sprite, " + asset_name + " does not exist.");
-    return nullptr;
-  } else
-    return iter->second;
-}
 
 void
 server_add_debug_player()
@@ -757,4 +598,13 @@ add_player(std::shared_ptr<AbstractPlayer> a_player)
     }
   }
   log_message(ERR, "Couldn't add player! No free id");
+}
+
+
+void
+handle_system_command_queue(IOSystem& ctx){
+  while(_command_queue.size() > 0){
+    auto tokens = _command_queue.pop();
+    handle_system_command(ctx, tokens);
+  }
 }

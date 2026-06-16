@@ -3,14 +3,13 @@
 #include "CreationEvent.hpp"
 #include "actor.hpp"
 #include "engine.hpp"
+#include "NetServer.hpp"
+#include "LocalPlayer.hpp"
 
-extern std::list<std::shared_ptr<AbstractSpriteHandler>> _particle_list;
 
-scene::scene(double x, double y)
+scene::scene(IOSystem& io_sys_context, double x, double y) : mrIOSystem(io_sys_context),
+                                                             mDimension{x, y}
 {
-  mDimmension[0] = x;
-  mDimmension[1] = y;
-  mpCamera = std::make_shared<Camera>(this);
   mState = STOPPED;
   return;
 }
@@ -22,11 +21,10 @@ scene ::refreshSprites()
     (*i)->refreshSprite();
   }
 
-  for (auto i = _particle_list.begin(); i != _particle_list.end(); i++) {
+  for (auto i = mParticles.begin(); i != mParticles.end(); i++) {
     (*i)->refreshSprite();
   }
 
-  SDL_SetRenderTarget(_renderer, NULL);
   return;
 }
 
@@ -49,7 +47,7 @@ void
 scene::cleanUp()
 {
   /* Remove particles with mRemove set! */
-  mParticleList.remove_if(
+  mParticles.remove_if(
     [](std::shared_ptr<AbstractSpriteHandler> s) { return s->ToRemove(); });
   /* Now clean up actors */
   mActors.remove_if(
@@ -60,6 +58,7 @@ scene::cleanUp()
 void
 scene::movementUpdate()
 {
+  std::lock_guard<std::mutex> lock(mMutex);
   /*Iterate over all moving actors*/
   for (auto i = mActors.begin(); i != mActors.end(); i++) {
     /*Update actors*/
@@ -71,7 +70,22 @@ scene::movementUpdate()
 }
 
 void
-scene ::addActorWithId(std::shared_ptr<actor> a)
+scene::removeAllActors(){
+  mActors = std::list<std::shared_ptr<actor>>{};
+}
+
+void
+scene::removeAllParticles(){
+  mParticles = std::list<std::shared_ptr<AbstractSpriteHandler>>{};
+}
+
+void
+scene::addParticle(std::shared_ptr<AbstractSpriteHandler> p){
+  mParticles.push_back(p);
+}
+
+void
+scene::addActorWithId(std::shared_ptr<actor> a)
 {
   /* Check the id hasn't been taken*/
   for (auto i = mActors.begin(); i != mActors.end(); i++) {
@@ -79,18 +93,18 @@ scene ::addActorWithId(std::shared_ptr<actor> a)
       log_message(ERR,
                   "Tried to add actor with id " + std::to_string(a->getId()) +
                     " but an actor with this id already exists!");
-      return;
     }
   }
 
   /* Now add the actor to the back of the list */
-  a->init();
   mActors.push_back(a);
+  a->init();
 }
 
 void
 scene ::addActor(std::shared_ptr<actor> a)
 {
+
   for (int j = mLastActorId + 1; j - mLastActorId < 10000; j++) {
     bool set = true;
     for (auto i = mActors.begin(); i != mActors.end(); i++) {
@@ -104,6 +118,8 @@ scene ::addActor(std::shared_ptr<actor> a)
       a->setId(j);
       mActors.push_back(a);
       a->init();
+
+      /* TODO use macro to ignore this if we're not building a server */
       if (_server) {
         /* Broadcast a EVENT_CREATE event */
         std::unique_ptr<AbstractEvent> c_event(new CreationEvent(a));
@@ -115,22 +131,11 @@ scene ::addActor(std::shared_ptr<actor> a)
   log_message(ERR, "Failed to add actor - too many actors in mActors");
 }
 
-static bool
-collides(AbstractCollider* a, AbstractCollider* b)
-{
-  dvector iAxesMtv = a->testNormalAxes(b);
-  if (iAxesMtv[0] == 0 && iAxesMtv[1] == 0)
-    return false;
-  dvector jAxesMtv = a->testNormalAxes(b);
-  if (jAxesMtv[0] == 0 && jAxesMtv[1] == 0)
-    return false;
-  else
-    return true;
-}
 
 void
 scene::physicsUpdate()
 {
+
   /* Detect collisions */
 
   // TODO: Will be moving to region based collision checking eventually
@@ -191,15 +196,26 @@ scene::physicsUpdate()
 void
 scene::updateHudPositions()
 {
-  for (auto i = mHudElements.begin(); i != mHudElements.end(); i++) {
-    (*i)->updatePosition(mpCamera.get());
+
+  if(mHudElements.size() == 0)
+    return;
+
+  if(!mpCamera)
+    return;
+
+  for (auto i : mHudElements) {
+    if(i)
+      i->updatePosition(mpCamera.get());
   }
 }
 
 void
 scene::draw()
 {
-  mpCamera->resetFrameBuffer();
+  if(!mpCamera)
+    return;
+
+  mpCamera->resetFrameBuffers();
 
   drawActors();
   drawParticles();
@@ -217,7 +233,6 @@ scene::drawHud()
   }
 
   // Draw HUD elements
-  // SDL_SetRenderTarget(_renderer, mpCamera->getFrameBuffer());
   for (auto i = mHudElements.begin(); i != mHudElements.end(); i++) {
     (*i)->draw(mpCamera.get());
   }
@@ -231,9 +246,8 @@ scene::drawParticles()
     return;
   }
 
-  // SDL_SetRenderTarget(_renderer, mpCamera->getFrameBuffer());
   /*  Draw all particles.*/
-  for (auto i = mParticleList.begin(); i != mParticleList.end(); i++) {
+  for (auto i = mParticles.begin(); i != mParticles.end(); i++) {
     (*i)->draw(mpCamera.get());
   }
 }
@@ -246,7 +260,6 @@ scene::drawActors()
     return;
   }
 
-  // SDL_SetRenderTarget(_renderer, mpCamera->getFrameBuffer());
   // Next draw each actor
   for (auto i = mActors.begin(); i != mActors.end(); i++) {
     (*i)->draw(mpCamera.get());
@@ -263,8 +276,9 @@ interpolateActors(std::list<std::shared_ptr<actor>>& actors)
 
 /* TODO: move all update and movement code into this method  */
 void
-scene ::update()
+scene::update()
 {
+
   if (!_server)
     interpolateActors(mActors);
 
@@ -275,6 +289,8 @@ scene ::update()
 
   if (mState == PLAYING)
     movementUpdate();
+
+  updateHudPositions();
 
   cleanUp();
   physicsUpdate();
@@ -289,7 +305,7 @@ scene::updateSprites()
     (*i)->updateSprite();
   }
 
-  for (auto i = mParticleList.begin(); i != mParticleList.end(); i++) {
+  for (auto i = mParticles.begin(); i != mParticles.end(); i++) {
     (*i)->update();
   }
 
@@ -315,7 +331,7 @@ scene::ActorsCollidingWith(AbstractCollider* p_collider)
 }
 
 void
-scene::onInput(SDL_Event* event)
+scene::onInput(const AbstractInputEvent& event)
 {
   // Let interactive HUD elements handle the detected input
   for (auto i = mHudElements.begin(); i != mHudElements.end(); i++) {
@@ -330,10 +346,15 @@ scene::onResize()
 {
   LOCK_GUARD(mMutex);
 
+  IGraphicsManager& gfx = mrIOSystem.getGraphicsManager();
+  gfx.resizeWindow();
+
   if (mpCamera)
     mpCamera->onResize();
   updateHudPositions();
   refreshSprites();
+
+
   return;
 }
 
@@ -392,7 +413,16 @@ scene::linkActorToPlayer(std::shared_ptr<actor>& act, int player_id)
 }
 
 void scene::init(){
-  for(auto p_actor : mActors)
+  for(auto p_actor : mActors){
     p_actor->init();
+  }
+
+  initGraphics();
+
   return;
+}
+
+
+void
+scene::initGraphics(){
 }

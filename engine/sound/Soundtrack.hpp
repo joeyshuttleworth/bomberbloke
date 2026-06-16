@@ -5,7 +5,10 @@
 #include <list>
 #include <memory>
 
+#include "IOSystem.hpp"
+
 class Sound;
+class ISoundManager;
 
 class Soundtrack {
 public:
@@ -16,7 +19,8 @@ public:
    * @param transitions         Transition matrix for clips (square matrix).
    * @param intenseTransitions  Intense transition matrix for clips (square matrix).
    */
-  Soundtrack(std::list<std::string> clipNames, std::list<std::list<double>> transitions, std::list<std::list<double>> intenseTransitions);
+  Soundtrack(ISoundManager&, std::list<std::string> clipNames, std::list<std::list<double>> transitions,
+             std::list<std::list<double>> intenseTransitions);
 
   /**
    * Plays idle music on loop.
@@ -61,16 +65,18 @@ protected:
   bool mIsPlaying = 0;
   // True if idle music is playing.
   bool mIsIdle = 0;
+
+  ISoundManager& mrSoundManager = _fallback_IO_system.getSoundManager();
 };
 
 class Soundtrack1: public Soundtrack {
 public:
-  Soundtrack1();
+  Soundtrack1(ISoundManager&);
 };
 
 class Soundtrack2: public Soundtrack {
 public:
-  Soundtrack2();
+  Soundtrack2(ISoundManager&);
 };
 
 #endif

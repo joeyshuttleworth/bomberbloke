@@ -7,6 +7,7 @@
 
 #include <string>
 #include <memory>
+#include <mutex>
 #include "AbstractEvent.hpp"
 #include "engine.hpp"
 #include "Connector.hpp"
@@ -15,7 +16,9 @@ class serverPlayer;
 
 class NetClient {
 protected:
-    bool attemptJoin(std::string address, const std::string&, const std::vector<std::string>& = {});
+  bool attemptJoin(std::string address, const std::string&, const std::vector<std::string>& = {});
+  std::mutex mPlayerListMutex;
+  std::vector<serverPlayer> mPlayers;
 public:
     NetClient();
     ~NetClient();
@@ -26,8 +29,8 @@ public:
     void pollServer();
     bool joinBlokeServer(std::string address, const std::string&, const std::vector<std::string>& = {});
     void handleServerCommand(std::string);
+    std::vector<serverPlayer> getPlayers();
 
-    std::vector<serverPlayer> mPlayers;
 
     std::string mServerAddress;
     short mPort;

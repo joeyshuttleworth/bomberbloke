@@ -15,14 +15,18 @@ class TextHudElement;
 class actor;
 class Soundtrack;
 
+const unsigned int default_n_spawn_points = 16;
+
 class BomberBlokeScene : public scene{
 protected:
   std::weak_ptr<AbstractHudElement> mPowerIcons[10];
   std::weak_ptr<AbstractHudElement> mSpeedIcons[10];
   std::weak_ptr<AbstractHudElement> mBombIcons[10];
 
+  unsigned int mNSpawnPoints = 0;
+
   // Texture containing bakground tiles.
-  SDL_Texture *mBackgroundTexture;
+  AbstractTexture *mpBackgroundTexture;
 
   // Camera that captures entire scene.
   std::shared_ptr<ShowAllCamera> mSceneCamera;
@@ -33,6 +37,7 @@ protected:
 
   // When true, the game is paused.
   bool mIsPaused = false;
+
   // Weak pointer to the pause menu HUD group (contained in mHudElements).
   std::weak_ptr<PauseMenuHudGroup> mPauseMenuHud;
 
@@ -59,9 +64,15 @@ protected:
   void showEntireScene();
 
 public:
-  void setBigBomb();
+  void setBigBombHUD(bool);
 
-  BomberBlokeScene(unsigned int size_x = 10, unsigned int size_y = 10);
+  BomberBlokeScene() : BomberBlokeScene(_fallback_IO_system)
+  {
+  }
+
+  BomberBlokeScene(IOSystem& ctx, unsigned int size_x = 10, unsigned int size_y = 10,
+                   unsigned int spawn_points=default_n_spawn_points);
+
   ~BomberBlokeScene();
 
   /**
@@ -87,7 +98,7 @@ public:
    *
    * Primarily for interactive HUD elements.
    */
-  void onInput(SDL_Event *event) override;
+  void onInput(const AbstractInputEvent& event) override;
 
   /**
    * Alternates pause state.
@@ -118,6 +129,8 @@ public:
    *  Update the camera to reflect the new window size.
    */
   void onResize() override;
+
+  void setPause(bool);
 
   template<class Archive>
   void serialize(Archive &archive){

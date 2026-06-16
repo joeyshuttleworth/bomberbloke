@@ -1,4 +1,5 @@
 #include "AbstractPickup.hpp"
+#include "NetServer.hpp"
 #include "bloke.hpp"
 
 void
@@ -19,4 +20,12 @@ AbstractPickup::update()
       break;
     }
   }
+}
+
+
+void AbstractPickup::init()
+{
+  mpSpriteHandler = std::make_shared<PickupAnimation>(mrIOSystem.getGraphicsManager(), mPosition[0],
+                                                      mPosition[1], mDimension[0], mDimension[1],
+                                                      mAssetName);
 }

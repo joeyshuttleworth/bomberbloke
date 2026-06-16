@@ -1,33 +1,40 @@
 #ifndef STATICSPRITE_HPP
 #define STATICSPRITE_HPP
 #include "AbstractSpriteHandler.hpp"
+#include "IGraphicsManager.hpp"
 #include <SDL_image.h>
-#include "engine.hpp"
-
-extern SDL_Renderer *_renderer;
-SDL_Texture* get_sprite(std::string);
 
 class staticSprite : public AbstractSpriteHandler{
+protected:
+  std::string mAssetName;
 public:
   int getType() const{
     return SPRITE_STATIC;
   }
-  staticSprite(double xpos, double ypos, double xdim, double ydim, std::string asset_name)
-    : AbstractSpriteHandler(xpos, ypos, xdim, ydim){
-      mpSprite = get_sprite(asset_name);
+  staticSprite(IGraphicsManager& gfx_manager, double xpos, double ypos, double xdim, double ydim, std::string asset_name)
+    : AbstractSpriteHandler(gfx_manager, xpos, ypos, xdim, ydim){
+    mAssetName = asset_name;
+    return;
+  }
+
+  staticSprite(staticSprite& other, IGraphicsManager& gfx) : AbstractSpriteHandler(other, gfx){
+  }
+
+  void draw(Camera* cam){
+    if(!cam)
       return;
-    }
 
-    void draw(Camera *cam){
-      SDL_Rect dstrect = cam->getScreenRect(mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]);
-      cam->renderCopy(mpSprite, nullptr, &dstrect);
+    auto dstrect = cam->getScreenRect(mPosition[0], mPosition[1], mDimension[0], mDimension[1]);
+    mrGraphicsManager.drawSprite(mAssetName, dstrect,
+                                 cam->getFrameBuffer(mIsPostProcessed));
+    return;
+  }
 
-      return;
-    }
+  std::shared_ptr<AbstractSpriteHandler> clone(IGraphicsManager& gfx) override{
+    return std::make_shared<staticSprite>(*this, gfx);
+  }
 
-    virtual ~staticSprite(){}
+  virtual ~staticSprite(){}
 
-protected:
-    SDL_Texture *mpSprite;
-  };
+};
 #endif

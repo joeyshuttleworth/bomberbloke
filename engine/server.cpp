@@ -1,13 +1,21 @@
 #include "engine.hpp"
+#include "scene.hpp"
 #include "network/NetServer.hpp"
+#include "DummyGraphicsManager.hpp"
+#include "IOSystem.hpp"
 #include <memory>
+#include <chrono>
 
 bool _server = true;
 bool _draw = false;
 bool _debug_player = false;
 unsigned int _ping_time = 0;
 
-void server_loop(short port, std::string masterServerAddress, bool debug){
+
+void server_loop(IOSystem&  io_system_context, short port, std::string masterServerAddress, bool debug){
+
+  /* TODO put init code in init func */
+
   if(debug){
     _debug_player = true;
     log_message(INFO, "DEBUG Mode: On");
@@ -33,12 +41,18 @@ void server_loop(short port, std::string masterServerAddress, bool debug){
       }
 
       // SDL_Delay might take too long so only sleep for half the time
-      SDL_Delay(time_to_sleep*.75);
+
+      if(std::chrono::milliseconds(int(time_to_sleep)) > std::chrono::milliseconds(20))
+        std::this_thread::sleep_for(std::chrono::nanoseconds(int(time_to_sleep*.75)));
+      else
+        std::this_thread::yield();
       if (clock_gettime(CLOCK_REALTIME, &t2) == -1)
         log_message(ERR, "Failed to get time");
     } while (t2.tv_nsec - t1.tv_nsec +
                1e9 * (t2.tv_sec - t1.tv_sec) < 1e9 / TICK_RATE);
+
     _net_server->update();
+
     if (_tick % (5 * TICK_RATE) == 0) {
       _ping_time = _tick;
     }
@@ -47,13 +61,16 @@ void server_loop(short port, std::string masterServerAddress, bool debug){
       LOCK_GUARD(_scene_mutex);
 
       if (!_pScene)
-        _pScene = std::make_shared<scene>(10, 10);
+        _pScene = std::make_shared<scene>(io_system_context, 10, 10);
       _pScene->update();
-      draw_screen();
+
+      if(_draw)
+        io_system_context.getGraphicsManager().drawScreen();
+
       _tick++;
       if (_tick % 1000 == 0)
         _net_server->syncPlayers();
-      handle_input();
+      handle_input(io_system_context);
     }
     if(_debug_player && _player_list.empty()) { // If empty add a dummy player in debug mode
       server_add_debug_player();
@@ -69,9 +86,17 @@ void server_loop(short port, std::string masterServerAddress, bool debug){
     }
     */
 
+    _pNewScene = _pScene->getNextScene();
+    if (_pNewScene != nullptr) {
+      _pScene = _pNewScene;
+      _pNewScene = nullptr;
+    }
+
     if (_pScene->getNewGame() && _player_list.size() > 1) {
-      new_game("");
+      new_game(io_system_context, "");
     }
   }
+
+  exit_engine();
   return;
 }

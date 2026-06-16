@@ -21,7 +21,7 @@ public:
      * @param xAlignFlag    Determines the alignment of the bounding box.
      * @param yAlignFlag    DetermineS the alignment of the bounding box.
      */
-    InputField(std::shared_ptr<Text> text, int xPos, int yPos, int xDim,
+     InputField(scene&, std::shared_ptr<Text> text, int xPos, int yPos, int xDim,
         int yDim, AlignFlag xAlignFlag=ALIGN_LEFT, AlignFlag yAlignFlag=ALIGN_TOP);
 
     /**
@@ -29,7 +29,7 @@ public:
      *
      * @param colour    New colour object.
      */
-    void setInputColour(SDL_Color colour) {
+    void setInputColour(uint32_t colour) {
         mInputColour = colour;
         mPropertiesUpdated = true;
     }
@@ -56,7 +56,7 @@ public:
      *
      * @param camera    Current Camera object.
      */
-    void onInput(SDL_Event *event) override;
+    void onInput(const AbstractInputEvent& event) override;
 
     /**
      * Draws the text object in the position of the HUD element.
@@ -67,9 +67,9 @@ public:
 
 protected:
     // Text colour of default text for when input field is empty
-    SDL_Color mDefaultColour;
+    uint32_t mDefaultColour;
     // Text colour when input is given.
-    SDL_Color mInputColour;
+    uint32_t mInputColour;
 
     // Current text in field
     std::string mTextInput = "";

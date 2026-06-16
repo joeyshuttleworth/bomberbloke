@@ -4,27 +4,32 @@
 #include "AbstractPickup.hpp"
 #include "bomberbloke_actors.hpp"
 #include "staticSprite.hpp"
+#include "IGraphicsManager.hpp"
+#include <string>
 
 class PickupAnimation : public AbstractSpriteHandler{
 private:
-  SDL_Texture* mpSprite;
+  std::string mAssetName = "";
 public:
-  int getType() const{return PICKUP_SPEED;}
+  int getType() const{return AbstractPickup::PICKUP_NONE;}
 
+  PickupAnimation() = default;
 
-  PickupAnimation(){}
+  using AbstractSpriteHandler::AbstractSpriteHandler;
 
-  PickupAnimation(double xpos, double ypos, double xdim, double ydim, std::string asset_name)
-    : AbstractSpriteHandler(xpos, ypos, xdim, ydim){
-    mpSprite = get_sprite(asset_name);
-    return;
+  PickupAnimation(IGraphicsManager& gfx_manager, double xpos, double ypos, double xdim, double ydim,
+                  const std::string& asset_name)
+    : AbstractSpriteHandler(gfx_manager, xpos, ypos, xdim, ydim),
+      mAssetName(asset_name)
+  {
   }
 
-  void draw(Camera *cam){
-    int bloom = std::abs((int)(_tick - mStartTick) % (2*50) - 50);
+  void draw(Camera* cam){
+    // int bloom = std::abs((int)(_tick - mStartTick) % (2*50) - 50);
+    // TODO bloom
+    auto dstrect = cam->getScreenRect(mPosition[0], mPosition[1], mDimension[0], mDimension[1]);
 
-    SDL_Rect dstrect = cam->getScreenRect(mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]);
-    cam->renderCopy(mpSprite, nullptr, &dstrect, true, bloom);
+    mrGraphicsManager.drawSprite(mAssetName, dstrect, cam->getFrameBuffer(mIsPostProcessed));
     return;
   }
 

@@ -1,9 +1,14 @@
 #ifndef ABSTRACTSPRITEHANDLER_HPP
 #define ABSTRACTSPRITEHANDLER_HPP
-#include <SDL.h>
 #include <array>
-#include <cereal/cereal.hpp>
-#include <cereal/types/polymorphic.hpp>
+
+
+#include "DummyGraphicsManager.hpp"
+#include "IGraphicsManager.hpp"
+#include "ISoundManager.hpp"
+#include "Camera.hpp"
+
+#include "cereal_archives.hpp"
 
 enum SpriteType{
                 SPRITE_PLACEHOLDER=1,
@@ -14,29 +19,83 @@ class Camera;
 
 extern unsigned int _tick;
 
+class IGraphicsManager;
+
 class AbstractSpriteHandler{
+
+protected:
+  IGraphicsManager& mrGraphicsManager = _fallback_IO_system.getGraphicsManager();
+  bool mInitialised = false;
+  std::array<double, 2> mPosition = {0, 0};
+  std::array<double, 2> mDimension = {1, 1};
+  unsigned int mStartTick = 0;
+  unsigned int mAnimationSpeed = 0;
+  unsigned int mTimeout = 0;
+  unsigned int mDelay = 0;
+  bool mRemove = false;
+  bool mIsPostProcessed = true;
+
+  /* Used only in the case that the object is created with the default constructor and isn't given a graphics manager */
+
+
 public:
-  // TODO: move all flashing stuff to a subclass
-  AbstractSpriteHandler(double x_pos=0, double y_pos=0, double x_dim=0, double y_dim=0, int speed = 300, int timeout = 0, int delay = 0){
-    mPosition[0] = x_pos;
-    mPosition[1] = y_pos;
-    mDimmension[0] = x_dim;
-    mDimmension[1] = y_dim;
-    mStartTick = _tick + delay;
-    mAnimationSpeed = speed;
-    mTimeout = timeout;
-    mRemove = false;
-    mDelay = delay;
-    return;
+  AbstractSpriteHandler(IGraphicsManager& gfx, double x_pos=0, double y_pos=0, double x_dim=0,
+                        double y_dim=0, int speed = 300, int timeout = 0, int delay = 0) :
+    mrGraphicsManager(gfx),
+    mPosition{x_pos, y_pos},
+    mDimension{x_dim, y_dim},
+    mStartTick(_tick + delay),
+    mAnimationSpeed(speed),
+    mTimeout(timeout),
+    mDelay(delay)
+  {
   }
+
+  AbstractSpriteHandler(const AbstractSpriteHandler& other) : mrGraphicsManager(other.mrGraphicsManager)
+  {
+    mPosition[0] = other.mPosition[0];
+    mPosition[1] = other.mPosition[1];
+    mDimension[0] = other.mDimension[0];
+    mDimension[1] = other.mDimension[1];
+    mStartTick = other.mStartTick;
+    mAnimationSpeed = other.mAnimationSpeed;
+    mTimeout = other.mTimeout;
+    mDelay = other.mDelay;
+    mRemove = other.mRemove;
+    mIsPostProcessed = other.mIsPostProcessed;
+  }
+
+  AbstractSpriteHandler() : AbstractSpriteHandler(_fallback_IO_system.getGraphicsManager()){
+  }
+
+  AbstractSpriteHandler(const AbstractSpriteHandler& other, IGraphicsManager& gfx) :
+    mrGraphicsManager(gfx)
+  {
+    mPosition[0] = other.mPosition[0];
+    mPosition[1] = other.mPosition[1];
+    mDimension[0] = other.mDimension[0];
+    mDimension[1] = other.mDimension[1];
+    mStartTick = other.mStartTick;
+    mAnimationSpeed = other.mAnimationSpeed;
+    mTimeout = other.mTimeout;
+    mDelay = other.mDelay;
+    mRemove = other.mRemove;
+    mIsPostProcessed = other.mIsPostProcessed;
+  }
+
+  std::shared_ptr<AbstractSpriteHandler> clone(){
+    return clone(mrGraphicsManager);
+  }
+
+  virtual std::shared_ptr<AbstractSpriteHandler> clone(IGraphicsManager&){return nullptr;}
 
   /**
    *  Draw the sprite to the framebuffer of the Camera
    *  @param the camera we are drawing to.
    */
-  virtual void draw(Camera*)= 0;
+  virtual void draw(Camera*){}
 
-  virtual void refreshSprite(){};
+  virtual void refreshSprite(){}
 
   /**
    * Should we remove this object from _particle_list?
@@ -74,24 +133,16 @@ public:
     return;
   }
 
-
   template<class Archive>
   void serialize(Archive &archive){
-    archive(cereal::make_nvp("position", mPosition), cereal::make_nvp("dimmension", mDimmension), cereal::make_nvp("animation speed", mAnimationSpeed), cereal::make_nvp("timeout", mTimeout), cereal::make_nvp("delay", mDelay));
-    return;
+    archive(
+            mPosition[0], mPosition[1],
+            mDimension[0], mDimension[1],
+            mAnimationSpeed,
+            mTimeout,
+            mDelay
+            );
   }
-
-protected:
-  bool mInitialised = false;
-
-protected:
-  double mPosition[2];
-  double mDimmension[2];
-  unsigned int mStartTick;
-  unsigned int mAnimationSpeed;
-  unsigned int mTimeout;
-  unsigned int mDelay;
-  bool mRemove;
 };
 
 CEREAL_REGISTER_TYPE(AbstractSpriteHandler)

@@ -6,7 +6,7 @@
 class MainMenuScene: public scene{
 public:
   // Constructor for MainMenuScene.
-  MainMenuScene(int sizeX=10, int sizeY=10);
+  MainMenuScene(IOSystem& ctx, int sizeX=10, int sizeY=10);
 
   // Destructor for MainMenuScene.
   ~MainMenuScene() {};

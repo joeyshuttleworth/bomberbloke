@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.10)
 project(BOMBERBLOKE)
+set(CMAKE_CXX_STANDARD 20)
 
 include(FetchContent)
 
 # Include directories
-
 include_directories(BEFORE SYSTEM ${PROJECT_SOURCE_DIR}/cereal/include)
 include_directories(${PROJECT_SOURCE_DIR}/engine/event)
 include_directories(${PROJECT_SOURCE_DIR}/engine/file)
@@ -24,9 +24,12 @@ include_directories(${PROJECT_SOURCE_DIR}/engine/camera)
 include_directories(${PROJECT_SOURCE_DIR}/engine/sound)
 include_directories(${PROJECT_SOURCE_DIR}/engine/text)
 include_directories(${PROJECT_SOURCE_DIR}/engine/hud)
+include_directories(${PROJECT_SOURCE_DIR}/engine/bots)
+include_directories(${PROJECT_SOURCE_DIR}/engine/input)
+include_directories(${PROJECT_SOURCE_DIR}/engine/navigation)
+include_directories(${PROJECT_SOURCE_DIR}/engine/graphics)
 
 # Source files
-
 file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/sources.cmake SHARED_SOURCES)
 
 if(EMSCRIPTEN)
@@ -61,6 +64,9 @@ endif(_WIN32)
 # Dependencies
 find_package(SDL2 REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS})
+
+find_package(SDL2_image REQUIRED)
+include_directories(${SDL2_IMAGE_INCLUDE_DIRS})
 
 find_package(curl REQUIRED)
 include_directories(${CURL_INCLUDE_DIR})
@@ -121,21 +127,27 @@ endif()
 # Build targets declared here
 #
 
-add_library(CLIENT ${SHARED_SOURCES} "engine/client.cpp" "engine/network/NetClient.cpp")
-add_library(SERVER ${SHARED_SOURCES} "engine/server.cpp" "engine/network/NetServer.cpp")
-target_link_libraries(CLIENT PUBLIC files::rc ${SDL2_LIBRARIES} ${CURL_LIBRARIES} NET_LIB)
-target_link_libraries(SERVER PUBLIC files::rc NET_LIB)
+add_library(CLIENT ${SHARED_SOURCES} "engine/client.cpp" "engine/graphics/SDLGraphicsManager.cpp" "engine/graphics/SDLTexture.cpp" "engine/sound/SDLSoundManager.cpp" "engine/input/SDLInputManager.cpp" "engine/input/SDLInputEvent.cpp")
+add_library(SERVER ${SHARED_SOURCES} "engine/server.cpp")
 
+target_link_libraries(CLIENT PUBLIC files::rc ${SDL2_LIBRARIES} ${SDL2_IMAGE_LIBRARIES} ${CURL_LIBRARIES} NET_LIB)
+target_link_libraries(SERVER PUBLIC files::rc NET_LIB)
 
 # Client
 set(client_src "client/bomberbloke.cpp")
 add_executable(bomberbloke_client ${client_src} "engine/client.cpp")
 target_link_libraries(bomberbloke_client PUBLIC files::rc CLIENT)
+
 # Server
-set(server_src "server/bomberbloke_server.cpp" "engine/server.cpp" "engine/network/NetServer.cpp")
+set(server_src "server/bomberbloke_server.cpp" "engine/server.cpp")
 add_executable(bomberbloke_server ${server_src})
 set_target_properties(bomberbloke_server PROPERTIES PUBLIC_HEADER "engine/server.h")
-target_link_libraries(bomberbloke_server SERVER ${SDL2_LIBRARIES} ${CURL_LIBRARIES} NET_LIB)
+target_link_libraries(bomberbloke_server SERVER ${CURL_LIBRARIES} NET_LIB)
+
+# simple_bot_runner
+set(simple_bot_src "bots/simple_bot_runner.cpp" "bots/SimpleBot.cpp" "engine/bots/bots.cpp")
+add_executable(simple_bot_runner ${simple_bot_src})
+target_link_libraries(simple_bot_runner PUBLIC files::rc CLIENT)
 
 # Adding clang-format target if executable is found
 find_program(CLANG_FORMAT "clang-format")

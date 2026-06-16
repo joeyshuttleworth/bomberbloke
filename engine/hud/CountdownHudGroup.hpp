@@ -12,8 +12,6 @@ class TextManager;
 class SoundManager;
 class Sound;
 
-extern TextManager textManager;
-extern SoundManager soundManager;
 
 class CountdownHudGroup: public AbstractHudGroup {
 protected:
@@ -41,7 +39,7 @@ public:
    * @param onFinished    Callback function for when the countdown is finished.
    * @param maxGlowAmount Amount of glow applied to countdown text.
    */
-  CountdownHudGroup(std::function<void()> onFinished, int maxGlowAmount=0);
+  CountdownHudGroup(scene&, std::function<void()> onFinished, int maxGlowAmount=0);
 
   virtual ~CountdownHudGroup(){}
 

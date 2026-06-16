@@ -7,9 +7,7 @@
 #include <SDL.h>
 #include <SDL_joystick.h>
 #include <SDL_main.h>
-#include <cereal/types/polymorphic.hpp>
-#include <cereal/archives/json.hpp>
-#include <cereal/archives/portable_binary.hpp>
+#include "cereal_archives.hpp"
 #include <iostream>
 #include <algorithm>
 #include <list>
@@ -51,27 +49,33 @@ enum state{
 
 DECLARE_EXTERN_MUTEX(_scene_mutex)
 
-class actor;
 class scene;
 class LocalPlayer;
 class NetworkPlayer;
 class AbstractPlayer;
+class IOSystem;
 
-void exit_engine(int);
-void new_game(std::string);
+#include "CommandQueue.hpp"
+
+void client_init(IOSystem&);
+void exit_engine(int=0);
+void new_game(IOSystem&, std::string);
 void engine_new_game(std::string);
 void engine_start_game();
-void client_loop(); // Perform client loop
-void client_entry(); // Perform one tick of client loop
-void server_loop(short port=8888, 
-                 std::string masterServerAddress="", 
+void client_loop(IOSystem&); // Perform client loop
+void client_entry(IOSystem&); // Perform one tick of client loop
+void bot_loop(); // Perform client loop
+void bot_entry(); // Perform one tick of bot loop
+void server_loop(IOSystem&, short port=8888,
+                 std::string masterServerAddress="",
                  bool debug=false
                 );
 void log_message(int, std::string);
-bool handle_system_command(std::list<std::string>);
-void handle_input();
+bool handle_system_command(IOSystem& ctx, Tokens);
+void handle_system_command_queue(IOSystem& ctx);
+void handle_input(IOSystem& ctx);
 void handle_movement();
-void init_engine(bool); // TODO Give this a named bitmask instead of bool
+void init_engine(IOSystem&, bool); // TODO Give this a named bitmask instead of bool
 void console_loop();
 void draw_screen();
 void set_draw(bool);
@@ -84,12 +88,8 @@ void add_player(std::shared_ptr<AbstractPlayer>);
 /* Removes white space and turns a string into a list of words.
    This is used for parsing commands.
 */
-std::list<std::string> split_to_tokens(std::string);
+Tokens split_to_tokens(std::string);
 
-
-extern SDL_Window  *_window;
-extern SDL_Surface *_surface;
-extern SDL_Renderer *_renderer;
 extern double _screen_offset[2];
 extern bool _draw;
 extern bool _server;
@@ -99,19 +99,15 @@ extern std::string _nickname;
 extern SDL_Joystick* _controller;
 extern bool _controller_connected;
 
-/* Global sound manager for storing and tracking playing sounds */
-#include "SoundManager.hpp"
-extern SoundManager soundManager;
 
-#include "TextManager.hpp"
-extern TextManager textManager;
+#include "InputKey.hpp"
 
-typedef std::list<std::pair<std::string, SDL_Texture*>> SpriteList;
-
-typedef struct{
-  SDL_Scancode scancode;
+struct CommandBinding {
+  InputKey scancode;
   std::string command;
-} CommandBinding;
+ };
+
+typedef struct CommandBinding CommandBinding;
 
 enum LOG_LEVEL{
   DEBUG = 0,
@@ -148,9 +144,11 @@ extern std::shared_ptr<scene> _pNewScene;
 
 extern unsigned int _tick;
 extern std::vector<CommandBinding> _default_bindings;
-extern std::list<LocalPlayer> _local_player_list;
+extern std::vector<LocalPlayer> _local_player_list;
 
-const std::array<std::string, 10> _system_commands  =
+class IGraphicsManager;
+
+const std::array<std::string, 12> _system_commands  =
   {{"bind",
     "zoom",
     "draw",
@@ -160,6 +158,8 @@ const std::array<std::string, 10> _system_commands  =
     "generate_config",
     "info",
     "quit",
+    "pause",
+    "toggle_pause",
     "resize"}};
 
 /*  A function defined by the game / test called each tick */
@@ -168,8 +168,6 @@ void gameUpdate();
 class NetClient;
 class NetServer;
 
-#include "NetClient.hpp"
-#include "NetServer.hpp"
 extern std::unique_ptr<NetClient> _net_client;
 extern std::unique_ptr<NetServer> _net_server;
 
@@ -183,11 +181,4 @@ const std::string PATHSEPARATOR =
 
 #include <cereal/archives/json.hpp>
 #include <cereal/archives/portable_binary.hpp>
-
-#include "AbstractSpriteHandler.hpp"
-#include "NetworkPlayer.hpp"
-#include "LocalPlayer.hpp"
-#include "scene.hpp"
-#include "actor.hpp"
-#include "config.hpp"
 #endif

@@ -1,10 +1,14 @@
 #ifndef SOUND_HPP
 #define SOUND_HPP
 
-#include <SDL_mixer.h>
 #include <string>
 #include <functional>
 #include <map>
+
+#include <cereal/types/vector.hpp>
+#include <cereal/types/polymorphic.hpp>
+#include <cereal/types/string.hpp>
+#include <cereal/archives/portable_binary.hpp>
 
 enum SoundGroup {
     SOUND_MASTER,
@@ -15,18 +19,20 @@ enum SoundGroup {
 extern const int SOUND_FREQUENCY;
 extern const int SOUND_N_CHANNELS;
 
+struct SoundChunk{
+  SoundChunk() = default;
+};
+
+class ISoundManager;
+class DummySoundManager;
+class SDLSoundManager;
+
+class Soundtrack;
+
 class Sound {
-public:
-    /**
-     * Sound file in Mix_Chunk format.
-     */
-    Mix_Chunk *mMixChunk;
-
-    /**
-     * Mixer channel number.
-     */
-    int channel = -1;
-
+  friend ISoundManager;
+  friend Soundtrack;
+protected:
     /**
      * Group the sound belongs to.
      */
@@ -62,60 +68,93 @@ public:
     /**
      * Callback function for when sound is finished playing.
      */
-    std::function<void()> onFinishedPlaying = nullptr;
 
-    /**
-     * Initialisation.
-     */
-    Sound() {}
-    Sound(Mix_Chunk *soundFile) {
-        mMixChunk = soundFile;
-    }
+    std::unique_ptr<SoundChunk> mpSoundChunk = nullptr;
+
+public:
+
+  std::function<void()> onFinishedPlaying = nullptr;
+
+  /**
+   * Mixer channel number.
+   */
+  int channel = -1;
+
+
+  void setGroup(SoundGroup grp){
+    mGroup = grp;
+  }
+
+  SoundGroup getGroup(){
+    return mGroup;
+  }
+
+  std::string mName = "";
+
+  Sound(const std::string& name = "", SoundChunk* s_chunk = nullptr) :                                                                      mpSoundChunk(std::move(s_chunk)),
+                                                                                                                                           mName(name)
+
+  {
+  }
+
+  ~Sound() = default;
+
+  Sound(Sound& other) : mGroup(other.mGroup),
+    mNLoops(other.mNLoops), mMaxLengthMs(other.mMaxLengthMs), mFadeInMs(other.mFadeInMs),
+    mVolume(other.mVolume), mDistance(other.mDistance), mAngle(other.mAngle),
+    mName(other.mName)
+  {
+  }
+
+  Sound(Sound&& other) : mpSoundChunk(std::move(other.mpSoundChunk))
+  {
+  }
+
+  Sound& operator=(Sound&) = delete;
+
+
+    int getVolume(){return mVolume;}
+
+    std::string getName(){return mName;};
 
     /**
      * Pauses sound.
      */
-    void pause() {
-        if (channel >= 0)
-            Mix_Pause(channel);
+    virtual void pause() {
     }
 
     /**
      * Resumes sound.
      */
-    void resume() {
-        if (channel >= 0)
-            Mix_Resume(channel);
+    virtual void resume() {
     }
 
     /**
      * Stops sound.
      */
-    void stop(int waitMs=0) {
-        if (channel >= 0) {
-            if (waitMs > 0) {
-                Mix_ExpireChannel(channel, waitMs);
-            } else {
-                Mix_HaltChannel(channel);
-            }
-        }
+    virtual void stop(int=0) {
     }
 
     /**
      * Begins fade out effect at time of call. ms is the number of milliseconds
      * that the fade-out effect should take to go to silence.
      */
-    void fadeOut(int ms) {
-        if (channel >= 0)
-            Mix_FadeOutChannel(channel, ms);
+    virtual void fadeOut(int) {
     }
 
     /**
      * Returns the length of the sound file.
      */
-    int getLengthMs() {
-        return mMixChunk->alen * 1000 / (SOUND_FREQUENCY * SOUND_N_CHANNELS * 2);
+    virtual int getLengthMs() {
+      return 0;
     }
+
+  template<class Archive>
+  void serialize(Archive &archive){
+    archive(mNLoops, mMaxLengthMs, mFadeInMs, mVolume, mDistance, mAngle, mGroup, mName);
+  }
 };
+
+CEREAL_REGISTER_TYPE(Sound)
 
 #endif

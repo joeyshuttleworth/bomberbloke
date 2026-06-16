@@ -4,6 +4,8 @@
 #include <Connector.hpp>
 #include <MessageEvent.hpp>
 
+#include "IOSystem.hpp"
+
 const int N_CLIENTS = 5;
 const int CLIENT_LIFETIME_SECONDS = 5;
 
@@ -55,7 +57,7 @@ main(int, char**)
   std::vector<std::thread> threads;
   for(int i = 0; i < N_CLIENTS; i++)
     threads.emplace_back(run_client); // Launch clients
-  
+
   server.join();
   for(auto &thread : threads)
     thread.join();
@@ -63,4 +65,10 @@ main(int, char**)
   printf("End\n");
 
   return 0;
+}
+
+void
+new_game(IOSystem&, std::string)
+{
+  return;
 }

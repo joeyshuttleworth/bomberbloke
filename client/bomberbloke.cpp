@@ -1,10 +1,13 @@
 #include "bomberbloke.h"
+#include "LocalPlayer.hpp"
 #include "BomberBlokeScene.hpp"
 #include "Explosion.hpp"
 #include "MainMenuScene.hpp"
 #include "bloke.hpp"
 #include "bomb.hpp"
-#include <SDL2/SDL.h>
+#include "SDLGraphicsManager.hpp"
+#include "SDLSoundManager.hpp"
+#include "SDLInputManager.hpp"
 #include <getopt.h>
 #include <network/NetClient.hpp>
 
@@ -46,52 +49,51 @@ main(int argc, char** argv)
     autoConnect = true;
   }
 
-  _default_bindings = { { SDL_SCANCODE_W, "up" },
-                        { SDL_SCANCODE_S, "down" },
-                        { SDL_SCANCODE_A, "left" },
-                        { SDL_SCANCODE_D, "right" },
-                        { SDL_SCANCODE_J, "powerup" },
-                        { SDL_SCANCODE_K, "bomb" },
-                        { SDL_SCANCODE_P, "pause" },
-                        { SDL_SCANCODE_MINUS, "zoom *.8" },
-                        { SDL_SCANCODE_EQUALS, "zoom *1.25" },
-                        { SDL_SCANCODE_F, "zoom follow" },
-                        { SDL_SCANCODE_0, "zoom all" } };
+  _default_bindings = { { KEY_W, "up" },
+                        { KEY_S, "down" },
+                        { KEY_A, "left" },
+                        { KEY_D, "right" },
+                        { KEY_J, "powerup" },
+                        { KEY_K, "bomb" },
+                        { KEY_P, "pause" },
+                        { KEY_ESCAPE, "toggle_pause" },
+                        { KEY_MINUS, "zoom *.8" },
+                        { KEY_EQUALS, "zoom *1.25" },
+                        { KEY_F, "zoom follow" },
+                        { KEY_0, "zoom all" } };
 
   _local_player_list.push_back(LocalPlayer(userName));
   _nickname = userName;
 
-  SDL_Init(SDL_INIT_EVERYTHING);
-  init_engine(false);
+  IOSystem io_system_context(
+                             std::make_unique<SDLGraphicsManager>(),
+                             std::make_unique<SDLSoundManager>(),
+                             std::make_unique<SDLInputManager>()
+                             );
 
-  _pScene = std::make_shared<MainMenuScene>(15, 15);
+  client_init(io_system_context);
 
-  if (EXPLOSION_INTRO) {
-    for (unsigned int i = 0; i < 10; i++) {
-      for (unsigned int j = 0; j < 10; j++)
-        _pScene->mParticleList.push_back(std::shared_ptr<Explosion>(
-          new Explosion(i, j, 1, 1, 60 + i + 2 * j, 600 - 2 * i - j, 0)));
-    }
+  _pScene = std::make_shared<MainMenuScene>(io_system_context, 15, 15);
 
+    ISoundManager& sound_manager = io_system_context.getSoundManager();
     // Play intro music
     std::shared_ptr<Sound> pIntroSound =
-      soundManager.createSound("explosion_intro");
-    soundManager.playSound(pIntroSound);
-    pIntroSound->mGroup = SOUND_FX;
-  }
+      sound_manager.createSound("explosion_intro");
+    sound_manager.playSound(pIntroSound);
+    pIntroSound->setGroup(SOUND_FX);
 
   if (autoConnect) {
     std::vector<std::string> commands = { "colour FFFFFFFF" };
 
     if (_net_client->joinBlokeServer(serverAddress, userName, commands)) {
-      _pNewScene = std::make_shared<BomberBlokeScene>(10, 10);
+      _pNewScene = std::make_shared<BomberBlokeScene>(io_system_context);
     }
   }
 
 #ifndef __EMSCRIPTEN__
-  client_loop();
+  client_loop(io_system_context);
 #else
-  emscripten_set_main_loop(client_entry, 0, true);
+  emscripten_set_main_loop([&]()->void {client_loop(io_system_context)}, 0, true);
 #endif
 
   return 0;
@@ -104,7 +106,7 @@ gameUpdate()
 }
 
 void
-new_game(std::string)
+new_game(IOSystem&, std::string)
 {
   return;
 }

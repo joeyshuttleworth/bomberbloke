@@ -9,14 +9,18 @@ public:
     return ACTOR_BIG_BOMB;
   }
 
-  BigBomb() : bomb(){
-    mpSpriteHandler = std::make_shared<staticSprite>(mPosition[0], mPosition[1], BOMB_SIZE, BOMB_SIZE, "bigredbomb.png");
+  using bomb::bomb;
+
+  void init() override{
     mPower = 100;
+    mpSpriteHandler = std::make_shared<staticSprite>(mrIOSystem.getGraphicsManager(),
+                                                     mPosition[0], mPosition[1],
+                                                     mDimension[0], mDimension[1],
+                                                     "bigredbomb.png");
   }
 
-  BigBomb(bloke* b) : bomb(b){
-    BigBomb();
-    mPower = 100;
+  std::shared_ptr<actor> clone(IOSystem& io_system_ctx) override{
+    return std::make_shared<BigBomb>(*this, io_system_ctx);
   }
 
   /*Used by cereal to serialize the event for it to be sent/received*/

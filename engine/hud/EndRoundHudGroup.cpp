@@ -15,28 +15,36 @@ comparePlayers(std::shared_ptr<AbstractPlayer> player1,
   }
 }
 
-EndRoundHudGroup::EndRoundHudGroup()
-  : AbstractHudGroup(0, 0)
+EndRoundHudGroup::EndRoundHudGroup(scene &r_scene)
+  : AbstractHudGroup(r_scene, 0, 0)
 {
   // Create round winner label
   std::shared_ptr<Text> winnerLabelText =
-    textManager.createText("ROUND WINNER");
-  winnerLabelText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-  winnerLabelText->setTextColour({ 255, 255, 255, 255 });
-  winnerLabelText->setTextScale(1.5);
+    mrGraphicsManager.createText("ROUND WINNER", mFont);
+
+  if(winnerLabelText){
+    winnerLabelText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
+    winnerLabelText->setTextColour(0xFFFFFFFF);
+    winnerLabelText->setTextScale(1.5);
+  }
+
   std::shared_ptr<TextHudElement> winnerLabelElement =
-    std::make_shared<TextHudElement>(
+    std::make_shared<TextHudElement>(mrScene,
       winnerLabelText, 0, -200, 300, 50, ALIGN_CENTER, ALIGN_CENTER);
   addElement(winnerLabelElement);
 
   // Create round winner text
   std::shared_ptr<Text> winnerText =
-    textManager.createText("");
-  winnerText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-  winnerText->setTextColour({ 255, 255, 255, 255 });
-  winnerText->setTextScale(4.);
+    mrGraphicsManager.createText("", mFont);
+
+  if(winnerText){
+    winnerText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
+    winnerText->setTextColour(0xFFFFFFFF);
+    winnerText->setTextScale(4.);
+  }
+
   std::shared_ptr<TextHudElement> winnerElement =
-    std::make_shared<TextHudElement>(
+    std::make_shared<TextHudElement>(mrScene,
       winnerText, 0, -100, 500, 150, ALIGN_CENTER, ALIGN_CENTER);
   addElement(winnerElement);
   mWinnerText = winnerElement;
@@ -49,22 +57,28 @@ std::pair<std::shared_ptr<TextHudElement>, std::shared_ptr<TextHudElement>>
 EndRoundHudGroup::createBlankScoreText(int index)
 {
   std::shared_ptr<Text> playerText =
-    textManager.createText("");
-  playerText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-  playerText->setTextColour({ 255, 255, 255, 255 });
-  playerText->setTextScale(1.5);
+    mrGraphicsManager.createText("", mFont);
+
+  if(playerText){
+    playerText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
+    playerText->setTextColour(0xFFFFFFFF);
+    playerText->setTextScale(1.5);
+  }
+
   std::shared_ptr<TextHudElement> playerElement =
-    std::make_shared<TextHudElement>(
+    std::make_shared<TextHudElement>(mrScene,
       playerText, -100, index * 50 + 25, 250, 50, ALIGN_CENTER, ALIGN_CENTER);
   addElement(playerElement);
 
    std::shared_ptr<Text> scoreText =
-    textManager.createText("");
-   scoreText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-   scoreText->setTextColour({ 255, 255, 255, 255 });
-   scoreText->setTextScale(1.5);
+     mrGraphicsManager.createText("", mFont);
+   if(scoreText){
+     scoreText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
+     scoreText->setTextColour(0xFFFFFFFF);
+     scoreText->setTextScale(1.5);
+   }
    std::shared_ptr<TextHudElement> scoreElement =
-     std::make_shared<TextHudElement>(
+     std::make_shared<TextHudElement>(mrScene,
        scoreText, -300, index * 50 + 25, 50, 50, ALIGN_CENTER, ALIGN_CENTER);
    addElement(scoreElement);
 

@@ -26,9 +26,9 @@ public:
      * @param xAlignFlag    Determines the alignment of the bounding box.
      * @param yAlignFlag    DetermineS the alignment of the bounding box.
      */
-    TextHudElement(std::shared_ptr<Text> text, int xPos, int yPos,
-            int xDim, int yDim, AlignFlag xAlignFlag=ALIGN_LEFT,
-            AlignFlag yAlignFlag=ALIGN_TOP);
+  TextHudElement(scene& r_scene, std::shared_ptr<Text> text, int xPos, int yPos,
+                 int xDim, int yDim, AlignFlag xAlignFlag=ALIGN_LEFT,
+                 AlignFlag yAlignFlag=ALIGN_TOP);
 
     /**
      * Updates the position of the HUD element.
@@ -53,8 +53,10 @@ public:
      * @param newText New string.
      */
     void setText(std::string newText) {
-        mText->setText(newText);
-        mPropertiesUpdated = true;
+      if(!mText)
+        return;
+      mText->setText(newText);
+      mPropertiesUpdated = true;
     }
 };
 

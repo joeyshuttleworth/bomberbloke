@@ -2,11 +2,12 @@
 #include "bloke.hpp"
 #include "bomb.hpp"
 #include "bomberbloke.h"
+#include "CommandQueue.hpp"
 #include "cereal/archives/json.hpp"
 #include <SDL2/SDL.h>
 
 bool
-compare_tokens(std::list<std::string> l1, std::list<std::string> l2)
+compare_tokens(Tokens l1, Tokens l2)
 {
   if (l1.size() != l2.size())
     return false;
@@ -29,7 +30,7 @@ const std::vector<std::string> test_strings = {
   " \"aa \" bb", "aa bb \"cc\"",
   "aa bb \"cc\""
 };
-const std::vector<std::list<std::string>> answer_list = {
+const std::vector<Tokens> answer_list = {
   { "a" },
   { "ab" },
   { "ab" },
@@ -49,13 +50,13 @@ main()
   assert(test_strings.size() == answer_list.size());
 
   for (unsigned int i = 0; i < test_strings.size(); i++) {
-    std::list<std::string> answer = split_to_tokens(test_strings[i]);
+    Tokens answer = split_to_tokens(test_strings[i]);
     assert(compare_tokens(answer, answer_list[i]));
   }
   return 0;
 }
 
-void new_game(std::string)
+void new_game(IOSystem&, std::string)
 {
   return;
 }

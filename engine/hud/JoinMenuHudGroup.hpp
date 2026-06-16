@@ -20,9 +20,9 @@ public:
   /**
    * Constructor for JoinMenuHudGroup.
    */
-  JoinMenuHudGroup(std::function<void()> goBackFn);
+  JoinMenuHudGroup(scene&, std::function<void()> goBackFn);
 
-  void onInput(SDL_Event* event) override;
+  void onInput(const AbstractInputEvent& event) override;
 
   /**
    * Callback function for colour button
@@ -52,6 +52,8 @@ protected:
   std::weak_ptr<InputField> mBlueField;
   std::weak_ptr<InputField> mGreenField;
   std::weak_ptr<TextButton> mColourButton;
+
+  std::string mFont = "Aileron-Black";
 
   // Weak pointer to loading text.
   std::weak_ptr<TextHudElement> mLoadingText;

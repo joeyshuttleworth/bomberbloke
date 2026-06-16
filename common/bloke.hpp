@@ -17,8 +17,6 @@ class Sound;
 class SoundManager;
 class BigBombPickup;
 
-extern SoundManager soundManager;
-
 class bloke : public actor{
   friend bomb;
   friend SpeedPickup;
@@ -27,7 +25,7 @@ class bloke : public actor{
   friend BigBombPickup;
   friend GamePlayerProperties;
 protected:
-  std::list<int> mPowerups;
+  std::list<int> mPowerups = {};
 
   enum DIR{
     DIR_UP,
@@ -49,13 +47,24 @@ protected:
   bool   mAccelerated;
   bool   mDirectionsHeld[4] = {false, false, false, false};
   double mAcceleration[2] = {0,0};
-  std::shared_ptr<Sound> mPlaceBombSound;
-  uint32_t mColour;
+  std::shared_ptr<Sound> mPlaceBombSound = nullptr;
 
-  void init();
+  uint32_t mColour = 0x0000FFFF;
+
+  void init() override;
 
 public:
-  bloke(double x=1, double y=1, bool collides = true, uint64_t colour = 0xFF00FFFF);
+  bloke(scene* =nullptr, double=1, double=1, bool=true, uint64_t=0xFF00FFFF);
+
+  bloke(bloke& other) : actor(other), mColour(other.mColour)
+  {
+  }
+
+  bloke(bloke& other, IOSystem& ctx) : actor(other, ctx), mColour(other.mColour)
+  {
+  }
+
+  using actor::actor;
 
   int getType() const{
     return ACTOR_BLOKE;
@@ -65,11 +74,14 @@ public:
     return mProperties;
   }
 
-  void draw();
   void die();
   void handleCommand(std::string command);
   void accelerate();
-  void update();
+  void update() override;
+
+  std::shared_ptr<actor> clone(IOSystem& ctx) override{
+    return std::make_shared<bloke>(*this, ctx);
+  }
 
   /*Cereal serialisation. No info is needed that isn't provided by actor.
     We could serialise mMaxBombs, mBombKick etc here because they are
@@ -79,8 +91,8 @@ public:
 
   template<class Archive>
   void serialize(Archive &archive){
-    archive(make_nvp("actor", cereal::base_class<actor>(this)), cereal::make_nvp("colour", mColour));
-    return;
+    archive(make_nvp("actor", cereal::base_class<actor>(this)));
+    archive(mColour);
   }
 };
 

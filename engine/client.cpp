@@ -1,17 +1,47 @@
 #include "engine.hpp"
+#include "scene.hpp"
 #include "network/NetClient.hpp"
+#include "SDLGraphicsManager.hpp"
 #include <cereal/types/polymorphic.hpp>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include "assets.hpp"
+#include "IOSystem.hpp"
 
 unsigned int _last_receive;
-bool _draw = true;
+
 bool _server = false;
+bool _draw = true;
+
+void client_init(IOSystem& io_system_context){
+  SDL_Init(SDL_INIT_EVERYTHING);
+  TTF_Init();
+
+  IGraphicsManager& graphics_interface = io_system_context.getGraphicsManager();
+
+  const int default_w_width = 800;
+  const int default_w_height = 600;
+
+  graphics_interface.createWindow(default_w_width, default_w_height);
+  graphics_interface.resizeWindow(default_w_width, default_w_height);
+  graphics_interface.setDraw(true);
+
+  ISoundManager& sound_manager = io_system_context.getSoundManager();
+
+  sound_manager.init();
+
+  graphics_interface.renderSplashScreen();
+  loadAssets(sound_manager, graphics_interface);
+  init_engine(io_system_context, false);
+
+}
+
 
 void
-client_loop()
+client_loop(IOSystem& io_system_context)
 {
+
   timespec t1, t2;
   t2.tv_nsec = 0;
   t2.tv_sec = 0;
@@ -28,26 +58,36 @@ client_loop()
     }
     while(t2.tv_nsec - t1.tv_nsec +
           1e9 * (t2.tv_sec - t1.tv_sec) < 1e9 / TICK_RATE);
-    
+
     // Perform client tick
-    client_entry();
+    client_entry(io_system_context);
   }
+
+  exit_engine();
 }
 
-void client_entry() {
-  /* Lock _scene_mutex to protect _pScene from other threads */
-  LOCK_GUARD(_scene_mutex);
-
+void client_entry(IOSystem& io_system_context) {
   _net_client->pollServer();
+
+  handle_system_command_queue(io_system_context);
+
   if (_pScene) {
     _pScene->update();
-    handle_input();
+    handle_input(io_system_context);
   }
-  if (_draw)
-    draw_screen();
+  if (_draw){
+    IGraphicsManager& gfx = io_system_context.getGraphicsManager();
+    gfx.resetFrameBuffers();
+
+    if(_pScene)
+      _pScene->draw();
+
+    gfx.drawScreen();
+  }
   _tick++;
 
-  if (_pNewScene != nullptr) {
+  _pNewScene = _pScene->getNextScene();
+  if (_pNewScene) {
     _pScene = _pNewScene;
     _pNewScene = nullptr;
   }

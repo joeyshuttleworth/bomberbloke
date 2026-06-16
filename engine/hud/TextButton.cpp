@@ -8,7 +8,8 @@
 
 const std::string CLICK_SOUND_NAME = "click";
 
-TextButton::TextButton(std::shared_ptr<Text> text,
+TextButton::TextButton(scene& r_scene,
+                       std::shared_ptr<Text> text,
                        int xPos,
                        int yPos,
                        int xDim,
@@ -16,15 +17,16 @@ TextButton::TextButton(std::shared_ptr<Text> text,
                        std::function<void()> onClickFn,
                        AlignFlag xAlignFlag,
                        AlignFlag yAlignFlag)
-  : AbstractHudElement(xPos, yPos, xDim, yDim, xAlignFlag, yAlignFlag)
-  , ClickableHudElement(xPos,
+  :
+  AbstractHudElement(r_scene, xPos, yPos, xDim, yDim,xAlignFlag, yAlignFlag),
+  ClickableHudElement(r_scene, xPos,
                         yPos,
                         xDim,
                         yDim,
                         onClickFn,
                         xAlignFlag,
                         yAlignFlag)
-  , TextHudElement(text, xPos, yPos, xDim, yDim, xAlignFlag, yAlignFlag)
+  , TextHudElement(r_scene, text, xPos, yPos, xDim, yDim, xAlignFlag, yAlignFlag)
 {
   // Use text colour as default colour.
   if (text)
@@ -45,9 +47,12 @@ TextButton::TextButton(std::shared_ptr<Text> text,
   mOnClickOffset[0] = mOffsetArray[0];
   mOnClickOffset[1] = mOffsetArray[1];
 
+  ISoundManager& sound_manager = r_scene.getIOSystem().getSoundManager();
+
   // Get click sound
-  mClickSound = soundManager.createSound(CLICK_SOUND_NAME);
-  mClickSound->mGroup = SOUND_FX;
+  mClickSound = sound_manager.createSound(CLICK_SOUND_NAME);
+  if(mClickSound)
+    mClickSound->setGroup(SOUND_FX);
 }
 
 void
@@ -56,7 +61,7 @@ TextButton::draw(Camera* camera)
   if (!mIsVisible)
     return;
 
-  if (mPropertiesUpdated) {
+  if (mPropertiesUpdated && mText) {
     // Set colour and text offset according to mIsClicked and mIsMouseOver
     if (mIsClicked) {
       mText->setTextColour(mOnClickColour);
@@ -77,8 +82,9 @@ TextButton::draw(Camera* camera)
 void
 TextButton::onClick(int x, int y)
 {
+
   // Play click sound
-  soundManager.playSound(mClickSound);
+  mrSoundManager.playSound(mClickSound);
 
   // Call mOnClick function.
   ClickableHudElement::onClick(x, y);

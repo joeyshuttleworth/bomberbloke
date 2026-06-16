@@ -8,21 +8,28 @@
 #include "PowerPickup.hpp"
 #include "BombPickup.hpp"
 #include "BigBombPickup.hpp"
+#include "IGraphicsManager.hpp"
 
 class WoodenCrate : public actor{
 public:
 
   int getType() const{
     return ACTOR_WOODEN_CRATE;
-  }
+  };
 
-  WoodenCrate(int x=0, int y=0) : actor(double(x), double(y), true){
-  mpSpriteHandler = std::shared_ptr<staticSprite>(new staticSprite(double(x), double(y), 1.0, 1.0, "crate.png"));
-    return;
+  using actor::actor;
+
+  void init() override{
+    mpSpriteHandler = std::shared_ptr<staticSprite>(
+                                                    new staticSprite(mrIOSystem.getGraphicsManager(),
+                                                                     mPosition[0], mPosition[1],
+                                                                     mDimension[0], mDimension[1],
+                                                                     "crate.png"));
+    actor::init();
   }
 
   void handleCommand(std::string command){
-    std::list<std::string> tokens = split_to_tokens(command);
+    Tokens tokens = split_to_tokens(command);
     if(tokens.size() == 0)
       return;
     else if(_server && (tokens.front() == "kill" || tokens.front() == "+kill")){
@@ -34,29 +41,34 @@ public:
       std::uniform_int_distribution<> distrib(0, 4);
 
       switch(distrib(gen)){
-      case PICKUP_SPEED:{
-        _pScene->addActor(std::make_shared<SpeedPickup>(mPosition[0], mPosition[1]));
+      case AbstractPickup::PICKUP_SPEED:{
+        _pScene->addActor(std::make_shared<SpeedPickup>(mpScene, mPosition[0], mPosition[1]));
         break;
       }
-      case PICKUP_BOMB:{
-        std::shared_ptr<actor> act = std::make_shared<BombPickup>(mPosition[0], mPosition[1]);
+      case AbstractPickup::PICKUP_BOMB:{
+        std::shared_ptr<actor> act = std::make_shared<BombPickup>(mpScene, mPosition[0], mPosition[1]);
         _pScene->addActor(act);
         break;
       }
-      case PICKUP_POWER:{
-        std::shared_ptr<actor> act = std::make_shared<PowerPickup>(mPosition[0], mPosition[1]);
+      case AbstractPickup::PICKUP_POWER:{
+        std::shared_ptr<actor> act = std::make_shared<PowerPickup>(mpScene, mPosition[0], mPosition[1]);
         _pScene->addActor(act);
         break;
       }
-      case PICKUP_BIG_BOMB:{
-        std::shared_ptr<actor> act = std::make_shared<BigBombPickup>(mPosition[0], mPosition[1]);
+      case AbstractPickup::PICKUP_BIG_BOMB:{
+        std::shared_ptr<actor> act = std::make_shared<BigBombPickup>(mpScene, mPosition[0], mPosition[1]);
         _pScene->addActor(act);
       }
-      case PICKUP_NONE:
+      case AbstractPickup::PICKUP_NONE:
       default: break;
       }
     }
   }
+
+  std::shared_ptr<actor> clone(IOSystem& ctx) override{
+    return std::make_shared<WoodenCrate>(*this, ctx);
+  }
+
   template<class Archive>
   void serialize(Archive &archive){
     archive(cereal::base_class<actor>(this));

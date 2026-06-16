@@ -1,14 +1,16 @@
+
+#include "MainMenuScene.hpp"
 #include "MainMenuHudGroup.hpp"
 
 #include <cmath>
 #include <string>
 
 #include "JoinMenuHudGroup.hpp"
-#include "MainMenuScene.hpp"
 #include "OptionsMenuHudGroup.hpp"
 #include "TextButton.hpp"
 #include "TextHudElement.hpp"
-#include "TextManager.hpp"
+
+#include "engine.hpp"
 
 /**
  * Function that closes the game
@@ -16,79 +18,79 @@
 void
 quitFn()
 {
-  handle_system_command({ "quit" });
+  handle_system_command(_fallback_IO_system, { "quit" });
 }
 
-MainMenuHudGroup::MainMenuHudGroup()
-  : AbstractHudGroup(0, 0)
+MainMenuHudGroup::MainMenuHudGroup(scene& r_scene)
+  : AbstractHudGroup(r_scene, 0, 0)
 {
   // Create title
   std::shared_ptr<Text> titleText =
-    textManager.createText("BOMBERBLOKE");
+    mrGraphicsManager.createText("BOMBERBLOKE", mFont);
   if (titleText) {
     titleText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-    titleText->setTextColour({ 255, 255, 255, 255 });
+    titleText->setTextColour(0xffffffff);
     titleText->setTextScale(4.);
   }
 
   std::shared_ptr<TextHudElement> titleElement =
     std::make_shared<TextHudElement>(
-      titleText, 0, -100, 600, 100, ALIGN_CENTER, ALIGN_CENTER);
+                                     r_scene, titleText, 0, -100, 600, 100, ALIGN_CENTER, ALIGN_CENTER);
   titleElement->setIsPostProcessed(false);
 
   addElement(titleElement);
 
   // Create start game button text
   std::shared_ptr<Text> startText =
-    textManager.createText("JOIN GAME");
+    mrGraphicsManager.createText("JOIN GAME", mFont);
   if (startText) {
     startText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-    startText->setTextColour({ 255, 255, 255, 255 });
+    startText->setTextColour(0xffffffff);
     startText->setTextScale(1.5);
   }
   // Create start game button element
   auto startGameFunction = std::bind(&MainMenuHudGroup::showJoinMenu, this);
-  std::shared_ptr<TextButton> startElement = std::make_shared<TextButton>(
+  std::shared_ptr<TextButton> startElement = std::make_shared<TextButton>(r_scene,
     startText, 0, -20, 200, 30, startGameFunction, ALIGN_CENTER, ALIGN_CENTER);
-  startElement->setMouseOverColour({ 200, 200, 200, 255 });
+  startElement->setMouseOverColour(0xC8C8C8FF);
   startElement->setOnClickOffset(-1, 2);
   addElement(startElement);
 
   // Create options menu button
   std::shared_ptr<Text> optionsText =
-    textManager.createText("OPTIONS");
+    mrGraphicsManager.createText("OPTIONS", mFont);
   if (optionsText) {
     optionsText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-    optionsText->setTextColour({ 255, 255, 255, 255 });
+    optionsText->setTextColour(0xFFFFFFFF);
     optionsText->setTextScale(1.5);
   }
   // Create options button element
   auto optionsFunction = std::bind(&MainMenuHudGroup::showOptionsMenu, this);
-  std::shared_ptr<TextButton> optionsElement = std::make_shared<TextButton>(
+  std::shared_ptr<TextButton> optionsElement = std::make_shared<TextButton>(r_scene,
     optionsText, 0, 20, 200, 30, optionsFunction, ALIGN_CENTER, ALIGN_CENTER);
-  optionsElement->setMouseOverColour({ 200, 200, 200, 255 });
+  optionsElement->setMouseOverColour(0xC8C8C8FF);
   optionsElement->setOnClickOffset(-1, 2);
   addElement(optionsElement);
 
   // Create exit game button
   std::shared_ptr<Text> quitText =
-    textManager.createText("QUIT");
+    mrGraphicsManager.createText("QUIT", mFont);
   if (quitText) {
     quitText->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-    quitText->setTextColour({ 255, 255, 255, 255 });
+    quitText->setTextColour(0xFFFFFFFF);
     quitText->setTextScale(1.5);
   }
   // Create exit button element
-  std::shared_ptr<TextButton> quitElement = std::make_shared<TextButton>(
+  std::shared_ptr<TextButton> quitElement = std::make_shared<TextButton>(r_scene,
     quitText, 0, 60, 200, 30, quitFn, ALIGN_CENTER, ALIGN_CENTER);
-  quitElement->setMouseOverColour({ 200, 200, 200, 255 });
+  quitElement->setMouseOverColour(0xC8C8C8FF);
   quitElement->setOnClickOffset(-1, 2);
   addElement(quitElement);
 
   // Create options menu HUD group
   auto returnToMainMenu = std::bind(&MainMenuHudGroup::showMainMenu, this);
   std::shared_ptr<OptionsMenuHudGroup> optionsMenu =
-    std::make_shared<OptionsMenuHudGroup>(returnToMainMenu);
+    std::make_shared<OptionsMenuHudGroup>(r_scene, returnToMainMenu);
   if (optionsMenu) {
     optionsMenu->setIsVisible(false);
     optionsMenu->mIsInteractive = false;
@@ -99,7 +101,7 @@ MainMenuHudGroup::MainMenuHudGroup()
 
   // Create join menu HUD group
   std::shared_ptr<JoinMenuHudGroup> joinMenu =
-    std::make_shared<JoinMenuHudGroup>(returnToMainMenu);
+    std::make_shared<JoinMenuHudGroup>(r_scene, returnToMainMenu);
   if (joinMenu) {
     joinMenu->setIsVisible(false);
     joinMenu->mIsInteractive = false;

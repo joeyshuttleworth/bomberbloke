@@ -4,22 +4,27 @@
 #include <list>
 #include <string>
 #include <mutex>
-#include <SDL.h>
 #include <cereal/types/list.hpp>
 #include <memory>
-#include "AbstractSpriteHandler.hpp"
+
 #include "AbstractCollider.hpp"
+#include "IOSystem.hpp"
 #include "threads.hpp"
+#include "cereal_archives.hpp"
 
 extern double _zoom;
 
-class actor; class Camera; class AbstractHudElement; class NetServer; class NetClient;
+class actor; class Camera; class AbstractHudElement; class NetServer; class NetClient; class AbstractSpriteHandler;
 
 /* Class which stores information about the scene including the actors present and methods for updating and drawing the scene */
 class scene{
   friend NetClient;
   friend NetServer;
 protected:
+
+  void removeAllActors();
+  void removeAllParticles();
+
   bool mNewGame = false;
   /*name and description are information about this scene*/
   std::string mName;
@@ -33,7 +38,24 @@ protected:
    */
   std::shared_ptr<Camera> mpCamera;
 
+  std::mutex mMutex;
+
+  std::shared_ptr<scene> mpNextScene = nullptr;
+
+  IOSystem& mrIOSystem;
+
 public:
+
+  void initGraphics();
+
+  std::shared_ptr<scene> getNextScene(){return mpNextScene;};
+  void setNextScene(std::shared_ptr<scene> s){mpNextScene = s;};
+
+  IGraphicsManager& getGraphicsManager(){return mrIOSystem.getGraphicsManager();};
+  ISoundManager& getSoundManager(){return mrIOSystem.getSoundManager();};
+  IInputManager& getInputManager(){return mrIOSystem.getInputManager();};
+
+  std::array<double, 2> getDimension(){return mDimension;}
 
   bool getNewGame(){return mNewGame;}
 
@@ -63,8 +85,10 @@ public:
 
   void addActor(std::shared_ptr<actor> a);
 
+  void addParticle(std::shared_ptr<AbstractSpriteHandler> p);
+
   /* dim_x and dim_y are the size of our scene in the x and y axis respectively */
-  double mDimmension[2];
+  std::array<double, 2> mDimension = {0, 0};
 
   /*
    * mActors holds each object in the scene. For example, the player object,
@@ -91,26 +115,24 @@ public:
   void drawParticles();
   void refreshSprites();
 
-  /*
-   * mParticleList lists our particles e.g explosions.
-   * These won't be sent over the internet
-   */
-
-  std::list<std::shared_ptr<AbstractSpriteHandler>> mParticleList;
+  std::list<std::shared_ptr<AbstractSpriteHandler>> mParticles;
 
   /*  Return the midpoint of the scene. This is used by the Camera class. */
 
   std::array<double,2> getMidpoint(){
-    std::array<double,2> ret = {{ mDimmension[0] / 2, mDimmension[1]/2 }};
+    std::array<double,2> ret = {{ mDimension[0] / 2, mDimension[1]/2 }};
     return ret;
   }
 
   virtual void init();
 
-  scene(double x=10, double y=10);
+  scene() : scene(_fallback_IO_system){}
+
+  scene(IOSystem& io_system_contex, double x=10, double y=10);
 
   virtual ~scene(){
-      LOCK_GUARD(mMutex);
+    mActors = {};
+    mParticles = {};
   }
 
   std::shared_ptr<actor> GetActor(int id);
@@ -118,10 +140,10 @@ public:
   /*  Clean up sprites and actors from the scene
   *
   *   Remove all actors in mActors with mRemove set to true,
-  *   remove all AbstractSpriteHandlers in mParticleList with
+  *   remove all AbstractSpriteHandlers in mParticles with
   *   mRemove set to true.
   *
-  *   TODO: Make mParticleList protected
+  *   TODO: Make mParticles protected
   */
 
   void cleanUp();
@@ -170,24 +192,28 @@ public:
    */
   std::list<std::shared_ptr<actor>> ActorsCollidingWith(AbstractCollider* p_collider);
 
-  /*We only need to send mDimmension and the mActorList*/
-  template <class Archive>
-  void serialize(Archive &archive){
-    archive(mDimmension, mActors);
-  }
-
   /**
    * Called by the engine whenever any input is detected.
    * Used primarily to update interactive HUD elements.
    */
-  virtual void onInput(SDL_Event *event);
+  virtual void onInput(const AbstractInputEvent& event);
 
   /*   */
 
   bool linkActorToPlayer(std::shared_ptr<actor>&, int);
 
+  /*We only need to send mDimension and the mActorList*/
+  template <class Archive>
+  void serialize(Archive &archive){
+    archive(mDimension[0], mDimension[1]);
+  }
 
-    std::mutex mMutex;
+  IOSystem& getIOSystem(){
+    return mrIOSystem;
+  }
+
 };
+
+
 
 #endif

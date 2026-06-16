@@ -12,11 +12,20 @@ public:
 
   /* Need a default constructor for cereal */
 
-  PowerPickup(double xpos = 0, double ypos = 0) : AbstractPickup(xpos, ypos){
+  PowerPickup(scene *scn=nullptr, double xpos = 0, double ypos = 0) :
+    AbstractPickup(scn, xpos, ypos, "flames.png"){
     /*TODO: draw asset*/
-    mpSpriteHandler = std::make_shared<PickupAnimation>(mPosition[0], mPosition[1], mDimmension[0], mDimmension[1], "flames.png");
+    init();
     return;
   }
+
+  using AbstractPickup::AbstractPickup;
+
+  virtual std::shared_ptr<actor> clone(IOSystem& io_system_ctx){
+    auto pickup = std::make_shared<PowerPickup>(*this, io_system_ctx);
+    pickup->init();
+    return pickup;
+  };
 
   void pickup(std::shared_ptr<bloke> b);
 

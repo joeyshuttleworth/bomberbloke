@@ -24,7 +24,7 @@ public:
      * @param xAlignFlag    Determines the alignment of the bounding box.
      * @param yAlignFlag    DetermineS the alignment of the bounding box.
      */
-   SpriteHudElement(std::string asset, int xPos, int yPos, int xDim, int yDim,
+  SpriteHudElement(scene& r_scene, std::string asset, int xPos, int yPos, int xDim, int yDim,
            AlignFlag xAlignFlag=ALIGN_LEFT, AlignFlag yAlignFlag=ALIGN_TOP);
     /**
      * Draw function.
@@ -46,11 +46,11 @@ public:
         mPropertiesUpdated = true;
     }
 
-  virtual ~SpriteHudElement(){}
+  virtual ~SpriteHudElement(){};
 
 protected:
     // Sprite rendered onto HUD bounding box.
-    SDL_Texture *mSprite;
+    std::string mAssetName;
 
     // Amount of glow applied in post-processing - 0-255
     int mGlowAmount = 0;

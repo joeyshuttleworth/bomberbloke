@@ -2,6 +2,7 @@
 #include "bloke.hpp"
 #include "bomb.hpp"
 #include "bomberbloke.h"
+#include "LocalPlayer.hpp"
 #include <SDL2/SDL.h>
 #include <catch2/catch_test_macros.hpp>
 
@@ -13,18 +14,18 @@ TEST_CASE("Can make a game scene", "[engine]")
   _log_message_level = CRITICAL;
 
   REQUIRE(SDL_Init(SDL_INIT_EVERYTHING) == 0);
-  init_engine(false);
+  init_engine(_fallback_IO_system, false);
 
   const std::string username = "big_beef";
   _local_player_list.push_back(LocalPlayer(username));
 
-  _pScene = std::make_shared<BomberBlokeScene>(10, 10);
+  _pScene = std::make_shared<BomberBlokeScene>(_fallback_IO_system, 10, 10);
   REQUIRE(_pScene != nullptr);
-  REQUIRE(_pScene->mDimmension[0] == 10);
-  REQUIRE(_pScene->mDimmension[1] == 10);
+  REQUIRE(_pScene->mDimension[0] == 10);
+  REQUIRE(_pScene->mDimension[1] == 10);
 
   _halt = true;
-  client_loop();
+  client_loop(_fallback_IO_system);
 
   SDL_Quit();
 }
@@ -36,7 +37,7 @@ gameUpdate()
 }
 
 void
-new_game(std::string)
+new_game(IOSystem&, std::string)
 {
   return;
 }

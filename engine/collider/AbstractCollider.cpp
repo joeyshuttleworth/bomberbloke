@@ -21,9 +21,9 @@ vectorNorm(dvector vec)
 
 AbstractCollider::AbstractCollider() {}
 
-AbstractCollider::AbstractCollider(std::vector<dvector> vertices)
+AbstractCollider::AbstractCollider(std::vector<dvector> vertices) :
+  mFrameVertices(vertices)
 {
-  mFrameVertices = vertices;
 }
 
 std::array<double, 2>
@@ -113,3 +113,18 @@ AbstractCollider::testNormalAxes(AbstractCollider* collider)
 
   return retVal;
 }
+
+
+bool
+collides(AbstractCollider* a, AbstractCollider* b)
+{
+  dvector iAxesMtv = a->testNormalAxes(b);
+  if (iAxesMtv[0] == 0 && iAxesMtv[1] == 0)
+    return false;
+  dvector jAxesMtv = a->testNormalAxes(b);
+  if (jAxesMtv[0] == 0 && jAxesMtv[1] == 0)
+    return false;
+  else
+    return true;
+}
+

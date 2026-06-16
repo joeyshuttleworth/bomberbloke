@@ -12,17 +12,23 @@
 #ifndef SYNCEVENT_HPP
 #define SYNCEVENT_HPP
 
+#include <cereal/types/vector.hpp>
+#include <memory>
+#include <array>
+
 #include "GamePlayerProperties.hpp"
 #include "serverPlayer.hpp"
 #include "AbstractEvent.hpp"
-#include <cereal/types/vector.hpp>
+#include "actor.hpp"
 
 class SyncEvent : public AbstractEvent{
 private:
-  std::vector<serverPlayer> mPlayers;
-  std::vector<actor>    mActors;
 public:
   int mState;
+  std::vector<serverPlayer> mPlayers;
+  std::list<std::shared_ptr<actor>> mActors;
+  std::list<std::shared_ptr<AbstractSpriteHandler>> mParticles;
+  std::vector<double> mDimension = {0, 0};
 
   EventType getType() const{
     return EVENT_SYNC;
@@ -43,6 +49,18 @@ public:
     }
     if(_pScene)
       mState = _pScene->getState();
+
+    for(auto a : _pScene->mActors){
+      mActors.push_back(a->clone());
+    }
+
+    for(auto a : _pScene->mParticles){
+      mParticles.push_back(a->clone());
+    }
+
+    auto dims = _pScene->getDimension();
+    mDimension[0] = dims[0];
+    mDimension[1] = dims[1];
     return;
   }
 
@@ -50,9 +68,12 @@ public:
   template<class Archive>
   void serialize(Archive &archive){
     archive(cereal::base_class<AbstractEvent>(this),
-      cereal::make_nvp("state", mState),
-            cereal::make_nvp("mActors", _pScene->mActors),
-            cereal::make_nvp("players", mPlayers));
+            cereal::make_nvp("mState", mState),
+            cereal::make_nvp("mActors", mActors),
+            cereal::make_nvp("mParticles", mActors),
+            cereal::make_nvp("mDimension", mDimension),
+            cereal::make_nvp("mPlayers", mPlayers)
+            );
   }
 };
 

@@ -1,5 +1,7 @@
 #include "assets.hpp"
-#include <SDL_image.h>
+
+#include "IGraphicsManager.hpp"
+#include "ISoundManager.hpp"
 
 /*
 * assets.cpp
@@ -10,16 +12,16 @@
 #ifdef __EMSCRIPTEN__
 
 void
-loadAssets(TextManager& textManager,
+loadAssets(
            SoundManager& soundManager,
-           SpriteList& spriteList)
+           IGraphicsManager& graphicsManager)
 {
     // Collect assets
     std::vector<std::string> filenames;
     std::ifstream f("assets/web_assets.txt");
     std::string remove = "assets/";
     std::string line;
-    while (std::getline(f,line)) {
+    while (std::getline(f, line)) {
       line.replace(line.begin(), line.begin() + remove.size(), "");
       filenames.push_back(line);
     }
@@ -30,64 +32,49 @@ loadAssets(TextManager& textManager,
         if (dot_pos == std::string::npos)
             continue; // no file extension
 
-        std::string file_name = entry.substr(0, dot_pos);
-        std::string file_extension = entry.substr(dot_pos);
-        std::string full_path = "assets/" + entry;
-        SDL_RWops *io = SDL_RWFromFile(full_path.c_str(), "rb");
-
-        if (file_extension == ".ttf")
+        if (file_extension == ".ogg")
         {
-        textManager.loadFontFromPath(io, file_name);
-        }
-        else if (file_extension == ".ogg")
-        {
-        soundManager.loadFromPath(io, file_name);
+          soundManager.loadFromPath(entry);
         }
         else if (file_extension == ".png"){
-        SDL_Texture* sprite = IMG_LoadTexture_RW(_renderer, io, 1);
-        spriteList.push_back({ entry, sprite });
+          graphicsManager.loadSpriteFromPath(entry);
         }
     }
 }
 
 #else
-
 #include <cmrc/cmrc.hpp>
 CMRC_DECLARE(files);
 
-void
-loadAssets(TextManager& textManager,
-           SoundManager& soundManager,
-           SpriteList& spriteList)
+void loadAssets(
+                ISoundManager& soundManager,
+                IGraphicsManager& graphicsManager)
 {
   auto fs = cmrc::files::get_filesystem();
-  for (auto &&entry : fs.iterate_directory("files/assets/"))
-  {
-    auto dot_pos = entry.filename().find('.');
-    if (dot_pos == std::string::npos)
-    {
-      continue;
-    } // no file extension
 
-    std::string file_name = entry.filename().substr(0, dot_pos);
-    std::string file_extension = entry.filename().substr(dot_pos);
+  const std::string dir = "files/assets";
 
-    auto file = fs.open("files/assets/" + entry.filename());
-    SDL_RWops *io = SDL_RWFromConstMem(file.begin(), file.end() - file.begin());
+  for (auto &&entry : fs.iterate_directory(dir))
+    {
+      auto dot_pos = entry.filename().find('.');
+      if (dot_pos == std::string::npos)
+        {
+          continue;
+        }
 
-    if (file_extension == ".ttf")
-    {
-      textManager.loadFontFromPath(io, file_name);
+      std::string file_name = entry.filename().substr(0, dot_pos);
+      std::string file_extension = entry.filename().substr(dot_pos);
+
+      auto fname = entry.filename();
+
+      if (file_extension == ".ogg")
+        {
+          soundManager.loadFromPath(dir + "/" + entry.filename(), file_name);
+        }
+      else if (file_extension == ".png"){
+        graphicsManager.loadSpriteFromPath(fname);
+      }
     }
-    else if (file_extension == ".ogg")
-    {
-      soundManager.loadFromPath(io, file_name);
-    }
-    else if (file_extension == ".png"){
-      SDL_Texture* sprite = IMG_LoadTexture_RW(_renderer, io, 1);
-      spriteList.push_back({ entry.filename(), sprite });
-    }
-  }
 
 }
 

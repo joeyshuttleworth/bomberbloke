@@ -5,6 +5,8 @@
 
 #include <functional>
 
+class AbstractInputEvent;
+
 class ClickableHudElement: public virtual AbstractHudElement {
 public:
     /**
@@ -20,16 +22,16 @@ public:
      * @param xAlignFlag    Determines the alignment of the bounding box.
      * @param yAlignFlag    DetermineS the alignment of the bounding box.
      */
-    ClickableHudElement(int xPos, int yPos, int xDim, int yDim,
-        std::function<void()> onClickFn, AlignFlag xAlignFlag=ALIGN_LEFT,
-        AlignFlag yAlignFlag=ALIGN_BOTTOM);
+    ClickableHudElement(scene& rscene, int xPos, int yPos, int xDim, int yDim,
+                        std::function<void()> onClickFn, AlignFlag xAlignFlag=ALIGN_LEFT,
+                        AlignFlag yAlignFlag=ALIGN_BOTTOM);
 
     /**
      * Called by the handle input function.
      *
      * @param camera    Current Camera object.
      */
-    void onInput(SDL_Event *event);
+    void onInput(const AbstractInputEvent& event);
 
     // TODO: support keyboard and joystick selection
 

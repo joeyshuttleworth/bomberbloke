@@ -10,6 +10,8 @@
 #include <random>
 #include <stdio.h>
 
+#include "NetServer.hpp"
+
 double _bloke_size[2] = { DEFAULT_BLOKE_SIZE, DEFAULT_BLOKE_SIZE };
 std::vector<int> _spawn_points = { 5, 5 };
 int colours[50][3];
@@ -64,24 +66,21 @@ main(int argc, char** argv)
   }
 
   log_message(INFO, "Bomberbloke server starting...");
+  init_engine(_fallback_IO_system, true);
 
-  init_engine(true);
+  _pScene = std::make_shared<BomberBlokeScene>(_fallback_IO_system);
 
-  _pScene = std::make_shared<BomberBlokeScene>(10, 10);
-
-  server_loop(_port, _masterServerAddress, _debug);
-  SDL_Quit();
-  SDL_Delay(1000);
+  server_loop(_fallback_IO_system, _port, _masterServerAddress, _debug);
   return 0;
 }
 
 void
-new_game(std::string)
+new_game(IOSystem& ctx, std::string)
 {
   /* Lock _scene_mutex to protect _pScene from other threads */
   const std::lock_guard<std::mutex> lock(_scene_mutex);
 
-  _pScene = std::make_shared<BomberBlokeScene>(10, 10);
+  _pScene = std::make_shared<BomberBlokeScene>(ctx);
 
   /* Reset everyone's powerups */
   for (auto i = _player_list.begin(); i != _player_list.end(); i++) {
@@ -89,4 +88,6 @@ new_game(std::string)
       (*i)->resetPlayerProperties(std::make_shared<GamePlayerProperties>());
     (*i)->resetPlayerProperties();
   }
+
+  _net_server->syncPlayers();
 }

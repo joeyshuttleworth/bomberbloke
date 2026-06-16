@@ -1,14 +1,18 @@
 #ifndef ACTOR_HPP
 #define ACTOR_HPP
 
-#include <SDL.h>
 #include <memory>
 #include <array>
 #include "Interpolator.hpp"
 #include "KinematicCollider.hpp"
 #include "Camera.hpp"
-#include <cereal/types/polymorphic.hpp>
+#include "IGraphicsManager.hpp"
+#include "AbstractSpriteHandler.hpp"
+#include "scene.hpp"
+#include "IOSystem.hpp"
+#include "cereal_archives.hpp"
 
+class IGraphicsManager;
 class AbstractPlayer; class AbstractSpriteHandler;
 
 class actor: public KinematicCollider {
@@ -18,36 +22,74 @@ class actor: public KinematicCollider {
   friend class scene;
 protected:
 
+  IOSystem& mrIOSystem;
+
+  /*The id of this actor. Used by  scene::mActors*/
+  int mId = -1;
+
+  /* Unique id of the player in who controls this actor (if any). 0 corresponds
+     to the server.
+  */
+  int mPlayerId = 0;
+
   /*Flag to indicate removal when next updated*/
   bool mRemove = false;
 
   bool mMoved=false;
   std::shared_ptr<AbstractSpriteHandler> mpSpriteHandler;
 
-  /*Who does is this actor controlled by? This corresponds
-    to a unique id of a player in _player_list. 0 corresponds
-    to the server.
-  */
-  int mPlayerId = 0;
-
   virtual void init(){};
 
   void setPlayerId(int id){mPlayerId = id;}
 
-  /*The id of this actor. Used by  scene::mActors*/
-  int mId;
 
   Interpolator mInterpolator;
 
+  scene* mpScene = nullptr;
+
+  /*Do we collide with other actors*/
+  bool mCollides = false;
+
 public:
+  void setScene(scene* scene){mpScene = scene;}
+
+  actor(scene* scene=nullptr, double x = 0, double y = 0, double xdim = DEFAULT_ACTOR_SIZE,
+        double ydim = DEFAULT_ACTOR_SIZE, bool collides = true);
+
+  actor(actor& a, IOSystem& ctx) :
+    mrIOSystem(ctx),
+    mId(a.mId),
+    mPlayerId(a.mPlayerId),
+    mRemove(a.mRemove),
+    mMoved(a.mMoved),
+    mCollides(a.mCollides),
+    mDimension(a.mDimension)
+  {
+    mPosition = a.mPosition;
+  };
+
+  actor(actor& other) :
+    mrIOSystem(other.mrIOSystem),
+    mId(other.mId),
+    mPlayerId(other.mPlayerId),
+    mRemove(other.mRemove),
+    mMoved(other.mMoved),
+    mCollides(other.mCollides),
+    mDimension(other.mDimension)
+  {
+    mPosition = other.mPosition;
+  };
+
+  actor operator=(actor&) = delete;
+  actor& operator=(actor&&) = delete;
+
 
   void setId(int id){mId = id;}
 
   void interpolate();
 
-
   /* TODO replace this */
-  dvector mDimmension;
+  dvector mDimension;
 
   void draw(Camera *cam){
     if(mpSpriteHandler)
@@ -62,24 +104,24 @@ public:
 
   virtual ~actor(){}
 
-  actor(double x = 0, double y = 0, double xdim = DEFAULT_ACTOR_SIZE, double ydim = DEFAULT_ACTOR_SIZE, bool collides = true);
+  std::shared_ptr<actor> clone(){
+    return clone(mrIOSystem);
+  };
 
-  /*Returns an enum defined by the game identifying what type of actor this is
-    e.g block, bloke.*/
-  virtual int getType() const {return -1;}
-
+  virtual std::shared_ptr<actor> clone(IOSystem& io_system_ctx){
+    return std::make_shared<actor>(*this, io_system_ctx);
+  };
 
   /*Returns a pointer to the player object.
     This is found by searching _player_list
     if we haven't already*/
   std::shared_ptr<AbstractPlayer> getPlayer();
 
+
+
   int getPlayerId(){
     return mPlayerId;
   }
-
-  /*Do we collide with other actors*/
-  bool mCollides;
 
   void refreshSprite(){
     if(mpSpriteHandler)
@@ -91,7 +133,6 @@ public:
 
   void remove();
 
-  void draw();
   int move(double x, double y);
   bool isMoving();
   dvector getMidpoint();
@@ -104,16 +145,22 @@ public:
 
   virtual void handleCommand(std::string){}
 
-  /*Serialise this class using cereal.
-    NB: We don't send the size of the actor (dimmension) as this should
-    be handled by the properties stored in a child of this class. To see why,
-    consider a game where the player's character model can only be one of two sizes,
-    it seems silly to send a double[2] in this case.*/
+  /*Serialise this class using cereal.*/
 
   template<class Archive>
   void serialize(Archive &archive){
-    archive(cereal::make_nvp("actorId", mId), cereal::make_nvp("playerId", mPlayerId), mPosition[0], mPosition[1], mVelocity[0], mVelocity[1]);
+    archive(cereal::make_nvp("actorId", mId),
+            cereal::make_nvp("playerId", mPlayerId),
+            mPosition[0], mPosition[1],
+            mVelocity[0], mVelocity[1],
+            mDimension[0], mDimension[1]
+            );
   }
+
+  IOSystem& getSceneIOSystem(){
+    return mpScene->getIOSystem();
+  };
+
 };
 
 CEREAL_REGISTER_TYPE(actor)

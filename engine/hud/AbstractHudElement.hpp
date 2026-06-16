@@ -2,9 +2,10 @@
 #define ABSTRACTHUDElEMENT_HPP
 
 #include <array>
+#include "scene.hpp"
 
 class Camera;
-union SDL_Event;
+class AbstractInputEvent;
 
 enum AlignFlag {
     ALIGN_LEFT,
@@ -45,8 +46,9 @@ public:
       * @param xAlignFlag    Determines the alignment of the bounding box.
       * @param yAlignFlag    DetermineS the alignment of the bounding box.
       */
-    AbstractHudElement(int xPos, int yPos, int xDim, int yDim,
-            AlignFlag xAlignFlag=ALIGN_LEFT, AlignFlag yAlignFlag=ALIGN_TOP);
+    AbstractHudElement(
+                     scene& scn, int xPos, int yPos, int xDim, int yDim,
+                     AlignFlag xAlignFlag=ALIGN_LEFT, AlignFlag yAlignFlag=ALIGN_TOP);
 
     /**
      * Sets the (relative) screen position of the bounding box.
@@ -156,14 +158,14 @@ public:
      *
      * @param event Input event that is handled by HUD element.
      */
-    virtual void onInput(SDL_Event*) {};
+    virtual void onInput(const AbstractInputEvent&) {};
 
 protected:
     // Flag to indicate whether the object should be drawn to screen or not.
     bool mIsVisible = true;
 
     // Flag to indicate whether the object should be drawn to screen or not
-    bool mIsPostProcessed = true;
+    bool mIsPostProcessed = false;
 
     // Pixel-position of the top left corner of the bounding box.
     int mPosition[2];
@@ -182,6 +184,11 @@ protected:
     // Boolean value which is set to true whenever a property is changed that
     // may effect the render. Set back to false when draw is called.
     bool mPropertiesUpdated;
+
+    IGraphicsManager& mrGraphicsManager;
+    ISoundManager& mrSoundManager;
+
+    scene &mrScene;
 
 };
 

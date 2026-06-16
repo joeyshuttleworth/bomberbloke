@@ -1,23 +1,16 @@
-#ifndef SOUNDMANAGER_HPP
-#define SOUNDMANAGER_HPP
+#ifndef DUMMYSOUNDMANAGER_HPP
+#define DUMMYSOUNDMANAGER_HPP
 
 #include <SDL_mixer.h>
 #include <string>
 #include <map>
 #include <memory>
 
-#include "Sound.hpp"
-
-extern bool _server;
-
-extern const int SOUND_FREQUENCY;
-extern const Uint16 SOUND_FORMAT;
-extern const int SOUND_N_CHANNELS;
-extern const int SOUND_CHUNKSIZE;
+#include "ISoundManager.hpp"
 
 
-class SoundManager {
-private:
+class DummySoundManager : public ISoundManager {
+protected:
     // Volume applied to all channels.
     int mMasterVolume = 128;
 
@@ -31,39 +24,19 @@ private:
      * Map object containing Mix_Chunk object (sound files). Indexed by sound
      * name (usually the stem of the filename).
      */
-    std::map<std::string, Mix_Chunk*> soundFileBank;
-
-    /**
-     * Map from channel number to currently playing Sound
-     */
-    std::map<int, std::shared_ptr<Sound>> channelToSound;
+  std::map<std::string, std::unique_ptr<SoundChunk>> soundFileBank;
 
 public:
-    /**
-     * Initialisation: must be called before loading sounds
-     */
-    static void init(void (*finishedCallback)(int));
-
     /**
      * Loads sound file into soundFileBank. Returns sound name to use when
      * creating Sound objects (see createSound).
      */
-    void loadFromPath(SDL_RWops *src, const std::string& id);
-
-    /**
-     * Create Sound object from sound name.
-     */
-    std::shared_ptr<Sound> createSound(const std::string& soundName);
-
-    /**
-     * Returns Mix_Chunk with a given name.
-     */
-    Mix_Chunk *getSoundFile(std::string soundName);
+    void loadFromPath(const std::string& path, const std::string& id);
 
     /**
      * Play sound object.
      */
-    void playSound(const std::shared_ptr<Sound>& sound);
+  void playSound(std::shared_ptr<Sound>){}
 
     /**
      * Callback function when channel is finished
@@ -77,7 +50,7 @@ public:
      * @param volume  0-128 where 128 is the maximum volume.
      * @param group   Sound group to change the volume of.
      */
-    void setVolume(int volume, SoundGroup group=SOUND_MASTER);
+     void setVolume(int volume, SoundGroup group=SOUND_MASTER);
 
     /**
      * Gets the master volume - the volume applied to all channels.
@@ -91,8 +64,12 @@ public:
           return mMasterVolume;
     }
 
-    SoundManager();
-    ~SoundManager();
+
+  std::shared_ptr<Sound> createSound(const std::string&) override;
+  std::shared_ptr<Sound> cloneSound(Sound& sound) override;
+
+    DummySoundManager(){};
+    ~DummySoundManager();
 };
 
 #endif

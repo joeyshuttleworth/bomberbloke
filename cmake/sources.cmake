@@ -15,8 +15,7 @@ engine/collider/AbstractCollider.cpp
 engine/collider/KinematicCollider.cpp
 engine/animation/PlaceHolderSprite.cpp
 engine/camera/Camera.cpp
-engine/sound/SoundManager.cpp
-engine/text/TextManager.cpp
+engine/sound/DummySoundManager.cpp
 engine/text/Text.cpp
 engine/hud/ClickableHudElement.cpp
 engine/hud/AbstractHudElement.cpp
@@ -41,3 +40,6 @@ engine/sound/Soundtrack.cpp
 engine/hud/EndRoundHudGroup.cpp
 engine/ServerInfo.cpp
 engine/event/ServerInfoEvent.cpp
+engine/navigation/NavGrid.cpp
+engine/bots/AbstractBot.cpp
+engine/graphics/IGraphicsManager.cpp

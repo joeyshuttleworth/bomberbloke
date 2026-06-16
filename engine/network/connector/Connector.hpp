@@ -14,7 +14,7 @@ struct EventReceived {
   ConnectorPeer from;
 
   bool operator==(EventReceived& rhs) {
-    return event == rhs.event && from == rhs.from; 
+    return event == rhs.event && from == rhs.from;
   }
   bool operator!=(EventReceived& rhs) {
     return !(*this == rhs);
@@ -29,6 +29,7 @@ enum ConnectorMode {
   CLIENT,
   SERVER
 };
+
 struct ConnectorDescriptor {
   ConnectorMode mode;
 
@@ -93,7 +94,7 @@ public:
   */
   virtual std::list<EventReceived> poll(
     int) = 0;
-  
+
   /*
   * pollFor spends a maximum of _timeout_ miliseconds waiting for at most one of EventType from any peer,
   * if none received then EventRecieved = { nullptr , -1 }
@@ -108,7 +109,7 @@ public:
   virtual int countPeers() = 0;
 
   /*
-  * broadcastEvent with automatic discarding of AbstractEvent after completion 
+  * broadcastEvent with automatic discarding of AbstractEvent after completion
   */
   void broadcastEvent(std::unique_ptr<AbstractEvent> event)
   {

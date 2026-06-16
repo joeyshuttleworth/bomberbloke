@@ -1,6 +1,8 @@
 #include "MoveEvent.hpp"
 #include "RemovalEvent.hpp"
 #include "engine.hpp"
+#include "scene.hpp"
+#include "NetServer.hpp"
 
 void
 actor ::remove()
@@ -34,8 +36,8 @@ actor ::move(double x, double y)
       it works for non-rectangular actors also  */
 
   /* Are we out of the left side of the scene? */
-  if (x > _pScene->mDimmension[0] - mDimmension[0]) {
-    tmp_pos[0] = _pScene->mDimmension[0] - mDimmension[0];
+  if (x > _pScene->mDimension[0] - mDimension[0]) {
+    tmp_pos[0] = _pScene->mDimension[0] - mDimension[0];
     mVelocity[0] = 0;
     in_scene = false;
   }
@@ -49,8 +51,8 @@ actor ::move(double x, double y)
   }
 
   /*Are we too high?*/
-  if (y > _pScene->mDimmension[1] - mDimmension[1]) {
-    tmp_pos[1] = _pScene->mDimmension[1] - mDimmension[1];
+  if (y > _pScene->mDimension[1] - mDimension[1]) {
+    tmp_pos[1] = _pScene->mDimension[1] - mDimension[1];
     mVelocity[1] = 0;
     in_scene = false;
   }
@@ -85,27 +87,19 @@ actor ::isMoving()
   return mMoved;
 }
 
-actor ::actor(double x, double y, double xdim, double ydim, bool collides)
+actor ::actor(scene* scene, double x, double y, double xdim, double ydim, bool collides) :
+  mrIOSystem(scene ? scene->getIOSystem() : _fallback_IO_system),
+  mpScene(scene),
+  mCollides(collides)
 {
-
-  /* TODO set mDimmension based of axis projections for non-square actors */
-  mDimmension[0] = xdim;
-  mDimmension[1] = ydim;
-
-  mPosition[0] = x;
-  mPosition[1] = y;
-  mVelocity[0] = 0;
-  mVelocity[1] = 0;
-
+  mPosition = {x, y};
+  mDimension = {xdim, ydim};
   mFrameVertices = { { { 0., 0. } },
-                     { { mDimmension[0], 0. } },
-                     { { mDimmension[0], mDimmension[1] } },
-                     { { 0., mDimmension[1] } } };
-
-  mCollides = collides;
-
-  return;
+                     { { mDimension[0], 0. } },
+                     { { mDimension[0], mDimension[1] } },
+                     { { 0., mDimension[1] } } };
 }
+
 
 void
 actor ::interpolate()
@@ -120,8 +114,8 @@ actor ::interpolate()
 dvector
 actor ::getMidpoint()
 {
-  return { { mPosition[0] + mDimmension[0] / 2,
-             mPosition[1] + mDimmension[1] / 2 } };
+  return { { mPosition[0] + mDimension[0] / 2,
+             mPosition[1] + mDimension[1] / 2 } };
 }
 
 std::shared_ptr<AbstractPlayer>

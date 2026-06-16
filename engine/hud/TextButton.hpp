@@ -6,7 +6,6 @@
 
 class Sound;
 class SoundManager;
-extern SoundManager soundManager;
 
 class TextButton: public ClickableHudElement, public TextHudElement {
 public:
@@ -25,7 +24,7 @@ public:
      * @param xAlignFlag    Determines the alignment of the bounding box.
      * @param yAlignFlag    DetermineS the alignment of the bounding box.
      */
-    TextButton(std::shared_ptr<Text> text, int xPos, int yPos, int xDim,
+     TextButton(scene& r_scene, std::shared_ptr<Text> text, int xPos, int yPos, int xDim,
         int yDim, std::function<void()> onClickFn, AlignFlag xAlignFlag=ALIGN_LEFT,
         AlignFlag yAlignFlag=ALIGN_TOP);
 
@@ -34,7 +33,7 @@ public:
      *
      * @param colour    New colour object.
      */
-    void setMouseOverColour(SDL_Color colour) {
+    void setMouseOverColour(uint32_t colour) {
         mMouseOverColour = colour;
         mPropertiesUpdated = true;
     }
@@ -44,7 +43,7 @@ public:
      *
      * @param colour    New colour object.
      */
-    void setOnClickColour(SDL_Color colour) {
+    void setOnClickColour(uint32_t colour) {
         mOnClickColour = colour;
         mPropertiesUpdated = true;
     }
@@ -82,11 +81,11 @@ public:
 
 protected:
     // Text colour when neither a mouse-over or left-click is detected.
-    SDL_Color mDefaultColour;
+    uint32_t mDefaultColour;
     // Text colour when a mouse over is detected.
-    SDL_Color mMouseOverColour;
+    uint32_t mMouseOverColour;
     // Text colour when a click is detected.
-    SDL_Color mOnClickColour;
+    uint32_t mOnClickColour;
 
     // Text offset when neither a mouse-over or left-click is detected.
     int mDefaultOffset[2] = { 0, 0 };
@@ -96,7 +95,7 @@ protected:
     int mOnClickOffset[2] = { 0, 0 };
 
     // Sound effect that's played on click (button-up).
-    std::shared_ptr<Sound> mClickSound;
+  std::shared_ptr<Sound> mClickSound;
 
     /**
      * Called when a button-click is detected (button-up).

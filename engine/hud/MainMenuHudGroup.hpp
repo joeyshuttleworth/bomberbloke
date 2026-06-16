@@ -14,7 +14,7 @@ public:
   /**
    * Constructor for PauseMenuHudGroup.
    */
-  MainMenuHudGroup();
+  MainMenuHudGroup(scene&);
 
 protected:
   // Weak pointer to the options menu HUD group stored in mHudElements.
@@ -40,6 +40,9 @@ protected:
    * Closes the options and join menu HUD group and shows the main menu.
    */
   void showMainMenu();
+
+  std::string mFont = "Aileron-Black";
+  int mFontSize = 12;
 };
 
 #endif

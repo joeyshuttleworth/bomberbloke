@@ -3,6 +3,7 @@
 //
 
 #include "NetClient.hpp"
+#include "LocalPlayer.hpp"
 #include "AbstractEvent.hpp"
 #include "CommandEvent.hpp"
 #include "CreationEvent.hpp"
@@ -83,12 +84,14 @@ NetClient::attemptJoin(std::string address, const std::string &nickname,
   mConnector->broadcastEvent(std::move(q_event));
 
   /* We expect ServerInfoEvent */
-  log_message(DEBUG, "night: wait for server info event");
+  log_message(DEBUG, "wait for server info event");
   std::set<EventType> outcomes = { EVENT_INFO };
   auto response = mConnector->pollFor(10000, outcomes);
   log_message(DEBUG, "lets see if we got it");
-  if(response == EVENT_RECEIVED_NONE)
+  if(response == EVENT_RECEIVED_NONE){
+    log_message(DEBUG, "No event received");
     return false;
+  }
 
   std::shared_ptr<ServerInfoEvent> info_event =
     std::dynamic_pointer_cast<ServerInfoEvent>(response.event);
@@ -167,10 +170,27 @@ NetClient::pollServer()
     std::shared_ptr<AbstractEvent> event = event_received.event;
     switch (event->getType()) {
       case EVENT_SYNC: {
+        std::lock_guard<std::mutex> lock(mPlayerListMutex);
+
         std::shared_ptr<SyncEvent> s_event =
           std::dynamic_pointer_cast<SyncEvent>(event);
         mPlayers = s_event->getPlayers();
         _pScene->mState = s_event->mState;
+
+        /* Completely remake all actors in scene */
+        _pScene->removeAllActors();
+
+        for(auto act : s_event->mActors){
+          // Necessary to assign IOSystem context
+          std::shared_ptr<actor> new_act = act->clone(_pScene->mrIOSystem);
+          _pScene->addActorWithId(new_act);
+        }
+
+        for(auto p : s_event->mParticles){
+          auto new_part = p->clone(_pScene->mrIOSystem.getGraphicsManager());
+          _pScene->addParticle(new_part);
+        }
+
         /* TODO move mPlayers to _player_list */
         auto iter =
           std::find_if(mPlayers.begin(),
@@ -198,7 +218,8 @@ NetClient::pollServer()
               _pScene->linkActorToPlayer((*i), player_id);
           }
         }
-        _pScene->init();
+
+        _pScene->initGraphics();
         auto p_list = s_event->getPlayers();
         for (auto i = p_list.begin(); i != p_list.end(); i++) {
           std::shared_ptr<AbstractPlayer> p =
@@ -239,13 +260,37 @@ NetClient::pollServer()
       case EVENT_CREATE: {
         std::shared_ptr<CreationEvent> c_event =
           std::dynamic_pointer_cast<CreationEvent>(event);
-        if (c_event->getActor())
-          _pScene->addActorWithId(c_event->getActor());
-        else if (c_event->getParticle())
-          _pScene->mParticleList.push_back(c_event->getParticle());
+
+        if(c_event->getSound()){
+          auto sound = c_event->getSound();
+          ISoundManager& sfx = _pScene->getSoundManager();
+
+          std::shared_ptr<Sound> c_sound = sfx.cloneSound(*sound);
+          sfx.playSound(c_sound);
+        }
+
+        else if (c_event->getActor()){
+          auto act = c_event->getActor();
+          int this_id = act->getId();
+          // If actor with this ID already exists, ignore
+          auto iter = std::find_if(
+                                   _pScene->mActors.begin(),
+                                   _pScene->mActors.end(),
+                                   [&](auto a) -> bool {return a->getId() == this_id;}
+                                   );
+          if(iter == _pScene->mActors.end()){
+            std::shared_ptr<actor> clone_act = act->clone(_pScene->mrIOSystem);
+            _pScene->addActorWithId(clone_act);
+          }
+        }
+        else if (c_event->getParticle()){
+          std::shared_ptr<AbstractSpriteHandler> part = c_event->getParticle()->clone(_pScene->getGraphicsManager());
+          _pScene->addParticle(part);
+        }
         else {
           log_message(ERR, "Received malformed create event");
         }
+        _pScene->initGraphics();
         break;
       }
       case EVENT_REMOVE: {
@@ -265,6 +310,9 @@ NetClient::pollServer()
         GamePlayerProperties props = p_event->getProperties();
         std::shared_ptr<AbstractPlayerProperties> p_properties =
           std::make_shared<GamePlayerProperties>(props);
+
+        // Warning: only resets properties of one local player, so this assumes
+        // only one local player can be connected at once.
         _local_player_list.back().resetPlayerProperties(p_properties);
         break;
       }
@@ -286,11 +334,18 @@ void
 NetClient::disconnectClient()
 {
   mConnector->close();
-  mConnector = nullptr; 
+  mConnector = nullptr;
 }
 
 bool
 NetClient::isConnected()
 {
   return mConnector != nullptr && mConnector->countPeers() == 1;
+}
+
+std::vector<serverPlayer>
+NetClient::getPlayers(){
+  std::lock_guard<std::mutex> lock(mPlayerListMutex);
+  auto copy = mPlayers;
+  return copy;
 }

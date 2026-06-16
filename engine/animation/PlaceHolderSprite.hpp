@@ -2,6 +2,7 @@
 #define PLACEHOLDERSPIRTE_HPP
 #include <SDL.h>
 #include "AbstractSpriteHandler.hpp"
+#include "IGraphicsManager.hpp"
 
 extern unsigned int _tick;
 
@@ -13,14 +14,34 @@ public:
 
   void setColour(uint32_t colour);
 
-  PlaceHolderSprite(double=0, double=0, double=0, double=0, uint32_t = 0x00a0ffff);
+  using AbstractSpriteHandler::AbstractSpriteHandler;
 
-  void draw(Camera *cam);
+  PlaceHolderSprite(IGraphicsManager& gfx_manager, double=0, double=0, double=0,
+                    double=0, uint32_t = 0x00a0ffff);
+
+  PlaceHolderSprite(PlaceHolderSprite& other) :
+    AbstractSpriteHandler(other),
+    mColour(other.mColour)
+  {
+  }
+
+  PlaceHolderSprite(PlaceHolderSprite& other, IGraphicsManager& gfx) :
+    AbstractSpriteHandler(other, gfx),
+    mColour(other.mColour)
+  {
+  }
+
+  void draw(Camera *cam) override;
 
   virtual ~PlaceHolderSprite(){}
 
+  std::shared_ptr<AbstractSpriteHandler> clone(IGraphicsManager& gfx){
+    return std::make_shared<PlaceHolderSprite>(*this, gfx);
+  };
+
+
 protected:
-  SDL_Color mColour = {0, 0xa0, 0xff, 0xff};
+  Uint32 mColour = 0x0000FFFF;
 
 };
 #endif

@@ -1,15 +1,16 @@
 #include "ClickableHudElement.hpp"
+#include "IInputManager.hpp"
+#include "AbstractInputEvent.hpp"
 
-#include <SDL.h>
-
-ClickableHudElement::ClickableHudElement(int xPos,
+ClickableHudElement::ClickableHudElement(scene& rscene,
+                                         int xPos,
                                          int yPos,
                                          int xDim,
                                          int yDim,
                                          std::function<void()> onClickFn,
                                          AlignFlag xAlignFlag,
                                          AlignFlag yAlignFlag)
-  : AbstractHudElement(xPos, yPos, xDim, yDim, xAlignFlag, yAlignFlag)
+  : AbstractHudElement(rscene, xPos, yPos, xDim, yDim, xAlignFlag, yAlignFlag)
 {
   // Base class constructor must be called
   mOnClickFn = onClickFn;
@@ -29,29 +30,32 @@ ClickableHudElement::isCoordOnElement(int x, int y)
 }
 
 void
-ClickableHudElement::onInput(SDL_Event* event)
+ClickableHudElement::onInput(const AbstractInputEvent& event)
 {
   if (!mIsInteractive)
     return;
 
   // If its a mouse button up event, it cannot be clicked
-  if (event->type == SDL_MOUSEBUTTONUP) {
+  if (event.getInputType() == IEVENT_MOUSEBUTTONUP) {
     if (mIsClicked) {
       mIsClicked = false;
       mPropertiesUpdated = true;
-      onClick(event->button.x, event->button.y);
+      auto loc = event.getMouseLocation();
+      onClick(loc[0], loc[1]);
     }
-  } else if (event->type == SDL_MOUSEBUTTONDOWN) {
+  } else if (event.getInputType() == IEVENT_MOUSEBUTTONDOWN) {
     // If it is a mouse button down event and the cursor is on the button
     // it must be clicked and the mouse must be over it
-    if (isCoordOnElement(event->button.x, event->button.y)) {
+    auto loc = event.getMouseLocation();
+    if (isCoordOnElement(loc[0], loc[1])) {
       mIsMouseOver = true;
       mIsClicked = true;
       mPropertiesUpdated = true;
     }
-  } else if (event->type == SDL_MOUSEMOTION) {
+  } else if (event.getInputType() == IEVENT_MOUSEMOTION) {
     // If it is a mouse motion event check if the cursor is on the button
-    bool newIsMouseOver = isCoordOnElement(event->motion.x, event->motion.y);
+    auto loc = event.getMouseLocation();
+    bool newIsMouseOver = isCoordOnElement(loc[0], loc[1]);
     // Check if IsMouseOver has changed
     if (newIsMouseOver != mIsMouseOver) {
       mIsMouseOver = newIsMouseOver;

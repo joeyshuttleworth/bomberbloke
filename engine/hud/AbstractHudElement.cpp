@@ -3,14 +3,22 @@
 #include <SDL.h>
 
 #include "Camera.hpp"
+#include "scene.hpp"
 
-AbstractHudElement::AbstractHudElement(int xPos,
+AbstractHudElement::AbstractHudElement(
+                                       scene& r_scene,
+                                       int xPos,
                                        int yPos,
                                        int xDim,
                                        int yDim,
                                        AlignFlag xAlignFlag,
-                                       AlignFlag yAlignFlag)
+                                       AlignFlag yAlignFlag
+                                       )
+  : mrGraphicsManager(r_scene.getGraphicsManager()),
+    mrSoundManager(r_scene.getSoundManager()),
+    mrScene(r_scene)
 {
+
   // Actual position is set in updatePosition
   mRelativePosition[0] = xPos;
   mRelativePosition[1] = yPos;
@@ -40,18 +48,24 @@ AbstractHudElement::draw(Camera* camera)
 void
 AbstractHudElement::updatePosition(Camera* camera)
 {
-  std::array<int, 2> screenDimensions = camera->getScreenDimensions();
+
+  if(!camera)
+    return;
+
+  IGraphicsManager& gfx_manager = camera->getGraphicsManager();
+
+  std::array<int, 2> screen_dimensions = gfx_manager.getScreenDimensions();
 
   switch (mAlignFlags[0]) {
     case ALIGN_CENTER:
       // Centred positioning
       mPosition[0] =
-        (screenDimensions[0] - mDimensions[0]) / 2 + mRelativePosition[0];
+        (screen_dimensions[0] - mDimensions[0]) / 2 + mRelativePosition[0];
       break;
     case ALIGN_RIGHT:
       // Right-aligned positioning
       mPosition[0] =
-        screenDimensions[0] - mDimensions[0] + mRelativePosition[0];
+        screen_dimensions[0] - mDimensions[0] + mRelativePosition[0];
       break;
     default:
       // Left-aligned positioning
@@ -62,12 +76,12 @@ AbstractHudElement::updatePosition(Camera* camera)
     case ALIGN_CENTER:
       // Centred positioning
       mPosition[1] =
-        (screenDimensions[1] - mDimensions[1]) / 2 + mRelativePosition[1];
+        (screen_dimensions[1] - mDimensions[1]) / 2 + mRelativePosition[1];
       break;
     case ALIGN_BOTTOM:
       // Right-aligned positioning
       mPosition[1] =
-        screenDimensions[1] - mDimensions[1] + mRelativePosition[1];
+        screen_dimensions[1] - mDimensions[1] + mRelativePosition[1];
       break;
     default:
       // Left-aligned positioning

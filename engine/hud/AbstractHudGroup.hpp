@@ -8,7 +8,7 @@
 
 class AbstractHudGroup: public AbstractHudElement {
 public:
-  AbstractHudGroup(int xPos, int yPos): AbstractHudElement(xPos, yPos, 0, 0) {};
+  AbstractHudGroup(scene &r_scene, int xPos, int yPos): AbstractHudElement(r_scene, xPos, yPos, 0, 0) {};
 
   /**
    * Adds hud element to group.
@@ -109,7 +109,7 @@ public:
    *
    * @param event Input event that is handled by HUD element.
    */
-  void onInput(SDL_Event *event) override {
+  void onInput(const AbstractInputEvent& event) override {
     if (!mIsInteractive)
       return;
 

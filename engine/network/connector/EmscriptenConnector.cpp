@@ -22,7 +22,7 @@ public:
 
     EmscriptenConnector(ConnectorDescriptor desc): desc(desc) {};
     ~EmscriptenConnector();
-    
+
     bool open() override;
     void close() override;
     void sendEvent(std::shared_ptr<AbstractEvent> event, ConnectorPeer to_id) override;
@@ -34,7 +34,7 @@ public:
     void broadcastEvent(std::shared_ptr<AbstractEvent> event) override;
 };
 
-std::unique_ptr<Connector> 
+std::unique_ptr<Connector>
 createConnector(ConnectorDescriptor desc) {
     // Web browsers cannot act as websocket servers
     assert(desc.mode != SERVER);
@@ -163,25 +163,25 @@ EmscriptenConnector::close() {
     isOpen = false;
 }
 
-void 
+void
 EmscriptenConnector::sendEvent(std::shared_ptr<AbstractEvent> event, ConnectorPeer to_id) {
     (void) to_id;
     broadcastEvent(event);
 };
 
-void  
+void
 EmscriptenConnector::disconnectPeer(ConnectorPeer id, std::string reason) {
     (void) id;
     (void) reason;
     return;
 };
 
-int 
+int
 EmscriptenConnector::latency(ConnectorPeer id) {
     return 0; // TODO
 };
 
-std::list<EventReceived> 
+std::list<EventReceived>
 EmscriptenConnector::poll(int timeout) {
     if(timeout > 0)
         printf("EmscriptenConnector::poll(timeout) for timeout > 0 is not implemented\n");
@@ -191,7 +191,7 @@ EmscriptenConnector::poll(int timeout) {
     return recieved;
 };
 
-EventReceived 
+EventReceived
 EmscriptenConnector::pollFor(int timeout, std::set<EventType>& lookFor) {
     if(!isOpen)
         return EVENT_RECEIVED_NONE;
@@ -219,7 +219,7 @@ EmscriptenConnector::pollFor(int timeout, std::set<EventType>& lookFor) {
     return EVENT_RECEIVED_NONE;
 };
 
-int 
+int
 EmscriptenConnector::countPeers() {
     if(socket <= 0)
         return 0;
@@ -233,7 +233,7 @@ EmscriptenConnector::countPeers() {
     return 0;
 };
 
-void 
+void
 EmscriptenConnector::broadcastEvent(std::shared_ptr<AbstractEvent> event) {
     if(!isOpen)
         return;

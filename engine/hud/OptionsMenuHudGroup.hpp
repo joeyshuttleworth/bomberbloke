@@ -8,20 +8,18 @@
 
 class TextHudElement;
 class SoundManager;
-class TextManager;
 class TextButton;
 class InputField;
 
 extern bool handle_system_command(std::list<std::string>);
-extern SoundManager soundManager;
-extern TextManager textManager;
+
 
 class OptionsMenuHudGroup: public AbstractHudGroup {
 public:
   /**
    * Constructor for OptionsMenuHudGroup.
    */
-  OptionsMenuHudGroup(std::function<void()> goBackFn);
+  OptionsMenuHudGroup(scene& r_scene, std::function<void()> goBackFn);
 
 protected:
   // Weak pointer to the text HUD element displaying the current master volume.
@@ -64,6 +62,9 @@ protected:
    * Handles command given in console input field.
    */
   void handleConsoleInput();
+
+  std::string mFont = "Aileron-Black";
+  int mFontSize = 12;
 };
 
 #endif

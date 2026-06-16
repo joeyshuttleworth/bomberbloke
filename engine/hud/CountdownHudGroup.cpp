@@ -11,20 +11,23 @@ const std::string SOUND_2_NAME = "countdown_2";
 const std::string SOUND_1_NAME = "countdown_1";
 const std::string SOUND_COMMENCE_NAME = "countdown_commence";
 
-CountdownHudGroup::CountdownHudGroup(std::function<void()> onFinished,
+CountdownHudGroup::CountdownHudGroup(scene &r_scene, std::function<void()> onFinished,
                                      int maxGlowAmount)
-  : AbstractHudGroup(0, 0)
+  : AbstractHudGroup(r_scene, 0, 0)
 {
   mOnFinished = onFinished;
   mMaxGlowAmount = maxGlowAmount;
 
   // Create countdown text
-  std::shared_ptr<Text> text = textManager.createText("");
-  text->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
-  text->setTextColour({ 255, 255, 255, 255 });
-  text->setTextScale(4.);
+  std::shared_ptr<Text> text = mrGraphicsManager.createText("");
+  if(text){
+    text->setTextAlignment(TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
+    text->setTextColour(0xFFFFFFFF);
+    text->setTextScale(4.);
+  }
+
   std::shared_ptr<TextHudElement> countdownText =
-    std::make_shared<TextHudElement>(
+    std::make_shared<TextHudElement>(r_scene,
       text, 0, 0, 100, 100, ALIGN_CENTER, ALIGN_CENTER);
   addElement(countdownText);
   mCountdownText = countdownText;
@@ -33,20 +36,22 @@ CountdownHudGroup::CountdownHudGroup(std::function<void()> onFinished,
   setIsVisible(false);
 
   // Create countdown sound effects
-  m3Sound = soundManager.createSound(SOUND_3_NAME);
-  m2Sound = soundManager.createSound(SOUND_2_NAME);
-  m1Sound = soundManager.createSound(SOUND_1_NAME);
-  mCommenceSound = soundManager.createSound(SOUND_COMMENCE_NAME);
+  m3Sound = mrSoundManager.createSound(SOUND_3_NAME);
+  m2Sound = mrSoundManager.createSound(SOUND_2_NAME);
+  m1Sound = mrSoundManager.createSound(SOUND_1_NAME);
+  mCommenceSound = mrSoundManager.createSound(SOUND_COMMENCE_NAME);
 }
 
 void
 CountdownHudGroup::start(int nSecs)
 {
   mTicksLeft = nSecs * TICK_RATE + 1;
-  std::shared_ptr<TextHudElement> text = mCountdownText.lock();
+  std::shared_ptr<TextHudElement> text_element = mCountdownText.lock();
   setIsVisible(true);
-  text->setText(std::to_string(nSecs));
-  text->mText->setGlowAmount(mMaxGlowAmount);
+
+  text_element->setText(std::to_string(nSecs));
+  if(text_element->mText)
+    text_element->mText->setGlowAmount(mMaxGlowAmount);
 }
 
 void
@@ -58,8 +63,11 @@ CountdownHudGroup::update()
     mTicksLeft--;
 
     std::shared_ptr<TextHudElement> text = mCountdownText.lock();
-    text->mText->setGlowAmount(mMaxGlowAmount * (mTicksLeft % TICK_RATE) /
-                               TICK_RATE);
+
+    /* TODO make TextHudElement member function for this */
+    if(text->mText)
+      text->mText->setGlowAmount(mMaxGlowAmount * (mTicksLeft % TICK_RATE) /
+                                 TICK_RATE);
 
     // Update every second
     if (mTicksLeft % TICK_RATE == 0) {
@@ -71,14 +79,14 @@ CountdownHudGroup::update()
 
         // Play sound effect
         if (secsLeft == 3)
-          soundManager.playSound(m3Sound);
+          mrSoundManager.playSound(m3Sound);
         else if (secsLeft == 2)
-          soundManager.playSound(m2Sound);
+          mrSoundManager.playSound(m2Sound);
         else if (secsLeft == 1)
-          soundManager.playSound(m1Sound);
+          mrSoundManager.playSound(m1Sound);
       } else {
         // Countdown is over
-        soundManager.playSound(mCommenceSound);
+        mrSoundManager.playSound(mCommenceSound);
         setIsVisible(false);
         mTicksLeft = 0;
         mOnFinished();

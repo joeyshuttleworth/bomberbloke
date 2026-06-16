@@ -1,5 +1,49 @@
+#include "engine.hpp"
 #include "Camera.hpp"
 #include <algorithm>
+
+
+Camera::Camera(IGraphicsManager& r_graphics_manager, scene *lvl) :
+  AbstractCamera(r_graphics_manager, lvl)
+{
+
+  /* Call this to get screen dimensions */
+  onResize();
+
+  /* Different buffers processing effects
+   * mpFrameBuffer - current buffer with post processing effects
+   * mpNoProcessingBuffer - current buffer with no post processing effects
+   * mpBloomBuffer - buffer with blur and "addition" to create a bloom effect.
+   * */
+
+  auto dims = mrGraphicsManager.getScreenDimensions();
+  int w = dims[0], h = dims[1];
+
+  mpFrameBuffer = mrGraphicsManager.createTexture(w, h);
+  mpNoProcessingBuffer = mrGraphicsManager.createTexture(w, h);
+  mpBloomBuffer = mrGraphicsManager.createTexture(w, h);
+
+  init();
+  return;
+}
+
+std::array<int, 4>
+Camera::getScreenRect(double x, double y, double w, double h)
+{
+  std::array<int, 2> screen_dims = {0, 0};
+  screen_dims = mrGraphicsManager.getScreenDimensions();
+
+  int pxPerUnit = mZoom * screen_dims[0];
+
+  std::array<int, 4> screen_rect;
+  screen_rect[0] = (x - mPosition[0]) * pxPerUnit + screen_dims[0] / 2;
+  screen_rect[1] = -(y + h - mPosition[1]) * pxPerUnit + screen_dims[1] / 2;
+  screen_rect[2] = w * pxPerUnit;
+  screen_rect[3] = h * pxPerUnit;
+
+  return screen_rect;
+}
+
 
 void
 Camera::rumble(double amplitude, double timeout)
@@ -35,35 +79,13 @@ Camera::setBrightness(int brightness)
 void
 Camera::onResize()
 {
-  LOCK_GUARD(mMutex);
+  auto dims = getScreenDimensions();
 
-  mScreenRectangle.w = _window_size[0];
-  mScreenRectangle.h = _window_size[1];
+  mrGraphicsManager.destroyTexture(mpFrameBuffer);
+  mpFrameBuffer = mrGraphicsManager.createTexture(dims[0], dims[1]);
 
-  // Clear frame buffers
-  if (mpFrameBuffer)
-    SDL_DestroyTexture(mpFrameBuffer);
-  if (mpNoProcessingBuffer)
-    SDL_DestroyTexture(mpNoProcessingBuffer);
-  if (mpBloomBuffer)
-    SDL_DestroyTexture(mpBloomBuffer);
-  mpFrameBuffer = SDL_CreateTexture(_renderer,
-                                    SDL_PIXELFORMAT_RGBA8888,
-                                    SDL_TEXTUREACCESS_TARGET,
-                                    mScreenRectangle.w,
-                                    mScreenRectangle.h);
-  mpNoProcessingBuffer = SDL_CreateTexture(_renderer,
-                                           SDL_PIXELFORMAT_RGBA8888,
-                                           SDL_TEXTUREACCESS_TARGET,
-                                           mScreenRectangle.w,
-                                           mScreenRectangle.h);
-  mpBloomBuffer = SDL_CreateTexture(_renderer,
-                                    SDL_PIXELFORMAT_RGBA8888,
-                                    SDL_TEXTUREACCESS_TARGET,
-                                    mScreenRectangle.w,
-                                    mScreenRectangle.h);
-
-  return;
+  mrGraphicsManager.destroyTexture(mpNoProcessingBuffer);
+  mpNoProcessingBuffer = mrGraphicsManager.createTexture(dims[0], dims[1]);
 }
 
 void
@@ -71,74 +93,51 @@ Camera::draw()
 {
   LOCK_GUARD(mMutex);
 
-  // Update the screen rectangle for applying the rumble effect
-  mScreenRectangle.x = mRumbleOffset[0];
-  mScreenRectangle.y = mRumbleOffset[1];
+  // /* Apply postprocessing to everything in mpFrameBuffer*/
+  mrGraphicsManager.applyBloom(mBloomAlpha, mBloomSize, mBloomPasses, mpBloomBuffer,
+                               nullptr, mpBloomBuffer);
+  mrGraphicsManager.renderCopy(mpBloomBuffer, nullptr, nullptr, mpFrameBuffer);
+  mrGraphicsManager.applyBlur(mBlurSize, mBlurPasses, mpFrameBuffer);
+  mrGraphicsManager.setBrightness(mBrightness);
 
-  // Apply blur to mpBloomBuffer and "add" to frame buffer to create a bloom
-  // effect
-  blurTexture(mpBloomBuffer, mBloomSize, mBloomPasses);
-  SDL_SetRenderTarget(_renderer, mpFrameBuffer);
-  SDL_SetTextureBlendMode(mpBloomBuffer, SDL_BLENDMODE_ADD);
-  SDL_SetTextureAlphaMod(mpBloomBuffer, mBloomAlpha);
-  SDL_RenderCopy(_renderer, mpBloomBuffer, nullptr, nullptr);
+  auto dims = getScreenDimensions();
+  std::array<int, 4> screen_rect = {0, 0, dims[0], dims[1]};
 
-  // Apply blur to mpFrameBuffer and draw to window
-  blurTexture(mpFrameBuffer, mBlurSize, mBlurPasses);
-  SDL_SetRenderTarget(_renderer, nullptr);
-  SDL_RenderCopy(_renderer, mpFrameBuffer, nullptr, &mScreenRectangle);
+  screen_rect[0] += mRumbleOffset[0];
+  screen_rect[1] += mRumbleOffset[1];
 
-  // Apply brightness effect to window
-  if (mBrightness != 0) {
-    // Set target and blend mode
-    SDL_SetRenderTarget(_renderer, nullptr);
-    if (mBrightness > 0) {
-      // If brightness is positive use additive blending
-      SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_ADD);
-      SDL_SetRenderDrawColor(_renderer, 255, 255, 255, mBrightness);
-      SDL_RenderFillRect(_renderer, nullptr);
-    } else {
-      // If brightness is negative draw semi-transparent blac box
-      SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
-      SDL_SetRenderDrawColor(_renderer, 0, 0, 0, std::abs(mBrightness));
-      SDL_RenderFillRect(_renderer, nullptr);
-    }
-  }
+  mrGraphicsManager.renderCopy(mpFrameBuffer, nullptr, &screen_rect,
+                                0);
 
-  // Draw mpNoProcessingBuffer on window
-  SDL_SetTextureBlendMode(mpNoProcessingBuffer, SDL_BLENDMODE_BLEND);
-  SDL_RenderCopy(_renderer, mpNoProcessingBuffer, nullptr, nullptr);
+  mrGraphicsManager.renderCopy(mpNoProcessingBuffer, nullptr, nullptr,
+                                0);
 }
 
-void
-Camera::resetFrameBuffer()
-{
-  LOCK_GUARD(mMutex);
+void Camera::resetFrameBuffers(){
+  mrGraphicsManager.renderClear(mpFrameBuffer);
+  mrGraphicsManager.renderClear(mpNoProcessingBuffer);
+  mrGraphicsManager.renderClear(mpBloomBuffer);
 
-  // Set background colour
-  SDL_SetRenderTarget(_renderer, mpFrameBuffer);
-  SDL_SetRenderDrawColor(_renderer, 0x00, 0x10, 0xff, 0xff);
-  SDL_RenderFillRect(_renderer, nullptr);
+  // If we manage our own blurbuffers, they should be cleared
+  // for(auto i : mpBlurBuffers)
+  //   mrGraphicsManager.renderClear(i);
 
-  // Clear bloom buffer
-  SDL_SetRenderTarget(_renderer, mpBloomBuffer);
-  SDL_SetTextureBlendMode(mpBloomBuffer, SDL_BLENDMODE_BLEND);
-  SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 0);
-  SDL_RenderClear(_renderer);
+  mrGraphicsManager.resetFrameBuffers();
 
-  // Clear no-processing-buffer
-  SDL_SetRenderTarget(_renderer, mpNoProcessingBuffer);
-  SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
-  SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 0);
-  SDL_RenderClear(_renderer);
 }
 
 void
 Camera::update()
 {
   /*  Rumble effect */
-  const int width = mScreenRectangle.w;
-  const int height = mScreenRectangle.h;
+
+  std::array<int, 2> screen_dims = {0, 0};
+
+  screen_dims = mrGraphicsManager.getScreenDimensions();
+
+  const int width = screen_dims[0];
+  const int height = screen_dims[1];
+
   if (mRumbleTimeout > 0) {
     mRumbleTimeout--;
     mRumbleOffset[0] =
@@ -152,174 +151,9 @@ Camera::update()
   return;
 }
 
-void
-Camera::blurTexture(SDL_Texture* texture, double size, int passes)
-{
-  if (size <= 0)
-    return;
-
-  if (!texture)
-    return;
-
-
-  // Get width and height of texture
-  int width, height;
-  SDL_QueryTexture(texture, nullptr, nullptr, &width, &height);
-
-  // Create temporary texture for blurring passes
-  SDL_Texture* tmpTexture = SDL_CreateTexture(_renderer,
-                                              SDL_PIXELFORMAT_RGBA8888,
-                                              SDL_TEXTUREACCESS_TARGET,
-                                              width,
-                                              height);
-
-  SDL_SetRenderTarget(_renderer, tmpTexture);
-  SDL_SetTextureBlendMode(tmpTexture, SDL_BLENDMODE_BLEND);
-  SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 255);
-  SDL_RenderClear(_renderer);
-
-  // Copy tmpTexture back onto texture
-  SDL_SetTextureBlendMode(tmpTexture, SDL_BLENDMODE_NONE);
-  SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_NONE);
-  SDL_SetRenderTarget(_renderer, tmpTexture);
-  SDL_SetTextureAlphaMod(texture, 255);
-  SDL_RenderCopy(_renderer, texture, nullptr, nullptr);
-
-  // Set appropriate blend modes
-  SDL_SetTextureBlendMode(tmpTexture, SDL_BLENDMODE_BLEND);
-  SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-
-  // Perform multiple passes of blurring
-  SDL_Rect dstRect({ 0, 0, width, height });
-  for (int i = 0; i < passes; i++) {
-    // Gradually reduce offset size
-    int offset = (int)std::max(size - i * size / passes, 1.0);
-
-    // Alternate the direction of the offset to prevent the blur shifting
-    // the image
-    if (i % 2 == 0) {
-      offset *= -1;
-    }
-
-    // Copy texture onto tmpTexture shifted horizontally with 50% alpha
-    dstRect.x = offset;
-    dstRect.y = 0;
-    SDL_SetRenderTarget(_renderer, tmpTexture);
-    SDL_SetTextureAlphaMod(texture, 127);
-    SDL_RenderCopy(_renderer, texture, nullptr, &dstRect);
-
-    // Copy tmpTexture back onto texture
-    SDL_SetRenderTarget(_renderer, texture);
-    SDL_SetTextureAlphaMod(texture, 255);
-    SDL_RenderCopy(_renderer, tmpTexture, nullptr, nullptr);
-
-    // Copy texture onto tmpTexture shifted vertically with 50% alpha
-    dstRect.x = 0;
-    dstRect.y = offset;
-    SDL_SetRenderTarget(_renderer, tmpTexture);
-    SDL_SetTextureAlphaMod(texture, 127);
-    SDL_RenderCopy(_renderer, texture, nullptr, &dstRect);
-
-    // Copy tmpTexture back onto texture
-    SDL_SetRenderTarget(_renderer, texture);
-    SDL_SetTextureAlphaMod(texture, 255);
-    SDL_RenderCopy(_renderer, tmpTexture, nullptr, nullptr);
-  }
-
-  SDL_DestroyTexture(tmpTexture);
-}
 
 void
-Camera::renderCopy(SDL_Texture* texture,
-                   SDL_Rect* srcRect,
-                   SDL_Rect* dstRect,
-                   bool isPostProcessed,
-                   int bloomAmount)
-{
-  LOCK_GUARD(mMutex);
-
-  if(!_renderer || !srcRect || !dstRect){
-    return;
-  }
-
-  // Copy the texture onto the appropriate frame buffer
-  SDL_SetRenderTarget(_renderer, getFrameBuffer(isPostProcessed));
-  SDL_RenderCopy(_renderer, texture, srcRect, dstRect);
-
-  if (isPostProcessed) {
-    // Subtract texture from bloom buffer - this creates the effect that the
-    // texture is obscuring the glowing object behind it
-    SDL_BlendMode subtractBlendMode =
-      SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ZERO,
-                                 SDL_BLENDFACTOR_ONE,
-                                 SDL_BLENDOPERATION_ADD,
-                                 SDL_BLENDFACTOR_ZERO,
-                                 SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
-                                 SDL_BLENDOPERATION_ADD);
-    SDL_SetTextureBlendMode(texture, subtractBlendMode);
-    SDL_SetRenderTarget(_renderer, mpBloomBuffer);
-    SDL_RenderCopy(_renderer, texture, srcRect, dstRect);
-
-    if (bloomAmount > 0) {
-      // Add texture to bloom buffer to create a glowing effect
-      SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-      SDL_SetTextureAlphaMod(texture, bloomAmount);
-      SDL_RenderCopy(_renderer, texture, srcRect, dstRect);
-      SDL_SetTextureAlphaMod(texture, 255);
-    }
-
-    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-  }
-}
-
-void
-Camera::renderFillRect(SDL_Rect* dstRect,
-                       SDL_Color colour,
-                       bool isPostProcessed,
-                       int bloomAmount)
-{
-  // Draw rect to the appropriate frame buffer
-  SDL_SetRenderTarget(_renderer, getFrameBuffer(isPostProcessed));
-  SDL_SetRenderDrawColor(_renderer, colour.r, colour.g, colour.b, colour.a);
-  SDL_RenderFillRect(_renderer, dstRect);
-
-  if (isPostProcessed) {
-
-    if (bloomAmount > 0) {
-      // Add rect to bloom buffer to create a glowing effect
-      SDL_SetRenderTarget(_renderer, mpBloomBuffer);
-      SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
-      SDL_SetRenderDrawColor(
-        _renderer, colour.r, colour.g, colour.b, colour.a * bloomAmount / 255);
-      SDL_RenderFillRect(_renderer, dstRect);
-    } else {
-      // Subtract rect from bloom buffer - this creates the effect that
-      // the rect is obscuring the glowing object behind it
-      SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
-      SDL_SetRenderTarget(_renderer, mpBloomBuffer);
-      SDL_SetRenderDrawColor(_renderer, 0, 0, 0, colour.a);
-      SDL_RenderFillRect(_renderer, dstRect);
-    }
-
-    SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
-  }
-}
-
-SDL_Rect
-Camera::getScreenRect(double x, double y, double w, double h)
-{
-  SDL_Rect screenRect;
-  int pxPerUnit = mZoom * mScreenRectangle.w;
-  screenRect.x = (x - mPosition[0]) * pxPerUnit + mScreenRectangle.w / 2;
-  screenRect.y = -(y + h - mPosition[1]) * pxPerUnit + mScreenRectangle.h / 2;
-  screenRect.w = w * pxPerUnit;
-  screenRect.h = h * pxPerUnit;
-
-  return screenRect;
-}
-
-void
-Camera::SetZoom(double zoom)
+Camera::setZoom(double zoom)
 {
   zoom = std::max(zoom, mMinZoom);
   zoom = std::min(zoom, mMaxZoom);

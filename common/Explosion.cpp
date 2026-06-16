@@ -1,31 +1,7 @@
 #include "Explosion.hpp"
-#include "Sound.hpp"
 #include "engine.hpp"
 
-Explosion::Explosion()
-{
-  if(_server)
-    return;
-
-  /* Create sound objects for explosion sound effects */
-  if(mSound) {
-    for (int i = 0; i < N_EXPLOSION_SOUNDS; i++) {
-      std::shared_ptr<Sound> sound =
-        soundManager.createSound(mExplosionSoundNames[i]);
-      sound->mGroup = SOUND_FX;
-      mExplosionSounds[i] = sound;
-    }
-  }
-
-  /* We need to tell the BLOKE engine to get textures ready if we need them */
-  if(!mRenderLegacy) {
-    for (int i = 1; i <= N_SPRITESHEET_SIZE; i++)
-      mSpritesheet[i-1] =
-        get_sprite("explosion_frame_" + std::to_string(i) + ".png");
-  }
-
-  return;
-}
+class IGraphicsManager;
 
 void
 Explosion::draw_legacy(Camera* cam)
@@ -34,24 +10,27 @@ Explosion::draw_legacy(Camera* cam)
   unsigned int frame_no = (_tick - mStartTick) % mAnimationSpeed;
   Uint8 alpha = 0xFF * (1 - (double)(_tick - mStartTick) / (2 * mTimeout));
   Uint8 backAlpha = 0xFF - alpha;
-  int glowAmount = mMaxGlowAmount * (1 - (_tick - mStartTick) / mTimeout);
 
-  /*  Set our blend mode so that our shapes blend nicely */
-  SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
-  SDL_Color colour;
+  Uint32 colour = 0xffff00 ^ alpha;
 
   if (frame_no < mAnimationSpeed / 2.0) {
     /*Set colour to white*/
-    colour = SDL_Color({ 0xff, 0xff, 0xff, alpha });
+    colour = 0xffffff;
+    colour = colour ^ alpha;
   }
   else {
     /*Set colour to red*/
-    colour = SDL_Color({ 0xff, backAlpha, backAlpha, alpha });
+    colour = 0xff000000 ^ (backAlpha << 16) ^ (backAlpha << 8) ^ alpha;
   }
   /*  Copy our texture across to the window */
-  SDL_Rect dstrect = cam->getScreenRect(
-    mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]);
-  cam->renderFillRect(&dstrect, colour, true, glowAmount);
+  auto dstrect = cam->getScreenRect(mPosition[0], mPosition[1],
+                                    mDimension[0], mDimension[1]);
+
+  int glowAmount = mMaxGlowAmount * (1 - (_tick - mStartTick) / mTimeout);
+  mrGraphicsManager.renderFillRect(dstrect, colour, cam->getFrameBuffer(mIsPostProcessed));
+
+  auto bloom_colour = (colour & 0xFFFFFF00) ^ glowAmount;
+  mrGraphicsManager.renderFillRect(dstrect, bloom_colour, cam->getBloomBuffer());
   return;
 }
 
@@ -65,14 +44,8 @@ Explosion::draw(Camera* cam)
 
   if (!mStarted) {
     mStarted = true;
-    if (mSound && !_server) {
-      /* Play explosion sound effect */
-      int randIndex = std::rand() % N_EXPLOSION_SOUNDS;
-      std::shared_ptr<Sound> bomb_sound = mExplosionSounds[randIndex];
-      soundManager.playSound(bomb_sound);
-    }
     if (mRumble)
-      _pScene->getCamera()->rumble();
+      cam->rumble();
   }
 
   if (_tick - mStartTick >= mTimeout) {
@@ -87,9 +60,14 @@ Explosion::draw(Camera* cam)
   // frame_no in [0, ... , N_SPRITESHEET_SIZE - 1]
   int frame_no = (int) ( (float) N_SPRITESHEET_SIZE * ( (float) (_tick - mStartTick) / (float) mTimeout) );
 
-  SDL_Texture *texture = mSpritesheet[frame_no];
-  SDL_Rect dstrect = cam->getScreenRect(mPosition[0], mPosition[1], mDimmension[0], mDimmension[1]);
-  cam->renderCopy(texture, nullptr, &dstrect, false, 0);
+  std::string asset_name = mSpriteNames[frame_no];
+  auto dstrect = cam->getScreenRect(mPosition[0], mPosition[1],
+                                    mDimension[0], mDimension[1]);
+  mrGraphicsManager.drawSprite(
+                               asset_name,
+                               dstrect,
+                               cam->getFrameBuffer(mIsPostProcessed)
+                               );
 
   return;
 }
