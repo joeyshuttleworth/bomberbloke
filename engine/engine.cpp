@@ -381,7 +381,7 @@ handle_system_command(IOSystem& ctx, Tokens tokens)
   }
 
   else if (command == "quit") {
-    exit_engine(0);
+    _halt = true;
   }
 
   else if (command == "generate_config") {

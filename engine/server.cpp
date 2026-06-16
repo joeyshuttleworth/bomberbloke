@@ -96,5 +96,7 @@ void server_loop(IOSystem&  io_system_context, short port, std::string masterSer
       new_game(io_system_context, "");
     }
   }
+
+  exit_engine();
   return;
 }
