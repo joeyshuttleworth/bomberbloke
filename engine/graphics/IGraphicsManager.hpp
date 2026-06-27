@@ -27,7 +27,7 @@ public:
   virtual void setDraw(bool){};
   virtual void drawScreen(){};
   virtual void loadSpriteFromPath(std::string){};
-  virtual void applyBloom(double, double, int=1, AbstractTexture* =nullptr,
+  virtual void applyBloom(double, double, int=1, AbstractTexture* =nullptr, Rect* = nullptr,
                           Rect* =nullptr, AbstractTexture* = nullptr){};
   virtual void applyBlur(double, int, AbstractTexture* = nullptr){};
   virtual void applyBrightness(double){};

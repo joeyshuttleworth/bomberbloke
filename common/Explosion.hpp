@@ -11,7 +11,7 @@
 
 class Explosion : public AbstractSpriteHandler{
 protected:
-  int mMaxGlowAmount;
+  int mMaxGlowAmount = 255;
   bool mStarted = false;
   bool mRumble = true;
   bool mRenderLegacy = false;
@@ -24,6 +24,8 @@ protected:
     "explosion_frame_6.png",
   };
   void draw_legacy(Camera* cam);
+
+  AbstractTexture* mpBloomBuffer;
 
 public:
   int getType() const{
@@ -43,6 +45,9 @@ public:
     mDelay = start_delay;
     mMaxGlowAmount = max_glow;
     mRenderLegacy = legacy;
+
+    // Create texture same size as window
+    mpBloomBuffer = mrGraphicsManager.createTexture(0, 0);
   }
 
   /*  In draw() we cycle through the explosion sprites */
@@ -52,7 +57,10 @@ public:
     return std::make_shared<Explosion>(*this, gfx);
   }
 
-  ~Explosion(){}
+  ~Explosion(){
+    if(mpBloomBuffer)
+      mrGraphicsManager.destroyTexture(mpBloomBuffer);
+  }
 
   template<class Archive>
   void serialize(Archive &archive){

@@ -10,6 +10,7 @@
 class PickupAnimation : public AbstractSpriteHandler{
 private:
   std::string mAssetName = "";
+
 public:
   int getType() const{return AbstractPickup::PICKUP_NONE;}
 
@@ -24,16 +25,26 @@ public:
   {
   }
 
+  virtual ~PickupAnimation(){
+  }
+
   void draw(Camera* cam){
-    // int bloom = std::abs((int)(_tick - mStartTick) % (2*50) - 50);
+    int bloom = std::abs((int)(_tick - mStartTick) % (2*50) - 50);
     // TODO bloom
     auto dstrect = cam->getScreenRect(mPosition[0], mPosition[1], mDimension[0], mDimension[1]);
 
     mrGraphicsManager.drawSprite(mAssetName, dstrect, cam->getFrameBuffer(mIsPostProcessed));
+
+    const auto bloom_passes = 10;
+
+    auto sprite = mrGraphicsManager.getSprite(mAssetName);
+    if(sprite){
+      mrGraphicsManager.applyBloom(bloom, bloom, bloom_passes,
+                                   sprite, nullptr, &dstrect, cam->getBloomBuffer());
+    }
+
     return;
   }
-
-  virtual ~PickupAnimation(){}
 
   template<class Archive>
   void serialize(Archive &archive){

@@ -98,6 +98,8 @@ class Camera : public AbstractCamera{
 
 protected:
 
+  AbstractTexture* mpBloomMask;
+
   void applyBloom(int alpha, int size, int passes);
 
   std::mutex mMutex;

@@ -150,6 +150,7 @@ public:
   void drawSprite(std::string, std::array<int, 4>, AbstractTexture* =nullptr) override;
 
   void applyBloom(double, double, int, AbstractTexture* =nullptr, Rect* = nullptr,
+                  Rect* = nullptr,
                   AbstractTexture* =nullptr) override;
   void applyBlur(double, int, AbstractTexture*) override;
 

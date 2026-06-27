@@ -93,21 +93,21 @@ Camera::draw()
 {
   LOCK_GUARD(mMutex);
 
-  // /* Apply postprocessing to everything in mpFrameBuffer*/
-  mrGraphicsManager.applyBloom(mBloomAlpha, mBloomSize, mBloomPasses, mpBloomBuffer,
-                               nullptr, mpBloomBuffer);
-  mrGraphicsManager.renderCopy(mpBloomBuffer, nullptr, nullptr, mpFrameBuffer);
-  mrGraphicsManager.applyBlur(mBlurSize, mBlurPasses, mpFrameBuffer);
-  mrGraphicsManager.setBrightness(mBrightness);
-
   auto dims = getScreenDimensions();
   std::array<int, 4> screen_rect = {0, 0, dims[0], dims[1]};
 
   screen_rect[0] += mRumbleOffset[0];
   screen_rect[1] += mRumbleOffset[1];
 
+  // mrGraphicsManager.applyBloom(mBloomAlpha, mBloomSize, 10, mpBloomBuffer,
+  //                              nullptr, nullptr, mpFrameBuffer);
+
+  mrGraphicsManager.applyBlur(mBlurSize, mBlurPasses, mpFrameBuffer);
+
   mrGraphicsManager.renderCopy(mpFrameBuffer, nullptr, &screen_rect,
-                                0);
+                               0);
+
+  mrGraphicsManager.setBrightness(mBrightness);
 
   mrGraphicsManager.renderCopy(mpNoProcessingBuffer, nullptr, nullptr,
                                 0);

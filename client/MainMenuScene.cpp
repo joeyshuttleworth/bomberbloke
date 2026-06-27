@@ -23,7 +23,7 @@ MainMenuScene::MainMenuScene(IOSystem& ctx, int size_x, int size_y) : scene(ctx,
         std::make_shared<Explosion>(
                                     gfx_manager,
                                     (double) i, (double) j, 1.0f, 1.0f, true, speed,
-                                    std::numeric_limits<int>::max(), 0, false, 0
+                                    std::numeric_limits<int>::max(), 0, false, 255
                                     );
 
       mParticles.push_back(explosion);
