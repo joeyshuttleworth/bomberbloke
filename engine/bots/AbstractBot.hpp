@@ -9,13 +9,13 @@ class AbstractBot{
 protected:
   std::ofstream mOutputFile();
   std::vector<std::string> mCommands;
-  int mState = 0;
+  int mState;
   int mActorId = -1;
   std::string mNickname;
   std::string mDescription;
 
-  std::shared_ptr<scene> mpScene = nullptr;
-  std::shared_ptr<actor> mpActor = nullptr;
+  std::shared_ptr<scene> mpScene;
+  std::shared_ptr<actor> mpActor;
 
   unsigned int mLastHandledTick=0;
   unsigned int mPollDelay = 0;
@@ -39,11 +39,18 @@ public:
     return mNickname;
   }
 
-  std::unique_ptr<NetClient> mpNetClient = nullptr;
+  std::unique_ptr<NetClient> mpNetClient;
 
   AbstractBot(){}
 
-  AbstractBot(std::string, std::shared_ptr<scene>, std::shared_ptr<actor>, std::unique_ptr<NetClient>);
+  AbstractBot(std::string, std::shared_ptr<scene>, std::shared_ptr<actor>,
+              std::unique_ptr<NetClient>);
+
+  AbstractBot(AbstractBot&) = delete;
+  AbstractBot operator=(actor&) = delete;
+  AbstractBot& operator=(actor&&) = delete;
+
+  int getActorId();
 
   virtual ~AbstractBot();
 

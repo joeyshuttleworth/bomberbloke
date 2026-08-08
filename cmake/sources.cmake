@@ -42,4 +42,5 @@ engine/ServerInfo.cpp
 engine/event/ServerInfoEvent.cpp
 engine/navigation/NavGrid.cpp
 engine/bots/AbstractBot.cpp
+engine/bots/BotAPI.cpp
 engine/graphics/IGraphicsManager.cpp

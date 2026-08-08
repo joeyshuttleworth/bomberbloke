@@ -145,9 +145,20 @@ set_target_properties(bomberbloke_server PROPERTIES PUBLIC_HEADER "engine/server
 target_link_libraries(bomberbloke_server SERVER ${CURL_LIBRARIES} NET_LIB)
 
 # simple_bot_runner
-set(simple_bot_src "bots/simple_bot_runner.cpp" "bots/SimpleBot.cpp" "engine/bots/bots.cpp")
+set(simple_bot_src "bots/simple_bot_runner.cpp" "bots/SimpleBot.cpp" "engine/bots/bots.cpp" "engine/bots/AbstractBot.cpp")
 add_executable(simple_bot_runner ${simple_bot_src})
 target_link_libraries(simple_bot_runner PUBLIC files::rc CLIENT)
+
+# python bot
+find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
+find_package(pybind11 REQUIRED)
+
+set(python_bot_src "bots/python_bot_runner.cpp" "engine/bots/bots.cpp" "engine/bots/AbstractBot.cpp" "engine/bots/PythonBot.cpp")
+
+add_executable(python_bot_runner ${python_bot_src})
+target_link_libraries(python_bot_runner PUBLIC files::rc CLIENT PRIVATE pybind11::embed)
+
+configure_file(bots/bomberbloke_bot.py python/bomberbloke_bot.py  COPYONLY)
 
 # Adding clang-format target if executable is found
 find_program(CLANG_FORMAT "clang-format")

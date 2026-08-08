@@ -55,8 +55,10 @@ BomberBlokeScene::setBigBombHUD(bool big_bomb)
 BomberBlokeScene::~BomberBlokeScene()
 {
 
-  IGraphicsManager& gfx = mrIOSystem.getGraphicsManager();
-  gfx.destroyTexture(mpBackgroundTexture);
+  if(mpBackgroundTexture){
+    IGraphicsManager& gfx = mrIOSystem.getGraphicsManager();
+    gfx.destroyTexture(mpBackgroundTexture);
+  }
 
   mNewGame = false;
   if (mSoundtrack)
