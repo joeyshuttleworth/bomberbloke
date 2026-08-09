@@ -7,9 +7,9 @@
 #include <mutex>
 #include "AbstractCamera.hpp"
 #include "IGraphicsManager.hpp"
-#include "scene.hpp"
 
 class IGraphicsManager;
+class scene;
 
 class Camera : public AbstractCamera{
   public:

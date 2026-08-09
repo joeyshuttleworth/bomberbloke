@@ -17,5 +17,6 @@ public:
 
   bool synced = false;
 };
+
 #endif
 

@@ -6,13 +6,26 @@
 #include "actor.hpp"
 #include "BotAPI.hpp"
 #include <pybind11/embed.h>
+#include <pybind11/stl.h>
+#include <pybind11/complex.h>
 
 PYBIND11_EMBEDDED_MODULE(bloke, m)
 {
   py::class_<BotAPI>(m, "Bot")
     .def("handleCommand", &BotAPI::handleCommand)
     .def("getSceneJSON", &BotAPI::getSceneJSON)
-    .def("getActors", &BotAPI::getActors);
+    .def("getNavGrid", &BotAPI::getNavGrid)
+    .def("getConnectedComponentFromNode", &BotAPI::getConnectedComponentFromNode)
+    .def("getActorLocation", &BotAPI::getActorLocation);
+  py::class_<NavGrid>(m, "NavGrid")
+    // This is necessary for the python types to work nicely (can't do Set[List])
+  .def("getNodes", [](NavGrid& self) {
+    py::set result;
+    for (auto node : self.getNodes()) {
+      result.add(py::make_tuple(node[0], node[1]));
+    }
+    return result;
+  });
 }
 
 PythonBot::PythonBot(std::string nickname, std::shared_ptr<scene> s,

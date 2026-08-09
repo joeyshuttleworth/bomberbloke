@@ -2,10 +2,7 @@
 #define ABSTRACTSPRITEHANDLER_HPP
 #include <array>
 
-
-#include "DummyGraphicsManager.hpp"
-#include "IGraphicsManager.hpp"
-#include "ISoundManager.hpp"
+#include "IOSystem.hpp"
 #include "Camera.hpp"
 
 #include "cereal_archives.hpp"

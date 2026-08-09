@@ -1,8 +1,9 @@
 #include "MoveEvent.hpp"
 #include "RemovalEvent.hpp"
 #include "engine.hpp"
-#include "scene.hpp"
 #include "NetServer.hpp"
+#include "scene.hpp"
+#include "AbstractPlayer.hpp"
 
 void
 actor ::remove()
@@ -144,3 +145,8 @@ actor::getPlayer()
     return *iterator;
   }
 }
+
+IOSystem& actor::getSceneIOSystem()
+  {
+    return mpScene->getIOSystem();
+  };

@@ -2,9 +2,9 @@
 #define NAVGRID_HPP
 
 #include "actor.hpp"
-#include "scene.hpp"
 #include "StaticCollider.hpp"
 #include <utility>
+#include <set>
 #include <type_traits>
 #include <typeinfo>
 
@@ -16,6 +16,7 @@ struct ivector_hash {
   }
 };
 
+class scene;
 
 class NavGrid{
 protected:
@@ -25,10 +26,14 @@ protected:
 
 public:
 
-  std::vector<ivector> mNodes = {};
+  std::set<ivector> mNodes = {};
+
+  NavGrid(){
+    return;
+  }
 
   template <typename Container>
-  NavGrid(Container blocking_actor_list, std::shared_ptr<scene> _pScene,
+  NavGrid(Container blocking_actor_list = {}, std::shared_ptr<scene> _pScene = nullptr,
           double grid_size = 1.0
           ){
     pScene = _pScene;
@@ -39,13 +44,29 @@ public:
     return;
   }
 
-  std::vector<ivector> getNeighbours(ivector, bool=false);
-  std::vector<ivector> getConnectedComponentFromNode(ivector);
-  std::vector<std::vector<ivector>> getConnectedComponents();
+  NavGrid(const NavGrid& other){
+    pScene = other.pScene;
+    mGridSize = other.mGridSize;
+    mBlockingActorTypes = other.mBlockingActorTypes;
+    mNodes = other.mNodes;
+  }
 
+  ~NavGrid() = default;
+
+  NavGrid& operator=(NavGrid&) = default;
+  NavGrid& operator=(NavGrid&&) = default;
+
+  std::set<ivector> getNeighbours(ivector, bool=false);
+  std::set<ivector> getConnectedComponentFromNode(ivector);
+  std::vector<std::set<ivector>> getConnectedComponents();
   std::vector<ivector> findRoute(ivector, ivector, bool=true);
 
   void computeGrid();
+
+  std::set<ivector> getNodes(){return mNodes;}
+
+  void addNode(ivector);
+  void removeNode(ivector);
 };
 
 #endif

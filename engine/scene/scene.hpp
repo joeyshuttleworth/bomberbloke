@@ -5,19 +5,21 @@
 #include <string>
 #include <mutex>
 #include <cereal/types/list.hpp>
+#include <cereal/types/vector.hpp>
+#include <cereal/types/array.hpp>
 #include <memory>
 
-#include "AbstractCollider.hpp"
 #include "IOSystem.hpp"
 #include "threads.hpp"
 #include "cereal_archives.hpp"
+#include "NavGrid.hpp"
 
 extern double _zoom;
 
-class actor; class Camera; class AbstractHudElement; class NetServer; class NetClient; class AbstractSpriteHandler;
+class actor; class Camera; class AbstractHudElement; class NetServer; class NetClient; class AbstractSpriteHandler; class AbstractCollider; class NavGrid;
 
 /* Class which stores information about the scene including the actors present and methods for updating and drawing the scene */
-class scene{
+class scene : public std::enable_shared_from_this<scene>{
   friend NetClient;
   friend NetServer;
 protected:
@@ -205,15 +207,19 @@ public:
   /*We only need to send mDimension and the mActorList*/
   template <class Archive>
   void serialize(Archive &archive){
-    archive(mDimension[0], mDimension[1]);
+    archive(
+            cereal::make_nvp("name", mName),
+            cereal::make_nvp("description", mDescription),
+            cereal::make_nvp("dimension", mDimension),
+            cereal::make_nvp("actor_list", mActors),
+            cereal::make_nvp("particle_list", mParticles)
+            );
   }
 
   IOSystem& getIOSystem(){
     return mrIOSystem;
   }
 
+  virtual NavGrid getNavGrid();
 };
-
-
-
 #endif

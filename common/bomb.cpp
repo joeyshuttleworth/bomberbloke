@@ -7,6 +7,7 @@
 #include "engine.hpp"
 #include "NetServer.hpp"
 #include "CreationEvent.hpp"
+#include "NavGrid.hpp"
 
 void
 bomb::init(bloke* bloke)

@@ -2,10 +2,12 @@
 #define ABSTRACTHUDElEMENT_HPP
 
 #include <array>
-#include "scene.hpp"
+
+#include "IOSystem.hpp"
 
 class Camera;
 class AbstractInputEvent;
+class scene;
 
 enum AlignFlag {
     ALIGN_LEFT,

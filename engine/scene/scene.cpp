@@ -426,3 +426,10 @@ void scene::init(){
 void
 scene::initGraphics(){
 }
+
+
+NavGrid
+scene::getNavGrid()
+{
+  return NavGrid(std::vector<std::type_index>{}, nullptr, 1.0);
+}

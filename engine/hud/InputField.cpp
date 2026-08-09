@@ -4,6 +4,7 @@
 #include <string>
 
 #include "engine.hpp"
+#include "scene.hpp"
 
 const int CURSOR_UPDATE_TICKS = TICK_RATE / 4;
 

@@ -14,6 +14,8 @@
 #include "assets.hpp"
 #include "scene.hpp"
 #include "config.hpp"
+#include "NetworkPlayer.hpp"
+#include "AbstractPlayer.hpp"
 #include <cereal/archives/json.hpp>
 #include <dirent.h>
 #include <exception>

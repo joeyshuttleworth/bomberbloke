@@ -137,6 +137,9 @@ public:
     archive(cereal::base_class<scene>(this));
     return;
   }
+
+  NavGrid getNavGrid() override;
+
 };
 
 CEREAL_REGISTER_TYPE(BomberBlokeScene)

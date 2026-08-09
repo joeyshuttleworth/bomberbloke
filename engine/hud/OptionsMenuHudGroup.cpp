@@ -8,6 +8,7 @@
 #include "TextButton.hpp"
 #include "TextHudElement.hpp"
 #include "engine.hpp"
+#include "scene.hpp"
 
 #include "IOSystem.hpp"
 

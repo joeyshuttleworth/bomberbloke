@@ -2,6 +2,7 @@
 #include "CommandEvent.hpp"
 #include "bloke.hpp"
 #include "NetServer.hpp"
+#include "Connector.hpp"
 
 GamePlayerProperties::GamePlayerProperties(std::shared_ptr<bloke> b)
 {

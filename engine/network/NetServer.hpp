@@ -4,16 +4,17 @@
 
 #ifndef NETSERVER_HPP
 #define NETSERVER_HPP
-#include "AbstractPlayer.hpp"
-#include "NetworkPlayer.hpp"
 #include "ServerInfo.hpp"
-#include "Connector.hpp"
 #include <list>
 #include <string>
+#include <memory>
 
 class AbstractEvent;
 class JoinEvent;
 class CommandEvent;
+class AbstractPlayer;
+class NetworkPlayer;
+class Connector;
 
 class NetServer {
 public:

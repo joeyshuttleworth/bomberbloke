@@ -10,8 +10,8 @@
 
 #ifndef ABSTRACTPLAYER_HPP
 #define ABSTRACTPLAYER_HPP
-#include<string>
-#include<memory>
+#include <string>
+#include <memory>
 #include <cereal/types/base_class.hpp>
 #include <cereal/archives/json.hpp>
 #include "GamePlayerProperties.hpp"

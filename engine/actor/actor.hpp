@@ -5,14 +5,17 @@
 #include <array>
 #include "Interpolator.hpp"
 #include "KinematicCollider.hpp"
-#include "Camera.hpp"
-#include "IGraphicsManager.hpp"
-#include "AbstractSpriteHandler.hpp"
 #include "scene.hpp"
+#include "Camera.hpp"
+#include "IOSystem.hpp"
+#include "AbstractSpriteHandler.hpp"
 #include "IOSystem.hpp"
 #include "cereal_archives.hpp"
 
-class IGraphicsManager;
+#include <cereal/types/list.hpp>
+#include <cereal/types/vector.hpp>
+#include <cereal/types/array.hpp>
+
 class AbstractPlayer; class AbstractSpriteHandler;
 
 class actor: public KinematicCollider {
@@ -66,6 +69,7 @@ public:
     mDimension(a.mDimension)
   {
     mPosition = a.mPosition;
+    mFrameVertices = a.mFrameVertices;
   };
 
   actor(actor& other) :
@@ -78,9 +82,10 @@ public:
     mDimension(other.mDimension)
   {
     mPosition = other.mPosition;
+    mFrameVertices = other.mFrameVertices;
   };
 
-  actor operator=(actor&) = delete;
+  actor& operator=(actor&) = delete;
   actor& operator=(actor&&) = delete;
 
 
@@ -117,8 +122,6 @@ public:
     if we haven't already*/
   std::shared_ptr<AbstractPlayer> getPlayer();
 
-
-
   int getPlayerId(){
     return mPlayerId;
   }
@@ -151,16 +154,14 @@ public:
   void serialize(Archive &archive){
     archive(cereal::make_nvp("actorId", mId),
             cereal::make_nvp("playerId", mPlayerId),
-            mPosition[0], mPosition[1],
-            mVelocity[0], mVelocity[1],
-            mDimension[0], mDimension[1]
+            cereal::make_nvp("position", mPosition),
+            cereal::make_nvp("velocity", mVelocity),
+            cereal::make_nvp("dimension", mDimension),
+            cereal::make_nvp("frame_vertices", mFrameVertices)
             );
   }
 
-  IOSystem& getSceneIOSystem(){
-    return mpScene->getIOSystem();
-  };
-
+  IOSystem& getSceneIOSystem();
 };
 
 CEREAL_REGISTER_TYPE(actor)

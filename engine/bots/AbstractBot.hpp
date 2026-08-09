@@ -22,6 +22,7 @@ protected:
 
 public:
   virtual void handleCommand(std::vector<std::string>){}
+
   virtual void update(unsigned int){};
 
   virtual void handleReset(){};
@@ -30,6 +31,13 @@ public:
   void connectScene(std::shared_ptr<scene>);
 
   bool isConnectedToScene(){return mpScene!=nullptr;}
+
+  scene* getScene(){
+    if(!isConnectedToScene())
+      return nullptr;
+
+    return mpScene.get();
+  }
 
   std::string getInfo(){
     return mDescription;

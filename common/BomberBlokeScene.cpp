@@ -18,6 +18,7 @@
 #include "StoneBlock.hpp"
 #include "LocalPlayer.hpp"
 #include "NetServer.hpp"
+#include "NavGrid.hpp"
 #include <algorithm>
 #include <functional>
 #include <memory>
@@ -605,3 +606,18 @@ BomberBlokeScene::onResize()
     mBlokeCamera->onResize();
   scene::onResize();
 }
+
+
+NavGrid
+BomberBlokeScene::getNavGrid()
+{
+  const std::vector<std::type_index> blocking_types = {
+    typeid(bloke),
+    typeid(bomb),
+    typeid(WoodenCrate),
+    typeid(StoneBlock)
+  };
+
+  return NavGrid(blocking_types, shared_from_this(), 1.0);
+}
+

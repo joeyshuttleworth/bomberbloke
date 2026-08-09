@@ -17,6 +17,8 @@
 #include <sstream>
 #include <string>
 #include <stdexcept>
+#include "Connector.hpp"
+#include "NetworkPlayer.hpp"
 
 #ifndef __EMSCRIPTEN__
 #include <curl/curl.h>

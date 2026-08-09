@@ -4,6 +4,7 @@
 
 #include "cereal/archives/portable_binary.hpp"
 #include "NetServer.hpp"
+#include "NetworkPlayer.hpp"
 #include "engine.hpp"
 #include "SyncEvent.hpp"
 #include "QueryEvent.hpp"

@@ -9,14 +9,13 @@
 #include <catch2/catch_test_macros.hpp>
 
 
-/* Generate NavGrid */
+/* For generating NavGrid - list of blocks that block movement */
 std::vector<std::type_index> blocking_types = {
   typeid(bloke),
   typeid(bomb),
   typeid(WoodenCrate),
   typeid(StoneBlock)
 };
-
 
 
 void
@@ -84,7 +83,7 @@ TEST_CASE("Empty NavGrid for full level", "[engine]")
 
   /* Create WoodenCrates at each square */
   for(int i=0; i < 10; i++){
-    for(int j=0; j< 10; j++){
+    for(int j=0; j < 10; j++){
       auto crate = std::make_shared<WoodenCrate>(_pScene.get(), i, j);
       _pScene->addActor(crate);
     }
@@ -93,7 +92,7 @@ TEST_CASE("Empty NavGrid for full level", "[engine]")
   NavGrid nav_grid(blocking_types, _pScene);
   nav_grid.computeGrid();
 
-  std::cout << nav_grid.mNodes.size() << std::endl;
+  std::cout << "Number of elements in grid: " << nav_grid.mNodes.size() << std::endl;
   assert(nav_grid.mNodes.size() == 0);
 
   /* Check that neighbours function doesn't return any neighbours */
@@ -111,6 +110,7 @@ TEST_CASE("Components of disconnected level", "[engine]")
     auto crate = std::make_shared<WoodenCrate>(_pScene.get(), i, j);
     _pScene->addActor(crate);
   }
+
   NavGrid nav_grid(blocking_types, _pScene);
   nav_grid.computeGrid();
 
