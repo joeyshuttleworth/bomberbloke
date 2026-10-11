@@ -96,6 +96,11 @@ class bomb : public actor {
   int getType() const{
     return ACTOR_BOMB;
   };
+
+  std::vector<std::array<int, 2>> getAffectedSquares();
+
+  int getTicksToDetonation() {return mTimer;}
+
 };
 
 /*This is required for classes using polymorphism*/

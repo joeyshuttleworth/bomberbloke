@@ -21,8 +21,7 @@ public:
   BotAPI operator=(BotAPI&) = delete;
   BotAPI& operator=(BotAPI&&) = delete;
 
-  // TODO implement
-  std::vector<std::shared_ptr<actor>> getActors(){return {};}
+  std::vector<std::shared_ptr<actor>> getActors();
 
   std::string getSceneJSON();
 
@@ -51,6 +50,8 @@ public:
   }
 
   dvector getActorLocation();
+
+  std::vector<std::unique_ptr<actor>> getReachableActors(NavGrid nav_grid, double posx, double posy);
 
   private:
   AbstractBot* mpBot = nullptr;

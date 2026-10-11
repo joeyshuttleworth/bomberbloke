@@ -7,7 +7,7 @@
 #include "bloke.hpp"
 #include "bomb.hpp"
 #include "IOSystem.hpp"
-#include "PythonBot.hpp"
+#include "BomberBlokePythonBot.hpp"
 #include "scene.hpp"
 #include "DummyGraphicsManager.hpp"
 #include "DummySoundManager.hpp"
@@ -22,7 +22,7 @@
 CEREAL_REGISTER_DYNAMIC_INIT(actor)
 
 const std::string module_name = "bomberbloke_bot";
-std::unique_ptr<PythonBot> _python_bot = nullptr;
+std::unique_ptr<BomberBlokePythonBot> _python_bot = nullptr;
 
 namespace py = pybind11;
 

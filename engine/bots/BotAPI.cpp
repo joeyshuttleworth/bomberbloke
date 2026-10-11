@@ -43,6 +43,28 @@ BotAPI::getActorLocation()
     return act->getMidpoint();
   }
 
+std::vector<std::unique_ptr<actor>>
+BotAPI::getActors(){
+  std::vector<std::shared_ptr<actor>> = {};
+  if(!mpBot)
+    return ret_var;
+  if(!mpBot->getScene())
+    return ret_var;
+  auto id = mpBot->getActorId();
+  if(id < 0)
+    return ret_var;
+
+  std::shared_ptr<scene> scene = mpBot->getScene();
+  if(!scene)
+    return ret_var;
+
+  for(auto a : scene->mActors)
+    ret_var.push_back(a->clone());
+
+  return ret_var;
+
+}
+
 std::string
 BotAPI::getSceneJSON()
 {
@@ -64,3 +86,16 @@ BotAPI::getSceneJSON()
 
 }
 
+std::vector<std::unique_ptr<actor>>
+BotAPI::getReachableActors(NavGrid nav_grid, double posx, double posy)
+{
+
+  if(!mpBot)
+    return;
+  scene *scn = mpBot->getScene();
+
+  if(!scn)
+    return;
+
+  return return_vec;
+}
